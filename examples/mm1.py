@@ -60,6 +60,7 @@ if __name__ == '__main__':
 
     # Run it
     env.run(until=8000)
+
     print("Last 10 waits: "  + ", ".join(["{:.3f}".format(x) for x in ps.waits[-10:]]))
     print("Last 10 queue sizes: {}".format(pm.sizes[-10:]))
     print("Last 10 sink arrival times: " + ", ".join(["{:.3f}".format(x) for x in ps.arrivals[-10:]]))

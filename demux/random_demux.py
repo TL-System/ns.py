@@ -1,23 +1,25 @@
 import random
-
+"""
+A demultiplexing element that chooses the output port at random.
+"""
 class RandomBrancher:
-    """ A demultiplexing element that chooses the output port at random.
+    """
+    The constructor takes a list of output ports and a list of probabilities. 
+    Use the output ports to connect to other network elements.
 
-        Contains a list of output ports of the same length as the probability list
-        in the constructor.  Use these to connect to other network elements.
-
-        Parameters
-        ----------
-        env : simpy.Environment
-            the simulation environment
-        probs : List
-            list of probabilities for the corresponding output ports
+    Parameters
+    ----------
+    env : simpy.Environment
+        the simulation environment
+    probs : List
+        list of probabilities for the corresponding output ports
     """
     def __init__(self, env, probs):
         self.env = env
 
         self.probs = probs
-        self.ranges = [sum(probs[0:n+1]) for n in range(len(probs))]  # Partial sums of probs
+        self.ranges = [sum(probs[0:n + 1]) 
+            for n in range(len(probs))]  # Partial sums of probs
 
         if self.ranges[-1] - 1.0 > 1.0e-6:
             raise Exception("Probabilities must sum to 1.0")

@@ -1,9 +1,9 @@
 """
-    An example of using the WFQ/virtual clock scheduler.
+An example of using the WFQ/virtual clock scheduler.
 
-    We base our parameter explorations on the first source. We set the output rate of the
-    WFQ/virtual clock "switch port" at a multiple of the first sources rate.
-    We also set the "vtick" parameters to the virtual clock switch port relative to this rate.
+We base our parameter explorations on the first source. We set the output rate of the
+WFQ/virtual clock "switch port" at a multiple of the first sources rate.
+We also set the "vtick" parameters to the virtual clock switch port relative to this rate.
 """
 import os
 import sys
