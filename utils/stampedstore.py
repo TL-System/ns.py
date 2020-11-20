@@ -4,13 +4,13 @@ from heapq import heappush, heappop
 
 """
     Trying to implement a stamped/ordered version of the Simpy Store class.
-    The "stamp" is used to sort the elements for removal ordering. This
+    The `stamp` is used to sort the elements for removal ordering. This
     can be used in the implementation of sophisticated queueing disciplines, but
     would be overkill for fixed priority schemes.
 """
 
 class StampedStorePut(base.Put):
-    """ Put *item* into the store if possible or wait until it is.
+    """ Put `item` into the store if possible or wait until it is.
         The item must be a tuple (stamp, contents) where the stamp is used to sort
         the content in the StampedStore.
     """
@@ -31,12 +31,11 @@ class StampedStore(base.BaseResource):
     Items put into the store can be of any type.  By default, they are put and
     retrieved from the store in a first-in first-out order.
 
-    The *env* parameter is the :class:`~simpy.core.Environment` instance the
-    container is bound to.
+    The `env` parameter is an instance of the `simpy.core.Environment` class.
 
-    The *capacity* defines the size of the Store and must be a positive number
-    (> 0). By default, a Store is of unlimited size. A `ValueError` exception is
-    raised if the value is negative.
+    The `capacity` parameter defines the size of the Store and must be a positive
+    number (> 0). By default, a Store is of unlimited size. A `ValueError` exception
+    is raised if the value is negative.
     """
     def __init__(self, env, capacity=float('inf')):
         super().__init__(env, capacity=float('inf'))
@@ -56,11 +55,11 @@ class StampedStore(base.BaseResource):
 
 
     put = BoundClass(StampedStorePut)
-    """Create a new :class:`StorePut` event."""
+    """Create a new `StorePut` event."""
 
 
     get = BoundClass(StampedStoreGet)
-    """Create a new :class:`StoreGet` event."""
+    """Create a new `StoreGet` event."""
 
 
     # We assume the item is a tuple: (stamp, packet). The stamp is used to

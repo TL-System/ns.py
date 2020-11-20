@@ -1,21 +1,23 @@
+"""
+Models an ideal token bucket shaper.
+"""
 import simpy
 
 class ShaperTokenBucket:
-    """ Models an ideal token bucket shaper. Note the token bucket size should be greater than the
-        size of the largest packet that can occur on input. If this is not the case we always accumulate
-        enough tokens to let the current packet pass based on the average rate. This may not be
-        the behavior you desire.
+    """ The token bucket size should be greater than the size of the largest packet that 
+    can occur on input. If this is not the case we always accumulate enough tokens to let
+    the current packet pass based on the average rate. This may not be the behavior you desire.
 
-        Parameters
-        ----------
-        env : simpy.Environment
-            the simulation environment
-        rate : float
-            the token arrival rate in bits
-        b_size : Number
-            a token bucket size in bytes
-        peak : Number or None for infinite peak
-            the peak sending rate of the buffer (quickest time two packets could be sent)
+    Parameters
+    ----------
+    env : simpy.Environment
+        the simulation environment
+    rate : float
+        the token arrival rate in bits
+    b_size : Number
+        a token bucket size in bytes
+    peak : Number or None for infinite peak
+        the peak sending rate of the buffer (quickest time two packets could be sent)
     """
     def __init__(self, env, rate, b_size, peak=None, debug=False):
         self.store = simpy.Store(env)
@@ -38,9 +40,11 @@ class ShaperTokenBucket:
         while True:
             msg = (yield self.store.get())
             now = self.env.now
+
             #  Add tokens to bucket based on current time
             self.current_bucket = min(self.b_size, self.current_bucket + self.rate*(now-self.update_time)/8.0)
             self.update_time = now
+
             #  Check if there are enough tokens to allow packet to be sent
             #  If not we will wait to accumulate enough tokens to let this packet pass
             #  regardless of the bucket size.
@@ -51,12 +55,14 @@ class ShaperTokenBucket:
             else:
                 self.current_bucket -= msg.size
                 self.update_time = self.env.now
+
             # Send packet
             if not self.peak:  # Infinite peak rate
                 self.out.put(msg)
             else:
                 yield self.env.timeout(msg.size*8.0/self.peak)
                 self.out.put(msg)
+
             self.packets_sent += 1
             if self.debug:
                 print(msg)
