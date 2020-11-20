@@ -12,7 +12,7 @@ sys.path.append(parentdir)
 
 from packet.generator import PacketGenerator
 from packet.sink import PacketSink
-from switch.switch import SwitchPort
+from port.port import SwitchPort
 from demux.random_demux import RandomBrancher
 
 

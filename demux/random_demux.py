@@ -18,6 +18,7 @@ class RandomBrancher:
 
         self.probs = probs
         self.ranges = [sum(probs[0:n+1]) for n in range(len(probs))]  # Partial sums of probs
+
         if self.ranges[-1] - 1.0 > 1.0e-6:
             raise Exception("Probabilities must sum to 1.0")
         self.n_ports = len(self.probs)

@@ -15,8 +15,8 @@ sys.path.append(parentdir)
 
 from packet.generator import PacketGenerator
 from packet.sink import PacketSink
-from switch.switch import SwitchPort
-from switch.monitor import PortMonitor
+from port.port import SwitchPort
+from port.monitor import PortMonitor
 
 
 if __name__ == '__main__':
@@ -29,15 +29,19 @@ if __name__ == '__main__':
     port_rate = 1000.0
 
     env = simpy.Environment()  # Create the SimPy environment
+
     # Create the packet generators and sink
     ps = PacketSink(env, debug=False, rec_arrivals=True)
     pg = PacketGenerator(env, "Greg", adist, sdist)
     switch_port = SwitchPort(env, port_rate, qlimit=10000)
+
     # Using a PortMonitor to track queue sizes over time
     pm = PortMonitor(env, switch_port, samp_dist)
+
     # Wire packet generators, switch ports, and sinks together
     pg.out = switch_port
     switch_port.out = ps
+
     # Run it
     env.run(until=8000)
     print("Last 10 waits: "  + ", ".join(["{:.3f}".format(x) for x in ps.waits[-10:]]))

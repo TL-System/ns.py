@@ -1,8 +1,8 @@
 """
-    Initial test of the WFQ queueing discipline implementation.
+    An example of using the WFQ/virtual clock scheduler.
 
     We base our parameter explorations on the first source. We set the output rate of the
-    virtual clock "switch port" at multiple of the first sources rate.
+    WFQ/virtual clock "switch port" at a multiple of the first sources rate.
     We also set the "vtick" parameters to the virtual clock switch port relative to this rate.
 """
 import os
@@ -23,6 +23,7 @@ from scheduler.wfq import WFQServer
 from scheduler.virtual_clock import VirtualClockServer
 from shaper.token_bucket import ShaperTokenBucket
 
+
 if __name__ == '__main__':
     def const_arrival():
         return 1.25
@@ -41,11 +42,11 @@ if __name__ == '__main__':
     ps_snoop1 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps_snoop2 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
 
-    # Set up the virtual clock switch port
-    source_rate = 8.0 * const_size()/const_arrival()  # the average source rate
+    # Set up a WFQ/virtual clock switch port
+    source_rate = 8.0 * const_size() / const_arrival()  # the average source rate
     phi_base = source_rate
-    switch_port = WFQServer(env, source_rate, [0.5*phi_base, 0.5*phi_base])
-    switch_port2 = VirtualClockServer(env, source_rate, [2.0/phi_base, 2.0/phi_base])
+    switch_port = WFQServer(env, source_rate, [0.5 * phi_base, 0.5 * phi_base])
+    switch_port2 = VirtualClockServer(env, source_rate, [2.0 / phi_base, 2.0 / phi_base])
     demux = FlowDemux()
     snoop1 = SnoopSplitter()
     snoop2 = SnoopSplitter()

@@ -18,6 +18,7 @@ class WFQServer:
         self.rate = rate
         self.phis = phis
         self.F_times = [0.0 for i in range(len(phis))]  # Initialize all the finish time variables
+
         # We keep track of the number of packets from each flow in the queue
         self.flow_queue_count = [0 for i in range(len(phis))]
         self.active_set = set()

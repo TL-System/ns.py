@@ -1,6 +1,9 @@
+"""
+Packet sinks record arrival time information from packets. This can take the form of raw arrival times or
+inter-arrival times. In addition, the packet sink can record packet waiting times. Supports the `put()`
+operation.
+"""
 import simpy
-
-from packet.packet import Packet
 
 class PacketSink:
     """ Receives packets and collects delay information into the
@@ -8,22 +11,22 @@ class PacketSink:
 
         Parameters
         ----------
-        env : simpy.Environment
+        env: simpy.Environment
             the simulation environment
-        debug : boolean
-            if true then the contents of each packet will be printed as it is received.
-        rec_arrivals : boolean
-            if true then arrivals will be recorded
-        absolute_arrivals : boolean
-            if true absolute arrival times will be recorded, otherwise the time between consecutive arrivals
-            is recorded.
-        rec_waits : boolean
+        debug: boolean
+            if true, the contents of each packet will be printed as it is received.
+        rec_arrivals: boolean
+            if true, arrivals will be recorded
+        absolute_arrivals: boolean
+            if true absolute arrival times will be recorded, otherwise the time between
+            consecutive arrivals is recorded.
+        rec_wait: boolean
             if true waiting time experienced by each packet is recorded
         selector: a function that takes a packet and returns a boolean
             used for selective statistics. Default none.
-
     """
-    def __init__(self, env, rec_arrivals=False, absolute_arrivals=False, rec_waits=True, debug=False, selector=None):
+    def __init__(self, env, rec_arrivals=False, absolute_arrivals=False, rec_waits=True,
+                 debug=False, selector=None):
         self.store = simpy.Store(env)
         self.env = env
         self.rec_waits = rec_waits

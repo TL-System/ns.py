@@ -1,20 +1,29 @@
+"""
+A very simple class that represents a packet.
+"""
 class Packet:
-    """ A very simple class that represents a packet.
-        This packet will run through a queue at a switch output port.
-        We use a float to represent the size of the packet in bytes so that
-        we can compare to ideal M/M/1 queues.
+    """
+        This packet is generally created by PacketGenerators, and will run through
+        a queue at a switch output port.
+
+        Key fields include: generation time, size, flow_id, packet id, source, and
+        destination. We do not model upper layer protocols, i.e., packets don't contain
+        a payload. The size (in bytes) field is used to determine its transmission time.
+
+        We use a float to represent the size of the packet in bytes so that we can compare
+        to ideal M/M/1 queues.
 
         Parameters
         ----------
-        time : float
-            the time the packet arrives at the output queue.
-        size : float
+        time: float
+            the time when the packet is generated.
+        size: float
             the size of the packet in bytes
-        id : int
+        id: int
             an identifier for the packet
-        src, dst : int
+        src, dst: int
             identifiers for source and destination
-        flow_id : int
+        flow_id: int
             small integer that can be used to identify a flow
     """
     def __init__(self, time, size, packet_id, src="a", dst="z", flow_id=0):

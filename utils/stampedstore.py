@@ -17,7 +17,7 @@ class StampedStorePut(base.Put):
     def __init__(self, resource, item):
         self.item = item
         """The item to put into the store."""
-        super(StampedStorePut, self).__init__(resource)
+        super().__init__(resource)
 
 
 class StampedStoreGet(base.Get):
@@ -35,19 +35,18 @@ class StampedStore(base.BaseResource):
     container is bound to.
 
     The *capacity* defines the size of the Store and must be a positive number
-    (> 0). By default, a Store is of unlimited size. A :exc:`ValueError` is
+    (> 0). By default, a Store is of unlimited size. A `ValueError` exception is
     raised if the value is negative.
-
     """
     def __init__(self, env, capacity=float('inf')):
-        super(StampedStore, self).__init__(env, capacity=float('inf'))
+        super().__init__(env, capacity=float('inf'))
+
         if capacity <= 0:
             raise ValueError('"capacity" must be > 0.')
+
         self._capacity = capacity
         self.items = []  # we are keeping items sorted by stamp
         self.event_count = 0 # Used to break ties with python heap implementation
-        # See: https://docs.python.org/3/library/heapq.html?highlight=heappush#priority-queue-implementation-notes
-        """List of the items within the store."""
 
 
     @property
@@ -55,8 +54,10 @@ class StampedStore(base.BaseResource):
         """The maximum capacity of the store."""
         return self._capacity
 
+
     put = BoundClass(StampedStorePut)
     """Create a new :class:`StorePut` event."""
+
 
     get = BoundClass(StampedStoreGet)
     """Create a new :class:`StoreGet` event."""
@@ -69,6 +70,7 @@ class StampedStore(base.BaseResource):
         if len(self.items) < self._capacity:
             heappush(self.items, [event.item[0], self.event_count, event.item[1]])
             event.succeed()
+
 
     # When we return an item from the stamped store we do not
     # return the stamp but only the content portion.

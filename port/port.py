@@ -1,3 +1,8 @@
+"""
+Models a first-in, first-out (FIFO) queued output port on a packet switch/router.
+You can set the rate of the output port and a queue size limit (in bytes). Keeps
+track of packets received and packets dropped.
+"""
 import simpy
 
 class SwitchPort:
