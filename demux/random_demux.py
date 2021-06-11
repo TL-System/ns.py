@@ -1,4 +1,4 @@
-import random
+from random import choices
 """
 A demultiplexing element that chooses the output port at random.
 """
@@ -18,11 +18,6 @@ class RandomBrancher:
         self.env = env
 
         self.probs = probs
-        self.ranges = [sum(probs[0:n + 1]) 
-            for n in range(len(probs))]  # Partial sums of probs
-
-        if self.ranges[-1] - 1.0 > 1.0e-6:
-            raise Exception("Probabilities must sum to 1.0")
         self.n_ports = len(self.probs)
         self.outs = [None for i in range(self.n_ports)]  # Create and initialize output ports
         self.packets_rec = 0
@@ -30,9 +25,4 @@ class RandomBrancher:
 
     def put(self, pkt):
         self.packets_rec += 1
-        rand = random.random()
-        for i in range(self.n_ports):
-            if rand < self.ranges[i]:
-                if self.outs[i]:  # A check to make sure the output has been assigned before we put to it
-                    self.outs[i].put(pkt)
-                return
+        choices(self.outs, weights=self.probs)[0].put(pkt)
