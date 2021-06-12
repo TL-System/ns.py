@@ -34,7 +34,7 @@ def constSize():
 
 env = simpy.Environment()  # Create the SimPy environment
 ps = PacketSink(env, debug=True) # debug: every packet arrival is printed
-pg = PacketGenerator(env, "SJSU", constArrival, constSize)
+pg = PacketGenerator(env, "pg", constArrival, constSize)
 
 switch_port = SwitchPort(env, rate=200.0, qlimit=300)
 

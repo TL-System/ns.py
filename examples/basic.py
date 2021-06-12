@@ -28,8 +28,8 @@ env = simpy.Environment()  # Create the SimPy environment
 
 # Create the packet generators and sink
 ps = PacketSink(env, debug=True)  # debugging enable for simple output
-pg = PacketGenerator(env, "EE283", constArrival, distSize)
-pg2 = PacketGenerator(env, "SJSU", constArrival2, distSize)
+pg = PacketGenerator(env, "pg1", constArrival, distSize)
+pg2 = PacketGenerator(env, "pg2", constArrival2, distSize)
 
 # Wire packet generators and sink together
 pg.out = ps

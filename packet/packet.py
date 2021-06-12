@@ -26,13 +26,18 @@ class Packet:
         flow_id: int
             small integer that can be used to identify a flow
     """
-    def __init__(self, time, size, packet_id, src="a", dst="z", flow_id=0):
+    def __init__(self, time, size, packet_id, src="a", dst="z", flow_id=0,
+                 current_time=0, prio=0):
         self.time = time
         self.size = size
         self.id = packet_id
         self.src = src
         self.dst = dst
         self.flow_id = flow_id
+        self.current_time = current_time
+        self.prio = prio
+        self.color = None
+        self.perhoptime = {}
 
 
     def __repr__(self):

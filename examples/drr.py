@@ -33,8 +33,8 @@ if __name__ == '__main__':
         return 100.0
 
     env = simpy.Environment()
-    pg = PacketGenerator(env, "SJSU", const_arrival, const_size, initial_delay=0.0, finish=35, flow_id=0)
-    pg2 = PacketGenerator(env, "SJSU", const_arrival2, const_size, initial_delay=20.0, finish=35, flow_id=1)
+    pg = PacketGenerator(env, "pg", const_arrival, const_size, initial_delay=0.0, finish=35, flow_id=0)
+    pg2 = PacketGenerator(env, "pg2", const_arrival2, const_size, initial_delay=20.0, finish=35, flow_id=1)
     ps = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps2 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps_snoop1 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)

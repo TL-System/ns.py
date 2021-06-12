@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # Create the packet generators and sink
     ps = PacketSink(env, debug=False, rec_arrivals=True)
-    pg = PacketGenerator(env, "Greg", adist, sdist)
+    pg = PacketGenerator(env, "pg", adist, sdist)
     switch_port = SwitchPort(env, port_rate, qlimit=10000)
 
     # Using a PortMonitor to track queue sizes over time

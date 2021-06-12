@@ -26,8 +26,8 @@ if __name__ == '__main__':
         return 100.0
 
     env = simpy.Environment()
-    pg = PacketGenerator(env, "SJSU", const_arrival, const_size, initial_delay=7.0, finish=35)
-    pg2 = PacketGenerator(env, "SJSU", const_arrival, const_size, initial_delay=7.0, finish=35)
+    pg = PacketGenerator(env, "pg", const_arrival, const_size, initial_delay=7.0, finish=35)
+    pg2 = PacketGenerator(env, "pg2", const_arrival, const_size, initial_delay=7.0, finish=35)
     ps = PacketSink(env,rec_arrivals=True, absolute_arrivals=True)
     ps2 = PacketSink(env,rec_arrivals=True, absolute_arrivals=True)
     source_rate = 8.0 * const_size() / const_arrival() # the average source rate

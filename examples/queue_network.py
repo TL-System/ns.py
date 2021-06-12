@@ -33,15 +33,15 @@ if __name__ == '__main__':
 
     # Create the packet generators and sink
     def selector(pkt):
-        return pkt.src == "SJSU1"
+        return pkt.src == "src1"
 
     def selector2(pkt):
-        return pkt.src == "SJSU2"
+        return pkt.src == "src2"
     ps1 = PacketSink(env, debug=False, rec_arrivals=True, selector=selector)
     ps2 = PacketSink(env, debug=False, rec_waits=True, selector=selector2)
-    pg1 = PacketGenerator(env, "SJSU1", adist1, sdist)
-    pg2 = PacketGenerator(env, "SJSU2", adist2, sdist)
-    pg3 = PacketGenerator(env, "SJSU3", adist3, sdist)
+    pg1 = PacketGenerator(env, "src1", adist1, sdist)
+    pg2 = PacketGenerator(env, "src2", adist2, sdist)
+    pg3 = PacketGenerator(env, "src3", adist3, sdist)
     branch1 = RandomBrancher(env, [0.75, 0.25])
     branch2 = RandomBrancher(env, [0.65, 0.35])
     switch_port1 = SwitchPort(env, port_rate)

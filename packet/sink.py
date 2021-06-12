@@ -3,7 +3,9 @@ Packet sinks record arrival time information from packets. This can take the for
 inter-arrival times. In addition, the packet sink can record packet waiting times. Supports the `put()`
 operation.
 """
+import re
 import simpy
+from collections import defaultdict as dd
 
 class PacketSink:
     """ Receives packets and collects delay information into the
@@ -26,33 +28,52 @@ class PacketSink:
             used for selective statistics. Default none.
     """
     def __init__(self, env, rec_arrivals=False, absolute_arrivals=False, rec_waits=True,
-                 debug=False, selector=None):
+                 rec_flow_ids=True, debug=False):
         self.store = simpy.Store(env)
         self.env = env
         self.rec_waits = rec_waits
+        self.rec_flow_ids = rec_flow_ids
         self.rec_arrivals = rec_arrivals
         self.absolute_arrivals = absolute_arrivals
-        self.waits = []
-        self.arrivals = []
+        self.waits = dd(list)
+        self.arrivals = dd(list)
+        self.packets_received = dd(lambda: 0)
+        self.bytes_received = dd(lambda: 0)
+        self.pktsizes = dd(list)
+        self.pkttimes = dd(list)
+        self.perhoptimes = dd(list)
+        
+        self.first_arrival = dd(lambda: 0)
+        self.last_arrival = dd(lambda: 0)
         self.debug = debug
-        self.packets_rec = 0
-        self.bytes_rec = 0
-        self.selector = selector
-        self.last_arrival = 0.0
 
 
     def put(self, pkt):
-        if not self.selector or self.selector(pkt):
-            now = self.env.now
-            if self.rec_waits:
-                self.waits.append(self.env.now - pkt.time)
-            if self.rec_arrivals:
-                if self.absolute_arrivals:
-                    self.arrivals.append(now)
-                else:
-                    self.arrivals.append(now - self.last_arrival)
-                self.last_arrival = now
-            self.packets_rec += 1
-            self.bytes_rec += pkt.size
-            if self.debug:
-                print(pkt)
+        now = self.env.now
+
+        if self.debug:
+            print(f"At packet sink: {pkt}")
+
+        if self.rec_flow_ids:
+            rec_index = pkt.flow_id
+        else:
+            rec_index = pkt.src
+
+        if self.rec_waits:
+            self.waits[rec_index].append(self.env.now - pkt.time)
+            self.pktsizes[rec_index].append(pkt.size)
+            self.pkttimes[rec_index].append(pkt.time)
+            self.perhoptimes[rec_index].append(pkt.perhoptime)
+
+        if self.rec_arrivals:
+            self.arrivals[rec_index].append(now)
+            if len(self.arrivals[rec_index]) == 1:
+                self.first_arrival[rec_index] = now
+            
+            if not self.absolute_arrivals:
+                self.arrivals[rec_index][-1] = now - self.last_arrival[rec_index]
+            
+            self.last_arrival[rec_index] = now
+
+        self.packets_received[rec_index] += 1
+        self.bytes_received[rec_index] += pkt.size
