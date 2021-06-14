@@ -16,20 +16,26 @@ class PortMonitor:
             a no parameter function that returns the successive inter-arrival
             times of the packets
     """
-    def __init__(self, env, port, dist, count_bytes=False):
+    def __init__(self, env, port, dist, pkt_in_service_included=False):
         self.port = port
         self.env = env
         self.dist = dist
-        self.count_bytes = count_bytes
         self.sizes = []
+        self.sizes_byte = []
         self.action = env.process(self.run())
-
+        self.pkt_in_service_included = pkt_in_service_included
 
     def run(self):
         while True:
             yield self.env.timeout(self.dist())
-            if self.count_bytes:
-                total = self.port.byte_size
-            else:
+
+            if self.pkt_in_service_included:
+                total_byte = self.port.byte_size + self.port.busy_packet_size
                 total = len(self.port.store.items) + self.port.busy
+            else:
+                total_byte = self.port.byte_size
+                total = len(self.port.store.items)
+            
             self.sizes.append(total)
+            self.sizes_byte.append(total_byte)
+
