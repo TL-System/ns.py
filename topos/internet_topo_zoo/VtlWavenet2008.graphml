@@ -1,0 +1,1233 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d39" />
+  <key attr.name="id" attr.type="string" for="edge" id="d38" />
+  <key attr.name="geocode_append" attr.type="string" for="node" id="d37" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d36" />
+  <key attr.name="label" attr.type="string" for="node" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="id" attr.type="int" for="node" id="d33" />
+  <key attr.name="type" attr.type="string" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">19/10/10</data>
+    <data key="d1">Europe</data>
+    <data key="d2">Continent</data>
+    <data key="d3">Viatel</data>
+    <data key="d4">Primary</data>
+    <data key="d5">Some town names found using maps (St Christophe, St Martin, Linz, Kappela, Fos, Snow Hill). Unsure about Snow Hill, closest approximate match used.  Pichegu from http://www.brl.fr/extension-du-reseau-ethernet-de-la-station-de-pichegu-vers-baisse-redonne-et-la-prise-au-rhone-27-34-401-d-27.html</data>
+    <data key="d6">http://www.vtlwavenet.com/assets/INT_Networkmap.pdf</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">VtlWavenet2008</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">0</data>
+    <data key="d21">Fibre</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">1</data>
+    <data key="d25">2008</data>
+    <data key="d26">2008</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">46.75368</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">0</data>
+      <data key="d34">7.14609</data>
+      <data key="d35">Ependes</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">47.34999</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">1</data>
+      <data key="d34">7.90329</data>
+      <data key="d35">Olten</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">48.18333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">2</data>
+      <data key="d34">2.73333</data>
+      <data key="d35">Souppes</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">47.63343</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">3</data>
+      <data key="d34">2.7438</data>
+      <data key="d35">Briare</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">46.98956</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">4</data>
+      <data key="d34">3.159</data>
+      <data key="d35">Nevers</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">46.62214</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">5</data>
+      <data key="d34">3.76953</data>
+      <data key="d35">Bourbon</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">46.43333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">6</data>
+      <data key="d34">4.28333</data>
+      <data key="d35">Charolles</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">46.1</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">7</data>
+      <data key="d34">4.75</data>
+      <data key="d35">Belleville</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">45.85</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">8</data>
+      <data key="d34">5.41667</data>
+      <data key="d35">Sault Brenaz</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">45.8</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">9</data>
+      <data key="d34">5.76667</data>
+      <data key="d35">Lavours</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d30">45.75</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">10</data>
+      <data key="d34">4.85</data>
+      <data key="d35">Lyon</data>
+    </node>
+    <node id="11">
+      <data key="d36">1</data>
+      <data key="d29">1</data>
+      <data key="d33">11</data>
+      <data key="d35">None</data>
+    </node>
+    <node id="12">
+      <data key="d37">Arrondissement de Nimes</data>
+      <data key="d31">France</data>
+      <data key="d34">4.75</data>
+      <data key="d35">Montfaucon</data>
+      <data key="d29">1</data>
+      <data key="d30">44.08333</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">12</data>
+    </node>
+    <node id="13">
+      <data key="d29">1</data>
+      <data key="d30">51.21667</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">13</data>
+      <data key="d34">4.41667</data>
+      <data key="d35">Antwerp (NMBS)</data>
+    </node>
+    <node id="14">
+      <data key="d29">1</data>
+      <data key="d30">43.60426</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">14</data>
+      <data key="d34">1.44367</data>
+      <data key="d35">Toulouse</data>
+    </node>
+    <node id="15">
+      <data key="d29">1</data>
+      <data key="d30">50.85045</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">15</data>
+      <data key="d34">4.34878</data>
+      <data key="d35">Brussels MIDI (NMBS)</data>
+    </node>
+    <node id="16">
+      <data key="d29">1</data>
+      <data key="d30">43.29695</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">16</data>
+      <data key="d34">5.38107</data>
+      <data key="d35">Marseille</data>
+    </node>
+    <node id="17">
+      <data key="d29">1</data>
+      <data key="d30">44.83333</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">17</data>
+      <data key="d34">-0.56667</data>
+      <data key="d35">Bordeaux</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d30">49.00202</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">18</data>
+      <data key="d34">3.36786</data>
+      <data key="d35">Azy-sur-Marne</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d30">48.95</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">19</data>
+      <data key="d34">2.86667</data>
+      <data key="d35">Meaux</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d30">48.83333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">20</data>
+      <data key="d34">4.98333</data>
+      <data key="d35">Revigny</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d30">49.05</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">21</data>
+      <data key="d34">4.18333</data>
+      <data key="d35">Conde-sur-Marne</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d30">50.68333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">22</data>
+      <data key="d34">3.25</data>
+      <data key="d35">Leers-Nord Estampuis</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d30">50.56765</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">23</data>
+      <data key="d34">3.4492</data>
+      <data key="d35">Antoing (NMBS)</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d30">49.47591</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">24</data>
+      <data key="d34">2.8821</data>
+      <data key="d35">Thourotte</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d30">50.45</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">25</data>
+      <data key="d34">2.93333</data>
+      <data key="d35">Courrieres</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d30">51.05</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">26</data>
+      <data key="d34">3.71667</data>
+      <data key="d35">Gent</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d30">51.21667</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">27</data>
+      <data key="d34">4.41667</data>
+      <data key="d35">Antwerp</data>
+    </node>
+    <node id="28">
+      <data key="d29">1</data>
+      <data key="d30">46.94809</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">28</data>
+      <data key="d34">7.44744</data>
+      <data key="d35">Bern</data>
+    </node>
+    <node id="29">
+      <data key="d29">1</data>
+      <data key="d30">47.36667</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">29</data>
+      <data key="d34">8.55</data>
+      <data key="d35">Zurich</data>
+    </node>
+    <node id="30">
+      <data key="d29">1</data>
+      <data key="d30">47.56667</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">30</data>
+      <data key="d34">7.6</data>
+      <data key="d35">Basel</data>
+    </node>
+    <node id="31">
+      <data key="d29">1</data>
+      <data key="d30">48.68333</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">31</data>
+      <data key="d34">6.2</data>
+      <data key="d35">Nancy</data>
+    </node>
+    <node id="32">
+      <data key="d29">1</data>
+      <data key="d30">48.58333</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">32</data>
+      <data key="d34">7.75</data>
+      <data key="d35">Strasbourg</data>
+    </node>
+    <node id="33">
+      <data key="d29">1</data>
+      <data key="d30">49.48833</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">33</data>
+      <data key="d34">8.46472</data>
+      <data key="d35">Mannheim</data>
+    </node>
+    <node id="34">
+      <data key="d29">1</data>
+      <data key="d30">50.11667</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">34</data>
+      <data key="d34">8.68333</data>
+      <data key="d35">Frankfurt</data>
+    </node>
+    <node id="35">
+      <data key="d29">1</data>
+      <data key="d30">50.11667</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">35</data>
+      <data key="d34">8.68333</data>
+      <data key="d35">Internexion</data>
+    </node>
+    <node id="36">
+      <data key="d29">1</data>
+      <data key="d30">48.85341</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">36</data>
+      <data key="d34">2.3488</data>
+      <data key="d35">Paris La Defense</data>
+    </node>
+    <node id="37">
+      <data key="d29">1</data>
+      <data key="d30">46.20222</data>
+      <data key="d31">Switzerland</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">37</data>
+      <data key="d34">6.14569</data>
+      <data key="d35">Geneva</data>
+    </node>
+    <node id="38">
+      <data key="d29">1</data>
+      <data key="d30">51.41667</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">38</data>
+      <data key="d34">-0.56667</data>
+      <data key="d35">Egham</data>
+    </node>
+    <node id="39">
+      <data key="d29">1</data>
+      <data key="d30">51.50853</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">39</data>
+      <data key="d34">-0.12574</data>
+      <data key="d35">London Telehouse North</data>
+    </node>
+    <node id="40">
+      <data key="d29">1</data>
+      <data key="d30">52.48333</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">40</data>
+      <data key="d34">1.75</data>
+      <data key="d35">Lowestoft</data>
+    </node>
+    <node id="41">
+      <data key="d29">1</data>
+      <data key="d30">52.37403</data>
+      <data key="d31">Netherlands</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">41</data>
+      <data key="d34">4.88969</data>
+      <data key="d35">Amsterdam (Schipluidlaan/Deflandlaan)</data>
+    </node>
+    <node id="42">
+      <data key="d29">1</data>
+      <data key="d30">48.85341</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">42</data>
+      <data key="d34">2.3488</data>
+      <data key="d35">Paris (35Rdj)</data>
+    </node>
+    <node id="43">
+      <data key="d29">1</data>
+      <data key="d30">49.91667</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">43</data>
+      <data key="d34">2.91667</data>
+      <data key="d35">Biaches</data>
+    </node>
+    <node id="44">
+      <data key="d29">1</data>
+      <data key="d30">49.9</data>
+      <data key="d31">France</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">44</data>
+      <data key="d34">2.3</data>
+      <data key="d35">Amiens</data>
+    </node>
+    <node id="45">
+      <data key="d29">1</data>
+      <data key="d30">51.11303</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">45</data>
+      <data key="d34">-0.18312</data>
+      <data key="d35">Crawley</data>
+    </node>
+    <node id="46">
+      <data key="d29">1</data>
+      <data key="d30">51.9225</data>
+      <data key="d31">Netherlands</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">46</data>
+      <data key="d34">4.47917</data>
+      <data key="d35">Rotterdam</data>
+    </node>
+    <node id="47">
+      <data key="d29">1</data>
+      <data key="d30">50.85045</data>
+      <data key="d31">Belgium</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">47</data>
+      <data key="d34">4.34878</data>
+      <data key="d35">Brussels Tollaan</data>
+    </node>
+    <node id="48">
+      <data key="d29">1</data>
+      <data key="d30">43.8292</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">48</data>
+      <data key="d34">1.29673</data>
+      <data key="d35">Grisolles</data>
+    </node>
+    <node id="49">
+      <data key="d29">1</data>
+      <data key="d30">44.18333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">49</data>
+      <data key="d34">0.68333</data>
+      <data key="d35">Bon-Encontre</data>
+    </node>
+    <node id="50">
+      <data key="d29">1</data>
+      <data key="d30">47.58333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">50</data>
+      <data key="d34">1.33333</data>
+      <data key="d35">Blois</data>
+    </node>
+    <node id="51">
+      <data key="d29">1</data>
+      <data key="d30">47.91667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">51</data>
+      <data key="d34">7.55</data>
+      <data key="d35">Nambsheim</data>
+    </node>
+    <node id="52">
+      <data key="d29">1</data>
+      <data key="d30">46.58333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">52</data>
+      <data key="d34">0.33333</data>
+      <data key="d35">Availles (Poiters)</data>
+    </node>
+    <node id="53">
+      <data key="d29">1</data>
+      <data key="d30">47.38333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">53</data>
+      <data key="d34">0.68333</data>
+      <data key="d35">Veretz (Tours)</data>
+    </node>
+    <node id="54">
+      <data key="d29">1</data>
+      <data key="d30">45.63333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">54</data>
+      <data key="d34">0.05</data>
+      <data key="d35">Nersac</data>
+    </node>
+    <node id="55">
+      <data key="d29">1</data>
+      <data key="d30">46.05</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">55</data>
+      <data key="d34">-0.43333</data>
+      <data key="d35">Blanzay</data>
+    </node>
+    <node id="56">
+      <data key="d29">1</data>
+      <data key="d30">44.51667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">56</data>
+      <data key="d34">0.03333</data>
+      <data key="d35">Meilhan</data>
+    </node>
+    <node id="57">
+      <data key="d29">1</data>
+      <data key="d30">44.88333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">57</data>
+      <data key="d34">-0.1</data>
+      <data key="d35">St-Christophe</data>
+    </node>
+    <node id="58">
+      <data key="d29">1</data>
+      <data key="d30">45.23333</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">58</data>
+      <data key="d34">4.8</data>
+      <data key="d35">Andancette</data>
+    </node>
+    <node id="59">
+      <data key="d29">1</data>
+      <data key="d30">51.22172</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Point of Presence</data>
+      <data key="d33">59</data>
+      <data key="d34">6.77616</data>
+      <data key="d35">Dusseldorf</data>
+    </node>
+    <node id="60">
+      <data key="d29">1</data>
+      <data key="d30">43.69084</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">60</data>
+      <data key="d34">5.20709</data>
+      <data key="d35">Cazan</data>
+    </node>
+    <node id="61">
+      <data key="d29">1</data>
+      <data key="d30">44.56667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">61</data>
+      <data key="d34">4.75</data>
+      <data key="d35">Montelimar</data>
+    </node>
+    <node id="62">
+      <data key="d29">1</data>
+      <data key="d30">43.75</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">62</data>
+      <data key="d34">4.51667</data>
+      <data key="d35">Pichegu</data>
+    </node>
+    <node id="63">
+      <data key="d29">1</data>
+      <data key="d30">43.43774</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">63</data>
+      <data key="d34">4.94457</data>
+      <data key="d35">Fos</data>
+    </node>
+    <node id="64">
+      <data key="d29">1</data>
+      <data key="d30">43.31667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">64</data>
+      <data key="d34">3.08333</data>
+      <data key="d35">Poilhes</data>
+    </node>
+    <node id="65">
+      <data key="d29">1</data>
+      <data key="d30">43.6</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">65</data>
+      <data key="d34">3.88333</data>
+      <data key="d35">Sete (Montpellier)</data>
+    </node>
+    <node id="66">
+      <data key="d29">1</data>
+      <data key="d30">43.36667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">66</data>
+      <data key="d34">1.8</data>
+      <data key="d35">Avignonet</data>
+    </node>
+    <node id="67">
+      <data key="d29">1</data>
+      <data key="d30">43.2</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">67</data>
+      <data key="d34">2.55</data>
+      <data key="d35">Marseillette</data>
+    </node>
+    <node id="68">
+      <data key="d29">1</data>
+      <data key="d30">47.91667</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">68</data>
+      <data key="d34">1.9</data>
+      <data key="d35">Artenay (Orleans)</data>
+    </node>
+    <node id="69">
+      <data key="d37">Saint-Martin-en-Biere</data>
+      <data key="d31">France</data>
+      <data key="d34">2.56667</data>
+      <data key="d35">St-Martin</data>
+      <data key="d29">1</data>
+      <data key="d30">48.43333</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">69</data>
+    </node>
+    <node id="70">
+      <data key="d29">1</data>
+      <data key="d30">52.07861</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">70</data>
+      <data key="d34">0.58167</data>
+      <data key="d35">Snow Hill</data>
+    </node>
+    <node id="71">
+      <data key="d29">1</data>
+      <data key="d30">52.27051</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">71</data>
+      <data key="d34">0.82103</data>
+      <data key="d35">Pakenham</data>
+    </node>
+    <node id="72">
+      <data key="d29">1</data>
+      <data key="d30">52.37487</data>
+      <data key="d31">Netherlands</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">72</data>
+      <data key="d34">4.53409</data>
+      <data key="d35">Zandvoort</data>
+    </node>
+    <node id="73">
+      <data key="d37">Belgium</data>
+      <data key="d31">Belgium</data>
+      <data key="d34">4.45393</data>
+      <data key="d35">Essen</data>
+      <data key="d29">1</data>
+      <data key="d30">51.46272</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">73</data>
+    </node>
+    <node id="74">
+      <data key="d29">1</data>
+      <data key="d30">48.6</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">74</data>
+      <data key="d34">2.48333</data>
+      <data key="d35">Corbeil</data>
+    </node>
+    <node id="75">
+      <data key="d29">1</data>
+      <data key="d30">49.10744</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">75</data>
+      <data key="d34">2.22818</data>
+      <data key="d35">L'Isle Adam</data>
+    </node>
+    <node id="76">
+      <data key="d29">1</data>
+      <data key="d30">50.182</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">76</data>
+      <data key="d34">1.494</data>
+      <data key="d35">Cayeux-sur-Mer</data>
+    </node>
+    <node id="77">
+      <data key="d29">1</data>
+      <data key="d30">50.8</data>
+      <data key="d31">United Kingdom</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">77</data>
+      <data key="d34">0.23333</data>
+      <data key="d35">Polegate</data>
+    </node>
+    <node id="78">
+      <data key="d29">1</data>
+      <data key="d30">48.7</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">78</data>
+      <data key="d34">7.0</data>
+      <data key="d35">Xouxange</data>
+    </node>
+    <node id="79">
+      <data key="d29">1</data>
+      <data key="d30">48.7</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">79</data>
+      <data key="d34">5.7</data>
+      <data key="d35">Troussey</data>
+    </node>
+    <node id="80">
+      <data key="d29">1</data>
+      <data key="d30">51.86667</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">80</data>
+      <data key="d34">6.15</data>
+      <data key="d35">Elten</data>
+    </node>
+    <node id="81">
+      <data key="d29">1</data>
+      <data key="d30">52.01167</data>
+      <data key="d31">Netherlands</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">81</data>
+      <data key="d34">5.42778</data>
+      <data key="d35">Leersum/Doorn??</data>
+    </node>
+    <node id="82">
+      <data key="d29">1</data>
+      <data key="d30">51.56667</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">82</data>
+      <data key="d34">6.36667</data>
+      <data key="d35">Kapella</data>
+    </node>
+    <node id="83">
+      <data key="d29">1</data>
+      <data key="d30">50.88333</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">83</data>
+      <data key="d34">7.05</data>
+      <data key="d35">Porz</data>
+    </node>
+    <node id="84">
+      <data key="d29">1</data>
+      <data key="d30">50.56667</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">84</data>
+      <data key="d34">7.28333</data>
+      <data key="d35">Linz</data>
+    </node>
+    <node id="85">
+      <data key="d29">1</data>
+      <data key="d30">50.55</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">85</data>
+      <data key="d34">7.6</data>
+      <data key="d35">Dernbach</data>
+    </node>
+    <node id="86">
+      <data key="d29">1</data>
+      <data key="d30">50.13333</data>
+      <data key="d31">Germany</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">86</data>
+      <data key="d34">8.3</data>
+      <data key="d35">Naurod</data>
+    </node>
+    <node id="87">
+      <data key="d29">1</data>
+      <data key="d30">48.9</data>
+      <data key="d31">France</data>
+      <data key="d32">Transmission Site</data>
+      <data key="d33">87</data>
+      <data key="d34">7.16667</data>
+      <data key="d35">Berg</data>
+    </node>
+    <edge source="0" target="28">
+      <data key="d38">e54</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="0" target="37">
+      <data key="d38">e55</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="28">
+      <data key="d38">e57</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="29">
+      <data key="d38">e56</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="74">
+      <data key="d38">e40</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d38">e45</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="3" target="4">
+      <data key="d38">e46</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d38">e47</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="5" target="6">
+      <data key="d38">e48</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="6" target="7">
+      <data key="d38">e49</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="7" target="11">
+      <data key="d38">e50</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d38">e52</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="8" target="11">
+      <data key="d38">e51</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="9" target="37">
+      <data key="d38">e53</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="10" target="58">
+      <data key="d38">e81</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="10" target="11">
+      <data key="d38">e91</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="12" target="60">
+      <data key="d38">e77</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="12" target="61">
+      <data key="d38">e79</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="13" target="73">
+      <data key="d38">e30</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="13" target="27">
+      <data key="d38">e27</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="14" target="48">
+      <data key="d38">e69</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="14" target="66">
+      <data key="d38">e70</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="15" target="47">
+      <data key="d38">e90</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="15" target="23">
+      <data key="d38">e25</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="16" target="60">
+      <data key="d38">e78</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="16" target="63">
+      <data key="d38">e76</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="17" target="56">
+      <data key="d38">e67</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="17" target="57">
+      <data key="d38">e65</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d38">e17</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="18" target="21">
+      <data key="d38">e16</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="19" target="42">
+      <data key="d38">e18</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d38">e15</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="20" target="79">
+      <data key="d38">e14</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="22" target="25">
+      <data key="d38">e21</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="22" target="26">
+      <data key="d38">e24</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="22" target="23">
+      <data key="d38">e23</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="24" target="43">
+      <data key="d38">e20</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="24" target="75">
+      <data key="d38">e19</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="25" target="43">
+      <data key="d38">e22</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="26" target="47">
+      <data key="d38">e26</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="27" target="47">
+      <data key="d38">e28</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="29" target="30">
+      <data key="d38">e84</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="30" target="51">
+      <data key="d38">e58</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="78">
+      <data key="d38">e11</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="79">
+      <data key="d38">e13</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="32" target="51">
+      <data key="d38">e59</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="32" target="78">
+      <data key="d38">e12</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="32" target="87">
+      <data key="d38">e10</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="33" target="35">
+      <data key="d38">e83</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="33" target="87">
+      <data key="d38">e9</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="34" target="35">
+      <data key="d38">e82</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="34" target="86">
+      <data key="d38">e8</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="36" target="42">
+      <data key="d38">e85</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="36" target="75">
+      <data key="d38">e39</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="38" target="45">
+      <data key="d38">e87</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="38" target="39">
+      <data key="d38">e88</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="39" target="70">
+      <data key="d38">e35</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="40" target="72">
+      <data key="d38">e31</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="40" target="71">
+      <data key="d38">e33</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="41" target="72">
+      <data key="d38">e32</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="41" target="81">
+      <data key="d38">e2</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="41" target="46">
+      <data key="d38">e89</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="42" target="74">
+      <data key="d38">e41</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="42" target="69">
+      <data key="d38">e43</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="43" target="44">
+      <data key="d38">e86</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="44" target="76">
+      <data key="d38">e38</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="45" target="77">
+      <data key="d38">e36</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="46" target="73">
+      <data key="d38">e29</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="48" target="49">
+      <data key="d38">e68</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="49" target="56">
+      <data key="d38">e66</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="50" target="68">
+      <data key="d38">e44</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="50" target="53">
+      <data key="d38">e60</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="52" target="53">
+      <data key="d38">e61</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="52" target="55">
+      <data key="d38">e62</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="54" target="57">
+      <data key="d38">e64</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="54" target="55">
+      <data key="d38">e63</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="58" target="61">
+      <data key="d38">e80</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="59" target="82">
+      <data key="d38">e3</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="59" target="83">
+      <data key="d38">e4</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="62" target="65">
+      <data key="d38">e74</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="62" target="63">
+      <data key="d38">e75</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="64" target="65">
+      <data key="d38">e73</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="64" target="67">
+      <data key="d38">e72</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="66" target="67">
+      <data key="d38">e71</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="68" target="69">
+      <data key="d38">e42</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="70" target="71">
+      <data key="d38">e34</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="76" target="77">
+      <data key="d38">e37</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="80" target="81">
+      <data key="d38">e0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="80" target="82">
+      <data key="d38">e1</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="83" target="84">
+      <data key="d38">e5</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="84" target="85">
+      <data key="d38">e6</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="85" target="86">
+      <data key="d38">e7</data>
+      <data key="d39">0</data>
+    </edge>
+  </graph>
+</graphml>

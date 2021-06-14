@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d36" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="type" attr.type="string" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">19/10/10</data>
+    <data key="d1">China</data>
+    <data key="d2">Country</data>
+    <data key="d3">China Telecom </data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.chinatelecomusa.com/content.asp?pl=627&amp;amp;sl=637&amp;amp;contentid=660&amp;amp;id=1&amp;amp;indexid=0</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Chinanet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">08</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">1</data>
+    <data key="d24">2010_08</data>
+    <data key="d25">2010</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">29.65</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">0</data>
+      <data key="d33">91.1</data>
+      <data key="d34">Lhasa</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">36.05639</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">1</data>
+      <data key="d33">103.79222</data>
+      <data key="d34">Lanzhou</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">39.45472</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">2</data>
+      <data key="d33">75.97972</data>
+      <data key="d34">Kashi</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">32.51667</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">3</data>
+      <data key="d33">80.06667</data>
+      <data key="d34">Shiquanhe</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">36.66833</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">4</data>
+      <data key="d33">116.99722</data>
+      <data key="d34">Jinan</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">36.09861</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">5</data>
+      <data key="d33">120.37194</data>
+      <data key="d34">Qingdao</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">37.86944</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">6</data>
+      <data key="d33">112.56028</data>
+      <data key="d34">Taiyuan</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">38.04139</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">7</data>
+      <data key="d33">114.47861</data>
+      <data key="d34">Shilazhuang</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d29">31.22222</data>
+      <data key="d30">China</data>
+      <data key="d31">Green</data>
+      <data key="d32">8</data>
+      <data key="d33">121.45806</data>
+      <data key="d34">Shanghai</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d29">31.31139</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">9</data>
+      <data key="d33">120.61806</data>
+      <data key="d34">Suzhou</data>
+    </node>
+    <node id="10">
+      <data key="d28">0</data>
+      <data key="d32">10</data>
+      <data key="d34">International Link 1</data>
+    </node>
+    <node id="11">
+      <data key="d28">0</data>
+      <data key="d32">11</data>
+      <data key="d34">International Link 2</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d29">22.81667</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">12</data>
+      <data key="d33">108.31667</data>
+      <data key="d34">Nanning</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d29">28.2</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">13</data>
+      <data key="d33">112.96667</data>
+      <data key="d34">Changsha</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">26.58333</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">14</data>
+      <data key="d33">106.71667</data>
+      <data key="d34">Guiyang</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d29">29.56278</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">15</data>
+      <data key="d33">106.55278</data>
+      <data key="d34">Chongqing</data>
+    </node>
+    <node id="16">
+      <data key="d28">1</data>
+      <data key="d29">30.66667</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">16</data>
+      <data key="d33">104.06667</data>
+      <data key="d34">Chengdu</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d29">25.03889</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">17</data>
+      <data key="d33">102.71833</data>
+      <data key="d34">Kunming</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d29">34.25833</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">18</data>
+      <data key="d33">108.92861</data>
+      <data key="d34">Xi'an</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d29">34.75778</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">19</data>
+      <data key="d33">113.64861</data>
+      <data key="d34">Zhengzhou</data>
+    </node>
+    <node id="20">
+      <data key="d28">0</data>
+      <data key="d32">20</data>
+      <data key="d34">International Link 4</data>
+    </node>
+    <node id="21">
+      <data key="d28">0</data>
+      <data key="d32">21</data>
+      <data key="d34">International Link 3</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">20.04583</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">22</data>
+      <data key="d33">110.34167</data>
+      <data key="d34">Haikou</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d29">30.13062</data>
+      <data key="d30">China</data>
+      <data key="d31">Pink</data>
+      <data key="d32">23</data>
+      <data key="d33">100.51803</data>
+      <data key="d34">Hong Kong</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">30.25528</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">24</data>
+      <data key="d33">120.16889</data>
+      <data key="d34">Hangzhou</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d29">30.58333</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">25</data>
+      <data key="d33">114.26667</data>
+      <data key="d34">Wuhan</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">31.86389</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">26</data>
+      <data key="d33">117.28083</data>
+      <data key="d34">Hefei</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d29">32.06167</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">27</data>
+      <data key="d33">118.77778</data>
+      <data key="d34">Nanjing</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d29">23.11667</data>
+      <data key="d30">China</data>
+      <data key="d31">Green</data>
+      <data key="d32">28</data>
+      <data key="d33">113.25</data>
+      <data key="d34">Guangzhou</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d29">24.47979</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">29</data>
+      <data key="d33">118.08187</data>
+      <data key="d34">Xiamen</data>
+    </node>
+    <node id="30">
+      <data key="d28">1</data>
+      <data key="d29">26.06139</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">30</data>
+      <data key="d33">119.30611</data>
+      <data key="d34">Fuzhou</data>
+    </node>
+    <node id="31">
+      <data key="d28">1</data>
+      <data key="d29">28.68333</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">31</data>
+      <data key="d33">115.88333</data>
+      <data key="d34">Nandhang</data>
+    </node>
+    <node id="32">
+      <data key="d28">1</data>
+      <data key="d29">36.61667</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">32</data>
+      <data key="d33">101.76667</data>
+      <data key="d34">Xining</data>
+    </node>
+    <node id="33">
+      <data key="d28">1</data>
+      <data key="d29">43.8</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">33</data>
+      <data key="d33">87.58333</data>
+      <data key="d34">Urumqi</data>
+    </node>
+    <node id="34">
+      <data key="d28">1</data>
+      <data key="d29">45.75</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">34</data>
+      <data key="d33">126.65</data>
+      <data key="d34">Harbin</data>
+    </node>
+    <node id="35">
+      <data key="d28">1</data>
+      <data key="d29">43.88</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">35</data>
+      <data key="d33">125.32278</data>
+      <data key="d34">Changchun</data>
+    </node>
+    <node id="36">
+      <data key="d28">1</data>
+      <data key="d29">41.79222</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">36</data>
+      <data key="d33">123.43278</data>
+      <data key="d34">Shenyang</data>
+    </node>
+    <node id="37">
+      <data key="d28">1</data>
+      <data key="d29">38.91222</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">37</data>
+      <data key="d33">121.60222</data>
+      <data key="d34">Dalian</data>
+    </node>
+    <node id="38">
+      <data key="d28">1</data>
+      <data key="d29">39.14222</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">38</data>
+      <data key="d33">117.17667</data>
+      <data key="d34">Tianjin</data>
+    </node>
+    <node id="39">
+      <data key="d28">1</data>
+      <data key="d29">39.9075</data>
+      <data key="d30">China</data>
+      <data key="d31">Green</data>
+      <data key="d32">39</data>
+      <data key="d33">116.39723</data>
+      <data key="d34">Beijing</data>
+    </node>
+    <node id="40">
+      <data key="d28">1</data>
+      <data key="d29">40.81056</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">40</data>
+      <data key="d33">111.65222</data>
+      <data key="d34">Hohhot</data>
+    </node>
+    <node id="41">
+      <data key="d28">1</data>
+      <data key="d29">38.46806</data>
+      <data key="d30">China</data>
+      <data key="d31">Blue</data>
+      <data key="d32">41</data>
+      <data key="d33">106.27306</data>
+      <data key="d34">Yinchuan</data>
+    </node>
+    <edge source="0" target="16">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="0" target="3">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="0" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="1" target="18">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="1" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="2" target="33">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="4" target="8">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="5" target="38">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="6" target="18">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="6" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="7" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="38">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="39">
+      <data key="d35">Blue Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="11">
+      <data key="d35">Cyan Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="16">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="18">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="23">
+      <data key="d35">Green Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="24">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="25">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="26">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="27">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="28">
+      <data key="d35">Blue Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="31">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="9" target="27">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="10" target="39">
+      <data key="d35">Cyan Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="12" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="13" target="25">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="14" target="16">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="14" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="15" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="16" target="27">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="16" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="17" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="32">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="33">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="41">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="40">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="25">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="27">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="19" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="20" target="23">
+      <data key="d35">Cyan Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="21" target="28">
+      <data key="d35">Cyan Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="22" target="25">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="22" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="23" target="28">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="23" target="39">
+      <data key="d35">Green Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="25" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="25" target="27">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="27" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="27" target="30">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="28" target="38">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="28" target="39">
+      <data key="d35">Blue Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="28" target="29">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="32" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="33" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="34" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="35" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="36" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="37" target="38">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="38" target="39">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="39" target="40">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="39" target="41">
+      <data key="d35">Red Link</data>
+      <data key="d36">0</data>
+    </edge>
+  </graph>
+</graphml>

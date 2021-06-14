@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d36" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">14/01/11</data>
+    <data key="d1">USA</data>
+    <data key="d2">Country</data>
+    <data key="d3">DataXchange</data>
+    <data key="d4">Secondary</data>
+    <data key="d5">Acquired by Rocky Mountain Internet http://sec.edgar-online.com/internet-commerce-communications-inc/8-k-current-report-filing/1998/12/22/section6.aspx (Network was K5 plus a stub!)</data>
+    <data key="d6">http://www.nthelp.com/images/DataXchange.jpg</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Dataxchange</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">01</data>
+    <data key="d19">14/01/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">1</data>
+    <data key="d24">0</data>
+    <data key="d25">2011_01</data>
+    <data key="d26">2011</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">37.77493</data>
+      <data key="d31">United States</data>
+      <data key="d32">0</data>
+      <data key="d33">-122.41942</data>
+      <data key="d34">San Francisco</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">34.05223</data>
+      <data key="d31">United States</data>
+      <data key="d32">1</data>
+      <data key="d33">-118.24368</data>
+      <data key="d34">Los Angeles</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">41.85003</data>
+      <data key="d31">United States</data>
+      <data key="d32">2</data>
+      <data key="d33">-87.65005</data>
+      <data key="d34">Chicago</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">38.93428</data>
+      <data key="d31">United States</data>
+      <data key="d32">3</data>
+      <data key="d33">-77.17748</data>
+      <data key="d34">McLean</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">38.89511</data>
+      <data key="d31">United States</data>
+      <data key="d32">4</data>
+      <data key="d33">-77.03637</data>
+      <data key="d34">Washington, DC</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">33.749</data>
+      <data key="d31">United States</data>
+      <data key="d32">5</data>
+      <data key="d33">-84.38798</data>
+      <data key="d34">Atlanta</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="2">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="4">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="5">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="2">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="4">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="5">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="4">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="5">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="4">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d35">DS-3</data>
+      <data key="d36">45 Mbps DS-3</data>
+      <data key="d37">45 Mbps </data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>

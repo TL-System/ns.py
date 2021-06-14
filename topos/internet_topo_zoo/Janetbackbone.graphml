@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d37" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d36" />
+  <key attr.name="geocode_id" attr.type="string" for="node" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="type" attr.type="string" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">31/03/11</data>
+    <data key="d1">UK</data>
+    <data key="d2">Country</data>
+    <data key="d3">Janet Backbone</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.ja.net/images/company/network-topology/topology-map.pdf</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Janetbackbone</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">03</data>
+    <data key="d19">31/03/11</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">1</data>
+    <data key="d24">2011_03</data>
+    <data key="d25">2011</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">51.46117</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">0</data>
+      <data key="d33">-0.93083</data>
+      <data key="d34">TVN</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">51.37795</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">1</data>
+      <data key="d33">-2.35907</data>
+      <data key="d34">SWERN</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">52.5</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">2</data>
+      <data key="d33">-1.96667</data>
+      <data key="d34">MidMAN</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">51.48</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">3</data>
+      <data key="d33">-3.18</data>
+      <data key="d34">WREN</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">51.50853</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">4</data>
+      <data key="d33">-0.12574</data>
+      <data key="d34">LMN</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">52.2</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">5</data>
+      <data key="d33">0.11667</data>
+      <data key="d34">EastNet</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">50.90395</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">6</data>
+      <data key="d33">-1.40428</data>
+      <data key="d34">LeNSE</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">51.38914</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">7</data>
+      <data key="d33">0.54863</data>
+      <data key="d34">Kentish MAN</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d29">52.83111</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">8</data>
+      <data key="d33">-1.32806</data>
+      <data key="d34">EMMAN</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d31">Blue Square</data>
+      <data key="d32">9</data>
+      <data key="d34">Dublin</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d29">55.95</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Blue Square</data>
+      <data key="d32">10</data>
+      <data key="d33">-3.2</data>
+      <data key="d34">Sco-locate</data>
+    </node>
+    <node id="11">
+      <data key="d28">1</data>
+      <data key="d29">51.45625</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">11</data>
+      <data key="d33">-0.97113</data>
+      <data key="d34">Reading</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d29">53.79648</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">12</data>
+      <data key="d33">-1.54785</data>
+      <data key="d34">Leeds</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d29">53.39254</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">13</data>
+      <data key="d33">-2.58024</data>
+      <data key="d34">Warrington</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">55.86515</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">14</data>
+      <data key="d33">-4.25763</data>
+      <data key="d34">Glasgow</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d29">51.50853</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">15</data>
+      <data key="d33">-0.12574</data>
+      <data key="d34">Telehouse</data>
+    </node>
+    <node id="16">
+      <data key="d28">1</data>
+      <data key="d29">51.50853</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">16</data>
+      <data key="d33">-0.12574</data>
+      <data key="d34">Telecity</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d29">51.50853</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">17</data>
+      <data key="d33">-0.12574</data>
+      <data key="d34">London</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d29">51.45</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Core Node</data>
+      <data key="d32">18</data>
+      <data key="d33">-2.58333</data>
+      <data key="d34">Bristol</data>
+    </node>
+    <node id="19">
+      <data key="d30">United Kingdom</data>
+      <data key="d35">2651712</data>
+      <data key="d34">C&amp;NLMAN</data>
+      <data key="d28">1</data>
+      <data key="d33">-2.83333</data>
+      <data key="d29">54.58333</data>
+      <data key="d31">Node</data>
+      <data key="d32">19</data>
+    </node>
+    <node id="20">
+      <data key="d30">United Kingdom</data>
+      <data key="d35">2641364</data>
+      <data key="d34">NIRAN</data>
+      <data key="d28">1</data>
+      <data key="d33">-6.5</data>
+      <data key="d29">54.5</data>
+      <data key="d31">Node</data>
+      <data key="d32">20</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d29">57.12</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">21</data>
+      <data key="d33">-4.71</data>
+      <data key="d34">UHIMI</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">57.14369</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">22</data>
+      <data key="d33">-2.09814</data>
+      <data key="d34">AbMAN</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d29">56.33871</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">23</data>
+      <data key="d33">-2.79902</data>
+      <data key="d34">FaTMAN</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">55.95</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">24</data>
+      <data key="d33">-3.2</data>
+      <data key="d34">EaStMAN</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d29">55.86515</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">25</data>
+      <data key="d33">-4.25763</data>
+      <data key="d34">Clydenet</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">54.97328</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">26</data>
+      <data key="d33">-1.61396</data>
+      <data key="d34">NorMAN</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d29">54.27966</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">27</data>
+      <data key="d33">-0.40443</data>
+      <data key="d34">YHMAN</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d29">53.48095</data>
+      <data key="d30">United Kingdom</data>
+      <data key="d31">Node</data>
+      <data key="d32">28</data>
+      <data key="d33">-2.23743</data>
+      <data key="d34">NNW</data>
+    </node>
+    <edge source="0" target="11">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="0" target="4">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="18">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="3">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="12">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="13">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="3" target="11">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="17">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="17">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="12">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="6" target="17">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="6" target="18">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="7" target="17">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="7" target="11">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="17">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="12">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="20">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="13">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="12">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="14">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="13">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="16">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="18">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="13">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="17">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="23">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="24">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="26">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="27">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="14">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="19">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="28">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="19">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="20">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="21">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="25">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="26">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="28">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="17">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="18">
+      <data key="d36">Red Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="22" target="23">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="27" target="28">
+      <data key="d36">Purple Link</data>
+      <data key="d37">0</data>
+    </edge>
+  </graph>
+</graphml>

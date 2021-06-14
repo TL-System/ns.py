@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d40" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d39" />
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="id" attr.type="string" for="edge" id="d37" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d36" />
+  <key attr.name="Country" attr.type="string" for="node" id="d35" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d33" />
+  <key attr.name="type" attr.type="string" for="node" id="d32" />
+  <key attr.name="label" attr.type="string" for="node" id="d31" />
+  <key attr.name="doubted" attr.type="int" for="node" id="d30" />
+  <key attr.name="id" attr.type="int" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">20/10/10</data>
+    <data key="d1">Armenia</data>
+    <data key="d2">Country</data>
+    <data key="d3">ASNET-AM</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.asnet.am/network.php</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Historic</data>
+    <data key="d9">REN</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">AsnetAm</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">19/10/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">0</data>
+    <data key="d24">2008</data>
+    <data key="d25">2008</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">0</data>
+      <data key="d30">1</data>
+      <data key="d31">?</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">1</data>
+      <data key="d31">Drug Agency</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">2</data>
+      <data key="d31">Inst. Radio Meas.</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">3</data>
+      <data key="d31">Isnt. Chemical Physics</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">4</data>
+      <data key="d31">Inst. Biochem</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">5</data>
+      <data key="d31">Inst. Geophysics</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">6</data>
+      <data key="d31">Inst. of Health</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">7</data>
+      <data key="d31">Inst. Informatics</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">8</data>
+      <data key="d31">TV station</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">9</data>
+      <data key="d31">Inst. Phylosophy</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d29">10</data>
+      <data key="d30">1</data>
+      <data key="d31">?</data>
+    </node>
+    <node id="11">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">11</data>
+      <data key="d31">Organic chem</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">12</data>
+      <data key="d31">Library</data>
+    </node>
+    <node id="13">
+      <data key="d28">0</data>
+      <data key="d29">13</data>
+      <data key="d31">Lib Net</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">14</data>
+      <data key="d31">ICT</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">15</data>
+      <data key="d31">Geological</data>
+    </node>
+    <node id="16">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">16</data>
+      <data key="d31">Inst. Math.</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">17</data>
+      <data key="d31">Inst. Mechanics</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">18</data>
+      <data key="d31">ASHMS</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">19</data>
+      <data key="d31">Inst. Physiology</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d32">Scientific Organisation</data>
+      <data key="d29">20</data>
+      <data key="d31">Yeveran Physics Inst.</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d32">Cyan Colour</data>
+      <data key="d29">21</data>
+      <data key="d31">ArmESFo</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">22</data>
+      <data key="d31">National Academy</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">23</data>
+      <data key="d31">NSSPA</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">24</data>
+      <data key="d31">Min. of Education</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">25</data>
+      <data key="d31">National Stats. science</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">26</data>
+      <data key="d31">EEMC MNP</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">27</data>
+      <data key="d31">?</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">28</data>
+      <data key="d31">Museum</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">29</data>
+      <data key="d31">ISTC</data>
+    </node>
+    <node id="30">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">30</data>
+      <data key="d31">Geophys. Obser.</data>
+    </node>
+    <node id="31">
+      <data key="d28">1</data>
+      <data key="d29">31</data>
+      <data key="d30">1</data>
+      <data key="d31">?</data>
+    </node>
+    <node id="32">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">32</data>
+      <data key="d31">Encycloped.</data>
+    </node>
+    <node id="33">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">33</data>
+      <data key="d31">Literature</data>
+    </node>
+    <node id="34">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">34</data>
+      <data key="d31">Economy</data>
+    </node>
+    <node id="35">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">35</data>
+      <data key="d31">Linguistic Inst</data>
+    </node>
+    <node id="36">
+      <data key="d33">1</data>
+      <data key="d28">1</data>
+      <data key="d29">36</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="37">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">37</data>
+      <data key="d31">American Uni.</data>
+    </node>
+    <node id="38">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">38</data>
+      <data key="d31">Oriental</data>
+    </node>
+    <node id="39">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">39</data>
+      <data key="d31">Hist</data>
+    </node>
+    <node id="40">
+      <data key="d28">1</data>
+      <data key="d34">40.61722</data>
+      <data key="d35">Armenia</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">40</data>
+      <data key="d36">43.97583</data>
+      <data key="d31">Art</data>
+    </node>
+    <node id="41">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">41</data>
+      <data key="d31">Hydroecol</data>
+    </node>
+    <node id="42">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">42</data>
+      <data key="d31">Engineer academy</data>
+    </node>
+    <node id="43">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">43</data>
+      <data key="d31">education</data>
+    </node>
+    <node id="44">
+      <data key="d28">1</data>
+      <data key="d32">Dark Blue Colour</data>
+      <data key="d29">44</data>
+      <data key="d31">SCS</data>
+    </node>
+    <node id="45">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">45</data>
+      <data key="d31">Organic Chem</data>
+    </node>
+    <node id="46">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">46</data>
+      <data key="d31">Astrophysical Obs.</data>
+    </node>
+    <node id="47">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">47</data>
+      <data key="d31">Inst. Microbiology</data>
+    </node>
+    <node id="48">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">48</data>
+      <data key="d31">Molecular Structure</data>
+    </node>
+    <node id="49">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">49</data>
+      <data key="d31">General Chem</data>
+    </node>
+    <node id="50">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">50</data>
+      <data key="d31">research</data>
+    </node>
+    <node id="51">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">51</data>
+      <data key="d31">engineering center</data>
+    </node>
+    <node id="52">
+      <data key="d28">1</data>
+      <data key="d29">52</data>
+      <data key="d30">1</data>
+      <data key="d31">?</data>
+    </node>
+    <node id="53">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">53</data>
+      <data key="d31">Inst. Radiophysics</data>
+    </node>
+    <node id="54">
+      <data key="d28">1</data>
+      <data key="d32">Cyan Colour</data>
+      <data key="d29">54</data>
+      <data key="d31">ARENA</data>
+    </node>
+    <node id="55">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">55</data>
+      <data key="d31">Institute of Applied Physics</data>
+    </node>
+    <node id="56">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">56</data>
+      <data key="d31">Inst. of Molecular Biology</data>
+    </node>
+    <node id="57">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">57</data>
+      <data key="d31">Agricultural Academy</data>
+    </node>
+    <node id="58">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">58</data>
+      <data key="d31">Ecological Center</data>
+    </node>
+    <node id="59">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">59</data>
+      <data key="d31">Intitute of Botany</data>
+    </node>
+    <node id="60">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">60</data>
+      <data key="d31">Institute of Zoology</data>
+    </node>
+    <node id="61">
+      <data key="d28">1</data>
+      <data key="d32">NAS RA Organisation (ASNET-AM)</data>
+      <data key="d29">61</data>
+      <data key="d31">Gallery</data>
+    </node>
+    <node id="62">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">62</data>
+      <data key="d31">Yerevan University</data>
+    </node>
+    <node id="63">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">63</data>
+      <data key="d31">State Engineering University</data>
+    </node>
+    <node id="64">
+      <data key="d28">1</data>
+      <data key="d32">Educational Organisation</data>
+      <data key="d29">64</data>
+      <data key="d31">Yerevan Medical University</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d37">e19</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="2">
+      <data key="d37">e15</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="6">
+      <data key="d37">e20</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="55">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="7">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="56">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="4">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="7">
+      <data key="d37">e18</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="7">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="8">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="10">
+      <data key="d37">e25</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="46">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="46">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">1</data>
+    </edge>
+    <edge source="7" target="47">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="48">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="53">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="56">
+      <data key="d37">e14</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="25">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="26">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="27">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="28">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="61">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="49">
+      <data key="d37">e32</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="11">
+      <data key="d37">e31</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="12" target="13">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="12" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="14" target="36">
+      <data key="d37">e67</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">1</data>
+    </edge>
+    <edge source="16" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="17" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="18" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="44">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="22">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="36">
+      <data key="d37">e49</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="37">
+      <data key="d37">e48</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="44">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="54">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="23">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="25">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="28">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="61">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="62">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="63">
+      <data key="d37">e11</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d37">e57</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="27" target="31">
+      <data key="d37">e74</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="29" target="36">
+      <data key="d37">e66</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="30" target="36">
+      <data key="d37">e65</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="32">
+      <data key="d37">e78</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="35">
+      <data key="d37">e75</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="34">
+      <data key="d37">e76</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="33">
+      <data key="d37">e77</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="38">
+      <data key="d37">e60</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="39">
+      <data key="d37">e59</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="40">
+      <data key="d37">e62</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="41">
+      <data key="d37">e61</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="42">
+      <data key="d37">e64</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="43">
+      <data key="d37">e63</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="45" target="48">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="46" target="47">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="46" target="53">
+      <data key="d39">Wireless</data>
+      <data key="d40">wireless</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="50" target="52">
+      <data key="d37">e38</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="51" target="52">
+      <data key="d37">e37</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="52" target="53">
+      <data key="d37">e36</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="54" target="64">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="54" target="57">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="54" target="62">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="54" target="63">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="55" target="60">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="56" target="60">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="57" target="58">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="58" target="59">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="59" target="60">
+      <data key="d39">Fiber</data>
+      <data key="d40">fiber</data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>

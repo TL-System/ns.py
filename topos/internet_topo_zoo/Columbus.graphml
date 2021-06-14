@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d40" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d39" />
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d36" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="Country" attr.type="string" for="node" id="d33" />
+  <key attr.name="geocode_country" attr.type="string" for="node" id="d32" />
+  <key attr.name="label" attr.type="string" for="node" id="d31" />
+  <key attr.name="id" attr.type="int" for="node" id="d30" />
+  <key attr.name="type" attr.type="string" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">30/10/10</data>
+    <data key="d1">Latin America</data>
+    <data key="d2">Continent</data>
+    <data key="d3">Columbus Networks</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.columbus-networks.com/</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Columbus</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">08</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">1</data>
+    <data key="d24">2010_08</data>
+    <data key="d25">2010</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">0</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">1</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="2">
+      <data key="d32">Costa Rica</data>
+      <data key="d33">Costa Rica</data>
+      <data key="d34">-84.0</data>
+      <data key="d31">Costa Rica</data>
+      <data key="d28">1</data>
+      <data key="d35">10.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">2</data>
+    </node>
+    <node id="3">
+      <data key="d32">Panama</data>
+      <data key="d33">Panama</data>
+      <data key="d34">-80.0</data>
+      <data key="d31">Panama</data>
+      <data key="d28">1</data>
+      <data key="d35">9.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">3</data>
+    </node>
+    <node id="4">
+      <data key="d32">Venezuela</data>
+      <data key="d33">Venezuela</data>
+      <data key="d34">-66.0</data>
+      <data key="d31">Venezuela</data>
+      <data key="d28">1</data>
+      <data key="d35">8.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">4</data>
+    </node>
+    <node id="5">
+      <data key="d32">Curacao</data>
+      <data key="d33">Curacao</data>
+      <data key="d34">-69.0</data>
+      <data key="d31">Curacao</data>
+      <data key="d28">1</data>
+      <data key="d35">12.16667</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">5</data>
+    </node>
+    <node id="6">
+      <data key="d32">Columbia</data>
+      <data key="d33">Colombia</data>
+      <data key="d34">-72.0</data>
+      <data key="d31">Columbia</data>
+      <data key="d28">1</data>
+      <data key="d35">4.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">6</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">7</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="8">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">8</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="9">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">9</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="10">
+      <data key="d32">Bonaire</data>
+      <data key="d33">Bonaire, Saint Eustatius and Saba</data>
+      <data key="d34">-68.29445</data>
+      <data key="d31">Bonaire</data>
+      <data key="d28">1</data>
+      <data key="d35">12.21286</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">10</data>
+    </node>
+    <node id="11">
+      <data key="d32">St Vincent</data>
+      <data key="d33">Saint Vincent and the Grenadines</data>
+      <data key="d34">-61.2</data>
+      <data key="d31">St Vincent</data>
+      <data key="d28">1</data>
+      <data key="d35">13.08333</data>
+      <data key="d29">Branching Unit</data>
+      <data key="d30">11</data>
+    </node>
+    <node id="12">
+      <data key="d32">Mexico</data>
+      <data key="d33">Mexico</data>
+      <data key="d34">-102.0</data>
+      <data key="d31">Mexico</data>
+      <data key="d28">1</data>
+      <data key="d35">23.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">12</data>
+    </node>
+    <node id="13">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">13</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">14</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">15</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="16">
+      <data key="d32">Turks and Caicos</data>
+      <data key="d33">Turks and Caicos Islands</data>
+      <data key="d34">-71.58333</data>
+      <data key="d31">Turks and Caicos</data>
+      <data key="d28">1</data>
+      <data key="d35">21.73333</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">16</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">17</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="18">
+      <data key="d32">Antigua</data>
+      <data key="d33">Antigua and Barbuda</data>
+      <data key="d34">-61.8</data>
+      <data key="d31">Antigua</data>
+      <data key="d28">1</data>
+      <data key="d35">17.05</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">18</data>
+    </node>
+    <node id="19">
+      <data key="d32">Guadeloupe</data>
+      <data key="d33">Guadeloupe</data>
+      <data key="d34">-61.58333</data>
+      <data key="d31">Guadeloupe</data>
+      <data key="d28">1</data>
+      <data key="d35">16.25</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">19</data>
+    </node>
+    <node id="20">
+      <data key="d32">Dominica</data>
+      <data key="d33">Dominica</data>
+      <data key="d34">-61.33333</data>
+      <data key="d31">Dominica</data>
+      <data key="d28">1</data>
+      <data key="d35">15.5</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">20</data>
+    </node>
+    <node id="21">
+      <data key="d32">Martinique</data>
+      <data key="d33">Martinique</data>
+      <data key="d34">-61.0</data>
+      <data key="d31">Martinique</data>
+      <data key="d28">1</data>
+      <data key="d35">14.66667</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">21</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">22</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="23">
+      <data key="d32">Barbados</data>
+      <data key="d33">Barbados</data>
+      <data key="d34">-59.53333</data>
+      <data key="d31">Barbados</data>
+      <data key="d28">1</data>
+      <data key="d35">13.16667</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">23</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">24</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="25">
+      <data key="d32">Grenada</data>
+      <data key="d33">Grenada</data>
+      <data key="d34">-61.66667</data>
+      <data key="d31">Grenada</data>
+      <data key="d28">1</data>
+      <data key="d35">12.11667</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">25</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">Branching Unit</data>
+      <data key="d30">26</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="27">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">27</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="28">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">28</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="29">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">29</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="30">
+      <data key="d32">Bahamas</data>
+      <data key="d33">Bahamas</data>
+      <data key="d34">-76.0</data>
+      <data key="d31">Bahamas</data>
+      <data key="d28">1</data>
+      <data key="d35">24.0</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">30</data>
+    </node>
+    <node id="31">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">31</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="32">
+      <data key="d28">1</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">32</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="33">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">33</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="34">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">34</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="35">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">35</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="36">
+      <data key="d32">Ecuador</data>
+      <data key="d28">0</data>
+      <data key="d30">36</data>
+      <data key="d31">Ecuador</data>
+    </node>
+    <node id="37">
+      <data key="d28">1</data>
+      <data key="d29">Terrestrial Fiber Partners</data>
+      <data key="d30">37</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="38">
+      <data key="d28">1</data>
+      <data key="d29">Branching Unit</data>
+      <data key="d30">38</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="39">
+      <data key="d28">1</data>
+      <data key="d29">Branching Unit</data>
+      <data key="d30">39</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="40">
+      <data key="d32">Jamaica</data>
+      <data key="d33">Jamaica</data>
+      <data key="d34">-77.5</data>
+      <data key="d31">Jamaica</data>
+      <data key="d28">1</data>
+      <data key="d35">18.25</data>
+      <data key="d29">CFX Express Route</data>
+      <data key="d30">40</data>
+    </node>
+    <node id="41">
+      <data key="d28">1</data>
+      <data key="d29">CFX Express Route</data>
+      <data key="d30">41</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="42">
+      <data key="d32">USA</data>
+      <data key="d33">United States</data>
+      <data key="d34">-98.5</data>
+      <data key="d31">USA</data>
+      <data key="d28">1</data>
+      <data key="d35">39.76</data>
+      <data key="d29">CFX Express Route</data>
+      <data key="d30">42</data>
+    </node>
+    <node id="43">
+      <data key="d32">Cayman Islands</data>
+      <data key="d33">Cayman Islands</data>
+      <data key="d34">-80.66667</data>
+      <data key="d31">Cayman Islands</data>
+      <data key="d28">1</data>
+      <data key="d35">19.5</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">43</data>
+    </node>
+    <node id="44">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">44</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="45">
+      <data key="d28">1</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">45</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="46">
+      <data key="d36">1</data>
+      <data key="d28">1</data>
+      <data key="d30">46</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="47">
+      <data key="d32">St Kitts &amp;amp; Nevis</data>
+      <data key="d28">1</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">47</data>
+      <data key="d31">St Kitts &amp; Nevis</data>
+    </node>
+    <node id="48">
+      <data key="d32">St Martin</data>
+      <data key="d33">Saint Martin</data>
+      <data key="d34">-63.06667</data>
+      <data key="d31">St Martin</data>
+      <data key="d28">1</data>
+      <data key="d35">18.06667</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">48</data>
+    </node>
+    <node id="49">
+      <data key="d28">1</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">49</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="50">
+      <data key="d28">1</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">50</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="51">
+      <data key="d32">Suriname</data>
+      <data key="d33">Suriname</data>
+      <data key="d34">-56.0</data>
+      <data key="d31">Suriname</data>
+      <data key="d28">1</data>
+      <data key="d35">4.0</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">51</data>
+    </node>
+    <node id="52">
+      <data key="d32">Guyana</data>
+      <data key="d33">Guyana</data>
+      <data key="d34">-59.0</data>
+      <data key="d31">Guyana</data>
+      <data key="d28">1</data>
+      <data key="d35">5.0</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">52</data>
+    </node>
+    <node id="53">
+      <data key="d32">Trinidad and Tobago</data>
+      <data key="d33">Trinidad and Tobago</data>
+      <data key="d34">-61.0</data>
+      <data key="d31">Trinidad and Tobago</data>
+      <data key="d28">1</data>
+      <data key="d35">11.0</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">53</data>
+    </node>
+    <node id="54">
+      <data key="d32">St Croix</data>
+      <data key="d33">U.S. Virgin Islands</data>
+      <data key="d34">-64.74795</data>
+      <data key="d31">St Croix</data>
+      <data key="d28">1</data>
+      <data key="d35">17.73563</data>
+      <data key="d29">Off-Net Subsea Carrier Networks</data>
+      <data key="d30">54</data>
+    </node>
+    <node id="55">
+      <data key="d32">Dominican Republic</data>
+      <data key="d33">Dominican Republic</data>
+      <data key="d34">-70.66667</data>
+      <data key="d31">Dominican Republic</data>
+      <data key="d28">1</data>
+      <data key="d35">19.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">55</data>
+    </node>
+    <node id="56">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">56</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="57">
+      <data key="d32">Puerto Rico</data>
+      <data key="d33">Puerto Rico</data>
+      <data key="d34">-66.49989</data>
+      <data key="d31">Puerto Rico</data>
+      <data key="d28">1</data>
+      <data key="d35">18.24829</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">57</data>
+    </node>
+    <node id="58">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">58</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="59">
+      <data key="d28">1</data>
+      <data key="d29">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d30">59</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="60">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">60</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="61">
+      <data key="d32">Nicaragua</data>
+      <data key="d33">Nicaragua</data>
+      <data key="d34">-85.0</data>
+      <data key="d31">Nicaragua</data>
+      <data key="d28">1</data>
+      <data key="d35">13.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">61</data>
+    </node>
+    <node id="62">
+      <data key="d28">1</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">62</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="63">
+      <data key="d28">1</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">63</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="64">
+      <data key="d32">El Salvador</data>
+      <data key="d33">El Salvador</data>
+      <data key="d34">-88.91667</data>
+      <data key="d31">El Salvador</data>
+      <data key="d28">1</data>
+      <data key="d35">13.83333</data>
+      <data key="d29">MAYA</data>
+      <data key="d30">64</data>
+    </node>
+    <node id="65">
+      <data key="d32">Guatemala</data>
+      <data key="d33">Guatemala</data>
+      <data key="d34">-90.25</data>
+      <data key="d31">Guatemala</data>
+      <data key="d28">1</data>
+      <data key="d35">15.5</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">65</data>
+    </node>
+    <node id="66">
+      <data key="d32">Belize</data>
+      <data key="d33">Belize</data>
+      <data key="d34">-88.75</data>
+      <data key="d31">Belize</data>
+      <data key="d28">1</data>
+      <data key="d35">17.25</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">66</data>
+    </node>
+    <node id="67">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">67</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="68">
+      <data key="d32">Honduras</data>
+      <data key="d33">Honduras</data>
+      <data key="d34">-86.5</data>
+      <data key="d31">Honduras</data>
+      <data key="d28">1</data>
+      <data key="d35">15.0</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">68</data>
+    </node>
+    <node id="69">
+      <data key="d28">1</data>
+      <data key="d29">ARCOS</data>
+      <data key="d30">69</data>
+      <data key="d31">None</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="27">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="34">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="37">
+      <data key="d39">Fiber</data>
+      <data key="d37">Terrestrial Fiber Partners</data>
+      <data key="d40">Terrestrial  Partners</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="7">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="9">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="61">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="27">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="34">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="57">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="10">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="11">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="38">
+      <data key="d37">CFX Express Route</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="48">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="50">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="54">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="9" target="27">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="9" target="46">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="11" target="53">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="12" target="66">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="12" target="15">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="13" target="29">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="13" target="14">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="13" target="31">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="26">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="17">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="55">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="17" target="58">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="18" target="47">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="47">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="24">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="54">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="23">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="25" target="53">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="26" target="31">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="28" target="65">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="28" target="66">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="28" target="67">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="29" target="67">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="29" target="46">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="30" target="59">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="30" target="45">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="49">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="31" target="44">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="32" target="59">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="32" target="44">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="33" target="49">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="33" target="42">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="33" target="45">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="35" target="51">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="35" target="52">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="35" target="53">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="36" target="37">
+      <data key="d39">Fiber</data>
+      <data key="d37">Terrestrial Fiber Partners</data>
+      <data key="d40">Terrestrial  Partners</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="38" target="41">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="38" target="42">
+      <data key="d37">CFX Express Route</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="39" target="40">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="39" target="55">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="40" target="41">
+      <data key="d37">CFX Express Route</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="43" target="46">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="44" target="59">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="44" target="45">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="45" target="49">
+      <data key="d37">Fibralink, Carribean Crossings, ECLink</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="47" target="48">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="48" target="57">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="50" target="57">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="50" target="54">
+      <data key="d37">Off-Net Subsea Carrier Networks</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="55" target="56">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="56" target="57">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="58" target="59">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="60" target="68">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="60" target="69">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="61" target="69">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="62" target="63">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="63" target="64">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="63" target="65">
+      <data key="d37">Maya</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="67" target="68">
+      <data key="d37">ARCOS</data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>

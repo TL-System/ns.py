@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d39" />
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d36" />
+  <key attr.name="label" attr.type="string" for="node" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="id" attr.type="int" for="node" id="d33" />
+  <key attr.name="type" attr.type="string" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="int" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">21/10/10</data>
+    <data key="d1">Canada, USA</data>
+    <data key="d2">Country+</data>
+    <data key="d3">Bell Canada</data>
+    <data key="d4">Secondary</data>
+    <data key="d5">Corporate-only network. Check peering.</data>
+    <data key="d6">http://www.isp-planet.com/img/backbones/bell_canada.jpg</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Historic</data>
+    <data key="d9">COM</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Bellcanada</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">&lt;</data>
+    <data key="d18">0</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">1</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">1</data>
+    <data key="d24">1</data>
+    <data key="d25">&lt;2005</data>
+    <data key="d26">0</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">54.45018</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">0</data>
+      <data key="d34">-110.2017</data>
+      <data key="d35">Cold Lake</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">55.16667</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">1</data>
+      <data key="d34">-118.80271</data>
+      <data key="d35">Grande Prairie</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">53.55014</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">2</data>
+      <data key="d34">-113.46871</data>
+      <data key="d35">Edmonton</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">56.7335</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">3</data>
+      <data key="d34">-111.38519</data>
+      <data key="d35">Fort McMurray</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">50.66648</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">4</data>
+      <data key="d34">-120.3192</data>
+      <data key="d35">Kamloops</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">40.9126</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">5</data>
+      <data key="d34">-73.83708</data>
+      <data key="d35">Vernon</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">55.7666</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">6</data>
+      <data key="d34">-120.23616</data>
+      <data key="d35">Dawson Creek</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">53.9166</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">7</data>
+      <data key="d34">-122.75301</data>
+      <data key="d35">Prince George</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">49.88307</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">8</data>
+      <data key="d34">-119.48568</data>
+      <data key="d35">Kelowna</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">49.48062</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">9</data>
+      <data key="d34">-119.58584</data>
+      <data key="d35">Penticton?</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d30">50.20011</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">10</data>
+      <data key="d34">-66.38208</data>
+      <data key="d35">Sept -Iles</data>
+    </node>
+    <node id="11">
+      <data key="d29">1</data>
+      <data key="d30">46.23525</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">11</data>
+      <data key="d34">-63.12671</data>
+      <data key="d35">Charlottetown</data>
+    </node>
+    <node id="12">
+      <data key="d29">1</data>
+      <data key="d30">40.71427</data>
+      <data key="d31">United States</data>
+      <data key="d32">City with Colocation</data>
+      <data key="d33">12</data>
+      <data key="d34">-74.00597</data>
+      <data key="d35">New York</data>
+    </node>
+    <node id="13">
+      <data key="d29">1</data>
+      <data key="d30">45.41117</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City with Colocation</data>
+      <data key="d33">13</data>
+      <data key="d34">-75.69812</data>
+      <data key="d35">Ottawa</data>
+    </node>
+    <node id="14">
+      <data key="d29">1</data>
+      <data key="d30">45.50884</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">14</data>
+      <data key="d34">-73.58781</data>
+      <data key="d35">Montreal</data>
+    </node>
+    <node id="15">
+      <data key="d29">1</data>
+      <data key="d30">45.40008</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">15</data>
+      <data key="d34">-71.89908</data>
+      <data key="d35">Sherbrooke</data>
+    </node>
+    <node id="16">
+      <data key="d29">1</data>
+      <data key="d30">46.81228</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">16</data>
+      <data key="d34">-71.21454</data>
+      <data key="d35">Quebec City</data>
+    </node>
+    <node id="17">
+      <data key="d29">1</data>
+      <data key="d30">48.42749</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">17</data>
+      <data key="d34">-71.06352</data>
+      <data key="d35">Chicoutimi</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d30">48.44879</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">18</data>
+      <data key="d34">-68.52396</data>
+      <data key="d35">Rimouski</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d30">49.21679</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">19</data>
+      <data key="d34">-68.14894</data>
+      <data key="d35">Baie-Comeau</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d30">45.27271</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">20</data>
+      <data key="d34">-66.06766</data>
+      <data key="d35">Saint John</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d30">46.11594</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">21</data>
+      <data key="d34">-64.80186</data>
+      <data key="d35">Moncton</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d30">44.646</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">22</data>
+      <data key="d34">-63.57333</data>
+      <data key="d35">Halifax</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d30">45.94541</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">23</data>
+      <data key="d34">-66.66558</data>
+      <data key="d35">Fredericton</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d30">47.56494</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">24</data>
+      <data key="d34">-52.70931</data>
+      <data key="d35">St John's</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d30">45.36685</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">25</data>
+      <data key="d34">-63.28198</data>
+      <data key="d35">Onslow</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d30">49.69999</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">26</data>
+      <data key="d34">-112.81856</data>
+      <data key="d35">Lethbridge</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d30">51.05011</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City with Colocation</data>
+      <data key="d33">27</data>
+      <data key="d34">-114.08529</data>
+      <data key="d35">Calgary</data>
+    </node>
+    <node id="28">
+      <data key="d29">1</data>
+      <data key="d30">42.88645</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">28</data>
+      <data key="d34">-78.87837</data>
+      <data key="d35">Buffalo</data>
+    </node>
+    <node id="29">
+      <data key="d29">1</data>
+      <data key="d30">43.70011</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City with Colocation</data>
+      <data key="d33">29</data>
+      <data key="d34">-79.4163</data>
+      <data key="d35">Toronto</data>
+    </node>
+    <node id="30">
+      <data key="d29">1</data>
+      <data key="d30">48.43294</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">30</data>
+      <data key="d34">-123.3693</data>
+      <data key="d35">Victoria</data>
+    </node>
+    <node id="31">
+      <data key="d29">1</data>
+      <data key="d30">47.60621</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">31</data>
+      <data key="d34">-122.33207</data>
+      <data key="d35">Seattle</data>
+    </node>
+    <node id="32">
+      <data key="d29">1</data>
+      <data key="d30">49.68657</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">32</data>
+      <data key="d34">-124.9936</data>
+      <data key="d35">Courtenay</data>
+    </node>
+    <node id="33">
+      <data key="d29">1</data>
+      <data key="d30">49.24966</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City with Colocation</data>
+      <data key="d33">33</data>
+      <data key="d34">-123.11934</data>
+      <data key="d35">Vancouver</data>
+    </node>
+    <node id="34">
+      <data key="d29">1</data>
+      <data key="d30">41.85003</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">34</data>
+      <data key="d34">-87.65005</data>
+      <data key="d35">Chicago</data>
+    </node>
+    <node id="35">
+      <data key="d29">1</data>
+      <data key="d30">34.05223</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">35</data>
+      <data key="d34">-118.24368</data>
+      <data key="d35">Los Angeles</data>
+    </node>
+    <node id="36">
+      <data key="d29">1</data>
+      <data key="d30">37.44188</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">36</data>
+      <data key="d34">-122.14302</data>
+      <data key="d35">Palo Alto</data>
+    </node>
+    <node id="37">
+      <data key="d29">1</data>
+      <data key="d30">37.77493</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">37</data>
+      <data key="d34">-122.41942</data>
+      <data key="d35">San Francisco</data>
+    </node>
+    <node id="38">
+      <data key="d29">1</data>
+      <data key="d30">50.05006</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">38</data>
+      <data key="d34">-110.66834</data>
+      <data key="d35">Medicine Hat</data>
+    </node>
+    <node id="39">
+      <data key="d29">1</data>
+      <data key="d30">52.26682</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">39</data>
+      <data key="d34">-113.802</data>
+      <data key="d35">Red Deer</data>
+    </node>
+    <node id="40">
+      <data key="d29">1</data>
+      <data key="d30">38.89511</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">40</data>
+      <data key="d34">-77.03637</data>
+      <data key="d35">Washington</data>
+    </node>
+    <node id="41">
+      <data key="d29">1</data>
+      <data key="d30">33.749</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">41</data>
+      <data key="d34">-84.38798</data>
+      <data key="d35">Atlanta</data>
+    </node>
+    <node id="42">
+      <data key="d29">1</data>
+      <data key="d30">32.78306</data>
+      <data key="d31">United States</data>
+      <data key="d32">City</data>
+      <data key="d33">42</data>
+      <data key="d34">-96.80667</data>
+      <data key="d35">Dallas</data>
+    </node>
+    <node id="43">
+      <data key="d29">1</data>
+      <data key="d30">46.49</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">43</data>
+      <data key="d34">-80.99001</data>
+      <data key="d35">Sudbury</data>
+    </node>
+    <node id="44">
+      <data key="d29">1</data>
+      <data key="d30">48.4001</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">44</data>
+      <data key="d34">-89.31683</data>
+      <data key="d35">Thunder Bay</data>
+    </node>
+    <node id="45">
+      <data key="d29">1</data>
+      <data key="d30">49.8844</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">45</data>
+      <data key="d34">-97.14704</data>
+      <data key="d35">Winnipeg</data>
+    </node>
+    <node id="46">
+      <data key="d29">1</data>
+      <data key="d30">52.11679</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">46</data>
+      <data key="d34">-106.63452</data>
+      <data key="d35">Saskatoon</data>
+    </node>
+    <node id="47">
+      <data key="d29">1</data>
+      <data key="d30">50.45008</data>
+      <data key="d31">Canada</data>
+      <data key="d32">City</data>
+      <data key="d33">47</data>
+      <data key="d34">-104.6178</data>
+      <data key="d35">Regina</data>
+    </node>
+    <edge source="0" target="2">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="2">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="4">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="39">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="2" target="46">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="4" target="33">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="5" target="8">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="6" target="7">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="8" target="27">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="8" target="33">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="10" target="19">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="11" target="25">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="11" target="21">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="12" target="40">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="12" target="28">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="12" target="14">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="13" target="29">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="13" target="14">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="14" target="16">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="14" target="15">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">1</data>
+    </edge>
+    <edge source="16" target="17">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="16" target="23">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="16" target="21">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="17" target="18">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="20" target="22">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="20" target="23">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="21" target="25">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="22" target="24">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="22" target="25">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="26" target="27">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="27" target="33">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="27" target="38">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="27" target="39">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="28" target="29">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="29" target="34">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="29" target="43">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="30" target="32">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="30" target="33">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="30" target="31">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="33">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="35">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="36">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="31" target="37">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="34" target="42">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="34" target="45">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="35" target="40">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="35" target="36">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="36" target="37">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="38" target="47">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="40" target="41">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="41" target="42">
+      <data key="d36">Fiber</data>
+      <data key="d37">Leased Fiber Route</data>
+      <data key="d38">Leased  Route</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="43" target="44">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="44" target="45">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="45" target="46">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="45" target="47">
+      <data key="d36">Fiber</data>
+      <data key="d37">Bell Canada Fiber Routes</data>
+      <data key="d38">Bell Canada  Routes</data>
+      <data key="d39">0</data>
+    </edge>
+  </graph>
+</graphml>

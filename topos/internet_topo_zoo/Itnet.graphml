@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d36" />
+  <key attr.name="id" attr.type="string" for="edge" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">3/02/11</data>
+    <data key="d1">Ireland</data>
+    <data key="d2">Country</data>
+    <data key="d3">Itnet</data>
+    <data key="d4">Primary</data>
+    <data key="d5">3 Nodes co-located on map, Very sparse info, semi-dud page</data>
+    <data key="d6">http://www.itnet.ie/</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Itnet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">6/03/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">0</data>
+    <data key="d25">2005</data>
+    <data key="d26">2005</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">52.66472</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">0</data>
+      <data key="d33">-8.62306</data>
+      <data key="d34">Limerick</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">51.89861</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">1</data>
+      <data key="d33">-8.49583</data>
+      <data key="d34">Cork</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">52.27042</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">2</data>
+      <data key="d33">-9.70264</data>
+      <data key="d34">Tralee</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">53.27194</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">3</data>
+      <data key="d33">-9.04889</data>
+      <data key="d34">Galway</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">54.26969</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">4</data>
+      <data key="d33">-8.46943</data>
+      <data key="d34">Sligo</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">54.95</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">5</data>
+      <data key="d33">-7.73333</data>
+      <data key="d34">Letterkenny</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">53.42278</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">6</data>
+      <data key="d33">-7.93722</data>
+      <data key="d34">Athlone</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">54.0</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">7</data>
+      <data key="d33">-6.41667</data>
+      <data key="d34">Dundalk</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">53.38806</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">8</data>
+      <data key="d33">-6.37556</data>
+      <data key="d34">Blanchardstown, Dun Laoghaire, Tallaght</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">52.80028</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">9</data>
+      <data key="d33">-6.73694</data>
+      <data key="d34">Carlow</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d30">52.25833</data>
+      <data key="d31">Ireland</data>
+      <data key="d32">10</data>
+      <data key="d33">-7.11194</data>
+      <data key="d34">Waterford</data>
+    </node>
+    <edge source="0" target="8">
+      <data key="d35">e9</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="1" target="8">
+      <data key="d35">e7</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="2" target="8">
+      <data key="d35">e8</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="3" target="8">
+      <data key="d35">e0</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="4" target="8">
+      <data key="d35">e1</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="5" target="8">
+      <data key="d35">e2</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="6" target="8">
+      <data key="d35">e3</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="7" target="8">
+      <data key="d35">e4</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d35">e5</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="10">
+      <data key="d35">e6</data>
+      <data key="d36">0</data>
+    </edge>
+  </graph>
+</graphml>

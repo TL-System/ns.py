@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d41" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d40" />
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d39" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d36" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="Country" attr.type="string" for="node" id="d33" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d32" />
+  <key attr.name="label" attr.type="string" for="node" id="d31" />
+  <key attr.name="id" attr.type="int" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">31/03/11</data>
+    <data key="d1">US</data>
+    <data key="d2">Country</data>
+    <data key="d3">Pacific-Wave</data>
+    <data key="d4">Primary</data>
+    <data key="d5">L1/L2 only?</data>
+    <data key="d6">http://www.pacificwave.net/technology/architecture/</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Historic</data>
+    <data key="d9">REN</data>
+    <data key="d10">0</data>
+    <data key="d11">0</data>
+    <data key="d12">Pacificwave</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">1</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">05</data>
+    <data key="d19">31/03/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">0</data>
+    <data key="d25">2010_05</data>
+    <data key="d26">2010</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">0</data>
+      <data key="d30">0</data>
+      <data key="d31">KRLight</data>
+    </node>
+    <node id="1">
+      <data key="d29">0</data>
+      <data key="d30">1</data>
+      <data key="d31">CANARIE</data>
+    </node>
+    <node id="2">
+      <data key="d29">0</data>
+      <data key="d30">2</data>
+      <data key="d31">NLR FrameNet</data>
+    </node>
+    <node id="3">
+      <data key="d29">0</data>
+      <data key="d30">3</data>
+      <data key="d31">CSTNet HKEOEP</data>
+    </node>
+    <node id="4">
+      <data key="d29">0</data>
+      <data key="d30">4</data>
+      <data key="d31">StarLight</data>
+    </node>
+    <node id="5">
+      <data key="d29">0</data>
+      <data key="d30">5</data>
+      <data key="d31">Pacific Northwest Gigapop</data>
+    </node>
+    <node id="6">
+      <data key="d29">0</data>
+      <data key="d30">6</data>
+      <data key="d31">NLR FrameNet</data>
+    </node>
+    <node id="7">
+      <data key="d29">0</data>
+      <data key="d30">7</data>
+      <data key="d31">Internet2 DCN</data>
+    </node>
+    <node id="8">
+      <data key="d29">0</data>
+      <data key="d30">8</data>
+      <data key="d31">NLR FrameNet</data>
+    </node>
+    <node id="9">
+      <data key="d29">0</data>
+      <data key="d30">9</data>
+      <data key="d31">CENIC</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d32">37.36883</data>
+      <data key="d33">United States</data>
+      <data key="d30">10</data>
+      <data key="d34">-122.03635</data>
+      <data key="d31">Pacific Wave Sunnyvale</data>
+    </node>
+    <node id="11">
+      <data key="d29">1</data>
+      <data key="d32">47.60621</data>
+      <data key="d33">United States</data>
+      <data key="d30">11</data>
+      <data key="d34">-122.33207</data>
+      <data key="d31">Pacific Wave Seattle</data>
+    </node>
+    <node id="12">
+      <data key="d29">0</data>
+      <data key="d30">12</data>
+      <data key="d31">Internet2 DCN</data>
+    </node>
+    <node id="13">
+      <data key="d29">0</data>
+      <data key="d30">13</data>
+      <data key="d31">Pacific Wave Hawaii</data>
+    </node>
+    <node id="14">
+      <data key="d29">0</data>
+      <data key="d30">14</data>
+      <data key="d31">AARNET Sydney</data>
+    </node>
+    <node id="15">
+      <data key="d29">1</data>
+      <data key="d32">34.05223</data>
+      <data key="d33">United States</data>
+      <data key="d30">15</data>
+      <data key="d34">-118.24368</data>
+      <data key="d31">Pacific Wave Los Angeles</data>
+    </node>
+    <node id="16">
+      <data key="d29">0</data>
+      <data key="d30">16</data>
+      <data key="d31">JGN2 Plus Tokyo</data>
+    </node>
+    <node id="17">
+      <data key="d29">0</data>
+      <data key="d30">17</data>
+      <data key="d31">CENIC</data>
+    </node>
+    <edge source="0" target="11">
+      <data key="d35">T2</data>
+      <data key="d36">10</data>
+      <data key="d37">KreoNet2  10Gbit/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d39">KreoNe  it/s</data>
+      <data key="d40">G</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="1" target="11">
+      <data key="d37">CANARIE N*10Gbit/s</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="2" target="9">
+      <data key="d37">Indirect Connectivity</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="2" target="10">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">CENIC  10Gbit/s</data>
+      <data key="d39">CENIC  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="3" target="11">
+      <data key="d36">2.5</data>
+      <data key="d40">G</data>
+      <data key="d37">CSTNet 2.5 Gbit/s</data>
+      <data key="d39">CSTNet  it/s</data>
+      <data key="d38">2500000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="4" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">Cavewave  10Gbit/s</data>
+      <data key="d39">Cavewave  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="4" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">CANARIE (Provided by NLR)  10Gbit/s</data>
+      <data key="d39">CANARIE (Provided y NLR)  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">1</data>
+    </edge>
+    <edge source="4" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">Translight  10Gbit/s</data>
+      <data key="d39">Translight  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">2</data>
+    </edge>
+    <edge source="5" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PNWGP  10Gbit/s</data>
+      <data key="d39">PNWP  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="5" target="6">
+      <data key="d36">1</data>
+      <data key="d40">G</data>
+      <data key="d37">PNWGP 1Gbit/s</data>
+      <data key="d39">PNWP it/s</data>
+      <data key="d38">1000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="5" target="7">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PNWGP 10Gbit/s</data>
+      <data key="d39">PNWP it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="6" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PNWGP  10Gbit/s</data>
+      <data key="d39">PNWP  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="7" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PNWGP  10Gbit/s</data>
+      <data key="d39">PNWP  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="8" target="17">
+      <data key="d37">Indirect Connectivity</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="8" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">CENIC 10Gbit/s</data>
+      <data key="d39">CENIC it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="9" target="10">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">CENIC  10Gbit/s</data>
+      <data key="d39">CENIC  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="10" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE  10Gbit/s</data>
+      <data key="d39">PWAVE  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="10" target="11">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE  10Gbit/s</data>
+      <data key="d39">PWAVE  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">1</data>
+    </edge>
+    <edge source="10" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE  10Gbit/s</data>
+      <data key="d39">PWAVE  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="10" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE  10Gbit/s</data>
+      <data key="d39">PWAVE  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">1</data>
+    </edge>
+    <edge source="11" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE 10Gbit/s</data>
+      <data key="d39">PWAVE it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="11" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">Pwave 10Gbit/s</data>
+      <data key="d39">Pwave it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">1</data>
+    </edge>
+    <edge source="12" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">I2  10Gbit/s</data>
+      <data key="d39">I2  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="13" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">PWAVE  10Gbit/s</data>
+      <data key="d39">PWAVE  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="14" target="15">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">AARNet  10Gbit/s</data>
+      <data key="d39">AARNet  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">JGN2  10Gbit/s</data>
+      <data key="d39">JN2  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+    <edge source="15" target="17">
+      <data key="d36">10</data>
+      <data key="d40">G</data>
+      <data key="d37">CENIC  10Gbit/s</data>
+      <data key="d39">CENIC  it/s</data>
+      <data key="d38">10000000000.0</data>
+      <data key="d41">0</data>
+    </edge>
+  </graph>
+</graphml>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d39" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d38" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d36" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">20/07/11</data>
+    <data key="d1">Belarus</data>
+    <data key="d2">Country</data>
+    <data key="d3">BASNET</data>
+    <data key="d4">Secondary</data>
+    <data key="d5">Topology map from page 8, English place names from page 5 of source document</data>
+    <data key="d6">http://www.balticgrid.org/Deliverables/pdfs/BGII-DSA2-3-v1_2-IMCSUL-ReportOnExpansion.pdf</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">0</data>
+    <data key="d11">0</data>
+    <data key="d12">Basnet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">20/07/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">0</data>
+    <data key="d25">2008</data>
+    <data key="d26">2008</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">53.67679</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">0</data>
+      <data key="d33">23.83029</data>
+      <data key="d34">Grodno</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">53.9</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">1</data>
+      <data key="d33">27.56667</data>
+      <data key="d34">Minsk</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">55.19048</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">2</data>
+      <data key="d33">30.2033</data>
+      <data key="d34">Vitebsk</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">53.9141</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">3</data>
+      <data key="d33">30.33764</data>
+      <data key="d34">Mogilev</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">52.43826</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">4</data>
+      <data key="d33">30.98227</data>
+      <data key="d34">Gomel</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">52.09755</data>
+      <data key="d31">Belarus</data>
+      <data key="d32">5</data>
+      <data key="d33">23.68775</data>
+      <data key="d34">Brest</data>
+    </node>
+    <node id="6">
+      <data key="d29">0</data>
+      <data key="d32">6</data>
+      <data key="d34">Pionier GEANT 2</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d35">2</data>
+      <data key="d36">2 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">2000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="2">
+      <data key="d35">2</data>
+      <data key="d36">2 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">2000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="3">
+      <data key="d35">2</data>
+      <data key="d36">2 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">2000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="4">
+      <data key="d35">2</data>
+      <data key="d36">2 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">2000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="5">
+      <data key="d35">2</data>
+      <data key="d36">2 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">2000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d35">155</data>
+      <data key="d36">155 Mbps</data>
+      <data key="d37">M</data>
+      <data key="d38">155000000.0</data>
+      <data key="d39">0</data>
+    </edge>
+  </graph>
+</graphml>

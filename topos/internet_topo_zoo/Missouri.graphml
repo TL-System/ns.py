@@ -1,0 +1,994 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d39" />
+  <key attr.name="LinkStatus" attr.type="string" for="edge" id="d38" />
+  <key attr.name="key" attr.type="int" for="edge" id="d37" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d36" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="type" attr.type="string" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">18/10/10</data>
+    <data key="d1">Missouri</data>
+    <data key="d2">Region</data>
+    <data key="d3">Missouri Network Alliance </data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.mnatele.com/network-map.cfm</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Missouri</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">08</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">Fibre</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">1</data>
+    <data key="d23">0</data>
+    <data key="d24">2010_08</data>
+    <data key="d25">2010</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">38.09642</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">0</data>
+      <data key="d33">-94.36106</data>
+      <data key="d34">Rich Hill</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">39.36778</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">1</data>
+      <data key="d33">-94.36217</data>
+      <data key="d34">Kearney</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">40.44555</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">2</data>
+      <data key="d33">-95.06609</data>
+      <data key="d34">Burlington Junction</data>
+    </node>
+    <node id="3">
+      <data key="d28">0</data>
+      <data key="d32">3</data>
+      <data key="d34">To Omaha</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">38.76279</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">4</data>
+      <data key="d33">-93.73605</data>
+      <data key="d34">Warrensburg</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">39.07251</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">5</data>
+      <data key="d33">-93.71716</data>
+      <data key="d34">Higginsville</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">38.61946</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">6</data>
+      <data key="d33">-94.68079</data>
+      <data key="d34">Louisburg</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">38.71918</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">7</data>
+      <data key="d33">-94.45856</data>
+      <data key="d34">Peculiar</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d29">36.64367</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">8</data>
+      <data key="d33">-93.21851</data>
+      <data key="d34">Branson</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d29">38.62727</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">9</data>
+      <data key="d33">-90.19789</data>
+      <data key="d34">Saint Louis</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d29">38.91084</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">10</data>
+      <data key="d33">-94.38217</data>
+      <data key="d34">Lees Summit</data>
+    </node>
+    <node id="11">
+      <data key="d28">1</data>
+      <data key="d29">38.70446</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">11</data>
+      <data key="d33">-93.22826</data>
+      <data key="d34">Sedalia</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d29">38.2081</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">12</data>
+      <data key="d33">-91.16042</data>
+      <data key="d34">Sullivan</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d29">37.9681</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">13</data>
+      <data key="d33">-91.35487</data>
+      <data key="d34">Steelville</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">38.65558</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">14</data>
+      <data key="d33">-92.77992</data>
+      <data key="d34">Tipton</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d29">38.06282</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">15</data>
+      <data key="d33">-91.40348</data>
+      <data key="d34">Cuba</data>
+    </node>
+    <node id="16">
+      <data key="d28">1</data>
+      <data key="d29">39.44059</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">16</data>
+      <data key="d33">-92.54518</data>
+      <data key="d34">Huntsville</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d29">39.41837</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">17</data>
+      <data key="d33">-92.43824</data>
+      <data key="d34">Moberly</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d29">40.26863</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">18</data>
+      <data key="d33">-92.95326</data>
+      <data key="d34">Green City</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d29">40.19475</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">19</data>
+      <data key="d33">-92.58325</data>
+      <data key="d34">Kirksville</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d29">40.15004</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">20</data>
+      <data key="d33">-92.30213</data>
+      <data key="d34">Hurdland</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d29">39.70838</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">21</data>
+      <data key="d33">-91.35848</data>
+      <data key="d34">Hannibal</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">39.79421</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">22</data>
+      <data key="d33">-91.52321</data>
+      <data key="d34">Palmyra</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d29">39.58532</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">23</data>
+      <data key="d33">-91.40098</data>
+      <data key="d34">New London</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">39.89865</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">24</data>
+      <data key="d33">-92.48102</data>
+      <data key="d34">Atlanta</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d29">39.74698</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">25</data>
+      <data key="d33">-92.56408</data>
+      <data key="d34">Bevier</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">38.6673</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">26</data>
+      <data key="d33">-90.2527</data>
+      <data key="d34">East Saint Louis</data>
+    </node>
+    <node id="27">
+      <data key="d28">0</data>
+      <data key="d32">27</data>
+      <data key="d34">To Chicago</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d29">37.95143</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">28</data>
+      <data key="d33">-91.77127</data>
+      <data key="d34">Rolla</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d29">38.87474</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">29</data>
+      <data key="d33">-92.91158</data>
+      <data key="d34">Pilot Grove</data>
+    </node>
+    <node id="30">
+      <data key="d28">1</data>
+      <data key="d29">38.5767</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">30</data>
+      <data key="d33">-92.17352</data>
+      <data key="d34">Jefferson City</data>
+    </node>
+    <node id="31">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">31</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="32">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">32</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="33">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">33</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="34">
+      <data key="d28">1</data>
+      <data key="d29">38.67918</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">34</data>
+      <data key="d33">-94.59357</data>
+      <data key="d34">Cleveland</data>
+    </node>
+    <node id="35">
+      <data key="d28">1</data>
+      <data key="d29">36.15398</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">35</data>
+      <data key="d33">-95.99278</data>
+      <data key="d34">Tulsa</data>
+    </node>
+    <node id="36">
+      <data key="d28">1</data>
+      <data key="d29">37.08423</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">36</data>
+      <data key="d33">-94.51328</data>
+      <data key="d34">Joplin</data>
+    </node>
+    <node id="37">
+      <data key="d28">1</data>
+      <data key="d29">39.69393</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">37</data>
+      <data key="d33">-92.04295</data>
+      <data key="d34">Shelbina</data>
+    </node>
+    <node id="38">
+      <data key="d28">1</data>
+      <data key="d29">39.48087</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">38</data>
+      <data key="d33">-92.00128</data>
+      <data key="d34">Paris</data>
+    </node>
+    <node id="39">
+      <data key="d28">1</data>
+      <data key="d29">39.27254</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">39</data>
+      <data key="d33">-91.5746</data>
+      <data key="d34">Farber</data>
+    </node>
+    <node id="40">
+      <data key="d28">1</data>
+      <data key="d29">39.31087</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">40</data>
+      <data key="d33">-91.48849</data>
+      <data key="d34">Vandalia</data>
+    </node>
+    <node id="41">
+      <data key="d28">1</data>
+      <data key="d29">38.95171</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">41</data>
+      <data key="d33">-92.33407</data>
+      <data key="d34">Columbia</data>
+    </node>
+    <node id="42">
+      <data key="d28">1</data>
+      <data key="d29">39.16976</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">42</data>
+      <data key="d33">-91.88295</data>
+      <data key="d34">Mexico</data>
+    </node>
+    <node id="43">
+      <data key="d28">1</data>
+      <data key="d29">38.67504</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">43</data>
+      <data key="d33">-91.87434</data>
+      <data key="d34">Mokane</data>
+    </node>
+    <node id="44">
+      <data key="d28">1</data>
+      <data key="d29">39.0181</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">44</data>
+      <data key="d33">-91.89712</data>
+      <data key="d34">Auxvasse</data>
+    </node>
+    <node id="45">
+      <data key="d28">1</data>
+      <data key="d29">37.21533</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">45</data>
+      <data key="d33">-93.29824</data>
+      <data key="d34">Springfield</data>
+    </node>
+    <node id="46">
+      <data key="d28">1</data>
+      <data key="d29">39.87863</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">46</data>
+      <data key="d33">-93.18882</data>
+      <data key="d34">Linneus</data>
+    </node>
+    <node id="47">
+      <data key="d28">1</data>
+      <data key="d29">40.47696</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">47</data>
+      <data key="d33">-93.00326</data>
+      <data key="d34">Unionville</data>
+    </node>
+    <node id="48">
+      <data key="d28">1</data>
+      <data key="d29">39.0953</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">48</data>
+      <data key="d33">-93.54521</data>
+      <data key="d34">Alma</data>
+    </node>
+    <node id="49">
+      <data key="d28">1</data>
+      <data key="d29">39.35835</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">49</data>
+      <data key="d33">-93.49577</data>
+      <data key="d34">Carrollton</data>
+    </node>
+    <node id="50">
+      <data key="d28">1</data>
+      <data key="d29">39.53613</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">50</data>
+      <data key="d33">-93.44021</data>
+      <data key="d34">Tina</data>
+    </node>
+    <node id="51">
+      <data key="d28">1</data>
+      <data key="d29">39.79529</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">51</data>
+      <data key="d33">-93.55244</data>
+      <data key="d34">Chillicothe</data>
+    </node>
+    <node id="52">
+      <data key="d28">0</data>
+      <data key="d32">52</data>
+      <data key="d34">To Des Moines</data>
+    </node>
+    <node id="53">
+      <data key="d28">1</data>
+      <data key="d29">40.40084</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">53</data>
+      <data key="d33">-93.5805</data>
+      <data key="d34">Princeton</data>
+    </node>
+    <node id="54">
+      <data key="d28">1</data>
+      <data key="d29">40.0789</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">54</data>
+      <data key="d33">-93.61661</data>
+      <data key="d34">Trenton</data>
+    </node>
+    <node id="55">
+      <data key="d28">1</data>
+      <data key="d29">39.12308</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">55</data>
+      <data key="d33">-93.19687</data>
+      <data key="d34">Marshall</data>
+    </node>
+    <node id="56">
+      <data key="d28">1</data>
+      <data key="d29">39.94166</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">56</data>
+      <data key="d33">-94.83025</data>
+      <data key="d34">Savannah</data>
+    </node>
+    <node id="57">
+      <data key="d28">1</data>
+      <data key="d29">40.3461</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 2 Collocation</data>
+      <data key="d32">57</data>
+      <data key="d33">-94.87247</data>
+      <data key="d34">Maryville</data>
+    </node>
+    <node id="58">
+      <data key="d28">1</data>
+      <data key="d29">40.20083</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">58</data>
+      <data key="d33">-95.07442</data>
+      <data key="d34">Maitland</data>
+    </node>
+    <node id="59">
+      <data key="d28">1</data>
+      <data key="d29">40.41111</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">59</data>
+      <data key="d33">-95.51693</data>
+      <data key="d34">Rock Port</data>
+    </node>
+    <node id="60">
+      <data key="d28">1</data>
+      <data key="d29">39.98694</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">60</data>
+      <data key="d33">-95.14498</data>
+      <data key="d34">Oregon</data>
+    </node>
+    <node id="61">
+      <data key="d28">1</data>
+      <data key="d29">39.76861</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">61</data>
+      <data key="d33">-94.84663</data>
+      <data key="d34">Saint Joseph</data>
+    </node>
+    <node id="62">
+      <data key="d28">1</data>
+      <data key="d29">39.09973</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 1 Collocation</data>
+      <data key="d32">62</data>
+      <data key="d33">-94.57857</data>
+      <data key="d34">Kansas City</data>
+    </node>
+    <node id="63">
+      <data key="d28">1</data>
+      <data key="d29">39.54834</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">63</data>
+      <data key="d33">-94.32995</data>
+      <data key="d34">Lathrop</data>
+    </node>
+    <node id="64">
+      <data key="d28">1</data>
+      <data key="d29">39.74028</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">64</data>
+      <data key="d33">-94.24106</data>
+      <data key="d34">Cameron</data>
+    </node>
+    <node id="65">
+      <data key="d28">1</data>
+      <data key="d29">40.24861</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">65</data>
+      <data key="d33">-94.33107</data>
+      <data key="d34">Albany</data>
+    </node>
+    <node id="66">
+      <data key="d28">1</data>
+      <data key="d29">40.26833</data>
+      <data key="d30">United States</data>
+      <data key="d31">MNA Tier 3 Collocation</data>
+      <data key="d32">66</data>
+      <data key="d33">-94.02829</data>
+      <data key="d34">Bethany</data>
+    </node>
+    <edge source="0" target="7">
+      <data key="d36">Affiliate Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="62">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="63">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="57">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="58">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="52">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="59">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="10">
+      <data key="d38">Planned</data>
+      <data key="d36">Planned Construction</data>
+      <data key="d39"> Construction</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="11">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="45">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="48">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="6" target="34">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="7" target="34">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="45">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="32">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="26">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="12">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="62">
+      <data key="d38">Planned</data>
+      <data key="d36">Planned Construction</data>
+      <data key="d39"> Construction</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="14">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="55">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="15">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="15">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="29">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="30">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="28">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="17">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="49">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="25">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="41">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="42">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="38">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="18" target="47">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="20" target="24">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="33">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="23">
+      <data key="d38">Planned</data>
+      <data key="d36">Planned Construction</data>
+      <data key="d39"> Construction</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="22" target="33">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="23" target="40">
+      <data key="d38">Planned</data>
+      <data key="d36">Planned Construction</data>
+      <data key="d39"> Construction</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="26" target="27">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="28" target="30">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="55">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="30" target="41">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="30" target="43">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="35">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="36">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="62">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="42">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="44">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="41">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="33" target="37">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="34" target="35">
+      <data key="d36">Affiliate Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="34" target="62">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="35" target="36">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="36" target="45">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="37" target="38">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="40">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="42">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="41" target="44">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="43" target="44">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="46" target="51">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="46" target="54">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="47" target="53">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="48" target="55">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="49" target="50">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="49" target="63">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="50" target="51">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="53" target="66">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="53" target="54">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="56" target="58">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="56" target="61">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="57" target="65">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="58" target="65">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="59" target="60">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="60" target="61">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="61" target="62">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="63" target="64">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="64" target="66">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="65" target="66">
+      <data key="d36">MNA Network</data>
+      <data key="d37">0</data>
+    </edge>
+  </graph>
+</graphml>

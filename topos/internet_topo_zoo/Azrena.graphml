@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d34" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d33" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d32" />
+  <key attr.name="label" attr.type="string" for="node" id="d31" />
+  <key attr.name="id" attr.type="int" for="node" id="d30" />
+  <key attr.name="type" attr.type="string" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">20/10/10</data>
+    <data key="d1">Azerbaijan</data>
+    <data key="d2">Country</data>
+    <data key="d3">Azrena</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.azrena.org/about_en.htm</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Current</data>
+    <data key="d9">REN</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Azrena</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">10</data>
+    <data key="d19">20/10/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">0</data>
+    <data key="d24">2010_10</data>
+    <data key="d25">2010</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">Switch</data>
+      <data key="d30">0</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">Switch</data>
+      <data key="d30">1</data>
+      <data key="d31">Dialup server</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">Router</data>
+      <data key="d30">2</data>
+      <data key="d31">Wireless server</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">Router</data>
+      <data key="d30">3</data>
+      <data key="d31">Wireless router</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">Switch</data>
+      <data key="d30">4</data>
+      <data key="d31">Geology</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">Switch</data>
+      <data key="d30">5</data>
+      <data key="d31">Physics</data>
+    </node>
+    <node id="6">
+      <data key="d28">0</data>
+      <data key="d30">6</data>
+      <data key="d31">ANAS users</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">Switch</data>
+      <data key="d30">7</data>
+      <data key="d31">Distribution switch</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d30">8</data>
+      <data key="d31">Information Tech.</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d30">9</data>
+      <data key="d31">Baku Uni</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d30">10</data>
+      <data key="d31">Shamsa Obs.</data>
+    </node>
+    <node id="11">
+      <data key="d28">1</data>
+      <data key="d30">11</data>
+      <data key="d31">Cybenetics</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d30">12</data>
+      <data key="d31">Khazar Uni</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d29">Router</data>
+      <data key="d30">13</data>
+      <data key="d31">NOC</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">Router</data>
+      <data key="d30">14</data>
+      <data key="d31">Economical Uni</data>
+    </node>
+    <node id="15">
+      <data key="d28">0</data>
+      <data key="d30">15</data>
+      <data key="d31">Local ISP</data>
+    </node>
+    <node id="16">
+      <data key="d28">0</data>
+      <data key="d30">16</data>
+      <data key="d31">Silk Highway</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d29">Router</data>
+      <data key="d30">17</data>
+      <data key="d31">VSAT Station</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d30">18</data>
+      <data key="d31">Technical Uni</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d30">19</data>
+      <data key="d31">RENASCENE</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d30">20</data>
+      <data key="d31">Architecture-Building Uni</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d30">21</data>
+      <data key="d31">Foreign Language Uni.</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="0" target="2">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="0" target="3">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="0" target="13">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="0" target="7">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d32">Serial</data>
+      <data key="d33">Serial</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d32">Serial</data>
+      <data key="d33">Serial</data>
+      <data key="d34">1</data>
+    </edge>
+    <edge source="1" target="6">
+      <data key="d32">Serial</data>
+      <data key="d33">Serial</data>
+      <data key="d34">2</data>
+    </edge>
+    <edge source="2" target="18">
+      <data key="d32">Wireless</data>
+      <data key="d33">wireless</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="2" target="19">
+      <data key="d32">Wireless</data>
+      <data key="d33">Wireless</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="2" target="20">
+      <data key="d32">Wireless</data>
+      <data key="d33">wireless</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="3" target="12">
+      <data key="d32">Wireless</data>
+      <data key="d33">wireless</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="3" target="21">
+      <data key="d32">Wireless</data>
+      <data key="d33">Wireless</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d32">Fiber</data>
+      <data key="d33">fiber</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="5" target="7">
+      <data key="d32">Fiber</data>
+      <data key="d33">fiber</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="7" target="8">
+      <data key="d32">Fiber</data>
+      <data key="d33">fiber</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d32">Fiber</data>
+      <data key="d33">fiber</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="8" target="10">
+      <data key="d32">Ethernet</data>
+      <data key="d33">ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="8" target="11">
+      <data key="d32">Ethernet</data>
+      <data key="d33">ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="13" target="17">
+      <data key="d32">Ethernet</data>
+      <data key="d33">Ethernet</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="13" target="14">
+      <data key="d32">Serial</data>
+      <data key="d33">serial</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="13" target="15">
+      <data key="d32">Serial</data>
+      <data key="d33">serial</data>
+      <data key="d34">0</data>
+    </edge>
+    <edge source="13" target="15">
+      <data key="d32">Serial</data>
+      <data key="d33">Serial</data>
+      <data key="d34">1</data>
+    </edge>
+    <edge source="13" target="15">
+      <data key="d32">Serial</data>
+      <data key="d33">Serial</data>
+      <data key="d34">2</data>
+    </edge>
+    <edge source="16" target="17">
+      <data key="d32">Serial</data>
+      <data key="d33">serial</data>
+      <data key="d34">0</data>
+    </edge>
+  </graph>
+</graphml>

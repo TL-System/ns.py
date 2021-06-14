@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="id" attr.type="string" for="edge" id="d41" />
+  <key attr.name="key" attr.type="int" for="edge" id="d40" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d39" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d36" />
+  <key attr.name="label" attr.type="string" for="node" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="id" attr.type="int" for="node" id="d33" />
+  <key attr.name="type" attr.type="string" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">21/10/10</data>
+    <data key="d1">Greece</data>
+    <data key="d2">Country</data>
+    <data key="d3">GRnet</data>
+    <data key="d4">Primary</data>
+    <data key="d5">Also uses http://mon.grnet.gr/network/maps/</data>
+    <data key="d6">http://noc.grnet.gr/sites/default/files/images/L2-L3_20100224.jpg</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Dynamic</data>
+    <data key="d9">REN</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Grnet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">10</data>
+    <data key="d19">21/10/10</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">1</data>
+    <data key="d24">1</data>
+    <data key="d25">2010_10</data>
+    <data key="d26">2010</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">39.36556</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">0</data>
+      <data key="d34">21.92167</data>
+      <data key="d35">Karditsa</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">39.36667</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">1</data>
+      <data key="d34">22.94583</data>
+      <data key="d35">Volos</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">39.63722</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">2</data>
+      <data key="d34">22.42028</data>
+      <data key="d35">Larissa</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">39.55528</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">3</data>
+      <data key="d34">21.7675</data>
+      <data key="d35">Trikala</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">39.11</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">4</data>
+      <data key="d34">26.55472</data>
+      <data key="d35">Mytilini</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">38.36778</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">5</data>
+      <data key="d34">26.13583</data>
+      <data key="d35">Chios</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">39.50389</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">6</data>
+      <data key="d34">20.26556</data>
+      <data key="d35">Igoumenitsa</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">39.62</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">7</data>
+      <data key="d34">19.91972</data>
+      <data key="d35">Kerkira</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">37.44227</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">8</data>
+      <data key="d34">24.94248</data>
+      <data key="d35">Ermoupoli</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">37.44529</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">9</data>
+      <data key="d34">25.32872</data>
+      <data key="d35">Mykonos</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d30">38.37019</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">10</data>
+      <data key="d34">21.42952</data>
+      <data key="d35">Mesologgi</data>
+    </node>
+    <node id="11">
+      <data key="d29">0</data>
+      <data key="d33">11</data>
+      <data key="d35">AMSIX</data>
+    </node>
+    <node id="12">
+      <data key="d29">0</data>
+      <data key="d33">12</data>
+      <data key="d35">GRIX</data>
+    </node>
+    <node id="13">
+      <data key="d29">0</data>
+      <data key="d33">13</data>
+      <data key="d35">GEANT</data>
+    </node>
+    <node id="14">
+      <data key="d29">1</data>
+      <data key="d30">35.51222</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">14</data>
+      <data key="d34">24.01556</data>
+      <data key="d35">Chania</data>
+    </node>
+    <node id="15">
+      <data key="d29">1</data>
+      <data key="d30">35.32787</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">15</data>
+      <data key="d34">25.14341</data>
+      <data key="d35">Heraklio</data>
+    </node>
+    <node id="16">
+      <data key="d29">1</data>
+      <data key="d30">35.36472</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">16</data>
+      <data key="d34">24.47139</data>
+      <data key="d35">Rethymno</data>
+    </node>
+    <node id="17">
+      <data key="d29">1</data>
+      <data key="d30">36.91344</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">17</data>
+      <data key="d34">21.69639</data>
+      <data key="d35">Pylos</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d30">37.03889</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">18</data>
+      <data key="d34">22.11417</data>
+      <data key="d35">Kalamata</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d30">38.46361</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">19</data>
+      <data key="d34">23.59944</data>
+      <data key="d35">Halkida</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d30">37.97945</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">20</data>
+      <data key="d34">23.71622</data>
+      <data key="d35">Athens</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d30">36.44083</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">21</data>
+      <data key="d34">28.2225</data>
+      <data key="d35">Rhodos</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d30">37.79028</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">22</data>
+      <data key="d34">26.70444</data>
+      <data key="d35">Karlovassi</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d30">37.50889</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">23</data>
+      <data key="d34">22.37944</data>
+      <data key="d35">Tripoli</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d30">38.24444</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">24</data>
+      <data key="d34">21.73444</data>
+      <data key="d35">Patra</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d30">38.03222</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">25</data>
+      <data key="d34">22.1125</data>
+      <data key="d35">Kalavrita</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d30">37.91667</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">26</data>
+      <data key="d34">22.88333</data>
+      <data key="d35">Korinthos</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d30">38.47333</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">27</data>
+      <data key="d34">25.91222</data>
+      <data key="d35">Limnos</data>
+    </node>
+    <node id="28">
+      <data key="d29">1</data>
+      <data key="d30">39.6675</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">28</data>
+      <data key="d34">20.85083</data>
+      <data key="d35">Ioannina</data>
+    </node>
+    <node id="29">
+      <data key="d29">1</data>
+      <data key="d30">41.08556</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">29</data>
+      <data key="d34">23.54972</data>
+      <data key="d35">Serres</data>
+    </node>
+    <node id="30">
+      <data key="d29">1</data>
+      <data key="d30">40.64028</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">30</data>
+      <data key="d34">22.94389</data>
+      <data key="d35">Thessaloniki</data>
+    </node>
+    <node id="31">
+      <data key="d29">1</data>
+      <data key="d30">40.80056</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">31</data>
+      <data key="d34">22.04722</data>
+      <data key="d35">Edessa</data>
+    </node>
+    <node id="32">
+      <data key="d29">1</data>
+      <data key="d30">40.51667</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">32</data>
+      <data key="d34">21.26667</data>
+      <data key="d35">Kastoria</data>
+    </node>
+    <node id="33">
+      <data key="d29">1</data>
+      <data key="d30">40.93972</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">33</data>
+      <data key="d34">24.40194</data>
+      <data key="d35">Kavala</data>
+    </node>
+    <node id="34">
+      <data key="d29">1</data>
+      <data key="d30">41.14139</data>
+      <data key="d31">Greece</data>
+      <data key="d32">IP Backbone Node</data>
+      <data key="d33">34</data>
+      <data key="d34">24.88361</data>
+      <data key="d35">Xanthi</data>
+    </node>
+    <node id="35">
+      <data key="d29">1</data>
+      <data key="d30">41.12278</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">35</data>
+      <data key="d34">25.39639</data>
+      <data key="d35">Komotini</data>
+    </node>
+    <node id="36">
+      <data key="d29">1</data>
+      <data key="d30">40.8475</data>
+      <data key="d31">Greece</data>
+      <data key="d32">PoP</data>
+      <data key="d33">36</data>
+      <data key="d34">25.87444</data>
+      <data key="d35">Alexandroupoli</data>
+    </node>
+    <edge source="0" target="2">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="1" target="2">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="2" target="20">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="2" target="30">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="4" target="27">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="4" target="5">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="5" target="8">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="6" target="28">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="6" target="7">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="34">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="20">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="15">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="15">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">1</data>
+    </edge>
+    <edge source="9" target="22">
+      <data key="d36">100</data>
+      <data key="d37">100Mb/s</data>
+      <data key="d38">M</data>
+      <data key="d39">100000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="9" target="22">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">1</data>
+    </edge>
+    <edge source="10" target="24">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="11" target="20">
+      <data key="d41">e38</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="12" target="20">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="13" target="20">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="14" target="20">
+      <data key="d36">10</data>
+      <data key="d37">10Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">10000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="14" target="15">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="15" target="20">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="15" target="20">
+      <data key="d36">10</data>
+      <data key="d37">10Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">10000000000.0</data>
+      <data key="d40">1</data>
+    </edge>
+    <edge source="15" target="21">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="17" target="18">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="18" target="24">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="20" target="24">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="20" target="24">
+      <data key="d36">10</data>
+      <data key="d37">10Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">10000000000.0</data>
+      <data key="d40">1</data>
+    </edge>
+    <edge source="20" target="26">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="20" target="30">
+      <data key="d36">10</data>
+      <data key="d37">10Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">10000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="23" target="26">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">1</data>
+    </edge>
+    <edge source="24" target="28">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="28" target="30">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="29" target="30">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="30" target="34">
+      <data key="d36">2.5</data>
+      <data key="d37">2.5Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">2500000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="30" target="31">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="31" target="32">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="33" target="34">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="34" target="35">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="35" target="36">
+      <data key="d36">1</data>
+      <data key="d37">1Gb/s</data>
+      <data key="d38">G</data>
+      <data key="d39">1000000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+  </graph>
+</graphml>

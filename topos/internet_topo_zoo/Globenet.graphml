@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d37" />
+  <key attr.name="id" attr.type="string" for="edge" id="d36" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d35" />
+  <key attr.name="label" attr.type="string" for="node" id="d34" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="id" attr.type="int" for="node" id="d32" />
+  <key attr.name="type" attr.type="string" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d9" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">22/10/10</data>
+    <data key="d1">Latin America</data>
+    <data key="d2">Continent</data>
+    <data key="d3">GlobeNet</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.globenet.net/?p=network-map</data>
+    <data key="d7">1.0</data>
+    <data key="d8">Historic</data>
+    <data key="d9">COM</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Globenet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">3/08/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">1</data>
+    <data key="d24">2009</data>
+    <data key="d25">2009</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">4.61667</data>
+      <data key="d30">Venezuela</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">0</data>
+      <data key="d33">-61.13333</data>
+      <data key="d34">Santa Elena</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">-3.10194</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">1</data>
+      <data key="d33">-60.025</data>
+      <data key="d34">Manaus</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">4.60971</data>
+      <data key="d30">Colombia</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">2</data>
+      <data key="d33">-74.08175</data>
+      <data key="d34">Bogota</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">2.81972</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">3</data>
+      <data key="d33">-60.67333</data>
+      <data key="d34">Boa Vista</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">4</data>
+      <data key="d34">1</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">-1.45583</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">5</data>
+      <data key="d33">-48.50444</data>
+      <data key="d34">Belem</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">-2.52972</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">6</data>
+      <data key="d33">-44.30278</data>
+      <data key="d34">Sao Luis</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">-5.08917</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">7</data>
+      <data key="d33">-42.80194</data>
+      <data key="d34">Teresina</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d29">-27.59667</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">8</data>
+      <data key="d33">-48.54917</data>
+      <data key="d34">Florianopolois</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">9</data>
+      <data key="d34">12</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d29">-3.71722</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">10</data>
+      <data key="d33">-38.54306</data>
+      <data key="d34">Fortaleza</data>
+    </node>
+    <node id="11">
+      <data key="d28">1</data>
+      <data key="d29">-5.795</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">11</data>
+      <data key="d33">-35.20944</data>
+      <data key="d34">Natal</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">12</data>
+      <data key="d34">9</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">13</data>
+      <data key="d34">14</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d29">-20.44278</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">14</data>
+      <data key="d33">-54.64639</data>
+      <data key="d34">Campo Grande</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">15</data>
+      <data key="d34">15</data>
+    </node>
+    <node id="16">
+      <data key="d28">1</data>
+      <data key="d29">-16.47083</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">16</data>
+      <data key="d33">-54.63556</data>
+      <data key="d34">Rondonopolis</data>
+    </node>
+    <node id="17">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">17</data>
+      <data key="d34">19</data>
+    </node>
+    <node id="18">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">18</data>
+      <data key="d34">3</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d29">-15.77972</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">19</data>
+      <data key="d33">-47.92972</data>
+      <data key="d34">Brasilia</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">20</data>
+      <data key="d34">4</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d29">-16.67861</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">21</data>
+      <data key="d33">-49.25389</data>
+      <data key="d34">Goiania</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">-10.21278</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">22</data>
+      <data key="d33">-48.36028</data>
+      <data key="d34">Palmas</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">23</data>
+      <data key="d34">21</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">-15.59611</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">24</data>
+      <data key="d33">-56.09667</data>
+      <data key="d34">Cuiaba</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">25</data>
+      <data key="d34">20</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">-30.03306</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">26</data>
+      <data key="d33">-51.23</data>
+      <data key="d34">Porto Alegre</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d29">-31.77194</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">27</data>
+      <data key="d33">-52.3425</data>
+      <data key="d34">Pelotas</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">28</data>
+      <data key="d34">10</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">29</data>
+      <data key="d34">16</data>
+    </node>
+    <node id="30">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">30</data>
+      <data key="d34">8</data>
+    </node>
+    <node id="31">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">31</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="32">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">32</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="33">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">33</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="34">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">34</data>
+      <data key="d34">11</data>
+    </node>
+    <node id="35">
+      <data key="d28">1</data>
+      <data key="d29">-9.97472</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">35</data>
+      <data key="d33">-67.81</data>
+      <data key="d34">Rio Branco</data>
+    </node>
+    <node id="36">
+      <data key="d28">1</data>
+      <data key="d29">-8.76194</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">36</data>
+      <data key="d33">-63.90389</data>
+      <data key="d34">Porto Velho</data>
+    </node>
+    <node id="37">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">37</data>
+      <data key="d34">18</data>
+    </node>
+    <node id="38">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">38</data>
+      <data key="d34">6</data>
+    </node>
+    <node id="39">
+      <data key="d28">1</data>
+      <data key="d29">-22.90278</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">39</data>
+      <data key="d33">-43.2075</data>
+      <data key="d34">Rio de Janeiro</data>
+    </node>
+    <node id="40">
+      <data key="d28">1</data>
+      <data key="d29">-23.5475</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">40</data>
+      <data key="d33">-46.63611</data>
+      <data key="d34">Sao Paulo</data>
+    </node>
+    <node id="41">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">41</data>
+      <data key="d34">17</data>
+    </node>
+    <node id="42">
+      <data key="d28">1</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">42</data>
+      <data key="d34">6</data>
+    </node>
+    <node id="43">
+      <data key="d28">1</data>
+      <data key="d29">-25.42778</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">43</data>
+      <data key="d33">-49.27306</data>
+      <data key="d34">Curitiba</data>
+    </node>
+    <node id="44">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">44</data>
+      <data key="d34">7</data>
+    </node>
+    <node id="45">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">45</data>
+      <data key="d34">22</data>
+    </node>
+    <node id="46">
+      <data key="d28">1</data>
+      <data key="d29">-22.90556</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">46</data>
+      <data key="d33">-47.06083</data>
+      <data key="d34">Campinas</data>
+    </node>
+    <node id="47">
+      <data key="d28">1</data>
+      <data key="d29">-9.66583</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">47</data>
+      <data key="d33">-35.73528</data>
+      <data key="d34">Maceio</data>
+    </node>
+    <node id="48">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">48</data>
+      <data key="d34">2</data>
+    </node>
+    <node id="49">
+      <data key="d28">1</data>
+      <data key="d29">-8.05389</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">49</data>
+      <data key="d33">-34.88111</data>
+      <data key="d34">Recife</data>
+    </node>
+    <node id="50">
+      <data key="d28">1</data>
+      <data key="d29">-7.115</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">50</data>
+      <data key="d33">-34.86306</data>
+      <data key="d34">Joao Pessoa</data>
+    </node>
+    <node id="51">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">51</data>
+      <data key="d34">23</data>
+    </node>
+    <node id="52">
+      <data key="d28">1</data>
+      <data key="d29">-20.31944</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">52</data>
+      <data key="d33">-40.33778</data>
+      <data key="d34">Vitoria</data>
+    </node>
+    <node id="53">
+      <data key="d28">1</data>
+      <data key="d29">-12.97111</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">53</data>
+      <data key="d33">-38.51083</data>
+      <data key="d34">Salvador</data>
+    </node>
+    <node id="54">
+      <data key="d28">1</data>
+      <data key="d29">-10.91111</data>
+      <data key="d30">Brazil</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">54</data>
+      <data key="d33">-37.07167</data>
+      <data key="d34">Aracaju</data>
+    </node>
+    <node id="55">
+      <data key="d28">1</data>
+      <data key="d29">25.77427</data>
+      <data key="d30">United States</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">55</data>
+      <data key="d33">-80.19366</data>
+      <data key="d34">Miami</data>
+    </node>
+    <node id="56">
+      <data key="d35">1</data>
+      <data key="d28">1</data>
+      <data key="d32">56</data>
+      <data key="d34">None</data>
+    </node>
+    <node id="57">
+      <data key="d28">1</data>
+      <data key="d29">6.29139</data>
+      <data key="d30">Colombia</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">57</data>
+      <data key="d33">-75.53611</data>
+      <data key="d34">Medellin</data>
+    </node>
+    <node id="58">
+      <data key="d28">1</data>
+      <data key="d29">3.43722</data>
+      <data key="d30">Colombia</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">58</data>
+      <data key="d33">-76.5225</data>
+      <data key="d34">Cali</data>
+    </node>
+    <node id="59">
+      <data key="d28">1</data>
+      <data key="d29">12.03333</data>
+      <data key="d30">Grenada</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">59</data>
+      <data key="d33">-61.66667</data>
+      <data key="d34">St David's</data>
+    </node>
+    <node id="60">
+      <data key="d28">1</data>
+      <data key="d29">40.71427</data>
+      <data key="d30">United States</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">60</data>
+      <data key="d33">-74.00597</data>
+      <data key="d34">New York</data>
+    </node>
+    <node id="61">
+      <data key="d28">1</data>
+      <data key="d29">39.60317</data>
+      <data key="d30">United States</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">61</data>
+      <data key="d33">-74.34014</data>
+      <data key="d34">Tuckerton</data>
+    </node>
+    <node id="62">
+      <data key="d28">1</data>
+      <data key="d29">26.35869</data>
+      <data key="d30">United States</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">62</data>
+      <data key="d33">-80.0831</data>
+      <data key="d34">Boca Raton</data>
+    </node>
+    <node id="63">
+      <data key="d28">1</data>
+      <data key="d31">Oi Domestic Network PoP</data>
+      <data key="d32">63</data>
+      <data key="d34">13</data>
+    </node>
+    <node id="64">
+      <data key="d28">1</data>
+      <data key="d29">10.6</data>
+      <data key="d30">Venezuela</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">64</data>
+      <data key="d33">-66.95</data>
+      <data key="d34">Maiquetia</data>
+    </node>
+    <node id="65">
+      <data key="d28">1</data>
+      <data key="d29">10.5</data>
+      <data key="d30">Venezuela</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">65</data>
+      <data key="d33">-66.91667</data>
+      <data key="d34">Caracas</data>
+    </node>
+    <node id="66">
+      <data key="d28">1</data>
+      <data key="d29">7.88333</data>
+      <data key="d30">Colombia</data>
+      <data key="d31">International Network PoP</data>
+      <data key="d32">66</data>
+      <data key="d33">-72.50528</data>
+      <data key="d34">Cucuta</data>
+    </node>
+    <edge source="0" target="65">
+      <data key="d36">e11</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="0" target="65">
+      <data key="d36">e12</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="0" target="3">
+      <data key="d36">e19</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="3">
+      <data key="d36">e20</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="58">
+      <data key="d36">e18</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="66">
+      <data key="d36">e16</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="48">
+      <data key="d36">e26</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="33">
+      <data key="d36">e25</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d36">e23</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="6">
+      <data key="d36">e21</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="7">
+      <data key="d36">e24</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="6" target="33">
+      <data key="d36">e22</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d36">e107</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="26">
+      <data key="d36">e108</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="43">
+      <data key="d36">e93</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="63">
+      <data key="d36">e104</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="26">
+      <data key="d36">e109</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="26">
+      <data key="d36">e110</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="9" target="12">
+      <data key="d36">e100</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="63">
+      <data key="d36">e105</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="64">
+      <data key="d36">e8</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="33">
+      <data key="d36">e31</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="39">
+      <data key="d36">e27</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="39">
+      <data key="d36">e28</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="10" target="11">
+      <data key="d36">e29</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="48">
+      <data key="d36">e30</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="59">
+      <data key="d36">e0</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="50">
+      <data key="d36">e32</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="34">
+      <data key="d36">e102</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="13">
+      <data key="d36">e101</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="14">
+      <data key="d36">e99</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="28">
+      <data key="d36">e103</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="30">
+      <data key="d36">e96</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="16">
+      <data key="d36">e72</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="29">
+      <data key="d36">e97</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="38">
+      <data key="d36">e78</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="17">
+      <data key="d36">e73</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="23">
+      <data key="d36">e68</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="23">
+      <data key="d36">e69</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="17" target="34">
+      <data key="d36">e76</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="38">
+      <data key="d36">e75</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="38">
+      <data key="d36">e74</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d36">e59</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d36">e60</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="34">
+      <data key="d36">e62</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="46">
+      <data key="d36">e57</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="37">
+      <data key="d36">e61</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="20" target="22">
+      <data key="d36">e63</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="34">
+      <data key="d36">e65</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d36">e64</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="23" target="24">
+      <data key="d36">e66</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="23" target="24">
+      <data key="d36">e67</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d36">e70</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="25" target="36">
+      <data key="d36">e71</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="26" target="27">
+      <data key="d36">e111</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="26" target="63">
+      <data key="d36">e106</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="28" target="43">
+      <data key="d36">e90</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="34">
+      <data key="d36">e98</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="43">
+      <data key="d36">e89</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="30">
+      <data key="d36">e95</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="30">
+      <data key="d36">e94</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="30" target="44">
+      <data key="d36">e87</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="51">
+      <data key="d36">e47</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="52">
+      <data key="d36">e45</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="53">
+      <data key="d36">e43</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="52">
+      <data key="d36">e44</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="53">
+      <data key="d36">e40</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="53">
+      <data key="d36">e41</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="34" target="37">
+      <data key="d36">e79</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="35" target="36">
+      <data key="d36">e112</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="37" target="46">
+      <data key="d36">e51</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="37" target="45">
+      <data key="d36">e58</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="37" target="38">
+      <data key="d36">e77</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="38" target="46">
+      <data key="d36">e50</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="56">
+      <data key="d36">e83</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="51">
+      <data key="d36">e49</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="42">
+      <data key="d36">e82</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="42">
+      <data key="d36">e81</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="39" target="46">
+      <data key="d36">e53</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="39" target="46">
+      <data key="d36">e52</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="40" target="41">
+      <data key="d36">e80</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="41" target="42">
+      <data key="d36">e84</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="42" target="43">
+      <data key="d36">e86</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="42" target="43">
+      <data key="d36">e85</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="42" target="46">
+      <data key="d36">e55</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="42" target="46">
+      <data key="d36">e54</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="43" target="44">
+      <data key="d36">e88</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="43" target="63">
+      <data key="d36">e91</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="43" target="63">
+      <data key="d36">e92</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="45" target="46">
+      <data key="d36">e56</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="46" target="53">
+      <data key="d36">e42</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="47" target="49">
+      <data key="d36">e35</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="47" target="54">
+      <data key="d36">e38</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="48" target="49">
+      <data key="d36">e34</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="48" target="53">
+      <data key="d36">e37</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="48" target="53">
+      <data key="d36">e36</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="49" target="50">
+      <data key="d36">e33</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="51" target="56">
+      <data key="d36">e48</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="52" target="56">
+      <data key="d36">e46</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="53" target="54">
+      <data key="d36">e39</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="55" target="62">
+      <data key="d36">e5</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="55" target="62">
+      <data key="d36">e6</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="57" target="58">
+      <data key="d36">e17</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="57" target="66">
+      <data key="d36">e15</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="59" target="61">
+      <data key="d36">e1</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="60" target="61">
+      <data key="d36">e3</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="60" target="61">
+      <data key="d36">e2</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="61" target="62">
+      <data key="d36">e4</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="62" target="64">
+      <data key="d36">e7</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="64" target="65">
+      <data key="d36">e10</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="64" target="65">
+      <data key="d36">e9</data>
+      <data key="d37">1</data>
+    </edge>
+    <edge source="65" target="66">
+      <data key="d36">e13</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="65" target="66">
+      <data key="d36">e14</data>
+      <data key="d37">1</data>
+    </edge>
+  </graph>
+</graphml>

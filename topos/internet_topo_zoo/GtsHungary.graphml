@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d36" />
+  <key attr.name="id" attr.type="string" for="edge" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="Country" attr.type="string" for="node" id="d33" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d32" />
+  <key attr.name="label" attr.type="string" for="node" id="d31" />
+  <key attr.name="id" attr.type="int" for="node" id="d30" />
+  <key attr.name="type" attr.type="string" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">22/10/10</data>
+    <data key="d1">Hungary</data>
+    <data key="d2">Country</data>
+    <data key="d3">GTS Hungary</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.gtsce.com/en/map/index.shtml</data>
+    <data key="d7">1.0</data>
+    <data key="d8">COM</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">GtsHungary</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">10</data>
+    <data key="d19">22/10/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">0</data>
+    <data key="d23">1</data>
+    <data key="d24">2010_10</data>
+    <data key="d25">2010</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">0</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">0</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d32">48.1</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">1</data>
+      <data key="d34">20.78333</data>
+      <data key="d31">Miskolc</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d32">48.09872</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">2</data>
+      <data key="d34">19.80303</data>
+      <data key="d31">Salgotarjan</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d32">47.6</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">3</data>
+      <data key="d34">19.36667</data>
+      <data key="d31">Godollo</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d32">47.18333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">4</data>
+      <data key="d34">20.2</data>
+      <data key="d31">Szolnok</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d32">46.98333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">5</data>
+      <data key="d34">18.93333</data>
+      <data key="d31">Dunaujvaros</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d32">47.95539</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">6</data>
+      <data key="d34">21.71671</data>
+      <data key="d31">Nyiregyhaza</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d32">47.53333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">7</data>
+      <data key="d34">21.63333</data>
+      <data key="d31">Debrecen</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d32">46.90618</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">8</data>
+      <data key="d34">19.69128</data>
+      <data key="d31">Kecskemet</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d32">46.18333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">9</data>
+      <data key="d34">18.96667</data>
+      <data key="d31">Baja</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d32">46.08333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">10</data>
+      <data key="d34">18.23333</data>
+      <data key="d31">Pecs</data>
+    </node>
+    <node id="11">
+      <data key="d28">0</data>
+      <data key="d30">11</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="12">
+      <data key="d28">1</data>
+      <data key="d32">46.253</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">12</data>
+      <data key="d34">20.14824</data>
+      <data key="d31">Szeged</data>
+    </node>
+    <node id="13">
+      <data key="d28">1</data>
+      <data key="d32">46.9</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">13</data>
+      <data key="d34">18.05</data>
+      <data key="d31">Siofok</data>
+    </node>
+    <node id="14">
+      <data key="d28">1</data>
+      <data key="d32">46.36667</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">14</data>
+      <data key="d34">17.8</data>
+      <data key="d31">Kaposvar</data>
+    </node>
+    <node id="15">
+      <data key="d28">1</data>
+      <data key="d32">46.35</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">15</data>
+      <data key="d34">18.71667</data>
+      <data key="d31">Szekszard</data>
+    </node>
+    <node id="16">
+      <data key="d28">0</data>
+      <data key="d30">16</data>
+      <data key="d31">None</data>
+    </node>
+    <node id="17">
+      <data key="d28">0</data>
+      <data key="d30">17</data>
+      <data key="d31">Vienna</data>
+    </node>
+    <node id="18">
+      <data key="d28">0</data>
+      <data key="d30">18</data>
+      <data key="d31">Bratislava</data>
+    </node>
+    <node id="19">
+      <data key="d28">1</data>
+      <data key="d32">46.68333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">19</data>
+      <data key="d34">21.1</data>
+      <data key="d31">Bekescsaba</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d32">47.49801</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Large Node</data>
+      <data key="d30">20</data>
+      <data key="d34">19.03991</data>
+      <data key="d31">Budapest</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d32">47.78333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">21</data>
+      <data key="d34">19.13333</data>
+      <data key="d31">Vac</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d32">47.68333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">22</data>
+      <data key="d34">16.6</data>
+      <data key="d31">Sopron</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d32">47.23088</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">23</data>
+      <data key="d34">16.62155</data>
+      <data key="d31">Szombathely</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d32">46.84</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">24</data>
+      <data key="d34">16.84389</data>
+      <data key="d31">Zalaegerszeg</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d32">46.45347</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">25</data>
+      <data key="d34">16.99104</data>
+      <data key="d31">Nagykanizsa</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d32">47.18995</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">26</data>
+      <data key="d34">18.41034</data>
+      <data key="d31">Szekesfehervar</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d32">47.09327</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">27</data>
+      <data key="d34">17.91149</data>
+      <data key="d31">Veszprem</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d32">47.68333</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">28</data>
+      <data key="d34">17.63512</data>
+      <data key="d31">Gyor</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d32">47.56667</data>
+      <data key="d33">Hungary</data>
+      <data key="d29">Small Node</data>
+      <data key="d30">29</data>
+      <data key="d34">18.41667</data>
+      <data key="d31">Tatabanya</data>
+    </node>
+    <edge source="0" target="20">
+      <data key="d35">e14</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="1" target="20">
+      <data key="d35">e15</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="2" target="20">
+      <data key="d35">e12</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="3" target="20">
+      <data key="d35">e13</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="4" target="20">
+      <data key="d35">e17</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="4" target="7">
+      <data key="d35">e25</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="5" target="8">
+      <data key="d35">e27</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="5" target="20">
+      <data key="d35">e18</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="6" target="20">
+      <data key="d35">e16</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="7" target="12">
+      <data key="d35">e26</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="8" target="12">
+      <data key="d35">e28</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="9" target="20">
+      <data key="d35">e19</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="10" target="20">
+      <data key="d35">e24</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="11" target="12">
+      <data key="d35">e30</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="12" target="19">
+      <data key="d35">e29</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="13" target="20">
+      <data key="d35">e22</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="14" target="20">
+      <data key="d35">e21</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="15" target="20">
+      <data key="d35">e20</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="16" target="20">
+      <data key="d35">e23</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="17" target="22">
+      <data key="d35">e1</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="18" target="28">
+      <data key="d35">e8</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d35">e11</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="20" target="25">
+      <data key="d35">e5</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="20" target="26">
+      <data key="d35">e6</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="20" target="29">
+      <data key="d35">e10</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="22" target="28">
+      <data key="d35">e2</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="22" target="23">
+      <data key="d35">e0</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="23" target="24">
+      <data key="d35">e3</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="24" target="27">
+      <data key="d35">e4</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="26" target="27">
+      <data key="d35">e7</data>
+      <data key="d36">0</data>
+    </edge>
+    <edge source="28" target="29">
+      <data key="d35">e9</data>
+      <data key="d36">0</data>
+    </edge>
+  </graph>
+</graphml>

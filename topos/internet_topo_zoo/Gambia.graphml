@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d42" />
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d41" />
+  <key attr.name="key" attr.type="int" for="edge" id="d40" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d39" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d36" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d35" />
+  <key attr.name="Country" attr.type="string" for="node" id="d34" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="label" attr.type="string" for="node" id="d32" />
+  <key attr.name="id" attr.type="int" for="node" id="d31" />
+  <key attr.name="type" attr.type="string" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">24/01/11</data>
+    <data key="d1">Gambia</data>
+    <data key="d2">Country</data>
+    <data key="d3">Gambia</data>
+    <data key="d4">Secondary</data>
+    <data key="d5">Node names hard to read, Country-wide network, not a true provider</data>
+    <data key="d6">http://www.nsrc.org/AFRICA/GM/GM-connectivity.gif</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Gambia</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">07</data>
+    <data key="d19">24/01/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">1</data>
+    <data key="d25">2001_07</data>
+    <data key="d26">2001</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">Commercial ISP</data>
+      <data key="d31">0</data>
+      <data key="d32">Gamnet</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">Commercial ISP</data>
+      <data key="d31">1</data>
+      <data key="d32">Qnet AS</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d33">13.48944</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">2</data>
+      <data key="d35">-16.09111</data>
+      <data key="d32">Kerewan</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d33">13.45274</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">3</data>
+      <data key="d35">-16.57803</data>
+      <data key="d32">Banjul</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">Education/Research</data>
+      <data key="d31">4</data>
+      <data key="d32">MDI</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">Education/Research</data>
+      <data key="d31">5</data>
+      <data key="d32">GTMI</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">Commercial ISP</data>
+      <data key="d31">6</data>
+      <data key="d32">Quantum Net</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">Education/Research</data>
+      <data key="d31">7</data>
+      <data key="d32">MRC</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">Education/Research</data>
+      <data key="d31">8</data>
+      <data key="d32">Univ Gambia</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">Education/Research</data>
+      <data key="d31">9</data>
+      <data key="d32">GTMI</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d30">Other</data>
+      <data key="d31">10</data>
+      <data key="d32">Mansk Gambia</data>
+    </node>
+    <node id="11">
+      <data key="d29">1</data>
+      <data key="d30">Other</data>
+      <data key="d31">11</data>
+      <data key="d32">Gamtel House</data>
+    </node>
+    <node id="12">
+      <data key="d29">1</data>
+      <data key="d30">NGO/International Organisations</data>
+      <data key="d31">12</data>
+      <data key="d32">Action Ltd</data>
+    </node>
+    <node id="13">
+      <data key="d29">1</data>
+      <data key="d30">NGO/International Organisations</data>
+      <data key="d31">13</data>
+      <data key="d32">UNDP</data>
+    </node>
+    <node id="14">
+      <data key="d29">0</data>
+      <data key="d31">14</data>
+      <data key="d32">Teleglobe Canada</data>
+    </node>
+    <node id="15">
+      <data key="d29">0</data>
+      <data key="d31">15</data>
+      <data key="d32">Intelsat</data>
+    </node>
+    <node id="16">
+      <data key="d29">0</data>
+      <data key="d31">16</data>
+      <data key="d32">Earth Station</data>
+    </node>
+    <node id="17">
+      <data key="d29">1</data>
+      <data key="d30">Other</data>
+      <data key="d31">17</data>
+      <data key="d32">Gantd Center</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d33">13.31667</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">18</data>
+      <data key="d35">-14.21667</data>
+      <data key="d32">Basse</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d33">13.43333</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">19</data>
+      <data key="d35">-14.65</data>
+      <data key="d32">Bansang</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d33">13.40417</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">20</data>
+      <data key="d35">-16.65583</data>
+      <data key="d32">Abuko</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d33">13.43833</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">21</data>
+      <data key="d35">-16.67806</data>
+      <data key="d32">Serekunda</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d33">13.45944</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">22</data>
+      <data key="d35">-16.70528</data>
+      <data key="d32">Kotu</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d33">13.47806</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">23</data>
+      <data key="d35">-16.68194</data>
+      <data key="d32">Bakau</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d33">13.2675</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">24</data>
+      <data key="d35">-16.64611</data>
+      <data key="d32">Brikama</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d33">13.3625</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">25</data>
+      <data key="d35">-16.68611</data>
+      <data key="d32">Yundum</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d33">13.43333</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">26</data>
+      <data key="d35">-15.53333</data>
+      <data key="d32">Soma</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d33">13.56667</data>
+      <data key="d34">Gambia</data>
+      <data key="d30">Core Node</data>
+      <data key="d31">27</data>
+      <data key="d35">-15.6</data>
+      <data key="d32">Farafenni</data>
+    </node>
+    <edge source="0" target="20">
+      <data key="d36">10</data>
+      <data key="d37">10 Mbps</data>
+      <data key="d38">M</data>
+      <data key="d39">10000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="1" target="20">
+      <data key="d36">10</data>
+      <data key="d37">10 Mbps</data>
+      <data key="d38">M</data>
+      <data key="d39">10000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="2" target="27">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="3" target="11">
+      <data key="d36">10</data>
+      <data key="d37">10 Mbps</data>
+      <data key="d38">M</data>
+      <data key="d39">10000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="3" target="10">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="3" target="6">
+      <data key="d36">128</data>
+      <data key="d37">128 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">128000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="3" target="21">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="4" target="21">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="5" target="21">
+      <data key="d36">128</data>
+      <data key="d37">128 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">128000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="7" target="23">
+      <data key="d36">128</data>
+      <data key="d37">128 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">128000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="8" target="21">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="9" target="21">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="12" target="21">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="13" target="23">
+      <data key="d36">64</data>
+      <data key="d37">64 Kbps</data>
+      <data key="d38">K</data>
+      <data key="d39">64000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="14" target="15">
+      <data key="d42">Satellite</data>
+      <data key="d37">Satellite Link</data>
+      <data key="d41"> Link</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="15" target="16">
+      <data key="d42">Satellite</data>
+      <data key="d37">Satellite Link</data>
+      <data key="d41"> Link</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="16" target="20">
+      <data key="d36">10</data>
+      <data key="d37">10 Mbps</data>
+      <data key="d38">M</data>
+      <data key="d39">10000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="17" target="24">
+      <data key="d36">10</data>
+      <data key="d37">10 Mbps</data>
+      <data key="d38">M</data>
+      <data key="d39">10000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="18" target="26">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="18" target="19">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="21" target="23">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="21" target="24">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s (Gamtel Backbone)</data>
+      <data key="d41"> it/s (Gamtel Backone)</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="21" target="25">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="25" target="26">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+    <edge source="26" target="27">
+      <data key="d36">2</data>
+      <data key="d38">M</data>
+      <data key="d37">2 Mbit/s</data>
+      <data key="d41"> it/s</data>
+      <data key="d39">2000000.0</data>
+      <data key="d40">0</data>
+    </edge>
+  </graph>
+</graphml>

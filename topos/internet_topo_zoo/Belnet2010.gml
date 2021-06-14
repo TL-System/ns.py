@@ -1,0 +1,380 @@
+graph [
+  DateObtained "12/03/11"
+  GeoLocation "Belgium"
+  GeoExtent "Country"
+  Network "BELNET"
+  Provenance "Primary"
+  Note "Some PoPS ambigious. Cite available at http://www.belnet.be/sites/default/files/file/Publications/BELNET_annual_report_2008_EN.pdf"
+  Source "http://www.belnet.be/en/about-us/infrastructure"
+  Version "1.0"
+  DateType "Historic"
+  Type "REN"
+  Backbone 1
+  Commercial 0
+  label "Belnet2010"
+  ToolsetVersion "0.3.34dev-20120328"
+  Customer 0
+  IX 0
+  SourceGitVersion "e278b1b"
+  DateModifier "="
+  DateMonth 0
+  LastAccess "12/03/11"
+  Access 0
+  Layer "IP"
+  Creator "Topology Zoo Toolset"
+  Developed 1
+  Transit 0
+  NetworkDate "2010"
+  DateYear "2010"
+  LastProcessed "2011_09_01"
+  Testbed 0
+  node [
+    id 0
+    label "Liege1 "
+    Internal 1
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 1
+    label "Brussels Campus"
+    Country "Belgium"
+    Longitude 4.34878
+    Internal 1
+    Latitude 50.85045
+    type "Small Node"
+  ]
+  node [
+    id 2
+    label "Arlon"
+    Country "Belgium"
+    Longitude 5.81667
+    Internal 1
+    Latitude 49.68333
+    type "Small Node"
+  ]
+  node [
+    id 3
+    label "Liege2"
+    Country "Belgium"
+    Longitude 5.57178
+    Internal 1
+    Latitude 50.64119
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 4
+    label "Vilvoorde"
+    Country "Belgium"
+    Longitude 4.40731
+    Internal 1
+    Latitude 50.91823
+    type "Large Node"
+  ]
+  node [
+    id 5
+    label "Leuven1"
+    Country "Belgium"
+    Longitude 4.70093
+    Internal 1
+    Latitude 50.87959
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 6
+    label "Bruzav"
+    Internal 1
+    type "Small Node"
+  ]
+  node [
+    id 7
+    label "Evere"
+    Country "Belgium"
+    Longitude 4.4
+    Internal 1
+    Latitude 50.86667
+    type "Large Node"
+  ]
+  node [
+    id 8
+    label "Leuven2"
+    Country "Belgium"
+    Longitude 4.70093
+    Internal 1
+    Latitude 50.87959
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 9
+    label "Hasselt"
+    Country "Belgium"
+    Longitude 5.33333
+    Internal 1
+    Latitude 50.93333
+    type "Small Node"
+  ]
+  node [
+    id 10
+    label "Brudie"
+    Internal 1
+    type "Small Node"
+  ]
+  node [
+    id 11
+    label "Geel"
+    Country "Belgium"
+    Longitude 5.0
+    Internal 1
+    Latitude 51.16667
+    type "Small Node"
+  ]
+  node [
+    id 12
+    label "Louvain-la-Neuve"
+    Country "Belgium"
+    Longitude 4.61443
+    Internal 1
+    Latitude 50.66829
+    type "Small Node"
+  ]
+  node [
+    id 13
+    label "Namur"
+    Country "Belgium"
+    Longitude 4.82577
+    Internal 1
+    Latitude 50.46992
+    type "Small Node"
+  ]
+  node [
+    id 14
+    label "Brugge"
+    Country "Belgium"
+    Longitude 3.22424
+    Internal 1
+    Latitude 51.20892
+    type "Small Node"
+  ]
+  node [
+    id 15
+    label "Gent1"
+    Country "Belgium"
+    Longitude 3.71667
+    Internal 1
+    Latitude 51.05
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 16
+    label "Gent2"
+    Country "Belgium"
+    Longitude 3.71667
+    Internal 1
+    Latitude 51.05
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 17
+    label "Antwerpen1"
+    Country "Belgium"
+    Longitude 4.41667
+    Internal 1
+    Latitude 51.21667
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 18
+    label "Antwerpen2"
+    Country "Belgium"
+    Longitude 4.41667
+    Internal 1
+    Latitude 51.21667
+    type "One of two small nodes in same city"
+  ]
+  node [
+    id 19
+    label "Korthijk"
+    Country "Belgium"
+    Longitude 3.26487
+    Internal 1
+    Latitude 50.82803
+    type "Small Node"
+  ]
+  node [
+    id 20
+    label "Mons"
+    Country "Belgium"
+    Longitude 3.95229
+    Internal 1
+    Latitude 50.45413
+    type "Small Node"
+  ]
+  node [
+    id 21
+    label "Charleroi"
+    Country "Belgium"
+    Longitude 4.43333
+    Internal 1
+    Latitude 50.41667
+    type "Small Node"
+  ]
+  edge [
+    source 0
+    target 3
+    LinkLabel "Green"
+  ]
+  edge [
+    source 0
+    target 3
+    LinkLabel "Green"
+  ]
+  edge [
+    source 0
+    target 4
+    LinkLabel "Green"
+  ]
+  edge [
+    source 1
+    target 6
+    LinkLabel "Red"
+  ]
+  edge [
+    source 1
+    target 7
+    LinkLabel "Red"
+  ]
+  edge [
+    source 2
+    target 3
+    LinkLabel "Green"
+  ]
+  edge [
+    source 2
+    target 13
+    LinkLabel "Green"
+  ]
+  edge [
+    source 4
+    target 10
+    LinkLabel "Red"
+  ]
+  edge [
+    source 4
+    target 11
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 4
+    target 18
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 4
+    target 7
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 4
+    target 7
+    LinkLabel "Green"
+  ]
+  edge [
+    source 4
+    target 7
+    LinkLabel "Red"
+  ]
+  edge [
+    source 4
+    target 7
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 5
+    target 8
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 5
+    target 8
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 5
+    target 7
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 6
+    target 10
+    LinkLabel "Red"
+  ]
+  edge [
+    source 7
+    target 19
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 7
+    target 20
+    LinkLabel "Green"
+  ]
+  edge [
+    source 8
+    target 9
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 9
+    target 11
+    LinkLabel "Grey"
+  ]
+  edge [
+    source 12
+    target 13
+    LinkLabel "Green"
+  ]
+  edge [
+    source 12
+    target 21
+    LinkLabel "Green"
+  ]
+  edge [
+    source 14
+    target 19
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 14
+    target 15
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 15
+    target 16
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 15
+    target 16
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 16
+    target 17
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 17
+    target 18
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 17
+    target 18
+    LinkLabel "Blue"
+  ]
+  edge [
+    source 20
+    target 21
+    LinkLabel "Green"
+  ]
+]

@@ -1,0 +1,1128 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d40" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d39" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d38" />
+  <key attr.name="key" attr.type="int" for="edge" id="d37" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d36" />
+  <key attr.name="label" attr.type="string" for="node" id="d35" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d34" />
+  <key attr.name="id" attr.type="int" for="node" id="d33" />
+  <key attr.name="type" attr.type="string" for="node" id="d32" />
+  <key attr.name="Country" attr.type="string" for="node" id="d31" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">21/10/10</data>
+    <data key="d1">Turkey</data>
+    <data key="d2">Country</data>
+    <data key="d3">ULAKNET</data>
+    <data key="d4">Primary</data>
+    <data key="d5">Very sparse webpage</data>
+    <data key="d6">http://www.ulakbim.gov.tr/hakkimizda/tarihce/ulaknet/YeniUlak2010.jpg</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Current</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Ulaknet</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">10</data>
+    <data key="d19">21/10/10</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">0</data>
+    <data key="d25">2010_10</data>
+    <data key="d26">2010</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">37.77417</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">0</data>
+      <data key="d34">29.0875</data>
+      <data key="d35">Denizli</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d30">38.67351</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">1</data>
+      <data key="d34">29.4058</data>
+      <data key="d35">Usak</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">37.84501</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">2</data>
+      <data key="d34">27.83963</data>
+      <data key="d35">Aydin</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">37.21807</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">3</data>
+      <data key="d34">28.3665</data>
+      <data key="d35">Mugla</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">37.72028</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">4</data>
+      <data key="d34">30.29083</data>
+      <data key="d35">Burdur</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">36.9125</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">5</data>
+      <data key="d34">30.68972</data>
+      <data key="d35">Antalya</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">38.75667</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">6</data>
+      <data key="d34">30.54333</data>
+      <data key="d35">Afyonkarahisar</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d30">37.76444</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">7</data>
+      <data key="d34">30.55222</data>
+      <data key="d35">Isparta</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d30">37.88738</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">8</data>
+      <data key="d34">41.13221</data>
+      <data key="d35">Batman</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d30">37.93262</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">9</data>
+      <data key="d34">41.94025</data>
+      <data key="d35">Siirt</data>
+    </node>
+    <node id="10">
+      <data key="d29">1</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">10</data>
+      <data key="d35">Gazimagusa</data>
+    </node>
+    <node id="11">
+      <data key="d29">1</data>
+      <data key="d30">40.65502</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">11</data>
+      <data key="d34">29.27693</data>
+      <data key="d35">Yalova</data>
+    </node>
+    <node id="12">
+      <data key="d29">1</data>
+      <data key="d30">40.65333</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">12</data>
+      <data key="d34">35.83306</data>
+      <data key="d35">Amasya</data>
+    </node>
+    <node id="13">
+      <data key="d29">1</data>
+      <data key="d30">40.31389</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">13</data>
+      <data key="d34">36.55444</data>
+      <data key="d35">Tokat</data>
+    </node>
+    <node id="14">
+      <data key="d29">1</data>
+      <data key="d30">37.96583</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">14</data>
+      <data key="d34">34.67935</data>
+      <data key="d35">Nigde</data>
+    </node>
+    <node id="15">
+      <data key="d29">1</data>
+      <data key="d30">36.20655</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">15</data>
+      <data key="d34">36.15722</data>
+      <data key="d35">Hatay</data>
+    </node>
+    <node id="16">
+      <data key="d29">1</data>
+      <data key="d30">37.76441</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">16</data>
+      <data key="d34">38.27629</data>
+      <data key="d35">Adiyaman</data>
+    </node>
+    <node id="17">
+      <data key="d29">1</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">17</data>
+      <data key="d35">K. Maras</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d30">39.90861</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">18</data>
+      <data key="d34">41.27694</data>
+      <data key="d35">Erzurum</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d30">41.63583</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">19</data>
+      <data key="d34">32.3375</data>
+      <data key="d35">Bartin</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d30">41.20488</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">20</data>
+      <data key="d34">32.62768</data>
+      <data key="d35">Karabuk</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d30">36.79526</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">21</data>
+      <data key="d34">34.61792</data>
+      <data key="d35">Mersin</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d30">37.18111</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">22</data>
+      <data key="d34">33.215</data>
+      <data key="d35">Karaman</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d30">38.37255</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">23</data>
+      <data key="d34">34.02537</data>
+      <data key="d35">Aksaray</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d30">37.86556</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">24</data>
+      <data key="d34">32.4825</data>
+      <data key="d35">Konya</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d30">42.03087</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">25</data>
+      <data key="d34">35.17124</data>
+      <data key="d35">Sinop</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d30">41.28667</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">26</data>
+      <data key="d34">36.33</data>
+      <data key="d35">Samsun</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d30">37.00167</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">27</data>
+      <data key="d34">35.32889</data>
+      <data key="d35">Adana</data>
+    </node>
+    <node id="28">
+      <data key="d29">1</data>
+      <data key="d30">40.14192</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">28</data>
+      <data key="d34">29.97932</data>
+      <data key="d35">Bilecik</data>
+    </node>
+    <node id="29">
+      <data key="d29">1</data>
+      <data key="d30">40.91698</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">29</data>
+      <data key="d34">38.38741</data>
+      <data key="d35">Giresun</data>
+    </node>
+    <node id="30">
+      <data key="d29">1</data>
+      <data key="d30">37.57444</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">30</data>
+      <data key="d34">43.74083</data>
+      <data key="d35">Hakkari</data>
+    </node>
+    <node id="31">
+      <data key="d29">1</data>
+      <data key="d30">38.67431</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">31</data>
+      <data key="d34">39.22321</data>
+      <data key="d35">Elazig</data>
+    </node>
+    <node id="32">
+      <data key="d29">1</data>
+      <data key="d30">41.10871</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">32</data>
+      <data key="d34">42.70222</data>
+      <data key="d35">Ardahan</data>
+    </node>
+    <node id="33">
+      <data key="d29">1</data>
+      <data key="d30">41.18222</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">33</data>
+      <data key="d34">41.81944</data>
+      <data key="d35">Artvin</data>
+    </node>
+    <node id="34">
+      <data key="d29">1</data>
+      <data key="d30">40.54889</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">34</data>
+      <data key="d34">34.95333</data>
+      <data key="d35">Corum</data>
+    </node>
+    <node id="35">
+      <data key="d29">1</data>
+      <data key="d30">38.88472</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">35</data>
+      <data key="d34">40.49389</data>
+      <data key="d35">Bingol</data>
+    </node>
+    <node id="36">
+      <data key="d29">1</data>
+      <data key="d30">38.49239</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">36</data>
+      <data key="d34">43.38311</data>
+      <data key="d35">Van</data>
+    </node>
+    <node id="37">
+      <data key="d29">1</data>
+      <data key="d30">37.07417</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">37</data>
+      <data key="d34">36.24778</data>
+      <data key="d35">Osmaniye</data>
+    </node>
+    <node id="38">
+      <data key="d29">1</data>
+      <data key="d30">39.71944</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">38</data>
+      <data key="d34">43.05139</data>
+      <data key="d35">Agri</data>
+    </node>
+    <node id="39">
+      <data key="d29">1</data>
+      <data key="d30">40.98472</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">39</data>
+      <data key="d34">37.87889</data>
+      <data key="d35">Ordu</data>
+    </node>
+    <node id="40">
+      <data key="d29">1</data>
+      <data key="d30">37.31309</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">40</data>
+      <data key="d34">40.74357</data>
+      <data key="d35">Mardin</data>
+    </node>
+    <node id="41">
+      <data key="d29">1</data>
+      <data key="d30">38.35018</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">41</data>
+      <data key="d34">38.31667</data>
+      <data key="d35">Malatya</data>
+    </node>
+    <node id="42">
+      <data key="d29">1</data>
+      <data key="d30">37.52278</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">42</data>
+      <data key="d34">42.45944</data>
+      <data key="d35">Sirnak</data>
+    </node>
+    <node id="43">
+      <data key="d29">1</data>
+      <data key="d30">37.91583</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">43</data>
+      <data key="d34">40.21889</data>
+      <data key="d35">Diyarbakir</data>
+    </node>
+    <node id="44">
+      <data key="d29">1</data>
+      <data key="d30">39.82</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">44</data>
+      <data key="d34">34.80444</data>
+      <data key="d35">Yozgat</data>
+    </node>
+    <node id="45">
+      <data key="d29">1</data>
+      <data key="d30">38.73222</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">45</data>
+      <data key="d34">35.48528</data>
+      <data key="d35">Kayseri</data>
+    </node>
+    <node id="46">
+      <data key="d29">1</data>
+      <data key="d30">40.60199</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">46</data>
+      <data key="d34">43.09495</data>
+      <data key="d35">Kars</data>
+    </node>
+    <node id="47">
+      <data key="d29">1</data>
+      <data key="d30">38.625</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">47</data>
+      <data key="d34">34.71222</data>
+      <data key="d35">Nevsehir</data>
+    </node>
+    <node id="48">
+      <data key="d29">1</data>
+      <data key="d30">37.05944</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">48</data>
+      <data key="d34">37.3825</data>
+      <data key="d35">Gaziantep</data>
+    </node>
+    <node id="49">
+      <data key="d29">1</data>
+      <data key="d30">39.84528</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">49</data>
+      <data key="d34">33.50639</data>
+      <data key="d35">Kirikkale</data>
+    </node>
+    <node id="50">
+      <data key="d29">1</data>
+      <data key="d30">36.71611</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">50</data>
+      <data key="d34">37.115</data>
+      <data key="d35">Kilis</data>
+    </node>
+    <node id="51">
+      <data key="d29">0</data>
+      <data key="d33">51</data>
+      <data key="d35">GEANT</data>
+    </node>
+    <node id="52">
+      <data key="d29">1</data>
+      <data key="d30">39.14583</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">52</data>
+      <data key="d34">34.16389</data>
+      <data key="d35">Kirsehir</data>
+    </node>
+    <node id="53">
+      <data key="d29">1</data>
+      <data key="d30">40.59995</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">53</data>
+      <data key="d34">33.6153</data>
+      <data key="d35">Cankiri</data>
+    </node>
+    <node id="54">
+      <data key="d29">1</data>
+      <data key="d30">41.37805</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">54</data>
+      <data key="d34">33.77528</data>
+      <data key="d35">Kastamonu</data>
+    </node>
+    <node id="55">
+      <data key="d29">1</data>
+      <data key="d30">38.74525</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">55</data>
+      <data key="d34">41.50693</data>
+      <data key="d35">Mus</data>
+    </node>
+    <node id="56">
+      <data key="d29">1</data>
+      <data key="d30">39.77667</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">56</data>
+      <data key="d34">30.52056</data>
+      <data key="d35">Eskisehir</data>
+    </node>
+    <node id="57">
+      <data key="d29">1</data>
+      <data key="d30">40.76694</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">57</data>
+      <data key="d34">29.91694</data>
+      <data key="d35">Kocaeli</data>
+    </node>
+    <node id="58">
+      <data key="d29">1</data>
+      <data key="d30">40.78056</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">58</data>
+      <data key="d34">30.40333</data>
+      <data key="d35">Sakarya</data>
+    </node>
+    <node id="59">
+      <data key="d29">1</data>
+      <data key="d30">38.40115</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">59</data>
+      <data key="d34">42.10784</data>
+      <data key="d35">Bitlis</data>
+    </node>
+    <node id="60">
+      <data key="d29">1</data>
+      <data key="d30">40.19167</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">60</data>
+      <data key="d34">29.06111</data>
+      <data key="d35">Bursa</data>
+    </node>
+    <node id="61">
+      <data key="d29">1</data>
+      <data key="d30">40.73583</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">61</data>
+      <data key="d34">31.60611</data>
+      <data key="d35">Bolu</data>
+    </node>
+    <node id="62">
+      <data key="d29">1</data>
+      <data key="d30">40.83889</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">62</data>
+      <data key="d34">31.16389</data>
+      <data key="d35">Duzce</data>
+    </node>
+    <node id="63">
+      <data key="d29">1</data>
+      <data key="d30">41.45139</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">63</data>
+      <data key="d34">31.79305</data>
+      <data key="d35">Zonguldak</data>
+    </node>
+    <node id="64">
+      <data key="d29">1</data>
+      <data key="d30">41.02083</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">64</data>
+      <data key="d34">40.52194</data>
+      <data key="d35">Rize</data>
+    </node>
+    <node id="65">
+      <data key="d29">1</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">65</data>
+      <data key="d35">S. Urfa</data>
+    </node>
+    <node id="66">
+      <data key="d29">0</data>
+      <data key="d33">66</data>
+      <data key="d35">Internet</data>
+    </node>
+    <node id="67">
+      <data key="d29">0</data>
+      <data key="d33">67</data>
+      <data key="d35">Internet</data>
+    </node>
+    <node id="68">
+      <data key="d29">1</data>
+      <data key="d30">41.005</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">68</data>
+      <data key="d34">39.72694</data>
+      <data key="d35">Trabzon</data>
+    </node>
+    <node id="69">
+      <data key="d29">1</data>
+      <data key="d30">39.92371</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">69</data>
+      <data key="d34">44.045</data>
+      <data key="d35">Igdir</data>
+    </node>
+    <node id="70">
+      <data key="d29">1</data>
+      <data key="d30">38.61202</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">70</data>
+      <data key="d34">27.42646</data>
+      <data key="d35">Manisa</data>
+    </node>
+    <node id="71">
+      <data key="d29">1</data>
+      <data key="d30">39.42417</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">71</data>
+      <data key="d34">29.98333</data>
+      <data key="d35">Kutahya</data>
+    </node>
+    <node id="72">
+      <data key="d29">1</data>
+      <data key="d30">39.75222</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">72</data>
+      <data key="d34">39.49278</data>
+      <data key="d35">Erzincan</data>
+    </node>
+    <node id="73">
+      <data key="d29">1</data>
+      <data key="d30">39.74833</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">73</data>
+      <data key="d34">37.01611</data>
+      <data key="d35">Sivas</data>
+    </node>
+    <node id="74">
+      <data key="d29">1</data>
+      <data key="d30">41.01384</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Red Colour</data>
+      <data key="d33">74</data>
+      <data key="d34">28.94966</data>
+      <data key="d35">Istanbul</data>
+    </node>
+    <node id="75">
+      <data key="d29">1</data>
+      <data key="d30">38.41273</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Red Colour</data>
+      <data key="d33">75</data>
+      <data key="d34">27.13838</data>
+      <data key="d35">iZMiR</data>
+    </node>
+    <node id="76">
+      <data key="d29">1</data>
+      <data key="d30">39.91987</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Red Colour</data>
+      <data key="d33">76</data>
+      <data key="d34">32.85427</data>
+      <data key="d35">Ankara</data>
+    </node>
+    <node id="77">
+      <data key="d29">1</data>
+      <data key="d30">41.73508</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">77</data>
+      <data key="d34">27.22521</data>
+      <data key="d35">Kirklareli</data>
+    </node>
+    <node id="78">
+      <data key="d29">1</data>
+      <data key="d30">40.97801</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">78</data>
+      <data key="d34">27.50852</data>
+      <data key="d35">Tekirdag</data>
+    </node>
+    <node id="79">
+      <data key="d29">1</data>
+      <data key="d30">41.67719</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">79</data>
+      <data key="d34">26.55597</data>
+      <data key="d35">Edirne</data>
+    </node>
+    <node id="80">
+      <data key="d29">1</data>
+      <data key="d30">40.14556</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">80</data>
+      <data key="d34">26.40639</data>
+      <data key="d35">Canakkale</data>
+    </node>
+    <node id="81">
+      <data key="d29">1</data>
+      <data key="d30">39.64917</data>
+      <data key="d31">Turkey</data>
+      <data key="d32">Yellow Colour</data>
+      <data key="d33">81</data>
+      <data key="d34">27.88611</data>
+      <data key="d35">Balikesin</data>
+    </node>
+    <edge source="0" target="75">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="1" target="75">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="2" target="75">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="3" target="75">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="4" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="5" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="6" target="75">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="7" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="8" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="9" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="10" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="11" target="74">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="12" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="13" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="14" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="15" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="16" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="17" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="18" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="19" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="20" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="21" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="22" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="23" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="24" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="25" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="26" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="27" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="28" target="74">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="29" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="30" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="31" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="32" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="33" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="34" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="34" target="39">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="35" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="36" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="37" target="49">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="38" target="72">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="40" target="44">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="41" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="42" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="43" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="44" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="45" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="46" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="47" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="48" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="49" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="50" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="51" target="74">
+      <data key="d38">5</data>
+      <data key="d36">5Gbps</data>
+      <data key="d39">G</data>
+      <data key="d40">5000000000.0</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="52" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="53" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="54" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="55" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="56" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="57" target="74">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="58" target="74">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="59" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="60" target="74">
+      <data key="d36">155-599Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="61" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="62" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="63" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="64" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="65" target="76">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="66" target="76">
+      <data key="d38">5</data>
+      <data key="d36">5Gbps</data>
+      <data key="d39">G</data>
+      <data key="d40">5000000000.0</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="67" target="74">
+      <data key="d38">5</data>
+      <data key="d36">5Gbps</data>
+      <data key="d39">G</data>
+      <data key="d40">5000000000.0</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="68" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="69" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="70" target="75">
+      <data key="d36">34-69Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="71" target="75">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="72" target="76">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="73" target="76">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="76">
+      <data key="d36">5-10Gbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="77">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="78">
+      <data key="d36">10-33Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="79">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="80">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="74" target="75">
+      <data key="d36">1-4.999Gbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="75" target="76">
+      <data key="d36">155-599Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+    <edge source="75" target="81">
+      <data key="d36">70-154Mbps</data>
+      <data key="d37">0</data>
+    </edge>
+  </graph>
+</graphml>

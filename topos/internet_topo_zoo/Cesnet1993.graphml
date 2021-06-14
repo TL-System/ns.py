@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d37" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d36" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d35" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d34" />
+  <key attr.name="label" attr.type="string" for="node" id="d33" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d32" />
+  <key attr.name="id" attr.type="int" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="string" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">20/01/11</data>
+    <data key="d1">Czech Republic</data>
+    <data key="d2">Country</data>
+    <data key="d3">CESNET</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://www.ces.net/network/img/1993-cesnet.gif</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Cesnet1993</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">01</data>
+    <data key="d19">20/01/11</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">1</data>
+    <data key="d23">1</data>
+    <data key="d24">1993_01</data>
+    <data key="d25">1993</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">1</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">49.83465</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">0</data>
+      <data key="d32">18.28204</data>
+      <data key="d33">Ostrava</data>
+    </node>
+    <node id="1">
+      <data key="d28">0</data>
+      <data key="d31">1</data>
+      <data key="d33">Ebone</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">49.74747</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">2</data>
+      <data key="d32">13.37759</data>
+      <data key="d33">Plzen</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">50.08804</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">3</data>
+      <data key="d32">14.42076</data>
+      <data key="d33">Praha</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">50.76711</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">4</data>
+      <data key="d32">15.05619</data>
+      <data key="d33">Liberec</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">48.97447</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">5</data>
+      <data key="d32">14.47434</data>
+      <data key="d33">Ceske Budejovice</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">50.04075</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">6</data>
+      <data key="d32">15.77659</data>
+      <data key="d33">Pardubice</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">50.20923</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">7</data>
+      <data key="d32">15.83277</data>
+      <data key="d33">Hradec Kralove</data>
+    </node>
+    <node id="8">
+      <data key="d28">1</data>
+      <data key="d29">49.59552</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">8</data>
+      <data key="d32">17.25175</data>
+      <data key="d33">Olomouc</data>
+    </node>
+    <node id="9">
+      <data key="d28">1</data>
+      <data key="d29">49.19522</data>
+      <data key="d30">Czech Republic</data>
+      <data key="d31">9</data>
+      <data key="d32">16.60796</data>
+      <data key="d33">Brno</data>
+    </node>
+    <edge source="0" target="9">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="3">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="4">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="5">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="6">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="7">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="9">
+      <data key="d34">0.06</data>
+      <data key="d35">0.06M</data>
+      <data key="d36">M</data>
+      <data key="d37">60000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="9">
+      <data key="d34">0.02</data>
+      <data key="d35">0.02M</data>
+      <data key="d36">M</data>
+      <data key="d37">20000.0</data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>

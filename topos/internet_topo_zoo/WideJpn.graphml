@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="id" attr.type="string" for="edge" id="d39" />
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d37" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d36" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d35" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d34" />
+  <key attr.name="label" attr.type="string" for="node" id="d33" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d32" />
+  <key attr.name="id" attr.type="int" for="node" id="d31" />
+  <key attr.name="Country" attr.type="string" for="node" id="d30" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d29" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d28" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d27" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d26" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d25" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d24" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d22" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">20/10/10</data>
+    <data key="d1">Japan</data>
+    <data key="d2">Country</data>
+    <data key="d3">WIDE</data>
+    <data key="d4">Primary</data>
+    <data key="d5">0</data>
+    <data key="d6">http://two.wide.ad.jp/</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">WideJpn</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">0</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">21/10/10</data>
+    <data key="d20">IP</data>
+    <data key="d21">Topology Zoo Toolset</data>
+    <data key="d22">1</data>
+    <data key="d23">1</data>
+    <data key="d24">2007</data>
+    <data key="d25">2007</data>
+    <data key="d26">2011_09_01</data>
+    <data key="d27">1</data>
+    <node id="0">
+      <data key="d28">1</data>
+      <data key="d29">35.68333</data>
+      <data key="d30">Japan</data>
+      <data key="d31">0</data>
+      <data key="d32">139.76667</data>
+      <data key="d33">KDDI Otemachi</data>
+    </node>
+    <node id="1">
+      <data key="d28">1</data>
+      <data key="d29">35.71732</data>
+      <data key="d30">Japan</data>
+      <data key="d31">1</data>
+      <data key="d32">139.76575</data>
+      <data key="d33">Nezu</data>
+    </node>
+    <node id="2">
+      <data key="d28">1</data>
+      <data key="d29">32.76667</data>
+      <data key="d30">Japan</data>
+      <data key="d31">2</data>
+      <data key="d32">129.95</data>
+      <data key="d33">Yagami</data>
+    </node>
+    <node id="3">
+      <data key="d28">1</data>
+      <data key="d29">35.55159</data>
+      <data key="d30">Japan</data>
+      <data key="d31">3</data>
+      <data key="d32">139.6716</data>
+      <data key="d33">ShinKawasaki</data>
+    </node>
+    <node id="4">
+      <data key="d28">1</data>
+      <data key="d29">35.65583</data>
+      <data key="d30">Japan</data>
+      <data key="d31">4</data>
+      <data key="d32">139.32389</data>
+      <data key="d33">Hachioji</data>
+    </node>
+    <node id="5">
+      <data key="d28">1</data>
+      <data key="d29">13.75</data>
+      <data key="d30">Thailand</data>
+      <data key="d31">5</data>
+      <data key="d32">100.51667</data>
+      <data key="d33">Bangkok</data>
+    </node>
+    <node id="6">
+      <data key="d28">1</data>
+      <data key="d29">35.68333</data>
+      <data key="d30">Japan</data>
+      <data key="d31">6</data>
+      <data key="d32">139.76667</data>
+      <data key="d33">NTT Otemachi</data>
+    </node>
+    <node id="7">
+      <data key="d28">1</data>
+      <data key="d29">36.2</data>
+      <data key="d30">Japan</data>
+      <data key="d31">7</data>
+      <data key="d32">140.1</data>
+      <data key="d33">Tsukuba</data>
+    </node>
+    <node id="8">
+      <data key="d28">0</data>
+      <data key="d31">8</data>
+      <data key="d33">NSPIXP-3</data>
+    </node>
+    <node id="9">
+      <data key="d28">0</data>
+      <data key="d31">9</data>
+      <data key="d33">JGN2Plus</data>
+    </node>
+    <node id="10">
+      <data key="d28">1</data>
+      <data key="d29">34.68333</data>
+      <data key="d30">Japan</data>
+      <data key="d31">10</data>
+      <data key="d32">135.48333</data>
+      <data key="d33">Dojima</data>
+    </node>
+    <node id="11">
+      <data key="d28">0</data>
+      <data key="d31">11</data>
+      <data key="d33">PAIX</data>
+    </node>
+    <node id="12">
+      <data key="d28">0</data>
+      <data key="d31">12</data>
+      <data key="d33">TITECH</data>
+    </node>
+    <node id="13">
+      <data key="d28">0</data>
+      <data key="d31">13</data>
+      <data key="d33">T-Lex</data>
+    </node>
+    <node id="14">
+      <data key="d28">0</data>
+      <data key="d31">14</data>
+      <data key="d33">JGN2Plus</data>
+    </node>
+    <node id="15">
+      <data key="d28">0</data>
+      <data key="d31">15</data>
+      <data key="d33">AI3</data>
+    </node>
+    <node id="16">
+      <data key="d28">0</data>
+      <data key="d31">16</data>
+      <data key="d33">LAIIX</data>
+    </node>
+    <node id="17">
+      <data key="d28">0</data>
+      <data key="d31">17</data>
+      <data key="d33">DIX-IE</data>
+    </node>
+    <node id="18">
+      <data key="d28">0</data>
+      <data key="d31">18</data>
+      <data key="d33">KDDI</data>
+    </node>
+    <node id="19">
+      <data key="d28">0</data>
+      <data key="d31">19</data>
+      <data key="d33">APAN</data>
+    </node>
+    <node id="20">
+      <data key="d28">1</data>
+      <data key="d29">34.05223</data>
+      <data key="d30">United States</data>
+      <data key="d31">20</data>
+      <data key="d32">-118.24368</data>
+      <data key="d33">Los Angeles</data>
+    </node>
+    <node id="21">
+      <data key="d28">1</data>
+      <data key="d29">35.34194</data>
+      <data key="d30">Japan</data>
+      <data key="d31">21</data>
+      <data key="d32">139.47</data>
+      <data key="d33">Fujisawa</data>
+    </node>
+    <node id="22">
+      <data key="d28">1</data>
+      <data key="d29">34.68505</data>
+      <data key="d30">Japan</data>
+      <data key="d31">22</data>
+      <data key="d32">135.80485</data>
+      <data key="d33">Nara</data>
+    </node>
+    <node id="23">
+      <data key="d28">1</data>
+      <data key="d29">33.60639</data>
+      <data key="d30">Japan</data>
+      <data key="d31">23</data>
+      <data key="d32">130.41806</data>
+      <data key="d33">Fukuoka</data>
+    </node>
+    <node id="24">
+      <data key="d28">1</data>
+      <data key="d29">34.39627</data>
+      <data key="d30">Japan</data>
+      <data key="d31">24</data>
+      <data key="d32">132.45937</data>
+      <data key="d33">Hiroshima</data>
+    </node>
+    <node id="25">
+      <data key="d28">1</data>
+      <data key="d29">34.58333</data>
+      <data key="d30">Japan</data>
+      <data key="d31">25</data>
+      <data key="d32">133.76667</data>
+      <data key="d33">Kurashiki</data>
+    </node>
+    <node id="26">
+      <data key="d28">1</data>
+      <data key="d29">33.78333</data>
+      <data key="d30">Japan</data>
+      <data key="d31">26</data>
+      <data key="d32">129.8</data>
+      <data key="d33">Sakyo</data>
+    </node>
+    <node id="27">
+      <data key="d28">1</data>
+      <data key="d29">36.40263</data>
+      <data key="d30">Japan</data>
+      <data key="d31">27</data>
+      <data key="d32">136.45088</data>
+      <data key="d33">Komatsu</data>
+    </node>
+    <node id="28">
+      <data key="d28">1</data>
+      <data key="d29">38.26889</data>
+      <data key="d30">Japan</data>
+      <data key="d31">28</data>
+      <data key="d32">140.87194</data>
+      <data key="d33">Sendai</data>
+    </node>
+    <node id="29">
+      <data key="d28">1</data>
+      <data key="d29">37.77493</data>
+      <data key="d30">United States</data>
+      <data key="d31">29</data>
+      <data key="d32">-122.41942</data>
+      <data key="d33">San Francisco</data>
+    </node>
+    <edge source="0" target="1">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="4">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="6">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="12">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="17">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="18">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="19">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="0" target="20">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="2">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="28">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="3">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="21">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="6">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="7">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="10">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="13">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="14">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="27">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="8" target="10">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="9" target="10">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="22">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="23">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="24">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="25">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="26">
+      <data key="d39">e8</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="11" target="29">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="21">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="20">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="29">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d34">1</data>
+      <data key="d35">1Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="22" target="26">
+      <data key="d39">e1</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="23" target="24">
+      <data key="d35">10-100Mbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="23" target="25">
+      <data key="d34">10</data>
+      <data key="d35">10Gbps</data>
+      <data key="d36">G</data>
+      <data key="d37">10000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>

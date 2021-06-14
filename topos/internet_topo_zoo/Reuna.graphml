@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="LinkNote" attr.type="string" for="edge" id="d44" />
+  <key attr.name="LinkType" attr.type="string" for="edge" id="d43" />
+  <key attr.name="LinkSpeedRaw" attr.type="double" for="edge" id="d42" />
+  <key attr.name="LinkSpeedUnits" attr.type="string" for="edge" id="d41" />
+  <key attr.name="LinkSpeed" attr.type="string" for="edge" id="d40" />
+  <key attr.name="id" attr.type="string" for="edge" id="d39" />
+  <key attr.name="key" attr.type="int" for="edge" id="d38" />
+  <key attr.name="LinkLabel" attr.type="string" for="edge" id="d37" />
+  <key attr.name="hyperedge" attr.type="int" for="node" id="d36" />
+  <key attr.name="Longitude" attr.type="double" for="node" id="d35" />
+  <key attr.name="Country" attr.type="string" for="node" id="d34" />
+  <key attr.name="Latitude" attr.type="double" for="node" id="d33" />
+  <key attr.name="label" attr.type="string" for="node" id="d32" />
+  <key attr.name="id" attr.type="int" for="node" id="d31" />
+  <key attr.name="type" attr.type="string" for="node" id="d30" />
+  <key attr.name="Internal" attr.type="int" for="node" id="d29" />
+  <key attr.name="Testbed" attr.type="int" for="graph" id="d28" />
+  <key attr.name="LastProcessed" attr.type="string" for="graph" id="d27" />
+  <key attr.name="DateYear" attr.type="string" for="graph" id="d26" />
+  <key attr.name="NetworkDate" attr.type="string" for="graph" id="d25" />
+  <key attr.name="Transit" attr.type="int" for="graph" id="d24" />
+  <key attr.name="Developed" attr.type="int" for="graph" id="d23" />
+  <key attr.name="Creator" attr.type="string" for="graph" id="d22" />
+  <key attr.name="Layer" attr.type="string" for="graph" id="d21" />
+  <key attr.name="Access" attr.type="int" for="graph" id="d20" />
+  <key attr.name="LastAccess" attr.type="string" for="graph" id="d19" />
+  <key attr.name="DateMonth" attr.type="int" for="graph" id="d18" />
+  <key attr.name="DateModifier" attr.type="string" for="graph" id="d17" />
+  <key attr.name="SourceGitVersion" attr.type="string" for="graph" id="d16" />
+  <key attr.name="IX" attr.type="int" for="graph" id="d15" />
+  <key attr.name="Customer" attr.type="int" for="graph" id="d14" />
+  <key attr.name="ToolsetVersion" attr.type="string" for="graph" id="d13" />
+  <key attr.name="label" attr.type="string" for="graph" id="d12" />
+  <key attr.name="Commercial" attr.type="int" for="graph" id="d11" />
+  <key attr.name="Backbone" attr.type="int" for="graph" id="d10" />
+  <key attr.name="DateType" attr.type="string" for="graph" id="d9" />
+  <key attr.name="Type" attr.type="string" for="graph" id="d8" />
+  <key attr.name="Version" attr.type="string" for="graph" id="d7" />
+  <key attr.name="Source" attr.type="string" for="graph" id="d6" />
+  <key attr.name="Note" attr.type="string" for="graph" id="d5" />
+  <key attr.name="Provenance" attr.type="string" for="graph" id="d4" />
+  <key attr.name="Network" attr.type="string" for="graph" id="d3" />
+  <key attr.name="GeoExtent" attr.type="string" for="graph" id="d2" />
+  <key attr.name="GeoLocation" attr.type="string" for="graph" id="d1" />
+  <key attr.name="DateObtained" attr.type="string" for="graph" id="d0" />
+  <graph edgedefault="undirected">
+    <data key="d0">3/02/11</data>
+    <data key="d1">Chile</data>
+    <data key="d2">Country</data>
+    <data key="d3">Reuna</data>
+    <data key="d4">Primary</data>
+    <data key="d5">Grid services + possible others, Names from http://www.reuna.cl/index.php/es/ique-es-reuna/miembros/socios</data>
+    <data key="d6">http://www.reuna.cl/images/stories/documentos/Mapa_Topologia_REUNA_2010.pdf</data>
+    <data key="d7">1.0</data>
+    <data key="d8">REN</data>
+    <data key="d9">Historic</data>
+    <data key="d10">1</data>
+    <data key="d11">0</data>
+    <data key="d12">Reuna</data>
+    <data key="d13">0.3.34dev-20120328</data>
+    <data key="d14">1</data>
+    <data key="d15">0</data>
+    <data key="d16">e278b1b</data>
+    <data key="d17">=</data>
+    <data key="d18">0</data>
+    <data key="d19">6/03/11</data>
+    <data key="d20">0</data>
+    <data key="d21">IP</data>
+    <data key="d22">Topology Zoo Toolset</data>
+    <data key="d23">0</data>
+    <data key="d24">0</data>
+    <data key="d25">2010</data>
+    <data key="d26">2010</data>
+    <data key="d27">2011_09_01</data>
+    <data key="d28">0</data>
+    <node id="0">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">0</data>
+      <data key="d32">UCT</data>
+    </node>
+    <node id="1">
+      <data key="d29">1</data>
+      <data key="d33">-40.56667</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">1</data>
+      <data key="d35">-73.15</data>
+      <data key="d32">ULAGOS</data>
+    </node>
+    <node id="2">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">2</data>
+      <data key="d32">UACH</data>
+    </node>
+    <node id="3">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">3</data>
+      <data key="d32">UFRO</data>
+    </node>
+    <node id="4">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">4</data>
+      <data key="d32">UCN</data>
+    </node>
+    <node id="5">
+      <data key="d29">1</data>
+      <data key="d30">Router Accesso REUNA2 (Cisco 7204)</data>
+      <data key="d31">5</data>
+      <data key="d32">UNAP Sede Santiago</data>
+    </node>
+    <node id="6">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">6</data>
+      <data key="d32">UNAP</data>
+    </node>
+    <node id="7">
+      <data key="d29">1</data>
+      <data key="d33">-18.475</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">7</data>
+      <data key="d35">-70.30417</data>
+      <data key="d32">UTA</data>
+    </node>
+    <node id="8">
+      <data key="d29">1</data>
+      <data key="d33">-41.47167</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Router Accesso REUNA2 (Cisco 7204)</data>
+      <data key="d31">8</data>
+      <data key="d35">-72.93694</data>
+      <data key="d32">ULAGO Puerto Montt</data>
+    </node>
+    <node id="9">
+      <data key="d29">1</data>
+      <data key="d33">-18.475</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">9</data>
+      <data key="d35">-70.30417</data>
+      <data key="d32">Arica</data>
+    </node>
+    <node id="10">
+      <data key="d29">0</data>
+      <data key="d31">10</data>
+      <data key="d32">PITs Nacionales</data>
+    </node>
+    <node id="11">
+      <data key="d29">1</data>
+      <data key="d31">11</data>
+      <data key="d32">RC-12</data>
+    </node>
+    <node id="12">
+      <data key="d29">1</data>
+      <data key="d31">12</data>
+      <data key="d32">RC-Nacional</data>
+    </node>
+    <node id="13">
+      <data key="d36">1</data>
+      <data key="d29">1</data>
+      <data key="d31">13</data>
+      <data key="d32">None</data>
+    </node>
+    <node id="14">
+      <data key="d36">1</data>
+      <data key="d29">1</data>
+      <data key="d31">14</data>
+      <data key="d32">None</data>
+    </node>
+    <node id="15">
+      <data key="d36">1</data>
+      <data key="d29">1</data>
+      <data key="d31">15</data>
+      <data key="d32">None</data>
+    </node>
+    <node id="16">
+      <data key="d36">1</data>
+      <data key="d29">1</data>
+      <data key="d31">16</data>
+      <data key="d32">None</data>
+    </node>
+    <node id="17">
+      <data key="d29">0</data>
+      <data key="d31">17</data>
+      <data key="d32">RedCLARA</data>
+    </node>
+    <node id="18">
+      <data key="d29">1</data>
+      <data key="d33">-40.56667</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">18</data>
+      <data key="d35">-73.15</data>
+      <data key="d32">Osorno</data>
+    </node>
+    <node id="19">
+      <data key="d29">1</data>
+      <data key="d33">-29.90778</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">19</data>
+      <data key="d35">-71.25417</data>
+      <data key="d32">La Serena</data>
+    </node>
+    <node id="20">
+      <data key="d29">1</data>
+      <data key="d33">-27.36667</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">20</data>
+      <data key="d35">-70.33333</data>
+      <data key="d32">Copiapo</data>
+    </node>
+    <node id="21">
+      <data key="d29">1</data>
+      <data key="d33">-23.65</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">21</data>
+      <data key="d35">-70.4</data>
+      <data key="d32">Antofagasta</data>
+    </node>
+    <node id="22">
+      <data key="d29">1</data>
+      <data key="d33">-20.22083</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">22</data>
+      <data key="d35">-70.14306</data>
+      <data key="d32">Iquique</data>
+    </node>
+    <node id="23">
+      <data key="d29">1</data>
+      <data key="d33">-39.81422</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">23</data>
+      <data key="d35">-73.24589</data>
+      <data key="d32">Valdivia</data>
+    </node>
+    <node id="24">
+      <data key="d29">1</data>
+      <data key="d33">-38.73333</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">24</data>
+      <data key="d35">-72.6</data>
+      <data key="d32">Temuco</data>
+    </node>
+    <node id="25">
+      <data key="d29">1</data>
+      <data key="d33">-36.82699</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">25</data>
+      <data key="d35">-73.04977</data>
+      <data key="d32">Concepcion</data>
+    </node>
+    <node id="26">
+      <data key="d29">1</data>
+      <data key="d33">-33.42628</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Switch Troncal G-REUNA (Cisco 7606)</data>
+      <data key="d31">26</data>
+      <data key="d35">-70.56656</data>
+      <data key="d32">Santiago</data>
+    </node>
+    <node id="27">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">27</data>
+      <data key="d32">UDEC</data>
+    </node>
+    <node id="28">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">28</data>
+      <data key="d32">UBB</data>
+    </node>
+    <node id="29">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">29</data>
+      <data key="d32">UDA</data>
+    </node>
+    <node id="30">
+      <data key="d29">1</data>
+      <data key="d33">-29.90778</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">30</data>
+      <data key="d35">-71.25417</data>
+      <data key="d32">ULS</data>
+    </node>
+    <node id="31">
+      <data key="d29">1</data>
+      <data key="d33">-29.90778</data>
+      <data key="d34">Chile</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">31</data>
+      <data key="d35">-71.25417</data>
+      <data key="d32">AURA</data>
+    </node>
+    <node id="32">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">32</data>
+      <data key="d32">UCHILE</data>
+    </node>
+    <node id="33">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">33</data>
+      <data key="d32">UTEM</data>
+    </node>
+    <node id="34">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">34</data>
+      <data key="d32">UMCE</data>
+    </node>
+    <node id="35">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">35</data>
+      <data key="d32">USACH</data>
+    </node>
+    <node id="36">
+      <data key="d29">1</data>
+      <data key="d30">Router Acceso G-REUNA (Catalyst 6503)</data>
+      <data key="d31">36</data>
+      <data key="d32">REUNA</data>
+    </node>
+    <edge source="0" target="13">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="8">
+      <data key="d39">e14</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="1" target="18">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="2" target="23">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="3" target="13">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="4" target="21">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="5" target="36">
+      <data key="d39">e7</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="6" target="22">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="7" target="9">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="9" target="22">
+      <data key="d40">155</data>
+      <data key="d37">155 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">155000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="10" target="12">
+      <data key="d43">STM-1</data>
+      <data key="d37">4x1 Gbps + 2x STM-1</data>
+      <data key="d44">4x1 Gbps + 2x </data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="11" target="17">
+      <data key="d40">1</data>
+      <data key="d37">1 Gbps</data>
+      <data key="d41">G</data>
+      <data key="d42">1000000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="11" target="26">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="12" target="26">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="13" target="24">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="14" target="25">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="14" target="27">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="14" target="28">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="19">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="30">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="15" target="31">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="32">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="33">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="34">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="35">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="36">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="16" target="26">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="18" target="23">
+      <data key="d40">155</data>
+      <data key="d37">155 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">155000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="26">
+      <data key="d40">301</data>
+      <data key="d37">301 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">301000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="19" target="20">
+      <data key="d40">205</data>
+      <data key="d37">205 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">205000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="29">
+      <data key="d37">Conexion G-REUNA 1 Gbps</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="20" target="21">
+      <data key="d40">205</data>
+      <data key="d37">205 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">205000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="21" target="22">
+      <data key="d40">155</data>
+      <data key="d37">155 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">155000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="23" target="24">
+      <data key="d40">155</data>
+      <data key="d37">155 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">155000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="24" target="25">
+      <data key="d40">205</data>
+      <data key="d37">205 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">205000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+    <edge source="25" target="26">
+      <data key="d40">301</data>
+      <data key="d37">301 Mbps</data>
+      <data key="d41">M</data>
+      <data key="d42">301000000.0</data>
+      <data key="d38">0</data>
+    </edge>
+  </graph>
+</graphml>
