@@ -23,7 +23,7 @@ class VirtualClockServer:
         self.auxVCs = [0.0 for i in range(len(vticks))]  # Initialize all the auxVC variables
         self.out = None
         self.packets_rec = 0
-        self.packets_drop = 0
+        self.packets_dropped = 0
         self.debug = debug
         self.store = stampedstore.StampedStore(env)
         self.action = env.process(self.run())  # starts the run() method as a SimPy process
@@ -31,10 +31,10 @@ class VirtualClockServer:
 
     def run(self):
         while True:
-            msg = (yield self.store.get())
+            packet = (yield self.store.get())
             # Send message
             yield self.env.timeout(msg.size*8.0/self.rate)
-            self.out.put(msg)
+            self.out.put(packet)
 
 
     def put(self, pkt):
