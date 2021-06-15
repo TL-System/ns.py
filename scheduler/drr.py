@@ -5,7 +5,6 @@ Source: M. Shreedhar and G. Varghese, "Efficient Fair Queuing Using Deficit Roun
 Tran. Networking, vol. 4, no. 3, June 1996.
 """
 
-from _typeshed import NoneType
 import simpy
 from packet.packet import Packet
 
@@ -147,9 +146,9 @@ class DRRServer:
                                 self.update(packet)
                                 self.out.put(packet)
                             
-                            self.current_packet = NoneType
+                            self.current_packet = None
                         else:
-                            assert not flow_id in self.head_of_line:
+                            assert not flow_id in self.head_of_line
                             self.head_of_line[flow_id] = packet
                             break
             

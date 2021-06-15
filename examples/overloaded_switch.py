@@ -44,5 +44,5 @@ switch_port.out = ps
 
 env.run(until=20)
 
-print("waits: {}".format(ps.waits))
-print("received: {}, dropped {}, sent {}".format(ps.packets_rec, switch_port.packets_drop, pg.packets_sent))
+# print("waits: {}".format(ps.waits))
+# print("received: {}, dropped {}, sent {}".format(ps.packets_rec, switch_port.packets_drop, pg.packets_sent))
