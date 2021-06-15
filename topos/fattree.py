@@ -73,10 +73,10 @@ def build(k):
             aggr_node = n_core + (core_node // (k // 2)) + (k * pod)
             topo.add_edge(core_node, aggr_node, type='core_aggregation')
     # Create hosts and connect them to edge switches
-    for u in [v for v in topo.nodes() if topo.node[v]['layer'] == 'edge']:
+    for u in [v for v in topo.nodes() if topo.nodes[v]['layer'] == 'edge']:
         leaf_nodes = range(topo.number_of_nodes(),
                            topo.number_of_nodes() + k // 2)
         topo.add_nodes_from(leaf_nodes, layer='leaf', type='host',
-                            pod=topo.node[u]['pod'])
+                            pod=topo.nodes[u]['pod'])
         topo.add_edges_from([(u, v) for v in leaf_nodes], type='edge_leaf')
     return topo
