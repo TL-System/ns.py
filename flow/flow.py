@@ -1,6 +1,3 @@
-from _typeshed import SupportsItemAccess
-
-
 class Flow:
 
   def __init__(self, fid, src, dst, size=None,
