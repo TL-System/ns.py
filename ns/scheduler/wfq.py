@@ -34,7 +34,7 @@ class WFQServer:
         self.active_set = set()
         self.vtime = 0.0
         self.out = None
-        self.packets_rec = 0
+        self.packets_received = 0
         self.packets_dropped = 0
         self.debug = debug
 
@@ -113,7 +113,7 @@ class WFQServer:
                 self.current_packet = None
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        self.packets_rec += 1
+        self.packets_received += 1
         # todo: simplify this with defaultdict
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] += packet.size

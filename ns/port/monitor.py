@@ -1,8 +1,10 @@
 """
-A monitor for a SwitchPort.
+A monitor for a Port.
 """
+
+
 class PortMonitor:
-    """ Looks at the number of items in the SwitchPort, in service + in the queue,
+    """ Looks at the number of items in the Port, in service + in the queue,
         and records that info in the sizes[] list. The monitor looks at the port
         at time intervals given by the distribution dist.
 
@@ -10,7 +12,7 @@ class PortMonitor:
         ----------
         env: simpy.Environment
             the simulation environment
-        port: SwitchPort
+        port: Port
             the switch port object to be monitored.
         dist: function
             a no parameter function that returns the successive inter-arrival
@@ -35,7 +37,6 @@ class PortMonitor:
             else:
                 total_byte = self.port.byte_size
                 total = len(self.port.store.items)
-            
+
             self.sizes.append(total)
             self.sizes_byte.append(total_byte)
-

@@ -1,4 +1,4 @@
-from ns.port.port import SwitchPort
+from ns.port.port import Port
 from ns.demux.fib_demux import FIBDemux
 from ns.scheduler.wfq import WFQServer
 
@@ -9,16 +9,16 @@ class SimplePacketSwitch:
         self.ports = []
         for i in range(nports):
             self.ports.append(
-                SwitchPort(env,
-                           rate=port_rate,
-                           qlimit=buffer,
-                           limit_bytes=False,
-                           zero_downstream_buffer=False,
-                           debug=False))
+                Port(env,
+                     rate=port_rate,
+                     qlimit=buffer,
+                     limit_bytes=False,
+                     zero_downstream_buffer=False,
+                     debug=False))
         self.demux = FIBDemux(env, fib=None, outs=self.ports, default=None)
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
+        """ Sends the packet 'pkt' to this element. """
         self.demux.put(pkt)
 
 
@@ -29,12 +29,12 @@ class WFQPacketSwitch:
         self.egress_ports = []
         self.schedulers = []
         for i in range(nports):
-            swp = SwitchPort(env,
-                             rate=port_rate,
-                             qlimit=buffer,
-                             limit_bytes=False,
-                             zero_downstream_buffer=False,
-                             debug=False)
+            swp = Port(env,
+                       rate=port_rate,
+                       qlimit=buffer,
+                       limit_bytes=False,
+                       zero_downstream_buffer=False,
+                       debug=False)
             wfqs = WFQServer(env, rate=port_rate, weights=weights)
             swp.out = wfqs
             self.egress_ports.append(swp)
@@ -46,5 +46,5 @@ class WFQPacketSwitch:
                               default=None)
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
+        """ Sends the packet 'pkt' to this element. """
         self.demux.put(pkt)

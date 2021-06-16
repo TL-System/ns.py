@@ -1,13 +1,14 @@
-from simpy.resources import base
-from simpy.core import BoundClass
-from heapq import heappush, heappop
-
 """
     Trying to implement a stamped/ordered version of the Simpy Store class.
     The `stamp` is used to sort the elements for removal ordering. This
     can be used in the implementation of sophisticated queueing disciplines, but
     would be overkill for fixed priority schemes.
 """
+
+from simpy.resources import base
+from simpy.core import BoundClass
+from heapq import heappush, heappop
+
 
 class StampedStorePut(base.Put):
     """ Put `item` into the store if possible or wait until it is.
@@ -45,31 +46,27 @@ class StampedStore(base.BaseResource):
 
         self._capacity = capacity
         self.items = []  # we are keeping items sorted by stamp
-        self.event_count = 0 # Used to break ties with python heap implementation
-
+        self.event_count = 0  # Used to break ties with python heap implementation
 
     @property
     def capacity(self):
         """The maximum capacity of the store."""
         return self._capacity
 
-
     put = BoundClass(StampedStorePut)
     """Create a new `StorePut` event."""
-
 
     get = BoundClass(StampedStoreGet)
     """Create a new `StoreGet` event."""
 
-
     # We assume the item is a tuple: (stamp, packet). The stamp is used to
     # sort the packet in the heap.
     def _do_put(self, event):
-        self.event_count += 1 # Needed this to break heap ties
+        self.event_count += 1  # Needed this to break heap ties
         if len(self.items) < self._capacity:
-            heappush(self.items, [event.item[0], self.event_count, event.item[1]])
+            heappush(self.items,
+                     [event.item[0], self.event_count, event.item[1]])
             event.succeed()
-
 
     # When we return an item from the stamped store we do not
     # return the stamp but only the content portion.

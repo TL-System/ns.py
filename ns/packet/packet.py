@@ -5,8 +5,8 @@ A very simple class that represents a packet.
 
 class Packet:
     """
-        This packet is generally created by PacketGenerators, and will run through
-        a queue at a switch output port.
+        Packets in ns.py are generally created by packet generators, and will run through
+        a queue at an output port.
 
         Key fields include: generation time, size, flow_id, packet id, source, and
         destination. We do not model upper layer protocols, i.e., packets don't contain
@@ -46,7 +46,7 @@ class Packet:
         self.current_time = current_time
         self.prio = prio
         self.color = None
-        self.perhoptime = {}
+        self.perhop_time = {}
 
     def __repr__(self):
         return f"id: {self.id}, src: {self.src}, time: {self.time}, size: {self.size}"

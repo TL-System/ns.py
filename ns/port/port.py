@@ -1,45 +1,53 @@
 """
-Models a first-in, first-out (FIFO) queued output port on a packet switch/router.
-You can set the rate of the output port and a queue size limit (in bytes). Keeps
-track of packets received and packets dropped.
+Models an output port on a switch with a given rate and buffer size (in either bytes
+or the number of packets), using the simple tail-drop mechanism to drop packets.
 """
 import simpy
 
 
-class SwitchPort:
-    """ Models a switch output port with a given rate and buffer size limit in bytes.
-        Set the "out" member variable to the entity to receive the packet.
+class Port:
+    """ Models an output port on a switch with a given rate and buffer size (in either bytes
+        or the number of packets), using the simple tail-drop mechanism to drop packets.
 
         Parameters
         ----------
-        env : simpy.Environment
+        env: simpy.Environment
             the simulation environment
-        rate : float
+        rate: float
             the bit rate of the port
-        qlimit : integer (or None)
+        element_id: int
+            the element id of this port
+        qlimit: integer (or None)
             a buffer size limit in bytes or packets for the queue (including items
             in service).
-        limit_bytes : If true, the queue limit will be based on bytes if false the
-            queue limit will be based on packets.
+        limit_bytes: bool
+            if true, the queue limit will be based on bytes if false the queue limit
+            will be based on packets.
+        zero_downstream_buffer: bool
+            if true, assume that the downstream element does not have any buffers,
+            and backpressure is in effect so that all waiting packets queue up in this
+            element's buffer.
+        debug: bool
+            if true, print more debugging information.
     """
     def __init__(self,
                  env,
-                 rate,
-                 qlimit=None,
-                 limit_bytes=True,
-                 zero_downstream_buffer=False,
-                 debug=False,
-                 node_id=None):
+                 rate: float,
+                 element_id: int = None,
+                 qlimit: int = None,
+                 limit_bytes: bool = True,
+                 zero_downstream_buffer: bool = False,
+                 debug: bool = False):
         self.store = simpy.Store(env)
         self.rate = rate
         self.env = env
         self.out = None
-        self.packets_rec = 0
+        self.packets_received = 0
         self.packets_dropped = 0
         self.qlimit = qlimit
         self.limit_bytes = limit_bytes
-        self.byte_size = 0  # Current size of the queue in bytes
-        self.node_id = node_id
+        self.byte_size = 0  # the current size of the queue in bytes
+        self.element_id = element_id
 
         self.qlen_numbers = []
         self.qlen_bytes = []
@@ -52,11 +60,10 @@ class SwitchPort:
             self.downstream_store = simpy.Store(env)
 
         self.debug = debug
-        self.busy = 0  # Used to track if a packet is currently being sent
+        self.busy = 0  # used to track if a packet is currently being sent
         self.busy_packet_size = 0
 
-        self.action = env.process(
-            self.run())  # starts the run() method as a SimPy process
+        self.action = env.process(self.run())
 
     def update(self, packet):
         self.byte_size -= packet.size
@@ -86,15 +93,15 @@ class SwitchPort:
             self.busy_packet_size = 0
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
+        """ Sends the packet 'pkt' to this element. """
         self.qlen_numbers.append(len(self.store.items))
         self.qlen_bytes.append(self.byte_size)
 
-        self.packets_rec += 1
+        self.packets_received += 1
         tmp_byte_count = self.byte_size + pkt.size
 
-        if self.node_id is not None:
-            pkt.perhoptime[self.node_id] = self.env.now
+        if self.element_id is not None:
+            pkt.perhop_time[self.element_id] = self.env.now
 
         if self.qlimit is None:
             self.byte_size = tmp_byte_count

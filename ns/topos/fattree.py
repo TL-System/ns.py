@@ -1,5 +1,6 @@
 import networkx as nx
-# based on FNSS datacenter topology implementation
+# based on the FNSS datacenter topology implementation
+
 
 def build(k):
     """
@@ -50,9 +51,10 @@ def build(k):
     topo.name = "fat_tree_topology(%d)" % (k)
 
     # Create core nodes
-    n_core = (k // 2) ** 2
+    n_core = (k // 2)**2
     topo.add_nodes_from([v for v in range(int(n_core))],
-                        layer='core', type='switch')
+                        layer='core',
+                        type='switch')
 
     # Create aggregation and edge nodes and connect them
     for pod in range(k):
@@ -62,8 +64,10 @@ def build(k):
         edge_end_node = edge_start_node + k // 2
         aggr_nodes = range(aggr_start_node, aggr_end_node)
         edge_nodes = range(edge_start_node, edge_end_node)
-        topo.add_nodes_from(aggr_nodes, layer='aggregation',
-                            type='switch', pod=pod)
+        topo.add_nodes_from(aggr_nodes,
+                            layer='aggregation',
+                            type='switch',
+                            pod=pod)
         topo.add_nodes_from(edge_nodes, layer='edge', type='switch', pod=pod)
         topo.add_edges_from([(u, v) for u in aggr_nodes for v in edge_nodes],
                             type='aggregation_edge')
@@ -76,7 +80,9 @@ def build(k):
     for u in [v for v in topo.nodes() if topo.nodes[v]['layer'] == 'edge']:
         leaf_nodes = range(topo.number_of_nodes(),
                            topo.number_of_nodes() + k // 2)
-        topo.add_nodes_from(leaf_nodes, layer='leaf', type='host',
+        topo.add_nodes_from(leaf_nodes,
+                            layer='leaf',
+                            type='host',
                             pod=topo.nodes[u]['pod'])
         topo.add_edges_from([(u, v) for v in leaf_nodes], type='edge_leaf')
     return topo

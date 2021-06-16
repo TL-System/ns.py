@@ -21,7 +21,7 @@ class FIBDemux:
                  default=None) -> None:
         self.outs = outs
         self.default = default
-        self.packets_rec = 0
+        self.packets_received = 0
         self.fib = fib
         if ends:
             self.ends = ends
@@ -29,8 +29,8 @@ class FIBDemux:
             self.ends = dict()
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
-        self.packets_rec += 1
+        """ Sends the packet 'pkt' to this element. """
+        self.packets_received += 1
         flow_id = pkt.flow_id
         if flow_id in self.ends:
             self.ends[flow_id].put(pkt)

@@ -15,30 +15,30 @@ counts.
 """
 import simpy
 
-from ns.packet.generator import PacketGenerator
+from ns.packet.dist_generator import PacketDistGenerator
 from ns.packet.sink import PacketSink
-from ns.port.port import SwitchPort
+from ns.port.port import Port
 
 
-def constArrival():
-    return 1.5  # time interval
+def packet_arrival():
+    return 1.5
 
 
-def constSize():
-    return 100.0  # bytes
+def packet_size():
+    return 100.0
 
 
-env = simpy.Environment()  # Create the SimPy environment
-ps = PacketSink(env, debug=True)  # debug: every packet arrival is printed
-pg = PacketGenerator(env, "pg", constArrival, constSize)
+env = simpy.Environment()
+ps = PacketSink(env, debug=True)
+pg = PacketDistGenerator(env, "pg", packet_arrival, packet_size, flow_id=0)
+port = Port(env, rate=200.0, qlimit=300)
 
-switch_port = SwitchPort(env, rate=200.0, qlimit=300)
-
-# Wire packet generators and sinks together
-pg.out = switch_port
-switch_port.out = ps
+pg.out = port
+port.out = ps
 
 env.run(until=20)
 
-# print("waits: {}".format(ps.waits))
-# print("received: {}, dropped {}, sent {}".format(ps.packets_rec, switch_port.packets_drop, pg.packets_sent))
+print("waits: {}".format(ps.waits[0]))
+print("received: {}, dropped {}, sent {}".format(ps.packets_received[0],
+                                                 port.packets_dropped,
+                                                 pg.packets_sent))

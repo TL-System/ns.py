@@ -6,13 +6,13 @@ from ns.packet.packet import Packet
 class PacketTraceGenerator:
     def __init__(self,
                  env,
-                 id,
+                 element_id,
                  filename,
                  initial_delay=0,
                  finish=float('inf'),
                  flow_id=None,
                  rec_flow=False):
-        self.id = id
+        self.element_id = element_id
         self.env = env
         self.filename = filename
         self.initial_delay = initial_delay
@@ -53,7 +53,7 @@ class PacketTraceGenerator:
                 p = Packet(self.env.now,
                            size,
                            packet_id,
-                           src=self.id,
+                           src=self.element_id,
                            flow_id=flow_id)
                 if self.rec_flow:
                     self.time_rec.append(p.time)

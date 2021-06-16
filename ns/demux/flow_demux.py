@@ -11,11 +11,11 @@ class FlowDemux:
     def __init__(self, outs=None, default=None):
         self.outs = outs
         self.default = default
-        self.packets_rec = 0
+        self.packets_received = 0
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
-        self.packets_rec += 1
+        """ Sends the packet 'pkt' to this element. """
+        self.packets_received += 1
         flow_id = pkt.flow_id
         if flow_id < len(self.outs):
             self.outs[flow_id].put(pkt)

@@ -24,7 +24,7 @@ class VirtualClockServer:
         self.auxVCs = [0.0 for i in range(len(vticks))
                        ]  # Initialize all the auxVC variables
         self.out = None
-        self.packets_rec = 0
+        self.packets_received = 0
         self.packets_dropped = 0
         self.debug = debug
         self.store = stampedstore.StampedStore(env)
@@ -39,8 +39,8 @@ class VirtualClockServer:
             self.out.put(packet)
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
-        self.packets_rec += 1
+        """ Sends the packet 'pkt' to this element. """
+        self.packets_received += 1
         now = self.env.now
         flow_id = pkt.flow_id
         # Update of auxVC for the flow. We assume that vticks is the desired bit time

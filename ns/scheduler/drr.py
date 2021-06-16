@@ -49,7 +49,7 @@ class DRRServer:
 
         self.packets_available = simpy.Store(env)
 
-        self.packets_rec = 0
+        self.packets_received = 0
         self.out = None
 
         self.upstream_updates = {}
@@ -162,7 +162,7 @@ class DRRServer:
 
     def put(self, packet, upstream_update=None, upstream_store=None):
         """ Sends the packet 'pkt' to the next-hop node. """
-        self.packets_rec += 1
+        self.packets_received += 1
         # todo: simplify this with defaultdict
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] += packet.size

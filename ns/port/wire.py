@@ -8,7 +8,7 @@ class Wire:
         self.env = env
         self.id = wire_id
         self.out = None
-        self.packets_rec = 0
+        self.packets_received = 0
         self.debug = debug
         self.action = env.process(self.run())
 
@@ -26,8 +26,8 @@ class Wire:
                 print(f"Left wire {self.id} at {self.env.now}: {packet}")
 
     def put(self, packet):
-        """ Sends the packet 'pkt' to the next-hop element. """
-        self.packets_rec += 1
+        """ Sends the packet 'pkt' to this element. """
+        self.packets_received += 1
         if self.debug:
             print(f"Entered wire {self.id} at {self.env.now}: {packet}")
         packet.current_time = self.env.now

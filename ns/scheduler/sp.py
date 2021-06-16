@@ -23,7 +23,7 @@ class SPServer:
 
         self.byte_sizes = {}
 
-        self.packets_rec = 0
+        self.packets_received = 0
         self.out = None
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -100,8 +100,8 @@ class SPServer:
                 yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends the packet 'pkt' to the next-hop element. """
-        self.packets_rec += 1
+        """ Sends the packet 'pkt' to this element. """
+        self.packets_received += 1
 
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] += packet.size

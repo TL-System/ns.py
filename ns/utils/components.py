@@ -25,7 +25,7 @@ class TrTCM:
         self.last_time = 0.0  # Last time we updated buckets
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
+        """ Sends the packet 'pkt' to this element. """
         time_inc = self.env.now - self.last_time
         self.last_time = self.env.now
         # Add bytes to the buckets
@@ -60,7 +60,7 @@ class SnoopSplitter:
         self.out2 = None
 
     def put(self, pkt):
-        """ Sends the packet 'pkt' to the next-hop element. """
+        """ Sends the packet 'pkt' to this element. """
         pkt2 = copy.copy(pkt)
         if self.out1:
             self.out1.put(pkt)
