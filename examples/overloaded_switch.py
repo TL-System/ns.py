@@ -13,27 +13,23 @@ we have the information from the packet sink and switch port. Note how the first
 incurs a delay of 4 seconds (due to the 200 bps line rate) and also the received and dropped packet
 counts.
 """
-import os
-import sys
 import simpy
 
-# To import modules from the parent directory
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
+from ns.packet.generator import PacketGenerator
+from ns.packet.sink import PacketSink
+from ns.port.port import SwitchPort
 
-from packet.generator import PacketGenerator
-from packet.sink import PacketSink
-from port.port import SwitchPort
 
 def constArrival():
-    return 1.5    # time interval
+    return 1.5  # time interval
+
 
 def constSize():
     return 100.0  # bytes
 
+
 env = simpy.Environment()  # Create the SimPy environment
-ps = PacketSink(env, debug=True) # debug: every packet arrival is printed
+ps = PacketSink(env, debug=True)  # debug: every packet arrival is printed
 pg = PacketGenerator(env, "pg", constArrival, constSize)
 
 switch_port = SwitchPort(env, rate=200.0, qlimit=300)

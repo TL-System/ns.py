@@ -17,23 +17,15 @@ mean waiting time is = 4/3.
 The roughly exponential character of the resulting plot is a demonstration of Burke's theorem,
 which is useful in the analysis of networks of queues.
 """
-import os
-import sys
 import random
 import functools
 import simpy
 import matplotlib.pyplot as plt
 
-# To import modules from the parent directory
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
-
-from packet.generator import PacketGenerator
-from packet.sink import PacketSink
-from port.port import SwitchPort
-from port.monitor import PortMonitor
-
+from ns.packet.generator import PacketGenerator
+from ns.packet.sink import PacketSink
+from ns.port.port import SwitchPort
+from ns.port.monitor import PortMonitor
 
 if __name__ == '__main__':
     # Set up arrival and packet size distributions
@@ -44,7 +36,7 @@ if __name__ == '__main__':
     samp_dist = functools.partial(random.expovariate, 1.0)
     port_rate = 1000.0
 
-    env = simpy.Environment() # Create the SimPy environment
+    env = simpy.Environment()  # Create the SimPy environment
 
     # Create the packet generators and sink
     ps = PacketSink(env, debug=False, rec_arrivals=True)
@@ -61,32 +53,37 @@ if __name__ == '__main__':
     # Run it
     env.run(until=8000)
 
-    # print("Last 10 waits: "  + ", ".join(["{:.3f}".format(x) for x in ps.waits[-10:]]))
-    # print("Last 10 queue sizes: {}".format(pm.sizes[-10:]))
-    # print("Last 10 sink arrival times: " + ", ".join(["{:.3f}".format(x) for x in ps.arrivals[-10:]]))
-    # print("average wait = {:.3f}".format(sum(ps.waits) / len(ps.waits)))
-    # print("received: {}, dropped {}, sent {}".format(switch_port.packets_rec, switch_port.packets_drop, pg.packets_sent))
-    # print("loss rate: {}".format(float(switch_port.packets_drop) / switch_port.packets_rec))
-    # print("average system occupancy: {:.3f}".format(float(sum(pm.sizes)) / len(pm.sizes)))
+    print("Last 10 waits: " +
+          ", ".join(["{:.3f}".format(x) for x in ps.waits[-10:]]))
+    print("Last 10 queue sizes: {}".format(pm.sizes[-10:]))
+    print("Last 10 sink arrival times: " +
+          ", ".join(["{:.3f}".format(x) for x in ps.arrivals[-10:]]))
+    print("average wait = {:.3f}".format(sum(ps.waits) / len(ps.waits)))
+    print("received: {}, dropped {}, sent {}".format(
+        switch_port.packets_rec, switch_port.packets_dropped, pg.packets_sent))
+    print("loss rate: {}".format(
+        float(switch_port.packets_dropped) / switch_port.packets_rec))
+    print("average system occupancy: {:.3f}".format(
+        float(sum(pm.sizes)) / len(pm.sizes)))
 
-    # fig, axis = plt.subplots()
-    # axis.hist(ps.waits, bins=100, normed=True)
-    # axis.set_title("Histogram for waiting times")
-    # axis.set_xlabel("time")
-    # axis.set_ylabel("normalized frequency of occurrence")
-    # fig.savefig("WaitHistogram.png")
-    # plt.show()
-    # fig, axis = plt.subplots()
-    # axis.hist(ps.waits, bins=100, normed=True)
-    # axis.set_title("Histogram for System Occupation times")
-    # axis.set_xlabel("number")
-    # axis.set_ylabel("normalized frequency of occurrence")
-    # fig.savefig("QueueHistogram.png")
-    # plt.show()
-    # fig, axis = plt.subplots()
-    # axis.hist(ps.arrivals, bins=100, density=True)
-    # axis.set_title("Histogram for Sink Interarrival times")
-    # axis.set_xlabel("time")
-    # axis.set_ylabel("normalized frequency of occurrence")
-    # # fig.savefig("ArrivalHistogram.png")
-    # plt.show()
+    fig, axis = plt.subplots()
+    axis.hist(ps.waits, bins=100, normed=True)
+    axis.set_title("Histogram for waiting times")
+    axis.set_xlabel("time")
+    axis.set_ylabel("normalized frequency of occurrence")
+    fig.savefig("WaitHistogram.png")
+    plt.show()
+    fig, axis = plt.subplots()
+    axis.hist(ps.waits, bins=100, normed=True)
+    axis.set_title("Histogram for System Occupation times")
+    axis.set_xlabel("number")
+    axis.set_ylabel("normalized frequency of occurrence")
+    fig.savefig("QueueHistogram.png")
+    plt.show()
+    fig, axis = plt.subplots()
+    axis.hist(ps.arrivals, bins=100, density=True)
+    axis.set_title("Histogram for Sink Interarrival times")
+    axis.set_xlabel("time")
+    axis.set_ylabel("normalized frequency of occurrence")
+    fig.savefig("ArrivalHistogram.png")
+    plt.show()

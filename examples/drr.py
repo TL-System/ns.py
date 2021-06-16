@@ -5,24 +5,17 @@ We base our parameter explorations on the first source. We set the output rate o
 WFQ/virtual clock "switch port" at a multiple of the first sources rate.
 We also set the "vtick" parameters to the virtual clock switch port relative to this rate.
 """
-import os
-import sys
 import simpy
 import matplotlib.pyplot as plt
 
-# To import modules from the parent directory
-currentdir = os.path.dirname(os.path.realpath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.append(parentdir)
-
-from packet.generator import PacketGenerator
-from packet.sink import PacketSink
-from demux.flow_demux import FlowDemux
-from utils.components import SnoopSplitter
-from scheduler.drr import DRRServer
-
+from ns.packet.generator import PacketGenerator
+from ns.packet.sink import PacketSink
+from ns.demux.flow_demux import FlowDemux
+from ns.utils.components import SnoopSplitter
+from ns.scheduler.drr import DRRServer
 
 if __name__ == '__main__':
+
     def const_arrival():
         return 1.25
 
@@ -33,15 +26,28 @@ if __name__ == '__main__':
         return 100.0
 
     env = simpy.Environment()
-    pg = PacketGenerator(env, "pg", const_arrival, const_size, initial_delay=0.0, finish=35, flow_id=0)
-    pg2 = PacketGenerator(env, "pg2", const_arrival2, const_size, initial_delay=20.0, finish=35, flow_id=1)
+    pg = PacketGenerator(env,
+                         "pg",
+                         const_arrival,
+                         const_size,
+                         initial_delay=0.0,
+                         finish=35,
+                         flow_id=0)
+    pg2 = PacketGenerator(env,
+                          "pg2",
+                          const_arrival2,
+                          const_size,
+                          initial_delay=20.0,
+                          finish=35,
+                          flow_id=1)
     ps = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps2 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps_snoop1 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
     ps_snoop2 = PacketSink(env, rec_arrivals=True, absolute_arrivals=True)
 
     # Set up a WFQ/virtual clock switch port
-    source_rate = 8.0 * const_size() / const_arrival()  # the average source rate
+    source_rate = 8.0 * const_size() / const_arrival(
+    )  # the average source rate
     phi_base = source_rate
     switch_port = DRRServer(env, source_rate, [1, 3], debug=True)
     demux = FlowDemux()
