@@ -4,7 +4,7 @@ This discrete-event network simulator is based on [`simpy`](https://simpy.readth
 
 # Installation
 
-First, launch the terminal and create a new `conda` environment (say, called `ns`):
+First, launch the terminal and create a new `conda` environment (say, called `ns.py`):
 
 ```shell
 $ conda update conda
@@ -42,7 +42,7 @@ The network components that have already been implemented include:
 
 * `NWaySplitter`: an n-way splitter that sends copies of the packet to *n* downstream elements.
 
-* `TrTCM`: a two rate three color marker that marks packets as green, yellow, or red, similar to the `TwoRateSplitter` (refer to RFC 2698 for more details).
+* `TrTCM`: a two rate three color marker that marks packets as green, yellow, or red (refer to RFC 2698 for more details).
 
 * `RandomBrancher`: a demultiplexing element that chooses the output port at random.
 
@@ -95,7 +95,7 @@ In the *Basic Concepts* section of this tutorial, pay attention to three simple 
 The first is used in our component's constructor to add this component's `run()` method to the `SimPy` environment. For example, in `scheduler/drr.py`:
 
 ```python
-self.action = env.process(self.run()) # starts the run() method as a SimPy process
+self.action = env.process(self.run())
 ```
 
 Keep in mind that not all network components need to be run as a *SimPy* process (more discussions on processes later). While traffic shapers, packet generators, ports (buffers), port monitors, and packet schedulers definitely should be implemented as processes, a flow demultiplexer, a packet sink, a traffic marker, or a traffic splitter do not need to be modeled as processes. They just represent additional processing on packets inside a network.
@@ -105,10 +105,10 @@ Keep in mind that not all network components need to be run as a *SimPy* process
 The second call, `env.run()`, is used by our examples to run the environment after connecting all the network components together. For example, in `examples/drr.py`:
 
 ```python
-env.run(until=50)
+env.run(until=100)
 ```
 
-This call simply runs the environment for 50 seconds.
+This call simply runs the environment for 100 seconds.
 
 ### Scheduling an event
 
@@ -155,10 +155,10 @@ How do we send a packet to a downstream component in the network? All we need to
 self.out.put(packet)
 ```
 
-after a timeout expires. Here, `self.out` is initialized to `None`, and it is up to the `main()` program to set up. In `examples/drr.py`, we set the downstream component of our DRR scheduler to a flow demultiplexer (which separates incoming packets by their flow IDs):
+after a timeout expires. Here, `self.out` is initialized to `None`, and it is up to the `main()` program to set up. In `examples/drr.py`, we set the downstream component of our DRR scheduler to a packet sink:
 
 ```python
-switch_port.out = demux
+drr_server.out = ps
 ```
 
 By connecting multiple components this way, a network can be established with packets flowing from packet generators to packet sinks, going through a variety of schedulers, traffic shapers, traffic splitters, and flow demultiplexers.

@@ -60,10 +60,8 @@ class DRRServer:
         if self.zero_downstream_buffer:
             self.downstream_stores = {}
 
-        # We keep track of the number of packets from each flow in the queue
         self.debug = debug
-        self.action = env.process(
-            self.run())  # starts the run() method as a SimPy process
+        self.action = env.process(self.run())
 
     def update(self, packet):
         if self.zero_buffer:
