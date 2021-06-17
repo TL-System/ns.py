@@ -1,5 +1,5 @@
 """
-Models an ideal token bucket shaper.
+Implements a token bucket shaper.
 """
 import simpy
 
@@ -11,13 +11,13 @@ class TokenBucketShaper:
 
     Parameters
     ----------
-    env : simpy.Environment
+    env: simpy.Environment
         the simulation environment
-    rate : float
+    rate: float
         the token arrival rate in bits
-    b_size : Number
+    b_size: Number
         a token bucket size in bytes
-    peak : Number or None for infinite peak
+    peak: Number or None for infinite peak
         the peak sending rate of the buffer (quickest time two packets could be sent)
     """
     def __init__(self,
@@ -47,11 +47,12 @@ class TokenBucketShaper:
         self.current_bucket = b_size  # Current size of the bucket in bytes
         self.update_time = 0.0  # Last time the bucket was updated
         self.debug = debug
-        self.busy = 0  # Used to track if a packet is currently being sent ?
-        self.action = env.process(
-            self.run())  # starts the run() method as a SimPy process
+        self.busy = 0  # Used to track if a packet is currently being sent
+        self.action = env.process(self.run())
 
     def update(self, packet):
+        """The packet has just been retrieved from this element's own buffer, so
+        update internal housekeeping states accordingly."""
         if self.zero_buffer:
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
@@ -64,6 +65,7 @@ class TokenBucketShaper:
             )
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_stores.get()
@@ -107,6 +109,7 @@ class TokenBucketShaper:
                 print(packet)
 
     def put(self, packet, upstream_update=None, upstream_store=None):
+        """ Sends the packet 'pkt' to this element. """
         self.packets_received += 1
         if self.zero_buffer and upstream_update is not None and upstream_store is not None:
             self.upstream_stores[packet] = upstream_store

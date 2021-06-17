@@ -51,8 +51,7 @@ class PacketDistGenerator:
         self.size_rec = []
 
     def run(self):
-        """The generator function used in simulations.
-        """
+        """The generator function used in simulations."""
         yield self.env.timeout(self.initial_delay)
         while self.env.now < self.finish:
             # wait for next transmission

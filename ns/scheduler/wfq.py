@@ -1,8 +1,10 @@
 """
-Models a WFQ/PGPS server.
+Implements a Weighted Fair Queueing (WFQ) server.
 """
-from ns.utils import stampedstore
+from collections import defaultdict as dd
+
 from ns.packet.packet import Packet
+from ns.utils import taggedstore
 
 
 class WFQServer:
@@ -10,11 +12,22 @@ class WFQServer:
     Parameters
     ----------
     env: simpy.Environment
-        the simulation environment
+        The simulation environment.
     rate: float
-        the bit rate of the port
-    weights: A list of weights for each possible packet flow_id. We assume a simple assignment
+        The bit rate of the port.
+    weights: list
+        A list of weights for each possible flow_id. We assume a simple assignment
         of flow ids to weights, i.e., flow_id = 0 corresponds to weights[0], etc.
+    zero_buffer: bool
+        Does this server have a zero-length buffer? This is useful when multiple
+        basic elements need to be put together to construct a more complex element
+        with a unified buffer.
+    zero_downstream_buffer: bool
+        Does this server's downstream element has a zero-length buffer? If so, packets
+        may queue up in this element's own buffer rather than be forwarded to the
+        next-hop element.
+    debug: bool
+        Print more verbose debug information.
     """
     def __init__(self,
                  env,
@@ -22,14 +35,15 @@ class WFQServer:
                  weights,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
-                 debug=False):
+                 debug=False) -> None:
         self.env = env
         self.rate = rate
         self.weights = weights
-        self.F_times = [0.0 for i in range(len(weights))
-                        ]  # Initialize all the finish time variables
 
-        # We keep track of the number of packets from each flow in the queue
+        # Initialize all the finish time values
+        self.finish_times = [0.0 for i in range(len(weights))]
+
+        # Keep track of the number of packets from each flow in the queue
         self.flow_queue_count = [0 for i in range(len(weights))]
         self.active_set = set()
         self.vtime = 0.0
@@ -39,34 +53,44 @@ class WFQServer:
         self.debug = debug
 
         self.current_packet = None
-
-        self.byte_sizes = {}
+        self.byte_sizes = dd(lambda: 0)
 
         self.upstream_updates = {}
         self.upstream_stores = {}
         self.zero_buffer = zero_buffer
         self.zero_downstream_buffer = zero_downstream_buffer
         if self.zero_downstream_buffer:
-            self.downstream_store = stampedstore.StampedStore(env)
+            self.downstream_store = taggedstore.TaggedStore(env)
 
-        self.store = stampedstore.StampedStore(env)
-        self.action = env.process(
-            self.run())  # starts the run() method as a SimPy process
+        self.store = taggedstore.TaggedStore(env)
+        self.action = env.process(self.run())
         self.last_update = 0.0
 
     def packet_in_service(self) -> Packet:
+        """Returns the packet that is currently being sent to the downstream element.
+        Used by a ServerMonitor.
+        """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in bytes.
+        Used by a ServerMonitor.
+        """
         if flow_id in self.byte_sizes:
             return self.byte_sizes[flow_id]
         else:
             return 0
 
     def size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in the
+        number of packets. Used by a ServerMonitor.
+        """
         return self.flow_queue_count[flow_id]
 
     def update(self, packet):
+        """The packet has just been retrieved from this element's own buffer, so
+        update internal housekeeping states accordingly.
+        """
         if self.zero_buffer:
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
@@ -82,8 +106,8 @@ class WFQServer:
 
         if len(self.active_set) == 0:
             self.vtime = 0.0
-            for i in range(len(self.F_times)):
-                self.F_times[i] = 0.0
+            for i in range(len(self.finish_times)):
+                self.finish_times[i] = 0.0
 
         if self.debug:
             print(f"Sent Packet {packet.id} from flow {flow_id}")
@@ -91,9 +115,10 @@ class WFQServer:
         if flow_id in self.byte_sizes:
             self.byte_sizes[flow_id] -= packet.size
         else:
-            assert "Error: packet from unrecorded flow"
+            raise ValueError("Error: the packet is from an unrecorded flow.")
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_store.get()
@@ -113,13 +138,9 @@ class WFQServer:
                 self.current_packet = None
 
     def put(self, packet, upstream_update=None, upstream_store=None):
+        """ Sends the packet 'pkt' to this element. """
         self.packets_received += 1
-        # todo: simplify this with defaultdict
-        if packet.flow_id in self.byte_sizes:
-            self.byte_sizes[packet.flow_id] += packet.size
-        else:
-            self.byte_sizes[packet.flow_id] = packet.size
-
+        self.byte_sizes[packet.flow_id] += packet.size
         now = self.env.now
         flow_id = packet.flow_id
         self.flow_queue_count[flow_id] += 1
@@ -130,13 +151,14 @@ class WFQServer:
             weight_sum += self.weights[i]
 
         self.vtime += (now - self.last_update) / weight_sum
-        self.F_times[flow_id] = max(
-            self.F_times[flow_id],
+        self.finish_times[flow_id] = max(
+            self.finish_times[flow_id],
             self.vtime) + packet.size * 8.0 / self.weights[flow_id]
 
         if self.debug:
             print(
-                f"Packet arrived at {self.env.now}, flow_id {flow_id}, packet_id {packet.id}, F_time {self.F_times[flow_id]}"
+                f"Packet arrived at {self.env.now}, with flow_id {flow_id},"
+                f"packet_id {packet.id}, finish_time {self.finish_times[flow_id]}"
             )
 
         self.last_update = now
@@ -146,6 +168,6 @@ class WFQServer:
             self.upstream_updates[packet] = upstream_update
 
         if self.zero_downstream_buffer:
-            self.downstream_store.put((self.F_times[flow_id], packet))
+            self.downstream_store.put((self.finish_times[flow_id], packet))
 
-        return self.store.put((self.F_times[flow_id], packet))
+        return self.store.put((self.finish_times[flow_id], packet))

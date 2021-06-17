@@ -1,8 +1,35 @@
+"""
+Implements a Static Priority (SP) server.
+"""
+
+from collections import defaultdict as dd
+
 import simpy
 from ns.packet.packet import Packet
 
 
 class SPServer:
+    """
+    Parameters
+    ----------
+    env: simpy.Environment
+        The simulation environment.
+    rate: float
+        The bit rate of the port.
+    priorities: list
+        A list of priorities for each possible flow_id. We assume a simple assignment
+        of flow ids to priorities, i.e., flow_id = 0 corresponds to priorities[0], etc.
+    zero_buffer: bool
+        Does this server have a zero-length buffer? This is useful when multiple
+        basic elements need to be put together to construct a more complex element
+        with a unified buffer.
+    zero_downstream_buffer: bool
+        Does this server's downstream element has a zero-length buffer? If so, packets
+        may queue up in this element's own buffer rather than be forwarded to the
+        next-hop element.
+    debug: bool
+        Print more verbose debug information.
+    """
     def __init__(self,
                  env,
                  rate,
@@ -21,7 +48,7 @@ class SPServer:
 
         self.current_packet = None
 
-        self.byte_sizes = {}
+        self.byte_sizes = dd(lambda: 0)
 
         self.packets_received = 0
         self.out = None
@@ -36,6 +63,8 @@ class SPServer:
         self.action = env.process(self.run())
 
     def update(self, packet):
+        """The packet has just been retrieved from this element's own buffer, so
+        update internal housekeeping states accordingly."""
         if self.zero_buffer:
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
@@ -50,24 +79,34 @@ class SPServer:
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] -= packet.size
         else:
-            assert "Error: packet from unrecorded flow"
+            raise ValueError("Error: the packet is from an unrecorded flow.")
 
     def packet_in_service(self) -> Packet:
+        """Returns the packet that is currently being sent to the downstream element.
+        Used by a ServerMonitor.
+        """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in bytes.
+        Used by a ServerMonitor.
+        """
         if flow_id in self.byte_sizes:
             return self.byte_sizes[flow_id]
         else:
             return 0
 
     def size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in the
+        number of packets. Used by a ServerMonitor.
+        """
         if flow_id in self.stores:
             return len(self.stores[flow_id].items)
         else:
             return 0
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             for prio, count in enumerate(self.prio_queue_count):
                 if count > 0:
@@ -102,11 +141,7 @@ class SPServer:
     def put(self, packet, upstream_update=None, upstream_store=None):
         """ Sends the packet 'pkt' to this element. """
         self.packets_received += 1
-
-        if packet.flow_id in self.byte_sizes:
-            self.byte_sizes[packet.flow_id] += packet.size
-        else:
-            self.byte_sizes[packet.flow_id] = packet.size
+        self.byte_sizes[packet.flow_id] += packet.size
 
         if sum(self.prio_queue_count) == 0:
             self.packets_available.put(True)

@@ -28,6 +28,7 @@ class PortMonitor:
         self.pkt_in_service_included = pkt_in_service_included
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             yield self.env.timeout(self.dist())
 

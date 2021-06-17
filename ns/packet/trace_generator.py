@@ -27,6 +27,7 @@ class PacketTraceGenerator:
         self.size_rec = []
 
     def run(self):
+        """The generator function used in simulations."""
         yield self.env.timeout(self.initial_delay)
 
         row_generator = (row for row in open(self.filename))

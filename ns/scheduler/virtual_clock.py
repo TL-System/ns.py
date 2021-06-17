@@ -1,4 +1,4 @@
-from ns.utils import stampedstore
+from ns.utils import TaggedStore
 
 
 class VirtualClockServer:
@@ -27,11 +27,12 @@ class VirtualClockServer:
         self.packets_received = 0
         self.packets_dropped = 0
         self.debug = debug
-        self.store = stampedstore.StampedStore(env)
+        self.store = TaggedStore.TaggedStore(env)
         self.action = env.process(
             self.run())  # starts the run() method as a SimPy process
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             packet = (yield self.store.get())
             # Send message

@@ -1,32 +1,31 @@
 """
-    Trying to implement a stamped/ordered version of the Simpy Store class.
-    The `stamp` is used to sort the elements for removal ordering. This
-    can be used in the implementation of sophisticated queueing disciplines, but
-    would be overkill for fixed priority schemes.
+Trying to implement a tagged and ordered variant of the simpy.Store class.
+The `tag` is used to sort the elements for removal ordering. This may prove
+to be useful in the implementation of sophisticated queueing disciplines.
 """
 
-from simpy.resources import base
+from heapq import heappop, heappush
+
 from simpy.core import BoundClass
-from heapq import heappush, heappop
+from simpy.resources import base
 
 
-class StampedStorePut(base.Put):
-    """ Put `item` into the store if possible or wait until it is.
-        The item must be a tuple (stamp, contents) where the stamp is used to sort
-        the content in the StampedStore.
+class TaggedStorePut(base.Put):
+    """Put `item` into the store if possible, or wait until it is.
+    The item must be a tuple (tag, contents) where the tag is used
+    to sort the content in the TaggedStore.
     """
     def __init__(self, resource, item):
+        # The item to be put into the store.
         self.item = item
-        """The item to put into the store."""
         super().__init__(resource)
 
 
-class StampedStoreGet(base.Get):
+class TaggedStoreGet(base.Get):
     """Get an item from the store or wait until one is available."""
-    pass
 
 
-class StampedStore(base.BaseResource):
+class TaggedStore(base.BaseResource):
     """Models the production and consumption of concrete Python objects.
 
     Items put into the store can be of any type.  By default, they are put and
@@ -45,21 +44,21 @@ class StampedStore(base.BaseResource):
             raise ValueError('"capacity" must be > 0.')
 
         self._capacity = capacity
-        self.items = []  # we are keeping items sorted by stamp
+        self.items = []  # we are keeping items sorted by their tags
         self.event_count = 0  # Used to break ties with python heap implementation
 
     @property
     def capacity(self):
-        """The maximum capacity of the store."""
+        """The maximum capacity of the tagged store."""
         return self._capacity
 
-    put = BoundClass(StampedStorePut)
+    put = BoundClass(TaggedStorePut)
     """Create a new `StorePut` event."""
 
-    get = BoundClass(StampedStoreGet)
+    get = BoundClass(TaggedStoreGet)
     """Create a new `StoreGet` event."""
 
-    # We assume the item is a tuple: (stamp, packet). The stamp is used to
+    # We assume the item is a tuple: (tag, packet). The tag is used to
     # sort the packet in the heap.
     def _do_put(self, event):
         self.event_count += 1  # Needed this to break heap ties
@@ -68,8 +67,8 @@ class StampedStore(base.BaseResource):
                      [event.item[0], self.event_count, event.item[1]])
             event.succeed()
 
-    # When we return an item from the stamped store we do not
-    # return the stamp but only the content portion.
+    # When we return an item from the tagged store we do not need to
+    # return the tag, only the content of the item.
     def _do_get(self, event):
         if self.items:
             event.succeed(heappop(self.items)[2])

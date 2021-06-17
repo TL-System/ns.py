@@ -64,7 +64,7 @@ The network components that have already been implemented include:
 
 ## Current utilities
 
-* `StampedStore`: a sorted `simpy.Store` based on tags (stamps), useful in the implementation of WFQ and Virtual Clock. This may be overkill for static priority queues.
+* `TaggedStore`: a sorted `simpy.Store` based on tags (stamps), useful in the implementation of WFQ and Virtual Clock. This may be overkill for static priority queues.
 
 * `Config`: a global singleton instance that reads parameter settings from a configuration file. Use `Config()` to access the instance globally.
 

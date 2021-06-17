@@ -66,9 +66,12 @@ class Port:
         self.action = env.process(self.run())
 
     def update(self, packet):
+        """The packet has just been retrieved from this element's own buffer, so
+        update internal housekeeping states accordingly."""
         self.byte_size -= packet.size
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_store.get()

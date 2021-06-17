@@ -13,6 +13,7 @@ class Wire:
         self.action = env.process(self.run())
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             packet = yield self.store.get()
 

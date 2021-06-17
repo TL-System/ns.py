@@ -1,9 +1,13 @@
 """
-Models a Deficit Round Robin (DRR) server.
+Implements a Deficit Round Robin (DRR) server.
 
-Source: M. Shreedhar and G. Varghese, "Efficient Fair Queuing Using Deficit Round-Robin," IEEE/ACM
+Reference:
+
+M. Shreedhar and G. Varghese, "Efficient Fair Queuing Using Deficit Round-Robin," IEEE/ACM
 Tran. Networking, vol. 4, no. 3, June 1996.
 """
+
+from collections import defaultdict as dd
 
 import simpy
 from ns.packet.packet import Packet
@@ -19,6 +23,16 @@ class DRRServer:
         the bit rate of the port
     weights: A list of weights for each possible packet flow_id. We assume a simple assignment
         of flow ids to weights, i.e., flow_id = 0 corresponds to weights[0], etc.
+    zero_buffer: bool
+        Does this server have a zero-length buffer? This is useful when multiple
+        basic elements need to be put together to construct a more complex element
+        with a unified buffer.
+    zero_downstream_buffer: bool
+        Does this server's downstream element has a zero-length buffer? If so, packets
+        may queue up in this element's own buffer rather than be forwarded to the
+        next-hop element.
+    debug: bool
+        Print more verbose debug information.
     """
     MIN_QUANTUM = 1500
 
@@ -29,14 +43,14 @@ class DRRServer:
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug=False,
-                 out_queue_id=None):
+                 out_queue_id=None) -> None:
         self.env = env
         self.rate = rate
         self.weights = weights
         self.out_queue_id = out_queue_id
-        self.deficit = [0.0 for i in range(len(weights))]
+        self.deficit = [0.0 for __ in range(len(weights))]
         self.head_of_line = {}
-        self.flow_queue_count = [0 for i in range(len(weights))]
+        self.flow_queue_count = [0 for __ in range(len(weights))]
         self.quantum = [self.MIN_QUANTUM * x / min(weights) for x in weights]
         self.active_set = set()
 
@@ -44,8 +58,7 @@ class DRRServer:
         self.stores = {}
 
         self.current_packet = None
-
-        self.byte_sizes = {}
+        self.byte_sizes = dd(lambda: 0)
 
         self.packets_available = simpy.Store(env)
 
@@ -64,6 +77,8 @@ class DRRServer:
         self.action = env.process(self.run())
 
     def update(self, packet):
+        """The packet has just been retrieved from this element's own buffer, so
+        update internal housekeeping states accordingly."""
         if self.zero_buffer:
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
@@ -88,24 +103,35 @@ class DRRServer:
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] -= packet.size
         else:
-            assert ("Error: packet to be sent has never been received")
+            raise ValueError(
+                "Error: the packet to be sent has never been received.")
 
     def packet_in_service(self) -> Packet:
+        """Returns the packet that is currently being sent to the downstream element.
+        Used by a ServerMonitor.
+        """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in bytes.
+        Used by a ServerMonitor.
+        """
         if flow_id in self.flow_queue_count:
             return self.byte_sizes[flow_id]
         else:
             return 0
 
     def size(self, flow_id) -> int:
+        """Returns the size of the queue for a particular flow_id, in the
+        number of packets. Used by a ServerMonitor.
+        """
         if flow_id in self.flow_queue_count:
             return self.flow_queue_count[flow_id]
         else:
             return 0
 
     def run(self):
+        """The generator function used in simulations."""
         while True:
             while sum(self.flow_queue_count) > 0:
                 for flow_id, count in enumerate(self.flow_queue_count):
@@ -159,21 +185,16 @@ class DRRServer:
             yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends the packet 'pkt' to the next-hop node. """
+        """ Sends the packet 'pkt' to this element. """
         self.packets_received += 1
-        # todo: simplify this with defaultdict
-        if packet.flow_id in self.byte_sizes:
-            self.byte_sizes[packet.flow_id] += packet.size
-        else:
-            self.byte_sizes[packet.flow_id] = packet.size
+        self.byte_sizes[packet.flow_id] += packet.size
 
         flow_id = packet.flow_id
 
         if self.debug:
-            print(
-                f"Packet arrived at {self.env.now}, flow_id {flow_id}, packet_id {packet.id}, deficit {self.deficit[flow_id]}"
-            )
-            print(f"Deficit counters: {self.deficit}")
+            print(f"Packet arrived at {self.env.now}, flow_id {flow_id},"
+                  f"packet_id {packet.id}, deficit {self.deficit[flow_id]}"
+                  f"Deficit counters: {self.deficit}")
 
         if not flow_id in self.stores:
             self.stores[flow_id] = simpy.Store(self.env)
