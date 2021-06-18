@@ -35,10 +35,7 @@ for fid in all_flows:
                              arr_dist,
                              size_dist,
                              flow_id=fid)
-    ps = PacketSink(env,
-                    rec_arrivals=True,
-                    absolute_arrivals=True,
-                    debug=False)
+    ps = PacketSink(env)
 
     all_flows[fid].pkt_gen = pg
     all_flows[fid].pkt_sink = ps
