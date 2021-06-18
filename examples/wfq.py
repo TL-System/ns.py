@@ -1,6 +1,8 @@
 """
 An example of using the Weighted Fair Queueing (WFQ) scheduler.
 """
+from random import expovariate
+import functools
 import simpy
 import matplotlib.pyplot as plt
 
@@ -8,6 +10,7 @@ from ns.packet.dist_generator import PacketDistGenerator
 from ns.packet.sink import PacketSink
 from ns.utils.splitter import Splitter
 from ns.scheduler.wfq import WFQServer
+from ns.scheduler.monitor import ServerMonitor
 
 
 def packet_arrival():
@@ -24,21 +27,26 @@ pg1 = PacketDistGenerator(env,
                           packet_arrival,
                           const_size,
                           initial_delay=0.0,
-                          finish=35,
+                          finish=50,
                           flow_id=0)
 pg2 = PacketDistGenerator(env,
                           "flow_1",
                           packet_arrival,
                           const_size,
                           initial_delay=10.0,
-                          finish=35,
+                          finish=50,
                           flow_id=1)
 ps = PacketSink(env)
 sink_1 = PacketSink(env)
 sink_2 = PacketSink(env)
 
 source_rate = 8.0 * const_size() / packet_arrival()
-wfq_server = WFQServer(env, source_rate, [1, 2], debug=True)
+wfq_server = WFQServer(env, source_rate, [1, 2])
+monitor = ServerMonitor(env,
+                        wfq_server,
+                        functools.partial(expovariate, 0.1),
+                        total_flows=2,
+                        pkt_in_service_included=True)
 splitter_1 = Splitter()
 splitter_2 = Splitter()
 
@@ -52,7 +60,16 @@ splitter_2.out2 = sink_2
 
 wfq_server.out = ps
 
-env.run(until=100)
+env.run(until=1000)
+
+print("At the WFQ server, the queue lengths in # packets for flow 0 are:")
+print(monitor.sizes[0])
+print("At the WFQ server, the queue lengths in # packets for flow 1 are:")
+print(monitor.sizes[1])
+print("At the WFQ server, the queue lengths in bytes for flow 0 are:")
+print(monitor.byte_sizes[0])
+print("At the WFQ server, the queue lengths in bytes for flow 1 are:")
+print(monitor.byte_sizes[1])
 
 print("At the packet sink, packet arrival times for flow 0 are:")
 print(ps.arrivals[0])
@@ -75,7 +92,7 @@ ax1.vlines(sink_2.arrivals[1],
            label='Flow 1')
 ax1.set_title("Arrival times at WFQ switch")
 ax1.set_ylim([0, 1.5])
-ax1.set_xlim([0, max(ps.arrivals[0]) + 10])
+ax1.set_xlim([0, max(sink_1.arrivals[0]) + 10])
 ax1.grid(True)
 ax1.legend()
 

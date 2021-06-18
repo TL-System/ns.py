@@ -39,7 +39,7 @@ class Packet:
                  prio=0):
         self.time = time
         self.size = size
-        self.id = packet_id
+        self.packet_id = packet_id
         self.src = src
         self.dst = dst
         self.flow_id = flow_id
@@ -49,4 +49,4 @@ class Packet:
         self.perhop_time = {}
 
     def __repr__(self):
-        return f"id: {self.id}, src: {self.src}, time: {self.time}, size: {self.size}"
+        return f"id: {self.packet_id}, src: {self.src}, time: {self.time}, size: {self.size}"

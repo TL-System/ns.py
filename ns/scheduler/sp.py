@@ -72,7 +72,9 @@ class SPServer:
             del self.upstream_updates[packet]
 
         if self.debug:
-            print(f"Sent out packet {packet.id} of priority {packet.prio}")
+            print(
+                f"Sent out packet {packet.packet_id} of priority {packet.prio}"
+            )
 
         self.prio_queue_count[packet.prio] -= 1
 
@@ -151,7 +153,7 @@ class SPServer:
 
         if self.debug:
             print(
-                f"Time {self.env.now}, flow_id {packet.flow_id}, packet_id {packet.id}"
+                f"Time {self.env.now}, flow_id {packet.flow_id}, packet_id {packet.packet_id}"
             )
 
         if not prio in self.stores:

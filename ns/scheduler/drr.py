@@ -87,7 +87,9 @@ class DRRServer:
             del self.upstream_updates[packet]
 
         if self.debug:
-            print(f"Sent out packet {packet.id} from flow {packet.flow_id}")
+            print(
+                f"Sent out packet {packet.packet_id} from flow {packet.flow_id}"
+            )
 
         # todo: implement queue-level drr
         #       as an alternative to flow-level drr (curr. impl)
@@ -193,9 +195,10 @@ class DRRServer:
         flow_id = packet.flow_id
 
         if self.debug:
-            print(f"Packet arrived at {self.env.now}, flow_id {flow_id},"
-                  f"packet_id {packet.id}, deficit {self.deficit[flow_id]}"
-                  f"Deficit counters: {self.deficit}")
+            print(
+                f"Packet arrived at {self.env.now}, flow_id {flow_id},"
+                f"packet_id {packet.packet_id}, deficit {self.deficit[flow_id]}"
+                f"Deficit counters: {self.deficit}")
 
         if not flow_id in self.stores:
             self.stores[flow_id] = simpy.Store(self.env)

@@ -110,7 +110,7 @@ class WFQServer:
                 self.finish_times[i] = 0.0
 
         if self.debug:
-            print(f"Sent Packet {packet.id} from flow {flow_id}")
+            print(f"Sent Packet {packet.packet_id} from flow {flow_id}")
 
         if flow_id in self.byte_sizes:
             self.byte_sizes[flow_id] -= packet.size
@@ -158,7 +158,7 @@ class WFQServer:
         if self.debug:
             print(
                 f"Packet arrived at {self.env.now}, with flow_id {flow_id}, "
-                f"packet_id {packet.id}, finish_time {self.finish_times[flow_id]}"
+                f"packet_id {packet.packet_id}, finish_time {self.finish_times[flow_id]}"
             )
 
         self.last_update = now

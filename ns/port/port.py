@@ -114,14 +114,18 @@ class Port:
 
         if self.limit_bytes and byte_count >= self.qlimit:
             self.packets_dropped += 1
-            self.packets_dropped_index.append((pkt.flow_id, pkt.id))
+            self.packets_dropped_index.append((pkt.flow_id, pkt.packet_id))
             if self.debug:
-                print(f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.id}")
+                print(
+                    f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.packet_id}"
+                )
         elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
             self.packets_dropped += 1
-            self.packets_dropped_index.append((pkt.flow_id, pkt.id))
+            self.packets_dropped_index.append((pkt.flow_id, pkt.packet_id))
             if self.debug:
-                print(f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.id}")
+                print(
+                    f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.packet_id}"
+                )
         else:
             # If the packet has not been dropped, keep its queue length
             self.qlen_numbers_rec.append(len(self.store.items))

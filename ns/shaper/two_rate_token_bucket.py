@@ -1,10 +1,11 @@
 """
-Implements a token bucket shaper.
+Implments a two-rate token bucket shaper, with a bucket for committed information rate (CIR) and
+another for the peak information rate (PIR).
 """
 import simpy
 
 
-class TokenBucketShaper:
+class TwoRateTokenBucketShaper:
     """ The token bucket size should be greater than the size of the largest packet that
     can occur on input. If this is not the case we always accumulate enough tokens to let
     the current packet pass based on the average rate. This may not be the behavior you desire.
@@ -13,12 +14,14 @@ class TokenBucketShaper:
     ----------
     env: simpy.Environment
         The simulation environment.
-    rate: int
-        The token arrival rate in bits.
-    bucket_size: int
-        The token bucket size in bytes.
-    peak: int (or None for an infinite peak sending rate)
-        The peak sending rate in bits of the buffer (quickest time two packets could be sent).
+    cir: int
+        The Committed Information Rate (CIR) in bits.
+    cbs: int
+        The Committed Burst Size (CBS) in bytes.
+    pir: int
+        The Peak Information Rate (CIR) in bits.
+    pbs: int
+        The Peak Burst Size (PBS) in bytes.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -32,20 +35,22 @@ class TokenBucketShaper:
     """
     def __init__(self,
                  env,
-                 rate,
-                 bucket_size,
-                 peak=None,
+                 cir,
+                 cbs,
+                 pir=None,
+                 pbs=None,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug=False):
         self.store = simpy.Store(env)
         self.env = env
-        self.rate = rate
         self.out = None
+        self.cir = cir
+        self.cbs = cbs
+        self.pir = pir
+        self.pbs = pbs
         self.packets_received = 0
         self.packets_sent = 0
-        self.bucket_size = bucket_size
-        self.peak = peak
 
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -54,7 +59,8 @@ class TokenBucketShaper:
         if self.zero_downstream_buffer:
             self.downstream_stores = simpy.Store(env)
 
-        self.current_bucket = bucket_size  # Current size of the bucket in bytes
+        self.current_bucket_commit = cbs  # Current size of the committed bucket in bytes
+        self.current_bucket_peak = pbs  # Current size of the peak bucket in bytes
         self.update_time = 0.0  # Last time the bucket was updated
         self.debug = debug
         self.busy = 0  # Used to track if a packet is currently being sent
@@ -63,15 +69,13 @@ class TokenBucketShaper:
     def update(self, packet):
         """The packet has just been retrieved from this element's own buffer, so
         update internal housekeeping states accordingly."""
+        # With no local buffers, this element needs to pull the packet from upstream
         if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
             self.upstream_updates[packet](packet)
             del self.upstream_updates[packet]
-
-        if self.debug:
-            print(
-                f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
     def run(self):
         """The generator function used in simulations."""
@@ -81,48 +85,69 @@ class TokenBucketShaper:
             else:
                 packet = yield self.store.get()
                 self.update(packet)
-
             now = self.env.now
 
-            # Add tokens to the bucket based on the current time
-            self.current_bucket = min(
-                self.bucket_size, self.current_bucket + self.rate *
+            #  Add tokens to bucket based on current time, both C & B buckets need to add
+            self.current_bucket_commit = min(
+                self.cbs, self.current_bucket_commit + self.cir *
                 (now - self.update_time) / 8.0)
+            if self.pir:
+                self.current_bucket_peak = min(
+                    self.pbs, self.current_bucket_peak + self.pir *
+                    (now - self.update_time) / 8.0)
             self.update_time = now
 
             # Check if there are a sufficient number of tokens to allow the packet
             # to be sent; if not, we will then wait to accumulate enough tokens to
             # allow this packet to be sent regardless of the bucket size.
-            if packet.size > self.current_bucket:  # needs to wait for the bucket to fill
-                yield self.env.timeout(
-                    (packet.size - self.current_bucket) * 8.0 / self.rate)
-                self.current_bucket = 0.0
-                self.update_time = self.env.now
-            else:
-                self.current_bucket -= packet.size
-                self.update_time = self.env.now
+            if self.pir:
+                # first compare with peak bucket
+                if packet.size > self.current_bucket_peak:
+                    yield self.env.timeout(
+                        (packet.size - self.current_bucket_peak) * 8.0 /
+                        self.pir)
+                    self.current_bucket_peak = 0.0
+                    packet.color = 'red'
+                    self.update_time = self.env.now
+                # then compare with committed bucket: > committed bucket and < peak bucket
+                elif packet.size > self.current_bucket_commit:
+                    self.current_bucket_peak -= packet.size
+                    self.current_bucket_commit = 0.0
+                    packet.color = 'yellow'
+                    self.update_time = self.env.now
+                # the packet size < committed bucket
+                else:
+                    self.current_bucket_commit -= packet.size
+                    self.current_bucket_peak -= packet.size
+                    packet.color = 'green'
+                    self.update_time = self.env.now
+
+            else:  # use CIR or use CIR as PIR
+                if packet.size > self.current_bucket_commit:
+                    yield self.env.timeout(
+                        (packet.size - self.current_bucket_commit) * 8.0 /
+                        self.cir)
+                    self.current_bucket_commit = 0.0
+                    packet.color = 'yellow'
+                    self.update_time = self.env.now
+                else:
+                    self.current_bucket_commit -= packet.size
+                    packet.color = 'green'
+                    self.update_time = self.env.now
 
             # Sending the packet now
-            if self.peak is None:  # infinite peak rate
-                if self.zero_downstream_buffer:
-                    self.out.put(packet,
-                                 upstream_update=self.update,
-                                 upstream_store=self.store)
-                else:
-                    self.out.put(packet)
+            if self.zero_downstream_buffer:
+                self.out.put(packet,
+                             upstream_update=self.update,
+                             upstream_store=self.store)
             else:
-                yield self.env.timeout(packet.size * 8.0 / self.peak)
-                if self.zero_downstream_buffer:
-                    self.out.put(packet,
-                                 upstream_update=self.update,
-                                 upstream_store=self.store)
-                else:
-                    self.out.put(packet)
+                self.out.put(packet)
 
             self.packets_sent += 1
             if self.debug:
                 print(
-                    f"Sent packet {packet.packet_id} from flow {packet.flow_id}."
+                    f"Sent out packet with id {packet.packet_id} "
+                    f"belonging to flow {packet.flow_id} with color {packet.color}."
                 )
 
     def put(self, packet, upstream_update=None, upstream_store=None):
@@ -134,5 +159,4 @@ class TokenBucketShaper:
 
         if self.zero_downstream_buffer:
             self.downstream_stores.put(packet)
-
         return self.store.put(packet)

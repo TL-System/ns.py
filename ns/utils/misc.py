@@ -1,5 +1,5 @@
 """
-Implements a two rate three color marker. It uses the flow_id packet field to mark each
+Implements a two rate tricolor marker. It uses the flow_id packet field to mark each
 packet with green = 0, yellow = 1, red = 2.
 
 Reference:
@@ -34,8 +34,8 @@ class TrTCM:
         self.pbs = pbs
         self.cir = cir
         self.cbs = cbs
-        self.pbucket = pbs
-        self.cbucket = cbs
+        self.peak_bucket = pbs
+        self.committed_bucket = cbs
         self.last_time = 0.0  # Last time we updated buckets
 
     def put(self, pkt):
@@ -43,21 +43,21 @@ class TrTCM:
         time_inc = self.env.now - self.last_time
         self.last_time = self.env.now
         # Add bytes to the buckets
-        self.pbucket += self.pir * time_inc / 8.0  # rate in bits, bucket in bytes
-        if self.pbucket > self.pbs:
-            self.pbucket = self.pbs
-        self.cbucket += self.cir * time_inc / 8.0  # rate in bits, bucket in bytes
-        if self.cbucket > self.cbs:
-            self.cbucket = self.cbs
-        # Check marking criteria and mark
-        if self.pbucket - pkt.size < 0:
-            pkt.flow_id = 2  # Red packet
-        elif self.cbucket - pkt.size < 0:
-            pkt.flow_id = 1  # Yellow packet
-            self.pbucket -= pkt.size
+        self.peak_bucket += self.pir * time_inc / 8.0
+        if self.peak_bucket > self.pbs:
+            self.peak_bucket = self.pbs
+        self.committed_bucket += self.cir * time_inc / 8.0
+        if self.committed_bucket > self.cbs:
+            self.committed_bucket = self.cbs
+
+        if self.peak_bucket - pkt.size < 0:
+            pkt.color = 'red'
+        elif self.committed_bucket - pkt.size < 0:
+            pkt.color = 'yellow'
+            self.peak_bucket -= pkt.size
         else:
-            pkt.flow_id = 0  # Green packet
-            self.pbucket -= pkt.size
-            self.cbucket -= pkt.size
-        # Send marked packet on its way
+            pkt.color = 'green'
+            self.peak_bucket -= pkt.size
+            self.committed_bucket -= pkt.size
+
         self.out.put(pkt)

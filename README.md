@@ -50,6 +50,8 @@ The network components that have already been implemented include:
 
 * `TokenBucketShaper`: a token bucket shaper.
 
+* `TwoRateTokenBucketShaper`: a two-rate three-color token bucket shaper with both committed and peak rates/burst sizes.
+
 * `SPServer`: a Static Priority (SP) scheduler.
 
 * `WFQServer`: a Weighted Fair Queueing (WFQ) scheduler.
@@ -78,7 +80,9 @@ The network components that have already been implemented include:
 
 * `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `PacketDistGenerator`, `PacketSink`, and `TokenBucketShaper`.
 
-* `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `WFQServer`.
+* `two_rate_token_bucket.py`: this examples creates a two-rate three-color traffic shaper. It showcases `PacketDistGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
+
+* `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
 
 * `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 
