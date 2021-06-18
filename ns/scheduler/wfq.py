@@ -78,8 +78,8 @@ class WFQServer:
         """
         if flow_id in self.byte_sizes:
             return self.byte_sizes[flow_id]
-        else:
-            return 0
+
+        return 0
 
     def size(self, flow_id) -> int:
         """Returns the size of the queue for a particular flow_id, in the

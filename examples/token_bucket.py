@@ -38,7 +38,10 @@ ps2 = PacketSink(env)
 
 source_rate = 8.0 * packet_size() / packet_arrival()
 
-shaper = TokenBucketShaper(env, 0.5 * source_rate, 1.0 * packet_size())
+shaper = TokenBucketShaper(env,
+                           rate=0.5 * source_rate,
+                           peak=0.7 * source_rate,
+                           bucket_size=1.0 * packet_size())
 
 pg1.out = ps1
 pg2.out = shaper

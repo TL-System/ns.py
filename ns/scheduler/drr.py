@@ -119,8 +119,8 @@ class DRRServer:
         """
         if flow_id in self.flow_queue_count:
             return self.byte_sizes[flow_id]
-        else:
-            return 0
+
+        return 0
 
     def size(self, flow_id) -> int:
         """Returns the size of the queue for a particular flow_id, in the
@@ -128,8 +128,8 @@ class DRRServer:
         """
         if flow_id in self.flow_queue_count:
             return self.flow_queue_count[flow_id]
-        else:
-            return 0
+
+        return 0
 
     def run(self):
         """The generator function used in simulations."""

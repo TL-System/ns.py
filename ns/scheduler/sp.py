@@ -93,8 +93,8 @@ class SPServer:
         """
         if flow_id in self.byte_sizes:
             return self.byte_sizes[flow_id]
-        else:
-            return 0
+
+        return 0
 
     def size(self, flow_id) -> int:
         """Returns the size of the queue for a particular flow_id, in the
@@ -102,8 +102,8 @@ class SPServer:
         """
         if flow_id in self.stores:
             return len(self.stores[flow_id].items)
-        else:
-            return 0
+
+        return 0
 
     def run(self):
         """The generator function used in simulations."""

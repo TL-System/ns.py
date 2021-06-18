@@ -12,18 +12,28 @@ class TokenBucketShaper:
     Parameters
     ----------
     env: simpy.Environment
-        the simulation environment
+        The simulation environment.
     rate: float
-        the token arrival rate in bits
-    b_size: Number
-        a token bucket size in bytes
-    peak: Number or None for infinite peak
-        the peak sending rate of the buffer (quickest time two packets could be sent)
+        The token arrival rate in bits.
+    bucket_size: int
+        The token bucket size in bytes.
+    peak: float (or None for an infinite peak sending rate)
+        The peak sending rate of the buffer (quickest time two packets could be sent).
+    zero_buffer: bool
+        Does this server have a zero-length buffer? This is useful when multiple
+        basic elements need to be put together to construct a more complex element
+        with a unified buffer.
+    zero_downstream_buffer: bool
+        Does this server's downstream element has a zero-length buffer? If so, packets
+        may queue up in this element's own buffer rather than be forwarded to the
+        next-hop element.
+    debug: bool
+        If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,
                  rate,
-                 b_size,
+                 bucket_size,
                  peak=None,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
@@ -34,7 +44,7 @@ class TokenBucketShaper:
         self.out = None
         self.packets_received = 0
         self.packets_sent = 0
-        self.b_size = b_size
+        self.bucket_size = bucket_size
         self.peak = peak
 
         self.upstream_updates = {}
@@ -44,7 +54,7 @@ class TokenBucketShaper:
         if self.zero_downstream_buffer:
             self.downstream_stores = simpy.Store(env)
 
-        self.current_bucket = b_size  # Current size of the bucket in bytes
+        self.current_bucket = bucket_size  # Current size of the bucket in bytes
         self.update_time = 0.0  # Last time the bucket was updated
         self.debug = debug
         self.busy = 0  # Used to track if a packet is currently being sent
@@ -72,10 +82,11 @@ class TokenBucketShaper:
             else:
                 packet = yield self.store.get()
                 self.update(packet)
+
             now = self.env.now
 
             self.current_bucket = min(
-                self.b_size, self.current_bucket + self.rate *
+                self.bucket_size, self.current_bucket + self.rate *
                 (now - self.update_time) / 8.0)
             self.update_time = now
 
@@ -88,7 +99,7 @@ class TokenBucketShaper:
                 self.current_bucket -= packet.size
                 self.update_time = self.env.now
 
-            if not self.peak:
+            if self.peak is None:
                 if self.zero_downstream_buffer:
                     self.out.put(packet,
                                  upstream_update=self.update,
@@ -96,7 +107,7 @@ class TokenBucketShaper:
                 else:
                     self.out.put(packet)
             else:
-                yield self.env.timeout(packet.size * 8.0 / self.rate)
+                yield self.env.timeout(packet.size * 8.0 / self.peak)
                 if self.zero_downstream_buffer:
                     self.out.put(packet,
                                  upstream_update=self.update,
