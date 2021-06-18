@@ -27,7 +27,7 @@ class WFQServer:
         may queue up in this element's own buffer rather than be forwarded to the
         next-hop element.
     debug: bool
-        Print more verbose debug information.
+        If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,

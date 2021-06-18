@@ -1,7 +1,7 @@
 """
-An example of combining a Random Early Detection (RED) port and a WFQ server. 
+An example of combining a Random Early Detection (RED) port and a WFQ server.
 
-The WRED port serves as an upstream buffer, configured to recognize that its downstream
+The RED port serves as an upstream buffer, configured to recognize that its downstream
 element has a zero-buffer configuration. The WFQ server is initialized with zero buffering
 as the downstream element after the RED port. Packets will be dropped when the downstream WFQ
 server is the bottleneck.

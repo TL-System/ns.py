@@ -1,4 +1,13 @@
-import copy
+"""
+Implements a two rate three color marker. It uses the flow_id packet field to mark each
+packet with green = 0, yellow = 1, red = 2.
+
+Reference:
+
+RFC 2698: A Two Rate Three Color Marker
+
+https://datatracker.ietf.org/doc/html/rfc2698
+"""
 
 
 class TrTCM:
@@ -7,13 +16,18 @@ class TrTCM:
 
         Parameters
         ----------
-        env : the SimPy environment (so we can get the simulated time)
-        pir : Peak Information Rate in units of bits (slighly different from RFC)
-        pbs : Peak Burst Size in units of bytes
-        cir : Committed Information Rate in units of bits (time part maybe scaled)
-        cbs : Committed Burst Size in bytes
+        env: simpy.Environment
+            The simulation environment.
+        pir: int
+            The Peak Information Rate in units of bits (slighly different from RFC).
+        pbs: int
+            The Peak Burst Size in units of bytes.
+        cir: int
+            The Committed Information Rate in units of bits.
+        cbs: int
+            The Committed Burst Size in bytes.
     """
-    def __init__(self, env, pir, pbs, cir, cbs):
+    def __init__(self, env, pir: int, pbs: int, cir, cbs):
         self.env = env
         self.out = None
         self.pir = pir
@@ -47,22 +61,3 @@ class TrTCM:
             self.cbucket -= pkt.size
         # Send marked packet on its way
         self.out.put(pkt)
-
-
-class SnoopSplitter:
-    """ A snoop port like splitter. Sends the original packet out port 1
-        and sends a copy of the packet out port 2.
-
-        You need to set the values of out1 and out2.
-    """
-    def __init__(self):
-        self.out1 = None
-        self.out2 = None
-
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
-        pkt2 = copy.copy(pkt)
-        if self.out1:
-            self.out1.put(pkt)
-        if self.out2:
-            self.out2.put(pkt2)

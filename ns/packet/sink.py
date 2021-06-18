@@ -1,5 +1,5 @@
 """
-A PacketSink is designed to record both arrival times and waiting times from the incoming
+Implements a PacketSink, designed to record both arrival times and waiting times from the incoming
 packets.
 
 By default, it records absolute arrival times, but it can also be initialized to record
@@ -20,9 +20,9 @@ class PacketSink:
     env: simpy.Environment
         the simulation environment
     rec_arrivals: bool
-        if true, arrivals will be recorded
+        if True, arrivals will be recorded
     absolute_arrivals: bool
-        if true absolute arrival times will be recorded, otherwise the time between
+        if True absolute arrival times will be recorded, otherwise the time between
         consecutive arrivals is recorded.
     rec_waits: bool
         if True, the waiting times experienced by the packets are recorded
@@ -30,7 +30,7 @@ class PacketSink:
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used
     debug: bool
-        if True, the contents of each packet will be printed as it is received.
+        If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,

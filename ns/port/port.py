@@ -1,5 +1,5 @@
 """
-Models an output port on a switch with a given rate and buffer size (in either bytes
+Implements a port with an output buffer with a given output rate and buffer size (in either bytes
 or the number of packets), using the simple tail-drop mechanism to drop packets.
 """
 import simpy
@@ -21,14 +21,14 @@ class Port:
             a queue limit in bytes or packets (including the packet in service), beyond
             which all packets will be dropped.
         limit_bytes: bool
-            if true, the queue limit will be based on bytes; if false, the queue limit
+            if True, the queue limit will be based on bytes; if False, the queue limit
             will be based on packets.
         zero_downstream_buffer: bool
-            if true, assume that the downstream element does not have any buffers,
+            if True, assume that the downstream element does not have any buffers,
             and backpressure is in effect so that all waiting packets queue up in this
             element's buffer.
         debug: bool
-            if true, print more debugging information.
+            If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,

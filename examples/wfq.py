@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from ns.packet.dist_generator import PacketDistGenerator
 from ns.packet.sink import PacketSink
-from ns.utils.components import SnoopSplitter
+from ns.utils.splitter import Splitter
 from ns.scheduler.wfq import WFQServer
 
 
@@ -34,21 +34,21 @@ pg2 = PacketDistGenerator(env,
                           finish=35,
                           flow_id=1)
 ps = PacketSink(env)
-ps_snoop1 = PacketSink(env)
-ps_snoop2 = PacketSink(env)
+sink_1 = PacketSink(env)
+sink_2 = PacketSink(env)
 
 source_rate = 8.0 * const_size() / packet_arrival()
 wfq_server = WFQServer(env, source_rate, [1, 2], debug=True)
-snoop1 = SnoopSplitter()
-snoop2 = SnoopSplitter()
+splitter_1 = Splitter()
+splitter_2 = Splitter()
 
-pg1.out = snoop1
-pg2.out = snoop2
+pg1.out = splitter_1
+pg2.out = splitter_2
 
-snoop1.out1 = wfq_server
-snoop1.out2 = ps_snoop1
-snoop2.out1 = wfq_server
-snoop2.out2 = ps_snoop2
+splitter_1.out1 = wfq_server
+splitter_1.out2 = sink_1
+splitter_2.out1 = wfq_server
+splitter_2.out2 = sink_2
 
 wfq_server.out = ps
 
@@ -61,13 +61,13 @@ print("At the packet sink, packet arrival times for flow 1 are:")
 print(ps.arrivals[1])
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
-ax1.vlines(ps_snoop1.arrivals[0],
+ax1.vlines(sink_1.arrivals[0],
            0.0,
            1.0,
            colors="g",
            linewidth=2.0,
            label='Flow 0')
-ax1.vlines(ps_snoop2.arrivals[1],
+ax1.vlines(sink_2.arrivals[1],
            0.0,
            0.7,
            colors="r",

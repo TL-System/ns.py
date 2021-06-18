@@ -1,11 +1,15 @@
 """
-A basic example that connects two packet generators to one packet sink.
+A basic example that connects two packet generators to a network wire with
+a propagation delay distribution, and then to a packet sink.
 """
+import functools
+import random
 from random import expovariate
-import simpy
 
+import simpy
 from ns.packet.dist_generator import PacketDistGenerator
 from ns.packet.sink import PacketSink
+from ns.port.wire import Wire
 
 
 def arrival_1():
@@ -14,8 +18,12 @@ def arrival_1():
 
 
 def arrival_2():
-    """ Packets arrive with a constant interval of 2 seconds. """
+    """ Packets arrive with a constant interval of 2.0 seconds. """
     return 2.0
+
+
+def delay_dist():
+    return 0.1
 
 
 def packet_size():
@@ -24,19 +32,31 @@ def packet_size():
 
 env = simpy.Environment()
 
-pg1 = PacketDistGenerator(env, "flow_0", arrival_1, packet_size, flow_id=0)
-pg2 = PacketDistGenerator(env, "flow_1", arrival_2, packet_size, flow_id=1)
+ps = PacketSink(env, rec_flow_ids=False, debug=True)
 
-# Debugging mode is enabled to print more information
-ps = PacketSink(env, debug=True)
+pg1 = PacketDistGenerator(env, "flow_1", arrival_1, packet_size, flow_id=0)
+pg2 = PacketDistGenerator(env, "flow_2", arrival_2, packet_size, flow_id=1)
 
-pg1.out = ps
-pg2.out = ps
+wire1 = Wire(env,
+             functools.partial(random.gauss, 0.1, 0.02),
+             wire_id=1,
+             debug=True)
+wire2 = Wire(env, delay_dist, wire_id=2, debug=True)
 
-env.run(until=20)
+pg1.out = wire1
+pg2.out = wire2
+wire1.out = ps
+wire2.out = ps
 
-print("Packet arrival times for flow 0:")
-print(ps.arrivals[0])
+env.run(until=100)
 
-print("Packet arrival times for flow 1:")
-print(ps.arrivals[1])
+print("Flow 1 packet delays: " +
+      ", ".join(["{:.3f}".format(x) for x in ps.waits['flow_1']]))
+print("Flow 2 packet delays: " +
+      ", ".join(["{:.3f}".format(x) for x in ps.waits['flow_2']]))
+
+print("Packet arrival times in flow 1: " +
+      ", ".join(["{:.3f}".format(x) for x in ps.arrivals['flow_1']]))
+
+print("Packet arrival times in flow 2: " +
+      ", ".join(["{:.3f}".format(x) for x in ps.arrivals['flow_2']]))

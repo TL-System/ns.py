@@ -70,19 +70,21 @@ The network components that have already been implemented include:
 
 ## Current Examples (in increasing levels of complexity)
 
-* `basic.py`: a basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink.
+* `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `PacketDistGenerator`, `PacketSink`, and `Wire`.
 
-* `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink.
+* `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink. It showcases `PacketDistGenerator`, `PacketSink`, and `Port`.
 
-* `mm1.py`: this example shows how to simulate a switching port with exponential packet inter-arrival times and exponentially distributed packet sizes.
+* `mm1.py`: this example shows how to simulate a port with exponential packet inter-arrival times and exponentially distributed packet sizes. It showcases `PacketDistGenerator`, `PacketSink`, `Port`, and `PortMonitor`.
 
-* `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate.
+* `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `PacketDistGenerator`, `PacketSink`, and `TokenBucketShaper`.
 
-* `wfq.py`: an example of using the WFQ/virtual clock scheduler.
+* `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `WFQServer`.
 
-* `drr.py`: an example of using the Deficit Round Robin (DRR) scheduler.
+* `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 
-* `fattree-fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation.
+* `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `PacketDistGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
+
+* `fattree_fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `PacketDistGenerator`, `PacketSink`, and `SimplePacketSwitch`.
 
 ## Writing New Network Components
 

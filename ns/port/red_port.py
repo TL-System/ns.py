@@ -1,5 +1,5 @@
 """
-Implements an output port on a switch with a given rate and buffer size (in either bytes
+Implements a port with an output buffer with a given output rate and buffer size (in either bytes
 or the number of packets), using the Random Early Detection (RED) mechanism to drop packets.
 
 This element can set the rate of the output port and an upper limit for the average queue size
@@ -51,14 +51,14 @@ class REDPort(Port):
             The exponential weight factor 'n' for computing the average queue size.
             average = (old_average * (1-1/2^n)) + (current_queue_size * 1/2^n)
         limit_bytes: bool
-            if true, the queue length limits will be based on bytes; if false, the queue
+            if True, the queue length limits will be based on bytes; if False, the queue
             length limits will be based on packets.
         zero_downstream_buffer: bool
-            if true, assume that the downstream element does not have any buffers,
+            if True, assume that the downstream element does not have any buffers,
             and backpressure is in effect so that all waiting packets queue up in this
             element's buffer.
         debug: bool
-            if true, print more debugging information.
+            If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,

@@ -18,28 +18,29 @@ class DRRServer:
     Parameters
     ----------
     env: simpy.Environment
-        the simulation environment
+        The simulation environment.
     rate: float
-        the bit rate of the port
-    weights: A list of weights for each possible packet flow_id. We assume a simple assignment
+        The bit rate of the port.
+    weights: list
+        A list of weights for each possible packet flow_id. We assume a simple assignment
         of flow ids to weights, i.e., flow_id = 0 corresponds to weights[0], etc.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
         with a unified buffer.
     zero_downstream_buffer: bool
-        Does this server's downstream element has a zero-length buffer? If so, packets
+        Does this server's downstream element have a zero-length buffer? If so, packets
         may queue up in this element's own buffer rather than be forwarded to the
         next-hop element.
     debug: bool
-        Print more verbose debug information.
+        If True, prints more verbose debug information.
     """
     MIN_QUANTUM = 1500
 
     def __init__(self,
                  env,
                  rate,
-                 weights,
+                 weights: list,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug=False,
