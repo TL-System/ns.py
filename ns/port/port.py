@@ -18,10 +18,10 @@ class Port:
         element_id: int
             the element id of this port
         qlimit: integer (or None)
-            a buffer size limit in bytes or packets for the queue (including items
-            in service).
+            a queue limit in bytes or packets (including the packet in service), beyond
+            which all packets will be dropped.
         limit_bytes: bool
-            if true, the queue limit will be based on bytes if false the queue limit
+            if true, the queue limit will be based on bytes; if false, the queue limit
             will be based on packets.
         zero_downstream_buffer: bool
             if true, assume that the downstream element does not have any buffers,
@@ -35,7 +35,7 @@ class Port:
                  rate: float,
                  element_id: int = None,
                  qlimit: int = None,
-                 limit_bytes: bool = True,
+                 limit_bytes: bool = False,
                  zero_downstream_buffer: bool = False,
                  debug: bool = False):
         self.store = simpy.Store(env)
@@ -101,33 +101,33 @@ class Port:
         self.qlen_bytes.append(self.byte_size)
 
         self.packets_received += 1
-        tmp_byte_count = self.byte_size + pkt.size
+        byte_count = self.byte_size + pkt.size
 
         if self.element_id is not None:
             pkt.perhop_time[self.element_id] = self.env.now
 
         if self.qlimit is None:
-            self.byte_size = tmp_byte_count
+            self.byte_size = byte_count
             if self.zero_downstream_buffer:
                 self.downstream_store.put(pkt)
             return self.store.put(pkt)
 
-        if self.limit_bytes and tmp_byte_count >= self.qlimit:
-            self.packets_dropped += 11
+        if self.limit_bytes and byte_count >= self.qlimit:
+            self.packets_dropped += 1
             self.packets_dropped_index.append((pkt.flow_id, pkt.id))
             if self.debug:
                 print(f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.id}")
         elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
-            self.packets_dropped += 11
+            self.packets_dropped += 1
             self.packets_dropped_index.append((pkt.flow_id, pkt.id))
             if self.debug:
                 print(f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.id}")
         else:
-            self.qlen_numbers_rec.append(len(
-                self.store.items))  # if not dropped, keep its queue length
+            # If the packet has not been dropped, keep its queue length
+            self.qlen_numbers_rec.append(len(self.store.items))
             self.qlen_bytes_rec.append(self.byte_size)
 
-            self.byte_size = tmp_byte_count
+            self.byte_size = byte_count
 
             if self.zero_downstream_buffer:
                 self.downstream_store.put(pkt)

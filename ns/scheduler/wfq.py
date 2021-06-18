@@ -157,7 +157,7 @@ class WFQServer:
 
         if self.debug:
             print(
-                f"Packet arrived at {self.env.now}, with flow_id {flow_id},"
+                f"Packet arrived at {self.env.now}, with flow_id {flow_id}, "
                 f"packet_id {packet.id}, finish_time {self.finish_times[flow_id]}"
             )
 

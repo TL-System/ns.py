@@ -1,6 +1,15 @@
 """
-Models an output port on a switch with a given rate and buffer size (in either bytes
-or the number of packets), using the Early Random Detection (RED) mechanism to drop packets.
+Implements an output port on a switch with a given rate and buffer size (in either bytes
+or the number of packets), using the Random Early Detection (RED) mechanism to drop packets.
+
+This element can set the rate of the output port and an upper limit for the average queue size
+(in bytes or the number of packets), and it keeps track of the number packets received and dropped.
+
+Reference:
+
+QoS: Congestion Avoidance Configuration Guide, Cisco IOS XE 17
+
+https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/qos_conavd/configuration/xe-17/qos-conavd-xe-17-book/qos-conavd-xe-16-8-book_chapter_01.html
 """
 import random
 
@@ -20,11 +29,30 @@ class REDPort(Port):
         element_id: int
             the element id of this port
         qlimit: integer (or None)
-            a buffer size limit in bytes or packets for the queue (including items
-            in service).
+            The upper limit for the average queue length, beyond which all packets will
+            be dropped. The queue length can be measured in bytes or packets, and includes
+            the packet in service.
+        max_threshold: integer
+            The maximum (average) queue length threshold, beyond which packets will be
+            dropped at the maximum probability.
+        min_threshold: integer
+            The minimum (average) queue length threshold to start dropping packets. This
+            threshold should be set high enough to maximize the link utilization. If the
+            minimum threshold is too low, packets may be dropped unnecessarily, and the
+            transmission link will not be fully used.
+        max_probability: float
+            The maximum probability (which is equivalent to 1 / mark probability denominator)
+            is the fraction of packets dropped when the average queue length is at the
+            maximum threshold, which is 'max_threshold'. The rate of packet drop increases
+            linearly as the average queue length increases, until the average queue length
+            reaches the maximum threshold, 'max_threshold'. All packets will be dropped when
+            'qlimit' is exceeded.
+        weight_factor: float
+            The exponential weight factor 'n' for computing the average queue size.
+            average = (old_average * (1-1/2^n)) + (current_queue_size * 1/2^n)
         limit_bytes: bool
-            if true, the queue limit will be based on bytes if false the queue limit
-            will be based on packets.
+            if true, the queue length limits will be based on bytes; if false, the queue
+            length limits will be based on packets.
         zero_downstream_buffer: bool
             if true, assume that the downstream element does not have any buffers,
             and backpressure is in effect so that all waiting packets queue up in this
@@ -41,7 +69,7 @@ class REDPort(Port):
                  weight_factor: int = 9,
                  element_id: int = None,
                  qlimit: int = None,
-                 limit_bytes: bool = True,
+                 limit_bytes: bool = False,
                  zero_downstream_buffer: bool = False,
                  debug: bool = False):
 
@@ -74,17 +102,17 @@ class REDPort(Port):
         if self.average_queue_size >= self.qlimit:
             self.packets_dropped += 1
             if self.debug:
-                print(f"Average queue size ({self.average_queue_size}) "
-                      f"exceeds threshold ({self.qlimit})")
-        elif self.average_queue_size >= self.max_threshold:
+                print(f"The average queue length {self.average_queue_size} "
+                      f"exceeds the upper limit {self.qlimit}.")
+        elif self.average_queue_size >= self.min_threshold:
             rand = random.uniform(0, 1)
             if rand <= self.max_probability:
                 self.packets_dropped += 1
                 if self.debug:
                     print(
-                        f"Avg queue size ({self.average_queue_size}) "
-                        f"exceeds threshold ({self.qlimit})",
-                        f"Packet dropped with probability {self.max_probability}"
+                        f"The average queue length ({self.average_queue_size}) "
+                        f"exceeds the maximum threshold ({self.qlimit}), ",
+                        f"packet dropped with probability {self.max_probability}"
                     )
             else:
                 self.byte_size += pkt.size
@@ -99,8 +127,9 @@ class REDPort(Port):
                 self.packets_dropped += 1
                 if self.debug:
                     print(
-                        f"Avg queue size ({self.average_queue_size}) exceeds min threshold",
-                        f"Packet dropped with probability {prob}")
+                        f"The average queue length {self.average_queue_size} "
+                        f"exceeds the minimum threshold {self.min_threshold}, "
+                        f"packet dropped with probability {prob}.")
             else:
                 self.byte_size += pkt.size
                 if self.zero_downstream_buffer:
