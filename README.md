@@ -80,7 +80,7 @@ The network components that have already been implemented include:
 
 * `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `PacketDistGenerator`, `PacketSink`, and `TokenBucketShaper`.
 
-* `two_rate_token_bucket.py`: this examples creates a two-rate three-color traffic shaper. It showcases `PacketDistGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
+* `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `PacketDistGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
 
 * `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
 
