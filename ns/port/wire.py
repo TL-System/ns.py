@@ -52,7 +52,7 @@ class Wire:
             self.out.put(packet)
 
     def put(self, packet):
-        """ Sends the packet 'pkt' to this element. """
+        """ Sends a packet to this element. """
         self.packets_rec += 1
         if self.debug:
             print(f"Entered wire #{self.wire_id} at {self.env.now}: {packet}")

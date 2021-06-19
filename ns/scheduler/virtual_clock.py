@@ -22,9 +22,10 @@ class VirtualClockServer:
         rate: float
             The bit rate of the port.
         vticks: A list
-            list of the vtick parameters (for each flow_id). We assume a simple assignment of flow id to vticks,
-            i.e., flow_id = 0 corresponds to vticks[0], etc... We assume that the vticks are the inverse of the
-            desired rates for the flows in bits per second.
+            list of the vtick parameters (for each flow_id). We assume a simple assignment
+            of flow id to vticks, i.e., flow_id = 0 corresponds to vticks[0], etc. We assume
+            that the vticks are the inverse of the desired rates for the flows in bits per
+            second.
         zero_buffer: bool
             Does this server have a zero-length buffer? This is useful when multiple
             basic elements need to be put together to construct a more complex element
@@ -47,9 +48,10 @@ class VirtualClockServer:
         self.rate = rate
         self.vticks = vticks
         self.aux_vc = [0.0 for __ in range(len(vticks))]
+        self.v_clocks = [0.0 for __ in range(len(vticks))]
 
         # Keep track of the number of packets from each flow in the queue
-        self.flow_queue_count = [0 for i in range(len(vticks))]
+        self.flow_queue_count = [0 for __ in range(len(vticks))]
         self.out = None
         self.packets_received = 0
         self.packets_dropped = 0
@@ -67,7 +69,6 @@ class VirtualClockServer:
 
         self.store = taggedstore.TaggedStore(env)
         self.action = env.process(self.run())
-        self.last_update = 0.0
 
     def packet_in_service(self) -> Packet:
         """Returns the packet that is currently being sent to the downstream element.
@@ -100,17 +101,8 @@ class VirtualClockServer:
             self.upstream_updates[packet](packet)
             del self.upstream_updates[packet]
 
-        self.last_update = self.env.now
         flow_id = packet.flow_id
-
         self.flow_queue_count[flow_id] -= 1
-        if self.flow_queue_count[flow_id] == 0:
-            self.active_set.remove(flow_id)
-
-        if len(self.active_set) == 0:
-            self.vtime = 0.0
-            for i in range(len(self.finish_times)):
-                self.finish_times[i] = 0.0
 
         if self.debug:
             print(f"Sent Packet {packet.packet_id} from flow {flow_id}")
@@ -141,29 +133,34 @@ class VirtualClockServer:
                 self.current_packet = None
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends the packet 'pkt' to this element. """
+        """ Sends a packet to this element. """
         self.packets_received += 1
         self.byte_sizes[packet.flow_id] += packet.size
         now = self.env.now
         flow_id = packet.flow_id
         self.flow_queue_count[flow_id] += 1
 
-        # Update aux_vc for the flow. We assume that vticks is the desired bit time
-        # i.e., the inverse of the desired bits per second data rate.
-        # Hence we then multiply this value by the size of the packet in bits.
-        self.aux_vc[flow_id] = max(
-            now,
-            self.aux_vc[flow_id]) + self.vticks[flow_id] * packet.size * 8.0
+        if self.v_clocks[flow_id] == 0:
+            # Upon receiving the first packet from this flow_id, set its
+            # virtual clock to the current real time
+            self.v_clocks[flow_id] = now
+
+        # Update virtual clocks (vc) for the corresponding flow. We assume
+        # that vticks is the desired bit time, i.e., the inverse of the
+        # desired bits per second data rate. Hence, we multiply this
+        # value by the size of the packet in bits.
+        self.aux_vc[flow_id] = max(now, self.aux_vc[flow_id])
+        self.v_clocks[flow_id] = self.v_clocks[
+            flow_id] + self.vticks[flow_id] * packet.size * 8.0
+        self.aux_vc[flow_id] += self.vticks[flow_id]
 
         # Lots of work to do here to implement the queueing discipline
 
         if self.debug:
             print(
                 f"Packet arrived at {self.env.now}, with flow_id {flow_id}, "
-                f"packet_id {packet.packet_id}, virtual clocks {self.aux_vc[flow_id]}"
-            )
-
-        self.last_update = now
+                f"packet_id {packet.packet_id}, virtual clocks {self.v_clocks[flow_id]}, "
+                f"aux_vc {self.aux_vc[flow_id]}")
 
         if self.zero_buffer and upstream_update is not None and upstream_store is not None:
             self.upstream_stores[packet] = upstream_store

@@ -90,7 +90,7 @@ ax1.vlines(sink_2.arrivals[1],
            colors="r",
            linewidth=2.0,
            label='Flow 1')
-ax1.set_title("Arrival times at WFQ switch")
+ax1.set_title("Arrival times at the WFQ server")
 ax1.set_ylim([0, 1.5])
 ax1.set_xlim([0, max(sink_1.arrivals[0]) + 10])
 ax1.grid(True)
@@ -98,7 +98,7 @@ ax1.legend()
 
 ax2.vlines(ps.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label='Flow 0')
 ax2.vlines(ps.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label='Flow 1')
-ax2.set_title("Departure times from WFQ switch")
+ax2.set_title("Departure times from the WFQ server")
 ax2.set_xlabel("time")
 ax2.set_ylim([0, 1.5])
 ax2.set_xlim([0, max(ps.arrivals[0]) + 10])

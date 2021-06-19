@@ -58,7 +58,7 @@ The network components that have already been implemented include:
 
 * `DRRServer`: a Deficit Round Robin (DRR) scheduler.
 
-* `VirtualClockServer`: a Virtual Clock scheduler (not yet completed).
+* `VirtualClockServer`: a Virtual Clock scheduler.
 
 * `PortMonitor`: records the number of packets in a `Port`. The monitoring interval follows a given distribution.
 
@@ -66,7 +66,7 @@ The network components that have already been implemented include:
 
 ## Current utilities
 
-* `TaggedStore`: a sorted `simpy.Store` based on tags (stamps), useful in the implementation of WFQ and Virtual Clock. This may be overkill for static priority queues.
+* `TaggedStore`: a sorted `simpy.Store` based on tags, useful in the implementation of WFQ and Virtual Clock.
 
 * `Config`: a global singleton instance that reads parameter settings from a configuration file. Use `Config()` to access the instance globally.
 
@@ -83,6 +83,8 @@ The network components that have already been implemented include:
 * `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `PacketDistGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
 
 * `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
+
+* `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `VirtualClockQServer`, and `ServerMonitor`.
 
 * `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 

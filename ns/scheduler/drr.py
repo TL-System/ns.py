@@ -188,7 +188,7 @@ class DRRServer:
             yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends the packet 'pkt' to this element. """
+        """ Sends a packet to this element. """
         self.packets_received += 1
         self.byte_sizes[packet.flow_id] += packet.size
 

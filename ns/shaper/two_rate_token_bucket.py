@@ -151,7 +151,7 @@ class TwoRateTokenBucketShaper:
                 )
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends the packet 'pkt' to this element. """
+        """ Sends a packet to this element. """
         self.packets_received += 1
         if self.zero_buffer and upstream_update is not None and upstream_store is not None:
             self.upstream_stores[packet] = upstream_store
