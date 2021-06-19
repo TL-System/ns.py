@@ -1,23 +1,23 @@
 class FIBDemux:
     """
-    The constructor takes a litst of downstream components for the
-    corresponding output ports as its input
+    The constructor takes a list of downstream elements for the
+    corresponding output ports as its input.
 
     Parameters
     ----------
-    env: simpy.Environment
-    fib: Dictionary
+    fib: dict
         forwarding information base. Key: flow id, Value: output port
-    outs: List
-        list of output ports
-    default: simpy.Process
-        default output port
+    outs: list
+        list of downstream elements corresponding to the output ports
+    ends: list
+        list of downstream elements corresponding to the output ports
+    default:
+        default downstream element
     """
     def __init__(self,
-                 env,
-                 fib=None,
-                 outs=None,
-                 ends=None,
+                 fib: dict = None,
+                 outs: list = None,
+                 ends: dict = None,
                  default=None) -> None:
         self.outs = outs
         self.default = default
@@ -28,16 +28,16 @@ class FIBDemux:
         else:
             self.ends = dict()
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         self.packets_received += 1
-        flow_id = pkt.flow_id
+        flow_id = packet.flow_id
         if flow_id in self.ends:
-            self.ends[flow_id].put(pkt)
+            self.ends[flow_id].put(packet)
         else:
             try:
-                self.outs[self.fib[pkt.flow_id]].put(pkt)
+                self.outs[self.fib[packet.flow_id]].put(packet)
             except (KeyError, IndexError, ValueError) as e:
-                print("FIB Demux Error" + str(e))
+                print("FIB Demux Error: " + str(e))
                 if self.default:
-                    self.default.put(pkt)
+                    self.default.put(packet)
