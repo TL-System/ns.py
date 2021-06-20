@@ -48,6 +48,8 @@ The network components that have already been implemented include:
 
 * `FlowDemux`: a demultiplexing element that splits packet streams by flow ID.
 
+* `FIBDemux`: a demultiplexing element that uses a Flow Information Base (FIB) to make packet forwarding decisions based on flow IDs.
+
 * `TokenBucketShaper`: a token bucket shaper.
 
 * `TwoRateTokenBucketShaper`: a two-rate three-color token bucket shaper with both committed and peak rates/burst sizes.
