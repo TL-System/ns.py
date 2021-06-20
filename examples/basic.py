@@ -2,12 +2,12 @@
 A basic example that connects two packet generators to a network wire with
 a propagation delay distribution, and then to a packet sink.
 """
-import functools
+from functools import partial
 import random
 from random import expovariate
 
 import simpy
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.port.wire import Wire
 
@@ -34,13 +34,10 @@ env = simpy.Environment()
 
 ps = PacketSink(env, rec_flow_ids=False, debug=True)
 
-pg1 = PacketDistGenerator(env, "flow_1", arrival_1, packet_size, flow_id=0)
-pg2 = PacketDistGenerator(env, "flow_2", arrival_2, packet_size, flow_id=1)
+pg1 = DistPacketGenerator(env, "flow_1", arrival_1, packet_size, flow_id=0)
+pg2 = DistPacketGenerator(env, "flow_2", arrival_2, packet_size, flow_id=1)
 
-wire1 = Wire(env,
-             functools.partial(random.gauss, 0.1, 0.02),
-             wire_id=1,
-             debug=True)
+wire1 = Wire(env, partial(random.gauss, 0.1, 0.02), wire_id=1, debug=True)
 wire2 = Wire(env, delay_dist, wire_id=2, debug=True)
 
 pg1.out = wire1

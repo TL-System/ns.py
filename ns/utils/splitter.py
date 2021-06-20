@@ -1,7 +1,12 @@
+"""
+Implemented variants of a packet splitter element, which sends a copy of
+the arriving packets to each downstream element.
+"""
 import copy
 
 
 class Splitter:
+    """A simple two-way splitter with two downstream elements."""
     def __init__(self) -> None:
         self.out1 = None
         self.out2 = None
@@ -15,6 +20,7 @@ class Splitter:
 
 
 class NWaySplitter:
+    """An N-way splitter with *N* downstream elements."""
     def __init__(self, N) -> None:
         if isinstance(N, int):
             if N > 1:

@@ -18,24 +18,24 @@ The roughly exponential character of the resulting plot is a demonstration of Bu
 which is useful in the analysis of networks of queues.
 """
 import random
-import functools
-import simpy
+from functools import partial
+
 import matplotlib.pyplot as plt
-
-from ns.packet.dist_generator import PacketDistGenerator
+import simpy
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
-from ns.port.port import Port
 from ns.port.monitor import PortMonitor
+from ns.port.port import Port
 
-adist = functools.partial(random.expovariate, 0.5)
-sdist = functools.partial(random.expovariate, 0.01)  # a mean size of 100 bytes
-samp_dist = functools.partial(random.expovariate, 1.0)
+adist = partial(random.expovariate, 0.5)
+sdist = partial(random.expovariate, 0.01)  # a mean size of 100 bytes
+samp_dist = partial(random.expovariate, 1.0)
 port_rate = 1000.0
 
 env = simpy.Environment()
 
 ps = PacketSink(env, debug=False, rec_arrivals=True)
-pg = PacketDistGenerator(env, "pg", adist, sdist, flow_id=0)
+pg = DistPacketGenerator(env, "pg", adist, sdist, flow_id=0)
 port = Port(env, port_rate, qlimit=10000)
 
 # Using a PortMonitor to track queue sizes over time

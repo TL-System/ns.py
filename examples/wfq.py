@@ -1,16 +1,16 @@
 """
 An example of using the Weighted Fair Queueing (WFQ) scheduler.
 """
+from functools import partial
 from random import expovariate
-import functools
-import simpy
-import matplotlib.pyplot as plt
 
-from ns.packet.dist_generator import PacketDistGenerator
+import matplotlib.pyplot as plt
+import simpy
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
-from ns.utils.splitter import Splitter
-from ns.scheduler.wfq import WFQServer
 from ns.scheduler.monitor import ServerMonitor
+from ns.scheduler.wfq import WFQServer
+from ns.utils.splitter import Splitter
 
 
 def packet_arrival():
@@ -22,14 +22,14 @@ def const_size():
 
 
 env = simpy.Environment()
-pg1 = PacketDistGenerator(env,
+pg1 = DistPacketGenerator(env,
                           "flow_0",
                           packet_arrival,
                           const_size,
                           initial_delay=0.0,
                           finish=50,
                           flow_id=0)
-pg2 = PacketDistGenerator(env,
+pg2 = DistPacketGenerator(env,
                           "flow_1",
                           packet_arrival,
                           const_size,
@@ -44,7 +44,7 @@ source_rate = 8.0 * const_size() / packet_arrival()
 wfq_server = WFQServer(env, source_rate, [1, 2])
 monitor = ServerMonitor(env,
                         wfq_server,
-                        functools.partial(expovariate, 0.1),
+                        partial(expovariate, 0.1),
                         total_flows=2,
                         pkt_in_service_included=True)
 splitter_1 = Splitter()

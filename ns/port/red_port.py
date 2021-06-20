@@ -1,6 +1,7 @@
 """
-Implements a port with an output buffer with a given output rate and buffer size (in either bytes
-or the number of packets), using the Random Early Detection (RED) mechanism to drop packets.
+Implements a port with an output buffer, given an output rate and a buffer size (in either bytes
+or the number of packets). This implementation uses the Random Early Detection (RED) mechanism to
+drop packets.
 
 This element can set the rate of the output port and an upper limit for the average queue size
 (in bytes or the number of packets), and it keeps track of the number packets received and dropped.

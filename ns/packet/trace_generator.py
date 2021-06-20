@@ -3,7 +3,7 @@ import re
 from ns.packet.packet import Packet
 
 
-class PacketTraceGenerator:
+class TracePacketGenerator:
     def __init__(self,
                  env,
                  element_id,

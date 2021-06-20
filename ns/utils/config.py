@@ -1,11 +1,20 @@
-from collections import namedtuple
-import configparser
+"""Implements a simple configuration parser that reads runtime parameters
+from a YAML configuration file (which is easier to work on than JSON).
+"""
 import argparse
+import os
+from collections import OrderedDict, namedtuple
+
+import yaml
 
 
 class Config:
+    """
+    Retrieving configuration parameters by parsing a configuration file
+    using the YAML configuration file parser.
+    """
+
     _instance = None
-    config = configparser.ConfigParser()
 
     def __new__(cls):
         if cls._instance is None:
@@ -13,51 +22,43 @@ class Config:
             parser.add_argument('-c',
                                 '--config',
                                 type=str,
-                                default='./config.conf',
-                                help='The ns.py configuration file')
+                                default='./config.yml',
+                                help='ns.py configuration file.')
 
-            Config.args = parser.parse_args()
+            args = parser.parse_args()
+            Config.args = args
 
             cls._instance = super(Config, cls).__new__(cls)
-            cls.config.read(Config.args.config)
-            cls.extract()
 
-        cls._instance
+            if 'config_file' in os.environ:
+                filename = os.environ['config_file']
+            else:
+                filename = args.config
 
-    @staticmethod
-    def extract_section(section, fields, defaults):
-        params = []
+            with open(filename, 'r') as config_file:
+                config = yaml.load(config_file, Loader=yaml.FullLoader)
 
-        if section not in Config.config:
-            return None
+            Config.params = Config.namedtuple_from_dict(config['params'])
 
-        for i, field in enumerate(fields):
-            if isinstance(defaults[i], bool):
-                params.append(Config.config[section].getboolean(
-                    field, defaults[i]))
-            elif isinstance(defaults[i], int):
-                params.append(Config.config[section].getint(
-                    field, defaults[i]))
-            elif isinstance(defaults[i], float):
-                params.append(Config.config[section].getfloat(
-                    field, defaults[i]))
-            else:  # string
-                params.append(Config.config[section].get(field, defaults[i]))
-
-        return params
+        return cls._instance
 
     @staticmethod
-    def extract():
-        fields = [
-            'simulation_time', 'traffic_time', 'flow_queue_count',
-            'subscriber_queue_count', 'use_constant_bit_rate',
-            'mean_interarrival_time', 'mean_packet_size', 'use_RED',
-            'limit_bytes', 'flow_queue_pir', 'buffer_size', 'max_threshold',
-            'min_threshold', 'max_probability', 'subscriber_queue_cir',
-            'subscriber_queue_pir', 'group_queue_pir'
-        ]
-
-        defaults = (10, 10, 2, 2, True, 0.5, 1000, False, False, 10000, 10, 8,
-                    5, 0.8, 1000, 20000, 40000)
-        params = Config.extract_section('Example', fields, defaults)
-        Config.HQoS = namedtuple('Example', fields)(*params)
+    def namedtuple_from_dict(obj):
+        """Creates a named tuple from a dictionary."""
+        if isinstance(obj, dict):
+            fields = sorted(obj.keys())
+            namedtuple_type = namedtuple(typename='Config',
+                                         field_names=fields,
+                                         rename=True)
+            field_value_pairs = OrderedDict(
+                (str(field), Config.namedtuple_from_dict(obj[field]))
+                for field in fields)
+            try:
+                return namedtuple_type(**field_value_pairs)
+            except TypeError:
+                # Cannot create namedtuple instance so fallback to dict (invalid attribute names)
+                return dict(**field_value_pairs)
+        elif isinstance(obj, (list, set, tuple, frozenset)):
+            return [Config.namedtuple_from_dict(item) for item in obj]
+        else:
+            return obj

@@ -4,7 +4,7 @@ from random import expovariate, sample
 import numpy as np
 import simpy
 
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.switch.switch import SimplePacketSwitch
 from ns.topos.fattree import build as build_fattree
@@ -30,7 +30,7 @@ size_dist = partial(expovariate, 1.0 / mean_pkt_size)
 for fid in all_flows:
     arr_dist = partial(expovariate, 1 + np.random.rand())
 
-    pg = PacketDistGenerator(env,
+    pg = DistPacketGenerator(env,
                              f"Flow_{fid}",
                              arr_dist,
                              size_dist,

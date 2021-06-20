@@ -1,7 +1,8 @@
 """
-Trying to implement a tagged and ordered variant of the simpy.Store class.
-The `tag` is used to sort the elements for removal ordering. This may prove
-to be useful in the implementation of sophisticated queueing disciplines.
+Implemented a tagged and ordered variant of the simpy.Store class.
+The `tag` is used to sort the elements for removal ordering. This is
+useful in the implementation of more sophisticated queueing disciplines,
+such as Weighted Fair Queueing and Virtual Clock.
 """
 
 from heapq import heappop, heappush

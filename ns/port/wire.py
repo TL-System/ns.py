@@ -1,7 +1,8 @@
 """
 Implements a network wire (cable) with a propagation delay. There is no need
 to model a limited network capacity on this network cable, since such a
-capacity limit can be modeled using an upstream port component in the network.
+capacity limit can be modeled using an upstream port or server element in
+the network.
 """
 import simpy
 

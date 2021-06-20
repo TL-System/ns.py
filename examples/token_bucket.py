@@ -7,7 +7,7 @@ This example also shows a method of plotting packet arrival and exit times.
 import simpy
 import matplotlib.pyplot as plt
 
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.shaper.token_bucket import TokenBucketShaper
 
@@ -21,14 +21,14 @@ def packet_size():
 
 
 env = simpy.Environment()
-pg1 = PacketDistGenerator(env,
+pg1 = DistPacketGenerator(env,
                           "flow_1",
                           packet_arrival,
                           packet_size,
                           initial_delay=7.0,
                           finish=35)
 
-pg2 = PacketDistGenerator(env,
+pg2 = DistPacketGenerator(env,
                           "flow_2",
                           packet_arrival,
                           packet_size,

@@ -15,7 +15,7 @@ counts.
 """
 import simpy
 
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.port.port import Port
 
@@ -30,7 +30,7 @@ def packet_size():
 
 env = simpy.Environment()
 ps = PacketSink(env, debug=True)
-pg = PacketDistGenerator(env, "pg", packet_arrival, packet_size, flow_id=0)
+pg = DistPacketGenerator(env, "pg", packet_arrival, packet_size, flow_id=0)
 port = Port(env, rate=200.0, qlimit=300)
 
 pg.out = port

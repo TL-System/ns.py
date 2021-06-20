@@ -1,14 +1,14 @@
 """
-A PacketDistGenerator simulates the sending of packets with a specified inter-arrival time
+A DistPacketGenerator simulates the sending of packets with a specified inter-arrival time
 distribution and a packet size distribution. One can set an initial delay and a finish
 time for packet generation. In addition one can set the source id and flow ids for the
-packets generated. The PacketDistGenerator's `out` member variable is used to connect the
+packets generated. The DistPacketGenerator's `out` member variable is used to connect the
 generator to any component with a `put()` member function.
 """
 from ns.packet.packet import Packet
 
 
-class PacketDistGenerator:
+class DistPacketGenerator:
     """ Generates packets with a given inter-arrival time distribution.
         Set the "out" member variable to the entity to receive the packet.
 

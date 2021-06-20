@@ -26,9 +26,9 @@ The network components that have already been implemented include:
 
 * `Packet`: a simple representation of a network packet, carrying its creation time, size, packet id, flow id, source and destination.
 
-* `PacketDistGenerator`: generates packets according to provided distributions of inter-arrival times and packet sizes.
+* `DistPacketGenerator`: generates packets according to provided distributions of inter-arrival times and packet sizes.
 
-* `PacketTraceGenerator`: generates packets according to a trace file, with each row in the trace file representing a packet.
+* `TracePacketGenerator`: generates packets according to a trace file, with each row in the trace file representing a packet.
 
 * `PacketSink`: receives packets and records delay statistics.
 
@@ -72,25 +72,25 @@ The network components that have already been implemented include:
 
 ## Current Examples (in increasing levels of complexity)
 
-* `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `PacketDistGenerator`, `PacketSink`, and `Wire`.
+* `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Wire`.
 
-* `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink. It showcases `PacketDistGenerator`, `PacketSink`, and `Port`.
+* `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Port`.
 
-* `mm1.py`: this example shows how to simulate a port with exponential packet inter-arrival times and exponentially distributed packet sizes. It showcases `PacketDistGenerator`, `PacketSink`, `Port`, and `PortMonitor`.
+* `mm1.py`: this example shows how to simulate a port with exponential packet inter-arrival times and exponentially distributed packet sizes. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, and `PortMonitor`.
 
-* `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `PacketDistGenerator`, `PacketSink`, and `TokenBucketShaper`.
+* `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `DistPacketGenerator`, `PacketSink`, and `TokenBucketShaper`.
 
-* `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `PacketDistGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
+* `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `DistPacketGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
 
-* `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
+* `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
 
-* `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter`, `VirtualClockQServer`, and `ServerMonitor`.
+* `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `VirtualClockQServer`, and `ServerMonitor`.
 
-* `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `PacketDistGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
+* `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 
-* `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `PacketDistGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
+* `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
 
-* `fattree_fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `PacketDistGenerator`, `PacketSink`, and `SimplePacketSwitch`.
+* `fattree_fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, and `SimplePacketSwitch`.
 
 ## Writing New Network Components
 

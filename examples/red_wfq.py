@@ -8,7 +8,7 @@ server is the bottleneck.
 """
 import simpy
 
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.port.red_port import REDPort
 from ns.port.port import Port
@@ -27,14 +27,14 @@ def packet_size():
 
 
 env = simpy.Environment()
-pg1 = PacketDistGenerator(env,
+pg1 = DistPacketGenerator(env,
                           "flow_1",
                           packet_arrival,
                           packet_size,
                           initial_delay=0.0,
                           finish=100,
                           flow_id=0)
-pg2 = PacketDistGenerator(env,
+pg2 = DistPacketGenerator(env,
                           "flow_2",
                           packet_arrival,
                           packet_size,

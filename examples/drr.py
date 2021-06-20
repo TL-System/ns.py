@@ -4,7 +4,7 @@ An example of using the Deficit Round Robin (DRR) server.
 import simpy
 import matplotlib.pyplot as plt
 
-from ns.packet.dist_generator import PacketDistGenerator
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.utils.splitter import Splitter
 from ns.scheduler.drr import DRRServer
@@ -19,14 +19,14 @@ def const_size():
 
 
 env = simpy.Environment()
-pg1 = PacketDistGenerator(env,
+pg1 = DistPacketGenerator(env,
                           "flow_0",
                           packet_arrival,
                           const_size,
                           initial_delay=0.0,
                           finish=35,
                           flow_id=0)
-pg2 = PacketDistGenerator(env,
+pg2 = DistPacketGenerator(env,
                           "flow_1",
                           packet_arrival,
                           const_size,
