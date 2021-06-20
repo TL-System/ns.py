@@ -32,6 +32,7 @@ class FIBDemux:
         """ Sends a packet to this element. """
         self.packets_received += 1
         flow_id = packet.flow_id
+
         if flow_id in self.ends:
             self.ends[flow_id].put(packet)
         else:

@@ -48,12 +48,12 @@ wire2.out = ps
 env.run(until=100)
 
 print("Flow 1 packet delays: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.waits['flow_1']]))
+      ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_1']]))
 print("Flow 2 packet delays: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.waits['flow_2']]))
+      ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_2']]))
 
 print("Packet arrival times in flow 1: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.arrivals['flow_1']]))
+      ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_1']]))
 
 print("Packet arrival times in flow 2: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.arrivals['flow_2']]))
+      ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_2']]))

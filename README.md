@@ -78,6 +78,8 @@ The network components that have already been implemented include:
 
 * `mm1.py`: this example shows how to simulate a port with exponential packet inter-arrival times and exponentially distributed packet sizes. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, and `PortMonitor`.
 
+* `ack.py`: this example shows how a two-hop simple network from a sender to a receiver, via a simple packet forwarding switch, can be configured, and how acknowledgment packets can be sent from the receiver back to the sender via the same switch. It showcases `DistPacketGenerator`, `PacketSink`, `Wire`, and `SimplePacketSwitch`.
+
 * `token_bucket.py`: this example creates a traffic shaper whose bucket size is the same as the packet size, and whose bucket rate is one half the input packet rate. It showcases `DistPacketGenerator`, `PacketSink`, and `TokenBucketShaper`.
 
 * `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `DistPacketGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.

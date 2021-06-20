@@ -4,12 +4,15 @@ from ns.scheduler.wfq import WFQServer
 
 
 class SimplePacketSwitch:
-    def __init__(self, env, nports, port_rate, buffer) -> None:
+    def __init__(self, env, nports, port_rate, buffer_size) -> None:
         self.env = env
         self.ports = []
         for __ in range(nports):
             self.ports.append(
-                Port(env, rate=port_rate, qlimit=buffer, limit_bytes=False))
+                Port(env,
+                     rate=port_rate,
+                     qlimit=buffer_size,
+                     limit_bytes=False))
         self.demux = FIBDemux(fib=None, outs=self.ports, default=None)
 
     def put(self, pkt):

@@ -29,6 +29,10 @@ class PacketSink:
     rec_flow_ids: bool
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used
+    ack:
+        if this is not None, the same packet will be sent back to this element as
+        an acknowledgement, with a constant size of 32 and a new flow_id of 1000 +
+        this packet's flow_id.
     debug: bool
         If True, prints more verbose debug information.
     """
@@ -55,6 +59,8 @@ class PacketSink:
 
         self.first_arrival = dd(lambda: 0)
         self.last_arrival = dd(lambda: 0)
+
+        self.ack_out = None
         self.debug = debug
 
     def put(self, pkt):
@@ -62,7 +68,7 @@ class PacketSink:
         now = self.env.now
 
         if self.debug:
-            print(f"At packet sink: {pkt}")
+            print(f"At time {now}, packet ({pkt}) arrived.")
 
         if self.rec_flow_ids:
             rec_index = pkt.flow_id
@@ -88,3 +94,9 @@ class PacketSink:
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += pkt.size
+
+        if self.ack_out:
+            pkt.size = 32  # default size of the ack packet
+            pkt.flow_id += 10000  # default flow_id of the ack flow
+
+            self.ack_out.put(pkt)

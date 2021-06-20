@@ -33,7 +33,8 @@ class DistPacketGenerator:
                  initial_delay=0,
                  finish=float("inf"),
                  flow_id=0,
-                 rec_flow=0):
+                 rec_flow=0,
+                 debug=False):
         self.element_id = element_id
         self.env = env
         self.adist = adist
@@ -49,6 +50,7 @@ class DistPacketGenerator:
         self.rec_flow = rec_flow
         self.time_rec = []
         self.size_rec = []
+        self.debug = debug
 
     def run(self):
         """The generator function used in simulations."""
@@ -66,4 +68,10 @@ class DistPacketGenerator:
             if self.rec_flow:
                 self.time_rec.append(packet.time)
                 self.size_rec.append(packet.size)
+
+            if self.debug:
+                print(
+                    f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
+                    f"time {self.env.now}.")
+
             self.out.put(packet)
