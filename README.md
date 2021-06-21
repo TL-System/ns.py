@@ -139,10 +139,10 @@ What a coincidence: the `yield` keyword in Python in generator functions is the 
 **Watch out** for a potential pitfall: Make sure that you call `yield` at least once in *every* path of program execution. This is more important in an infinite loop in `run()`, which is very typical in our network components since the environment can be run for a finite amount of simulation time. For example, at the end of each iteration of the infinite loop in `scheduler/drr.py`, we call `yield`:
 
 ```python
-yield self.env.timeout(1.0 / self.rate)
+yield self.packets_available.get()
 ```
 
-This will make sure that other processes have a chance to run when there are no packets in the scheduler. This is, on the other hand, not a problem in our Weighted Fair Queueing (WFQ) scheduler (`scheduler/wfq.py`), since we call `yield self.store.get()` to retrieve the next packet for processing, and `self.store` is implemented as a sorted queue. This process will not be resumed after `yield` if there are no packets in the scheduler.
+This works just like a `sleep()` call on a binary semaphore in operating systems, and will make sure that other processes have a chance to run when there are no packets in the scheduler. This is, on the other hand, not a problem in our Weighted Fair Queueing (WFQ) scheduler (`scheduler/wfq.py`), since we call `yield self.store.get()` to retrieve the next packet for processing, and `self.store` is implemented as a sorted queue (`TaggedStore`). This process will not be resumed after `yield` if there are no packets in the scheduler.
 
 ### Sharing resources
 
