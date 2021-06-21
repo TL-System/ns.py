@@ -42,32 +42,54 @@ class TCPSink(PacketSink):
         super().__init__(env, rec_arrivals, absolute_arrivals, rec_waits,
                          rec_flow_ids, debug)
         self.recv_buffer = PriorityQueue()
+        self.recv_buffer_stats = []
         self.recv_wnd = 0
-        self.last_received = 0
+        self.last_acknowledged = 0
         self.out = None
+
+    def packet_arrived(self, packet):
+        """
+        Insert the packet into the receive buffer, which is a priority queue
+        that is sorted based on the sequence number of the packet (packet_id).
+        """
+        self.recv_buffer.put((packet.packet_id, packet))
+        self.recv_buffer_stats.append(
+            [packet.packet_id, packet.packet_id + packet.size])
+
+        self.recv_buffer_stats.sort(reverse=True)
+        merged_stats = []
+        for start, end in self.recv_buffer_stats:
+            if merged_stats and start <= merged_stats[-1][1]:
+                merged_stats[-1][1] = max(merged_stats[-1][1], end)
+            else:
+                merged_stats.append([start, end])
+        self.recv_buffer_stats = merged_stats
 
     def put(self, packet):
         """ Sends a packet to this element. """
         super().put(packet)
-        self.recv_buffer.put(packet)
 
-        if packet.seq - self.last_received == packet.size:
+        self.packet_arrived(packet)
+
+        if len(self.recv_buffer_stats) == 1:
             # in-order delivery
-            self.last_received = packet.seq
+            self.last_acknowledged = packet.packet_id + packet.size
         else:
-            # out-of-order delivery or retransmissions, needs
+            # out-of-order delivery or retransmissions: needs
             # to go through the receive buffer and find out
-            # what the last in-order packet's seq number is
-            self.last_received = packet.seq
+            # what the last in-order packet's sequence number is
+            self.last_acknowledged = self.recv_buffer_stats[0][1]
 
-        if self.out:
-            acknowledgment = Packet(
-                self.env.now,
-                size=40,  # default size of the ack packet
-                packet_id=self.last_received,
-                flow_id=packet.flow_id + 10000)
+        # a TCP sink needs to send ack packets back to the TCP packet generator
+        assert self.out is not None
 
-            acknowledgment.recv_wnd = self.recv_wnd
-            acknowledgment.ack = self.last_received
+        acknowledgment = Packet(
+            self.env.now,
+            size=40,  # default size of the ack packet
+            packet_id=0,
+            flow_id=packet.flow_id + 10000)
 
-            self.out.put(acknowledgment)
+        acknowledgment.recv_wnd = self.recv_wnd
+        acknowledgment.ack = self.last_acknowledged
+
+        self.out.put(acknowledgment)
