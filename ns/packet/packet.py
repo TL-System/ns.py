@@ -21,10 +21,10 @@ class Packet:
             the time when the packet is generated.
         size: float
             the size of the packet in bytes
-        id: int
+        packet_id: int
             an identifier for the packet
         src, dst: int
-            identifiers for source and destination
+            identifiers for the source and destination
         flow_id: int
             small integer that can be used to identify a flow
     """
@@ -34,19 +34,21 @@ class Packet:
                  packet_id,
                  src="source",
                  dst="destination",
-                 flow_id=0,
-                 current_time=0,
-                 prio=0):
+                 flow_id=0):
         self.time = time
         self.size = size
         self.packet_id = packet_id
         self.src = src
         self.dst = dst
         self.flow_id = flow_id
-        self.current_time = current_time
-        self.prio = prio
-        self.color = None
-        self.perhop_time = {}
+
+        self.color = None  # Used by the two-rate tri-color token bucket shaper
+        self.prio = 0  # used by the Static Priority scheduler
+        self.current_time = 0  # used by the Wire element
+        self.seq = 0  # used by TCPPacketGenerator
+        self.recv_wnd = 0  # used by TCPPacketGenerator
+        self.ack = 0  # used by TCPPacketGenerator
+        self.perhop_time = {}  # used by Port to record per-hop arrival times
 
     def __repr__(self):
         return f"id: {self.packet_id}, src: {self.src}, time: {self.time}, size: {self.size}"

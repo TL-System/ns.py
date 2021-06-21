@@ -11,12 +11,13 @@ class Splitter:
         self.out1 = None
         self.out2 = None
 
-    def put(self, pkt):
+    def put(self, packet):
+        """ Sends a packet to this element. """
         if self.out1:
-            self.out1.put(pkt)
+            self.out1.put(packet)
 
         if self.out2:
-            self.out2.put(copy.copy(pkt))
+            self.out2.put(copy.copy(packet))
 
 
 class NWaySplitter:
@@ -31,10 +32,10 @@ class NWaySplitter:
         else:
             raise TypeError("N should be an integer larger than 1.")
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
-        self.outs[0].put(pkt)
+    def put(self, packet):
+        """ Sends a packet to this element. """
+        self.outs[0].put(packet)
 
         for i in range(self.N - 1):
-            pkt_copy = copy.copy(pkt)
-            self.outs[i + 1].put(pkt_copy)
+            packet_copy = copy.copy(packet)
+            self.outs[i + 1].put(packet_copy)

@@ -87,8 +87,8 @@ class REDPort(Port):
         self.weight_factor = weight_factor
         self.average_queue_size = 0
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         self.packets_received += 1
 
         if self.limit_bytes:
@@ -116,10 +116,10 @@ class REDPort(Port):
                         f"packet dropped with probability {self.max_probability}"
                     )
             else:
-                self.byte_size += pkt.size
+                self.byte_size += packet.size
                 if self.zero_downstream_buffer:
-                    self.downstream_store.put(pkt)
-                return self.store.put(pkt)
+                    self.downstream_store.put(packet)
+                return self.store.put(packet)
         elif self.average_queue_size >= self.min_threshold:
             prob = (self.average_queue_size - self.min_threshold) / (
                 self.max_threshold - self.min_threshold) * self.max_probability
@@ -132,14 +132,14 @@ class REDPort(Port):
                         f"exceeds the minimum threshold {self.min_threshold}, "
                         f"packet dropped with probability {prob}.")
             else:
-                self.byte_size += pkt.size
+                self.byte_size += packet.size
                 if self.zero_downstream_buffer:
-                    self.downstream_store.put(pkt)
-                return self.store.put(pkt)
+                    self.downstream_store.put(packet)
+                return self.store.put(packet)
         else:
-            self.byte_size += pkt.size
+            self.byte_size += packet.size
 
             if self.zero_downstream_buffer:
-                self.downstream_store.put(pkt)
+                self.downstream_store.put(packet)
 
-            return self.store.put(pkt)
+            return self.store.put(packet)

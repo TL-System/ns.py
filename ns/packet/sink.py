@@ -63,23 +63,23 @@ class PacketSink:
         self.ack_out = None
         self.debug = debug
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         now = self.env.now
 
         if self.debug:
-            print(f"At time {now}, packet ({pkt}) arrived.")
+            print(f"At time {now}, packet ({packet}) arrived.")
 
         if self.rec_flow_ids:
-            rec_index = pkt.flow_id
+            rec_index = packet.flow_id
         else:
-            rec_index = pkt.src
+            rec_index = packet.src
 
         if self.rec_waits:
-            self.waits[rec_index].append(self.env.now - pkt.time)
-            self.packet_sizes[rec_index].append(pkt.size)
-            self.packet_times[rec_index].append(pkt.time)
-            self.perhop_times[rec_index].append(pkt.perhop_time)
+            self.waits[rec_index].append(self.env.now - packet.time)
+            self.packet_sizes[rec_index].append(packet.size)
+            self.packet_times[rec_index].append(packet.time)
+            self.perhop_times[rec_index].append(packet.perhop_time)
 
         if self.rec_arrivals:
             self.arrivals[rec_index].append(now)
@@ -93,10 +93,10 @@ class PacketSink:
             self.last_arrival[rec_index] = now
 
         self.packets_received[rec_index] += 1
-        self.bytes_received[rec_index] += pkt.size
+        self.bytes_received[rec_index] += packet.size
 
         if self.ack_out:
-            pkt.size = 32  # default size of the ack packet
-            pkt.flow_id += 10000  # default flow_id of the ack flow
+            packet.size = 32  # default size of the ack packet
+            packet.flow_id += 10000  # default flow_id of the ack flow
 
-            self.ack_out.put(pkt)
+            self.ack_out.put(packet)

@@ -38,8 +38,8 @@ class TrTCM:
         self.committed_bucket = cbs
         self.last_time = 0.0  # Last time we updated buckets
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         time_inc = self.env.now - self.last_time
         self.last_time = self.env.now
         # Add bytes to the buckets
@@ -50,14 +50,14 @@ class TrTCM:
         if self.committed_bucket > self.cbs:
             self.committed_bucket = self.cbs
 
-        if self.peak_bucket - pkt.size < 0:
-            pkt.color = 'red'
-        elif self.committed_bucket - pkt.size < 0:
-            pkt.color = 'yellow'
-            self.peak_bucket -= pkt.size
+        if self.peak_bucket - packet.size < 0:
+            packet.color = 'red'
+        elif self.committed_bucket - packet.size < 0:
+            packet.color = 'yellow'
+            self.peak_bucket -= packet.size
         else:
-            pkt.color = 'green'
-            self.peak_bucket -= pkt.size
-            self.committed_bucket -= pkt.size
+            packet.color = 'green'
+            self.peak_bucket -= packet.size
+            self.committed_bucket -= packet.size
 
-        self.out.put(pkt)
+        self.out.put(packet)

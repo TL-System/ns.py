@@ -24,7 +24,7 @@ class RandomBrancher:
         self.outs = [None for __ in range(self.n_ports)]
         self.packets_received = 0
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         self.packets_received += 1
-        choices(self.outs, weights=self.probs)[0].put(pkt)
+        choices(self.outs, weights=self.probs)[0].put(packet)

@@ -15,9 +15,9 @@ class SimplePacketSwitch:
                      limit_bytes=False))
         self.demux = FIBDemux(fib=None, outs=self.ports, default=None)
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
-        self.demux.put(pkt)
+    def put(self, packet):
+        """ Sends a packet to this element. """
+        self.demux.put(packet)
 
 
 class WFQPacketSwitch:
@@ -42,6 +42,6 @@ class WFQPacketSwitch:
             self.ports.append(wfqs.out)
         self.demux = FIBDemux(fib=None, outs=self.egress_ports, default=None)
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
-        self.demux.put(pkt)
+    def put(self, packet):
+        """ Sends a packet to this element. """
+        self.demux.put(packet)

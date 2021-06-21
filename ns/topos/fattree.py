@@ -27,12 +27,12 @@ def build(k):
 
     Parameters
     ----------
-    k : int
+    k: int
         The number of ports of the switches
 
     Returns
     -------
-    topology : netowrkx graph
+    topology: a networkx graph
 
     References
     ----------
@@ -71,11 +71,13 @@ def build(k):
         topo.add_nodes_from(edge_nodes, layer='edge', type='switch', pod=pod)
         topo.add_edges_from([(u, v) for u in aggr_nodes for v in edge_nodes],
                             type='aggregation_edge')
+
     # Connect core switches to aggregation switches
     for core_node in range(n_core):
         for pod in range(k):
             aggr_node = n_core + (core_node // (k // 2)) + (k * pod)
             topo.add_edge(core_node, aggr_node, type='core_aggregation')
+
     # Create hosts and connect them to edge switches
     for u in [v for v in topo.nodes() if topo.nodes[v]['layer'] == 'edge']:
         leaf_nodes = range(topo.number_of_nodes(),
@@ -85,4 +87,5 @@ def build(k):
                             type='host',
                             pod=topo.nodes[u]['pod'])
         topo.add_edges_from([(u, v) for v in leaf_nodes], type='edge_leaf')
+
     return topo

@@ -95,36 +95,38 @@ class Port:
             self.busy = 0
             self.busy_packet_size = 0
 
-    def put(self, pkt):
-        """ Sends the packet 'pkt' to this element. """
+    def put(self, packet):
+        """ Sends a packet to this element. """
         self.qlen_numbers.append(len(self.store.items))
         self.qlen_bytes.append(self.byte_size)
 
         self.packets_received += 1
-        byte_count = self.byte_size + pkt.size
+        byte_count = self.byte_size + packet.size
 
         if self.element_id is not None:
-            pkt.perhop_time[self.element_id] = self.env.now
+            packet.perhop_time[self.element_id] = self.env.now
 
         if self.qlimit is None:
             self.byte_size = byte_count
             if self.zero_downstream_buffer:
-                self.downstream_store.put(pkt)
-            return self.store.put(pkt)
+                self.downstream_store.put(packet)
+            return self.store.put(packet)
 
         if self.limit_bytes and byte_count >= self.qlimit:
             self.packets_dropped += 1
-            self.packets_dropped_index.append((pkt.flow_id, pkt.packet_id))
+            self.packets_dropped_index.append(
+                (packet.flow_id, packet.packet_id))
             if self.debug:
                 print(
-                    f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.packet_id}"
+                    f"Packet dropped. Flow ID {packet.flow_id}, ID {packet.packet_id}"
                 )
         elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
             self.packets_dropped += 1
-            self.packets_dropped_index.append((pkt.flow_id, pkt.packet_id))
+            self.packets_dropped_index.append(
+                (packet.flow_id, packet.packet_id))
             if self.debug:
                 print(
-                    f"Packet dropped. Flow ID {pkt.flow_id}, ID {pkt.packet_id}"
+                    f"Packet dropped. Flow ID {packet.flow_id}, ID {packet.packet_id}"
                 )
         else:
             # If the packet has not been dropped, keep its queue length
@@ -134,6 +136,6 @@ class Port:
             self.byte_size = byte_count
 
             if self.zero_downstream_buffer:
-                self.downstream_store.put(pkt)
+                self.downstream_store.put(packet)
 
-            return self.store.put(pkt)
+            return self.store.put(packet)

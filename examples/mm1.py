@@ -27,15 +27,15 @@ from ns.packet.sink import PacketSink
 from ns.port.monitor import PortMonitor
 from ns.port.port import Port
 
-adist = partial(random.expovariate, 0.5)
-sdist = partial(random.expovariate, 0.01)  # a mean size of 100 bytes
+arrival_dist = partial(random.expovariate, 0.5)
+size_dist = partial(random.expovariate, 0.01)  # a mean size of 100 bytes
 samp_dist = partial(random.expovariate, 1.0)
 port_rate = 1000.0
 
 env = simpy.Environment()
 
 ps = PacketSink(env, debug=False, rec_arrivals=True)
-pg = DistPacketGenerator(env, "pg", adist, sdist, flow_id=0)
+pg = DistPacketGenerator(env, "pg", arrival_dist, size_dist, flow_id=0)
 port = Port(env, port_rate, qlimit=10000)
 
 # Using a PortMonitor to track queue sizes over time
