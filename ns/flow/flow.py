@@ -1,25 +1,23 @@
-class Flow:
-    def __init__(self,
-                 fid,
-                 src,
-                 dst,
-                 size=None,
-                 start_time=None,
-                 finish_time=None,
-                 arrival_dist=None,
-                 pkt_gen=None,
-                 pkt_sink=None) -> None:
-        self.fid = fid
-        self.src = src
-        self.dst = dst
-        self.size = size
-        self.start_time = start_time
-        self.finish_time = finish_time
-        self.arrival_dist = arrival_dist
-        self.pkt_gen = pkt_gen
-        self.pkt_sink = pkt_sink
+""" A dataclass for keeping track of all the properties of a network flow. """
 
-        self.path = None
+from dataclasses import dataclass
+from collections.abc import Callable
+
+
+@dataclass
+class Flow:
+    """ A dataclass for keeping track of all the properties of a network flow. """
+    fid: int  # flow id
+    src: str  # source element
+    dst: str  # destination element
+    size: int = None  # flow size in bytes
+    start_time: float = None
+    finish_time: float = None
+    arrival_dist: Callable = None
+    size_dist: Callable = None
+    pkt_gen: object = None
+    pkt_sink: object = None
+    path: list = None
 
     def __repr__(self) -> str:
         return f"Flow {self.fid} on {self.path}"
