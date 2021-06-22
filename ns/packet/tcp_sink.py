@@ -60,7 +60,7 @@ class TCPSink(PacketSink):
         assert self.out is not None
 
         acknowledgment = Packet(
-            self.env.now,
+            packet.time,  # used for calculating RTT at the sender
             size=40,  # default size of the ack packet
             packet_id=self.next_seq_expected,
             flow_id=packet.flow_id + 10000)
