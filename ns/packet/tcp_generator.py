@@ -43,10 +43,8 @@ class TCPPacketGenerator:
         self.cwnd = self.mss
         # the slow-start threshold, initialized to 65535 bytes (RFC 2001)
         self.ssthresh = 65535
-        # the sequence number of the packet that is last acknowledged
+        # the sequence number of the segment that is last acknowledged
         self.last_ack = 0
-        # the timers, one for each segment sent
-        self.timers = {}
         # the count of duplicate acknolwedgments
         self.dupack = 0
         # the RTT estimate
@@ -56,7 +54,11 @@ class TCPPacketGenerator:
         # an estimate of the RTT deviation
         self.est_deviation = 0
 
+        # the timers, one for each in-flight packets (segments) sent
+        self.timers = {}
+        # the time when each in-flight packets (segments) was sent
         self.sent_times = {}
+        # the in-flight packets (segments)
         self.sent_packets = {}
 
         self.action = env.process(self.run())
@@ -96,7 +98,10 @@ class TCPPacketGenerator:
                 self.out.put(packet)
 
                 self.next_seq += packet.size
-                self.timers[packet.packet_id].restart(self.rto)
+                self.timers[packet.packet_id] = Timer(self.env,
+                                                      packet.packet_id,
+                                                      self.timeout_callback,
+                                                      self.rto)
 
     def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
@@ -118,8 +123,7 @@ class TCPPacketGenerator:
         self.out.put(resent_pkt)
 
         # starting a new timer for this segment
-        self.timers[packet_id] = Timer(self.env, packet_id, self.timer_expired,
-                                       self.rto)
+        self.timers[packet_id].restart(self.rto)
 
     def put(self, packet):
         """ On receiving an acknowledgment packet. """
@@ -139,9 +143,8 @@ class TCPPacketGenerator:
 
             resent_pkt = self.sent_packets[packet.packet_id]
             if self.debug:
-                print(
-                    f"Resending packet {resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at "
-                    f"time {self.env.now}.")
+                print(f"Resending packet {resent_pkt.packet_id} with flow_id "
+                      f"{resent_pkt.flow_id} at time {self.env.now}.")
 
             self.out.put(resent_pkt)
 
@@ -154,8 +157,8 @@ class TCPPacketGenerator:
                 resent_pkt = self.sent_packets[packet.packet_id]
                 if self.debug:
                     print(
-                        f"Resending packet {resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at "
-                        f"time {self.env.now}.")
+                        f"Resending packet {resent_pkt.packet_id} with flow_id "
+                        f"{resent_pkt.flow_id} at time {self.env.now}.")
 
                 self.out.put(resent_pkt)
 
@@ -170,6 +173,8 @@ class TCPPacketGenerator:
             self.rtt_estimate += 0.125 * sample_err
             self.est_deviation += 0.25 * (abs(sample_err) - self.est_deviation)
             self.rto = self.rtt_estimate + 4 * self.est_deviation
+
+            self.last_ack = packet.packet_id
 
             if self.cwnd <= self.ssthresh:
                 # slow start

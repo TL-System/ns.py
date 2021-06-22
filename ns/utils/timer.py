@@ -12,7 +12,10 @@ class Timer:
         ----------
         env: simpy.Environment
             The simulation environment.
-        timer_expired:
+        timer_id: int
+            The id of this timer, used as a parameter when the timeout
+            callback function is called.
+        timeout_callback:
             The callback function that runs when the timer expires.
         timeout: float
             The timeout value.
@@ -27,17 +30,19 @@ class Timer:
         self.action = env.process(self.run())
 
     def run(self):
-        """The generator function used in simulations."""
+        """ The generator function used in simulations. """
         while self.env.now < self.timer_expiry:
-            yield self.env.timeout(self.timer_expiry - self.timer_started)
+            yield self.env.timeout(self.timer_expiry - self.env.now)
 
         if not self.stopped:
             self.timeout_callback(self.timer_id)
 
     def stop(self):
+        """ Stopping the timer. """
         self.stopped = True
         self.timer_expiry = self.env.now
-    
+
     def restart(self, timeout):
+        """ Restarting the timer with a new timeout value. """
         self.timer_started = self.env.now
         self.timer_expiry = self.timer_started + timeout
