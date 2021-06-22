@@ -96,12 +96,9 @@ class TCPPacketGenerator:
                 self.out.put(packet)
 
                 self.next_seq += packet.size
-                self.timers[packet.packet_id] = Timer(self.env,
-                                                      packet.packet_id,
-                                                      self.timer_expired,
-                                                      self.rto)
+                self.timers[packet.packet_id].restart(self.rto)
 
-    def timer_expired(self, packet_id):
+    def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
         print(f"Timer expired for packet #{packet_id}.")
 
@@ -180,3 +177,8 @@ class TCPPacketGenerator:
             else:
                 # congestion avoidance
                 self.cwnd += self.mss * self.mss / self.cwnd
+
+            self.timers[packet.packet_id].stop()
+            del self.timers[packet.packet_id]
+            del self.sent_times[packet.packet_id]
+            del self.sent_packets[packet.packet_id]
