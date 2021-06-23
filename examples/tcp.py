@@ -22,7 +22,7 @@ def delay_dist():
 
 def packet_size():
     """ The packets have a constant size of 100 bytes. """
-    return 100
+    return 20480
 
 
 env = simpy.Environment()
@@ -32,7 +32,7 @@ flow = Flow(fid=0,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
-sender = TCPPacketGenerator(env, flow=flow, rtt_estimate=0.4, debug=True)
+sender = TCPPacketGenerator(env, flow=flow, rtt_estimate=0.8, debug=True)
 
 wire1_downstream = Wire(env, delay_dist)
 wire1_upstream = Wire(env, delay_dist)
@@ -62,9 +62,3 @@ switch.demux.outs[1].out = wire1_upstream
 wire1_upstream.out = sender
 
 env.run(until=100)
-
-print("Flow 1 arrival delays at the receiver: " +
-      ", ".join(["{:.2f}".format(x) for x in receiver.waits['flow_1']]))
-
-print("Flow 1 arrival times at the receiver: " +
-      ", ".join(["{:.2f}".format(x) for x in receiver.arrivals['flow_1']]))

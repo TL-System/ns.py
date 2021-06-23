@@ -2,6 +2,8 @@
 Implements a packet generator that simulates the TCP protocol, including support for
 various congestion control mechanisms.
 """
+import simpy
+
 from ns.packet.packet import Packet
 from ns.utils.timer import Timer
 
@@ -29,10 +31,10 @@ class TCPPacketGenerator:
         self.element_id = element_id
         self.env = env
         self.out = None
-        self.packets_sent = 0
         self.flow = flow
 
         self.mss = 512  # maximum segment size, in bytes
+        self.last_arrival = 0  # the time when data last arrived from the flow
 
         # the next sequence number to be sent, in bytes
         self.next_seq = 0
@@ -52,6 +54,8 @@ class TCPPacketGenerator:
         self.rto = self.rtt_estimate * 2
         # an estimate of the RTT deviation
         self.est_deviation = 0
+        # whether or not space in the congestion window is available
+        self.cwnd_available = simpy.Store(env)
 
         # the timers, one for each in-flight packets (segments) sent
         self.timers = {}
@@ -67,22 +71,28 @@ class TCPPacketGenerator:
             yield self.env.timeout(self.flow.start_time)
 
         while self.env.now < self.flow.finish_time:
-            if self.flow.size and self.next_seq <= self.flow.size:
+            if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
 
-            # wait for the next data arrival
-            if self.flow.arrival_dist is not None:
-                yield self.env.timeout(self.flow.arrival_dist())
+            if self.next_seq >= self.send_buffer and self.flow.arrival_dist is not None:
+                # wait for the next data arrival
+                yield self.env.timeout(self.flow.arrival_dist() -
+                                       self.last_arrival)
+                self.last_arrival = self.env.now
+
+            packet_size = 0
             if self.flow.size_dist is not None:
-                self.send_buffer += self.flow.size_dist()
+                packet_size = self.flow.size_dist()
             else:
-                self.send_buffer += self.mss
+                if self.flow.size is not None:
+                    packet_size = min(self.mss, self.flow.size - self.next_seq)
+                else:
+                    packet_size = self.mss
+            self.send_buffer += packet_size
 
             # the sender can transmit up to the size of the congestion window
             if self.next_seq + self.mss <= min(self.send_buffer,
                                                self.last_ack + self.cwnd):
-                self.packets_sent += 1
-
                 packet = Packet(self.env.now,
                                 self.mss,
                                 self.next_seq,
@@ -93,8 +103,8 @@ class TCPPacketGenerator:
 
                 if self.debug:
                     print(
-                        f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                        f"time {self.env.now}.")
+                        f"Sent packet {packet.packet_id} with size {packet.size}, "
+                        f"flow_id {packet.flow_id} at time {self.env.now}.")
 
                 self.out.put(packet)
 
@@ -102,6 +112,10 @@ class TCPPacketGenerator:
                 self.timers[packet.packet_id + packet.size] = Timer(
                     self.env, packet.packet_id + packet.size,
                     self.timeout_callback, self.rto)
+            else:
+                # No further space in the congestion window to transmit packets
+                # at this time, waiting for acknowledgements
+                yield self.cwnd_available.get()
 
     def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
@@ -131,8 +145,9 @@ class TCPPacketGenerator:
             self.dupack += 1
         else:
             # fast recovery in RFC 2001 and TCP Reno
-            self.cwnd = self.ssthresh
-            self.dupack = 0
+            if self.dupack > 0:
+                self.cwnd = self.ssthresh
+                self.dupack = 0
 
         if self.dupack == 3:
             # fast retransmit in RFC 2001 and TCP Reno
@@ -184,11 +199,17 @@ class TCPPacketGenerator:
                 self.cwnd += self.mss * self.mss / self.cwnd
 
             if self.debug:
-                print(f"Ack received till sequence number {ack.packet_id}")
                 print(
-                    f"Congestion window size = {self.cwnd}, last ack = {self.last_ack}"
+                    f"Ack received till sequence number {ack.packet_id} at time {self.env.now}."
+                )
+                print(
+                    f"Congestion window size = {self.cwnd}, last ack = {self.last_ack}."
                 )
 
-            self.timers[ack.packet_id].stop()
-            del self.timers[ack.packet_id]
-            del self.sent_packets[ack.packet_id]
+            if ack.packet_id in self.timers:
+                self.timers[ack.packet_id].stop()
+                del self.timers[ack.packet_id]
+            if ack.packet_id in self.sent_packets:
+                del self.sent_packets[ack.packet_id]
+
+            self.cwnd_available.put(True)
