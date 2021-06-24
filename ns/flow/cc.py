@@ -16,7 +16,7 @@ class CongestionControl:
             the maximum segment size
         cwnd: int
             the size of the congestion window.
-        ssshresh: int
+        ssthresh: int
             the slow start threshold.
         debug: bool
             If True, prints more verbose debug information.
@@ -27,7 +27,7 @@ class CongestionControl:
                  ssthresh: int = 65535,
                  debug: bool = False):
         self.mss = mss
-        self.cwnd = cwnd
+        self.cwnd: float = cwnd
         self.ssthresh = ssthresh
         self.debug = debug
 

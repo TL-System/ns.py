@@ -8,12 +8,12 @@ from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
 from ns.flow.flow import Flow
-from ns.flow.cubic import TCPCubic
+from ns.flow.cc import TCPReno
 
 
 def packet_arrival():
-    """ Packets arrive with a constant interval of 2 seconds. """
-    return 2.0
+    """ Packets arrive with a constant interval of 0.1 seconds. """
+    return 0.05
 
 
 def delay_dist():
@@ -22,21 +22,22 @@ def delay_dist():
 
 
 def packet_size():
-    """ The packets have a constant size of 100 bytes. """
-    return 20480
+    """ The packets have a constant size of 1024 bytes. """
+    return 1024
 
 
 env = simpy.Environment()
 
 flow = Flow(fid=0,
-            finish_time=30,
+            src='flow 1',
+            finish_time=300,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
 sender = TCPPacketGenerator(env,
                             flow=flow,
-                            cc=TCPCubic(),
-                            rtt_estimate=0.8,
+                            cc=TCPReno(),
+                            rtt_estimate=0.5,
                             debug=True)
 
 wire1_downstream = Wire(env, delay_dist)
@@ -47,11 +48,11 @@ wire2_upstream = Wire(env, delay_dist)
 switch = SimplePacketSwitch(
     env,
     nports=2,
-    port_rate=8192,  # in bits/second
-    buffer_size=1024,  # in bytes
+    port_rate=81920,  # in bits/second
+    buffer_size=4096,  # in bytes
 )
 
-receiver = TCPSink(env, rec_flow_ids=False)
+receiver = TCPSink(env, rec_waits=True, debug=True)
 
 sender.out = wire1_downstream
 wire1_downstream.out = switch

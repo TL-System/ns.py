@@ -98,15 +98,16 @@ class TCPPacketGenerator:
                 packet = Packet(self.env.now,
                                 self.mss,
                                 self.next_seq,
-                                src=self.element_id,
+                                src=self.flow.src,
                                 flow_id=self.flow.fid)
 
                 self.sent_packets[packet.packet_id + packet.size] = packet
 
                 if self.debug:
-                    print(
-                        f"Sent packet {packet.packet_id + packet.size} with size {packet.size}, "
-                        f"flow_id {packet.flow_id} at time {self.env.now}.")
+                    print("Sent packet {:d} with size {:d}, "
+                          "flow_id {:d} at time {:.4f}.".format(
+                              packet.packet_id + packet.size, packet.size,
+                              packet.flow_id, self.env.now))
 
                 self.out.put(packet)
 
@@ -118,9 +119,8 @@ class TCPPacketGenerator:
                     timeout=self.rto)
 
                 if self.debug:
-                    print(
-                        f"Setting a timer for packet {packet.packet_id} with an RTO"
-                        f" of {self.rto}.")
+                    print("Setting a timer for packet {:d} with an RTO"
+                          " of {:.4f}.".format(packet.packet_id, self.rto))
             else:
                 # No further space in the congestion window to transmit packets
                 # at this time, waiting for acknowledgements
@@ -205,10 +205,11 @@ class TCPPacketGenerator:
             self.congestion_control.ack_received(sample_rtt, self.env.now)
 
             if self.debug:
+                print("Ack received till sequence number {:d} at time {:.4f}.".
+                      format(ack.packet_id, self.env.now))
                 print(
-                    f"Ack received till sequence number {ack.packet_id} at time {self.env.now}.\n"
-                    f"Congestion window size = {self.congestion_control.cwnd}, last ack = {self.last_ack}."
-                )
+                    "Congestion window size = {:.1f}, last ack = {:d}.".format(
+                        self.congestion_control.cwnd, self.last_ack))
 
             if ack.packet_id in self.timers:
                 self.timers[ack.packet_id].stop()

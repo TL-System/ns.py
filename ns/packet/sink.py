@@ -66,13 +66,21 @@ class PacketSink:
         """ Sends a packet to this element. """
         now = self.env.now
 
-        if self.debug:
-            print(f"At time {now}, packet ({packet}) arrived.")
-
         if self.rec_flow_ids:
             rec_index = packet.flow_id
         else:
             rec_index = packet.src
+
+        if self.debug:
+            print("At time {:.4f}, packet with id {:d} arrived.".format(
+                now, packet.packet_id))
+            if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
+                bytes_received = sum(self.packet_sizes[rec_index][-10:])
+                time_elapsed = self.packet_times[rec_index][
+                    -1] - self.packet_times[rec_index][-10]
+                print(
+                    "Average throughput (last 10 packets): {:.2f} bytes/second."
+                    .format(bytes_received / time_elapsed))
 
         if self.rec_waits:
             self.waits[rec_index].append(self.env.now - packet.time)

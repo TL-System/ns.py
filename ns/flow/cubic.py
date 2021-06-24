@@ -19,7 +19,7 @@ class TCPCubic(CongestionControl):
             the maximum segment size
         cwnd: int
             the size of the congestion window.
-        ssshresh: int
+        ssthresh: int
             the slow start threshold.
         debug: bool
             If True, prints more verbose debug information.
