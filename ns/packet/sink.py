@@ -71,17 +71,6 @@ class PacketSink:
         else:
             rec_index = packet.src
 
-        if self.debug:
-            print("At time {:.4f}, packet with id {:d} arrived.".format(
-                now, packet.packet_id))
-            if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
-                bytes_received = sum(self.packet_sizes[rec_index][-10:])
-                time_elapsed = self.packet_times[rec_index][
-                    -1] - self.packet_times[rec_index][-10]
-                print(
-                    "Average throughput (last 10 packets): {:.2f} bytes/second."
-                    .format(bytes_received / time_elapsed))
-
         if self.rec_waits:
             self.waits[rec_index].append(self.env.now - packet.time)
             self.packet_sizes[rec_index].append(packet.size)
@@ -98,6 +87,18 @@ class PacketSink:
                     -1] = now - self.last_arrival[rec_index]
 
             self.last_arrival[rec_index] = now
+
+        if self.debug:
+            print("At time {:.4f}, packet with id {:d} arrived.".format(
+                now, packet.packet_id))
+            if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
+                bytes_received = sum(self.packet_sizes[rec_index][-9:])
+                time_elapsed = self.env.now - (
+                    self.packet_times[rec_index][-10] +
+                    self.waits[rec_index][-10])
+                print(
+                    "Average throughput (last 10 packets): {:.2f} bytes/second."
+                    .format(bytes_received / time_elapsed))
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size

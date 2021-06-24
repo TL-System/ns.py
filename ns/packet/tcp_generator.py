@@ -42,10 +42,6 @@ class TCPPacketGenerator:
         self.next_seq = 0
         # the maximum sequence number in the in-transit data buffer
         self.send_buffer = 0
-        # the size of the congestion window, initialized to one segment
-        self.cwnd = self.mss
-        # the slow-start threshold, initialized to 65535 bytes (RFC 2001)
-        self.ssthresh = 65535
         # the sequence number of the segment that is last acknowledged
         self.last_ack = 0
         # the count of duplicate acknolwedgments
@@ -76,25 +72,31 @@ class TCPPacketGenerator:
             if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
 
-            if self.next_seq >= self.send_buffer and self.flow.arrival_dist is not None:
-                # wait for the next data arrival
-                yield self.env.timeout(self.flow.arrival_dist() -
-                                       self.last_arrival)
-                self.last_arrival = self.env.now
+            while self.next_seq >= self.send_buffer:
+                # retrieving more packets from the (application-layer) flow
+                if self.flow.arrival_dist is not None:
+                    # if the flow has an arrival distribution, wait for the next arrival
+                    wait_time = self.flow.arrival_dist() - (self.env.now -
+                                                            self.last_arrival)
+                    if wait_time > 0:
+                        yield self.env.timeout(wait_time)
+                    self.last_arrival = self.env.now
 
-            packet_size = 0
-            if self.flow.size_dist is not None:
-                packet_size = self.flow.size_dist()
-            else:
-                if self.flow.size is not None:
-                    packet_size = min(self.mss, self.flow.size - self.next_seq)
+                packet_size = 0
+                if self.flow.size_dist is not None:
+                    packet_size = self.flow.size_dist()
                 else:
-                    packet_size = self.mss
-            self.send_buffer += packet_size
+                    if self.flow.size is not None:
+                        packet_size = min(self.mss,
+                                          self.flow.size - self.next_seq)
+                    else:
+                        packet_size = self.mss
+                self.send_buffer += packet_size
 
             # the sender can transmit up to the size of the congestion window
-            if self.next_seq + self.mss <= min(self.send_buffer,
-                                               self.last_ack + self.cwnd):
+            if self.next_seq + self.mss <= min(
+                    self.send_buffer,
+                    self.last_ack + self.congestion_control.cwnd):
                 packet = Packet(self.env.now,
                                 self.mss,
                                 self.next_seq,
@@ -177,7 +179,7 @@ class TCPPacketGenerator:
         elif self.dupack > 3:
             self.congestion_control.more_dupacks_received()
 
-            if self.last_ack + self.cwnd >= ack.packet_id:
+            if self.last_ack + self.congestion_control.cwnd >= ack.packet_id:
                 resent_pkt = self.sent_packets[ack.packet_id]
                 resent_pkt.time = self.env.now
 
