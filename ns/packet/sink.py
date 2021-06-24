@@ -60,7 +60,6 @@ class PacketSink:
         self.first_arrival = dd(lambda: 0)
         self.last_arrival = dd(lambda: 0)
 
-        self.ack_out = None
         self.debug = debug
 
     def put(self, packet):
@@ -94,9 +93,3 @@ class PacketSink:
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size
-
-        if self.ack_out:
-            packet.size = 32  # default size of the ack packet
-            packet.flow_id += 10000  # default flow_id of the ack flow
-
-            self.ack_out.put(packet)

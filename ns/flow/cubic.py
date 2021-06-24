@@ -20,7 +20,7 @@ class TCPCubic(CongestionControl):
         cwnd: int
             the size of the congestion window.
         ssshresh: int
-            the slow start shreshold
+            the slow start threshold.
         debug: bool
             If True, prints more verbose debug information.
     """
