@@ -8,7 +8,7 @@ from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
 from ns.flow.flow import Flow
-from ns.flow.cc import TCPReno
+from ns.flow.cubic import TCPCubic
 
 
 def packet_arrival():
@@ -35,7 +35,7 @@ flow = Flow(fid=0,
 
 sender = TCPPacketGenerator(env,
                             flow=flow,
-                            cc=TCPReno(),
+                            cc=TCPCubic(),
                             rtt_estimate=0.8,
                             debug=True)
 

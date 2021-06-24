@@ -35,7 +35,7 @@ class CongestionControl:
         return f"cwnd: {self.cwnd}, ssthresh: {self.ssthresh}"
 
     @abstractmethod
-    def ack_received(self):
+    def ack_received(self, rtt: float = 0, current_time: float = 0):
         """ Actions to be taken when a new ack has been received. """
 
     def timer_expired(self):
@@ -62,7 +62,7 @@ class CongestionControl:
 
 class TCPReno(CongestionControl):
     """ TCP Reno, defined in RFC 2001. """
-    def ack_received(self):
+    def ack_received(self, rtt: float = 0, current_time: float = 0):
         """ Actions to be taken when a new ack has been received. """
         if self.cwnd <= self.ssthresh:
             # slow start

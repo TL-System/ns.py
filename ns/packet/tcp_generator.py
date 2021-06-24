@@ -202,7 +202,7 @@ class TCPPacketGenerator:
             self.rto = self.rtt_estimate + 4 * self.est_deviation
 
             self.last_ack = ack.packet_id
-            self.congestion_control.ack_received()
+            self.congestion_control.ack_received(sample_rtt, self.env.now)
 
             if self.debug:
                 print(
