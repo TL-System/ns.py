@@ -25,6 +25,7 @@ class TCPPacketGenerator:
     def __init__(self,
                  env,
                  flow,
+                 cc,
                  element_id=None,
                  rtt_estimate=1,
                  debug=False):
@@ -32,6 +33,7 @@ class TCPPacketGenerator:
         self.env = env
         self.out = None
         self.flow = flow
+        self.congestion_control = cc
 
         self.mss = 512  # maximum segment size, in bytes
         self.last_arrival = 0  # the time when data last arrived from the flow
@@ -131,8 +133,7 @@ class TCPPacketGenerator:
                 f"Timer expired for packet {packet_id} at time {self.env.now}."
             )
 
-        # setting the congestion window to 1 segment
-        self.cwnd = self.mss
+        self.congestion_control.timer_expired()
 
         # retransmitting the segment
         resent_pkt = self.sent_packets[packet_id]
@@ -156,13 +157,11 @@ class TCPPacketGenerator:
         else:
             # fast recovery in RFC 2001 and TCP Reno
             if self.dupack > 0:
-                self.cwnd = self.ssthresh
+                self.congestion_control.dupack_over()
                 self.dupack = 0
 
         if self.dupack == 3:
-            # fast retransmit in RFC 2001 and TCP Reno
-            self.ssthresh = max(2 * self.mss, self.cwnd / 2)
-            self.cwnd = self.ssthresh + 3 * self.mss
+            self.congestion_control.consecutive_dupacks_received()
 
             resent_pkt = self.sent_packets[ack.packet_id]
             resent_pkt.time = self.env.now
@@ -176,8 +175,7 @@ class TCPPacketGenerator:
 
             return
         elif self.dupack > 3:
-            # fast retransmit in RFC 2001 and TCP Reno
-            self.cwnd += self.mss
+            self.congestion_control.more_dupacks_received()
 
             if self.last_ack + self.cwnd >= ack.packet_id:
                 resent_pkt = self.sent_packets[ack.packet_id]
@@ -204,18 +202,12 @@ class TCPPacketGenerator:
             self.rto = self.rtt_estimate + 4 * self.est_deviation
 
             self.last_ack = ack.packet_id
-
-            if self.cwnd <= self.ssthresh:
-                # slow start
-                self.cwnd += self.mss
-            else:
-                # congestion avoidance
-                self.cwnd += self.mss * self.mss / self.cwnd
+            self.congestion_control.ack_received()
 
             if self.debug:
                 print(
                     f"Ack received till sequence number {ack.packet_id} at time {self.env.now}.\n"
-                    f"Congestion window size = {self.cwnd}, last ack = {self.last_ack}."
+                    f"Congestion window size = {self.congestion_control.cwnd}, last ack = {self.last_ack}."
                 )
 
             if ack.packet_id in self.timers:
