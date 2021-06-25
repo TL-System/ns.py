@@ -48,7 +48,7 @@ class CongestionControl:
         # RFC 2001 and TCP Reno
         self.cwnd = self.ssthresh
 
-    def consecutive_dupack_received(self):
+    def consecutive_dupacks_received(self):
         """ Actions to be taken when three consecutive dupacks are received. """
         # fast retransmit in RFC 2001 and TCP Reno
         self.ssthresh = max(2 * self.mss, self.cwnd / 2)

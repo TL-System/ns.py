@@ -48,7 +48,7 @@ The network components that have already been implemented include:
 
 * `TrTCM`: a two rate three color marker that marks packets as green, yellow, or red (refer to RFC 2698 for more details).
 
-* `RandomBrancher`: a demultiplexing element that chooses the output port at random.
+* `RandomDemux`: a demultiplexing element that chooses the output port at random.
 
 * `FlowDemux`: a demultiplexing element that splits packet streams by flow ID.
 

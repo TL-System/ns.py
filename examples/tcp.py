@@ -1,6 +1,6 @@
 """
-A basic example that showcases how the receiver can send acknowledgment packets
-back to the sender in a simple network.
+A basic example that showcases how TCP can be used to generate packets, and how a TCP sink
+can send acknowledgment packets back to the sender in a simple two-hop network.
 """
 import simpy
 from ns.packet.tcp_generator import TCPPacketGenerator
@@ -8,12 +8,17 @@ from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
 from ns.flow.flow import Flow
-from ns.flow.cc import TCPReno
+from ns.flow.cubic import TCPCubic
 
 
 def packet_arrival():
     """ Packets arrive with a constant interval of 0.1 seconds. """
-    return 0.05
+    return 0.1
+
+
+def packet_size():
+    """ The packets have a constant size of 1024 bytes. """
+    return 512
 
 
 def delay_dist():
@@ -21,22 +26,17 @@ def delay_dist():
     return 0.1
 
 
-def packet_size():
-    """ The packets have a constant size of 1024 bytes. """
-    return 1024
-
-
 env = simpy.Environment()
 
 flow = Flow(fid=0,
             src='flow 1',
-            finish_time=300,
+            finish_time=10,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
 sender = TCPPacketGenerator(env,
                             flow=flow,
-                            cc=TCPReno(),
+                            cc=TCPCubic(),
                             rtt_estimate=0.5,
                             debug=True)
 
@@ -48,9 +48,9 @@ wire2_upstream = Wire(env, delay_dist)
 switch = SimplePacketSwitch(
     env,
     nports=2,
-    port_rate=81920,  # in bits/second
-    buffer_size=4096,  # in bytes
-)
+    port_rate=16384,  # in bits/second
+    buffer_size=5,  # in packets
+    debug=True)
 
 receiver = TCPSink(env, rec_waits=True, debug=True)
 

@@ -103,20 +103,20 @@ class TCPPacketGenerator:
                                 src=self.flow.src,
                                 flow_id=self.flow.fid)
 
-                self.sent_packets[packet.packet_id + packet.size] = packet
+                self.sent_packets[packet.packet_id] = packet
 
                 if self.debug:
                     print("Sent packet {:d} with size {:d}, "
                           "flow_id {:d} at time {:.4f}.".format(
-                              packet.packet_id + packet.size, packet.size,
-                              packet.flow_id, self.env.now))
+                              packet.packet_id, packet.size, packet.flow_id,
+                              self.env.now))
 
                 self.out.put(packet)
 
                 self.next_seq += packet.size
-                self.timers[packet.packet_id + packet.size] = Timer(
+                self.timers[packet.packet_id] = Timer(
                     self.env,
-                    timer_id=packet.packet_id + packet.size,
+                    timer_id=packet.packet_id,
                     timeout_callback=self.timeout_callback,
                     timeout=self.rto)
 
@@ -131,9 +131,8 @@ class TCPPacketGenerator:
     def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
         if self.debug:
-            print(
-                f"Timer expired for packet {packet_id} at time {self.env.now}."
-            )
+            print("Timer expired for packet {:d} at time {:.4f}.".format(
+                packet_id, self.env.now))
 
         self.congestion_control.timer_expired()
 
@@ -142,9 +141,9 @@ class TCPPacketGenerator:
         self.out.put(resent_pkt)
 
         if self.debug:
-            print(
-                f"Resending packet {resent_pkt.packet_id + resent_pkt.size}"
-                f" with flow_id {resent_pkt.flow_id} at time {self.env.now}.")
+            print("Resending packet {:d} with flow_id {:d} at time {:.4f}.".
+                  format(resent_pkt.packet_id, resent_pkt.flow_id,
+                         self.env.now))
 
         # starting a new timer for this segment and doubling the retransmission timeout
         self.rto *= 2
@@ -154,7 +153,7 @@ class TCPPacketGenerator:
         """ On receiving an acknowledgment packet. """
         assert ack.flow_id >= 10000  # the received packet must be an ack
 
-        if ack.packet_id == self.last_ack:
+        if ack.ack == self.last_ack:
             self.dupack += 1
         else:
             # fast recovery in RFC 2001 and TCP Reno
@@ -165,13 +164,13 @@ class TCPPacketGenerator:
         if self.dupack == 3:
             self.congestion_control.consecutive_dupacks_received()
 
-            resent_pkt = self.sent_packets[ack.packet_id]
+            resent_pkt = self.sent_packets[ack.ack]
             resent_pkt.time = self.env.now
             if self.debug:
                 print(
-                    f"Resending packet {resent_pkt.packet_id + resent_pkt.size}"
-                    f" with flow_id {resent_pkt.flow_id} at time {self.env.now}."
-                )
+                    "Resending packet {:d} with flow_id {:d} at time {:.4f}.".
+                    format(resent_pkt.packet_id, resent_pkt.flow_id,
+                           self.env.now))
 
             self.out.put(resent_pkt)
 
@@ -179,15 +178,15 @@ class TCPPacketGenerator:
         elif self.dupack > 3:
             self.congestion_control.more_dupacks_received()
 
-            if self.last_ack + self.congestion_control.cwnd >= ack.packet_id:
-                resent_pkt = self.sent_packets[ack.packet_id]
+            if self.last_ack + self.congestion_control.cwnd >= ack.ack:
+                resent_pkt = self.sent_packets[ack.ack]
                 resent_pkt.time = self.env.now
 
                 if self.debug:
                     print(
-                        f"Resending packet {resent_pkt.packet_id + resent_pkt.size}"
-                        f" with flow_id {resent_pkt.flow_id} at time {self.env.now}."
-                    )
+                        "Resending packet {:d} with flow_id {:d} at time {:.4f}."
+                        .format(resent_pkt.packet_id, resent_pkt.flow_id,
+                                self.env.now))
 
                 self.out.put(resent_pkt)
 
@@ -203,12 +202,12 @@ class TCPPacketGenerator:
             self.est_deviation += 0.25 * (abs(sample_err) - self.est_deviation)
             self.rto = self.rtt_estimate + 4 * self.est_deviation
 
-            self.last_ack = ack.packet_id
+            self.last_ack = ack.ack
             self.congestion_control.ack_received(sample_rtt, self.env.now)
 
             if self.debug:
                 print("Ack received till sequence number {:d} at time {:.4f}.".
-                      format(ack.packet_id, self.env.now))
+                      format(ack.ack, self.env.now))
                 print(
                     "Congestion window size = {:.1f}, last ack = {:d}.".format(
                         self.congestion_control.cwnd, self.last_ack))
@@ -216,7 +215,6 @@ class TCPPacketGenerator:
             if ack.packet_id in self.timers:
                 self.timers[ack.packet_id].stop()
                 del self.timers[ack.packet_id]
-            if ack.packet_id in self.sent_packets:
                 del self.sent_packets[ack.packet_id]
 
             self.cwnd_available.put(True)

@@ -4,7 +4,7 @@ A demultiplexing element that chooses the output port at random.
 from random import choices
 
 
-class RandomBrancher:
+class RandomDemux:
     """
     The constructor takes a list of output ports and a list of probabilities.
     Use the output ports to connect to other network elements.

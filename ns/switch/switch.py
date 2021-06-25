@@ -1,10 +1,34 @@
+""" 
+Implements a packet switch with FIFO or WFQ bounded buffers for outgoing ports.
+"""
+
 from ns.port.port import Port
 from ns.demux.fib_demux import FIBDemux
 from ns.scheduler.wfq import WFQServer
 
 
 class SimplePacketSwitch:
-    def __init__(self, env, nports, port_rate, buffer_size) -> None:
+    """ Implements a simple packet switch with FIFO bounded buffers for outgoing ports.
+
+        Parameters
+        ----------
+        env: simpy.Environment
+            the simulation environment
+        nports: int
+            the total number of ports on this switch.
+        port_rate: float
+            the bit rate of the port
+        buffer_size: int
+            the size of an outgoing port' buffer
+        debug: bool
+            If True, prints more verbose debug information.
+    """
+    def __init__(self,
+                 env,
+                 nports: int,
+                 port_rate: float,
+                 buffer_size: int,
+                 debug: bool = False) -> None:
         self.env = env
         self.ports = []
         for __ in range(nports):
@@ -12,7 +36,8 @@ class SimplePacketSwitch:
                 Port(env,
                      rate=port_rate,
                      qlimit=buffer_size,
-                     limit_bytes=False))
+                     limit_bytes=False,
+                     debug=debug))
         self.demux = FIBDemux(fib=None, outs=self.ports, default=None)
 
     def put(self, packet):
@@ -21,7 +46,23 @@ class SimplePacketSwitch:
 
 
 class WFQPacketSwitch:
-    def __init__(self, env, nports, port_rate, buffer, weights) -> None:
+    """ Implements a simple packet switch with WFQ bounded buffers for outgoing ports.
+
+        Parameters
+        ----------
+        env: simpy.Environment
+            the simulation environment
+        nports: int
+            the total number of ports on this switch.
+        port_rate: float
+            the bit rate of the port
+        buffer_size: int
+            the size of an outgoing port' buffer
+        debug: bool
+            If True, prints more verbose debug information.
+    """
+    def __init__(self, env, nports: int, port_rate: float, buffer: int,
+                 weights: list) -> None:
         self.env = env
         self.ports = []
         self.egress_ports = []

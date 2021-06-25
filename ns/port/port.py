@@ -49,12 +49,6 @@ class Port:
         self.byte_size = 0  # the current size of the queue in bytes
         self.element_id = element_id
 
-        self.qlen_numbers = []
-        self.qlen_bytes = []
-        self.qlen_numbers_rec = []
-        self.qlen_bytes_rec = []
-        self.packets_dropped_index = []
-
         self.zero_downstream_buffer = zero_downstream_buffer
         if self.zero_downstream_buffer:
             self.downstream_store = simpy.Store(env)
@@ -97,9 +91,6 @@ class Port:
 
     def put(self, packet):
         """ Sends a packet to this element. """
-        self.qlen_numbers.append(len(self.store.items))
-        self.qlen_bytes.append(self.byte_size)
-
         self.packets_received += 1
         byte_count = self.byte_size + packet.size
 
@@ -114,24 +105,21 @@ class Port:
 
         if self.limit_bytes and byte_count >= self.qlimit:
             self.packets_dropped += 1
-            self.packets_dropped_index.append(
-                (packet.flow_id, packet.packet_id))
             if self.debug:
                 print(
-                    f"Packet dropped. Flow ID {packet.flow_id}, ID {packet.packet_id}"
+                    f"Packet dropped: flow id = {packet.flow_id} and packet id = {packet.packet_id}"
                 )
         elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
             self.packets_dropped += 1
-            self.packets_dropped_index.append(
-                (packet.flow_id, packet.packet_id))
             if self.debug:
                 print(
-                    f"Packet dropped. Flow ID {packet.flow_id}, ID {packet.packet_id}"
+                    f"Packet dropped: flow id = {packet.flow_id}, packet id = {packet.packet_id}"
                 )
         else:
-            # If the packet has not been dropped, keep its queue length
-            self.qlen_numbers_rec.append(len(self.store.items))
-            self.qlen_bytes_rec.append(self.byte_size)
+            # If the packet has not been dropped, record the queue length at this port
+            if self.debug:
+                print(
+                    f"Queue length at port: {len(self.store.items)} packets.")
 
             self.byte_size = byte_count
 

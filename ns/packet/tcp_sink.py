@@ -31,7 +31,8 @@ class TCPSink(PacketSink):
         self.recv_buffer.append(
             [packet.packet_id, packet.packet_id + packet.size])
 
-        self.recv_buffer.sort(reverse=True)
+        self.recv_buffer.sort()
+
         merged_stats = []
         for start, end in self.recv_buffer:
             if merged_stats and start <= merged_stats[-1][1]:
@@ -62,7 +63,9 @@ class TCPSink(PacketSink):
         acknowledgment = Packet(
             packet.time,  # used for calculating RTT at the sender
             size=40,  # default size of the ack packet
-            packet_id=self.next_seq_expected,
+            packet_id=packet.packet_id,
             flow_id=packet.flow_id + 10000)
+
+        acknowledgment.ack = self.next_seq_expected
 
         self.out.put(acknowledgment)
