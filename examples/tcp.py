@@ -30,6 +30,7 @@ env = simpy.Environment()
 
 flow = Flow(fid=0,
             src='flow 1',
+            dst='flow 1',
             finish_time=10,
             arrival_dist=packet_arrival,
             size_dist=packet_size)

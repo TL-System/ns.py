@@ -8,13 +8,13 @@ from collections.abc import Callable
 class Flow:
     """ A dataclass for keeping track of all the properties of a network flow. """
     fid: int  # flow id
-    arrival_dist: Callable  # packet arrival distribution
-    size_dist: Callable = None  # packet size distribution
-    src: str = None  # source element
-    dst: str = None  # destination element
+    src: str  # source element
+    dst: str  # destination element
     size: int = None  # flow size in bytes
     start_time: float = None
     finish_time: float = None
+    arrival_dist: Callable = None  # packet arrival distribution
+    size_dist: Callable = None  # packet size distribution
     pkt_gen: object = None
     pkt_sink: object = None
     path: list = None
