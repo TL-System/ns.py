@@ -21,11 +21,12 @@ class VirtualClockServer:
             The simulation environment.
         rate: float
             The bit rate of the port.
-        vticks: A list
-            list of the vtick parameters (for each flow_id). We assume a simple assignment
-            of flow id to vticks, i.e., flow_id = 0 corresponds to vticks[0], etc. We assume
-            that the vticks are the inverse of the desired rates for the flows in bits per
-            second.
+        vticks: dict
+            This can be either a list or a dictionary. If it is a list, it uses the flow_id
+            as its index to look for the flow's corresponding 'vtick'. If it is a dictionary,
+            it contains (flow_id -> vtick) pairs for each possible flow_id. We assume
+            that the vticks are the inverse of the desired rates for the corresponding flows,
+            in bits per second.
         zero_buffer: bool
             Does this server have a zero-length buffer? This is useful when multiple
             basic elements need to be put together to construct a more complex element
@@ -47,11 +48,20 @@ class VirtualClockServer:
         self.env = env
         self.rate = rate
         self.vticks = vticks
-        self.aux_vc = [0.0 for __ in range(len(vticks))]
-        self.v_clocks = [0.0 for __ in range(len(vticks))]
 
-        # Keep track of the number of packets from each flow in the queue
-        self.flow_queue_count = [0 for __ in range(len(vticks))]
+        if isinstance(self.vticks, list):
+            self.aux_vc = [0.0 for __ in range(len(vticks))]
+            self.v_clocks = [0.0 for __ in range(len(vticks))]
+
+            # Keep track of the number of packets from each flow in the queue
+            self.flow_queue_count = [0 for __ in range(len(vticks))]
+        elif isinstance(self.vticks, dict):
+            self.aux_vc = {key: 0.0 for (key, __) in vticks.items()}
+            self.v_clocks = {key: 0.0 for (key, __) in vticks.items()}
+            self.flow_queue_count = {key: 0 for (key, __) in vticks.items()}
+        else:
+            raise ValueError('vticks must be either a list or a dictionary.')
+
         self.out = None
         self.packets_received = 0
         self.packets_dropped = 0
@@ -71,13 +81,15 @@ class VirtualClockServer:
         self.action = env.process(self.run())
 
     def packet_in_service(self) -> Packet:
-        """Returns the packet that is currently being sent to the downstream element.
+        """
+        Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in bytes.
+        """
+        Returns the size of the queue for a particular flow_id, in bytes.
         Used by a ServerMonitor.
         """
         if flow_id in self.byte_sizes:
@@ -86,10 +98,17 @@ class VirtualClockServer:
         return 0
 
     def size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in the
+        """
+        Returns the size of the queue for a particular flow_id, in the
         number of packets. Used by a ServerMonitor.
         """
         return self.flow_queue_count[flow_id]
+
+    def all_flows(self) -> list:
+        """
+        Returns a list containing all the flow IDs.
+        """
+        return self.byte_sizes.keys()
 
     def update(self, packet):
         """The packet has just been retrieved from this element's own buffer, so

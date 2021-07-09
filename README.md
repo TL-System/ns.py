@@ -68,7 +68,7 @@ The network components that have already been implemented include:
 
 * `PortMonitor`: records the number of packets in a `Port`. The monitoring interval follows a given distribution.
 
-* `ServerMonitor`: records performance statistics in a scheduling server, such as `WFQServer`, `SPServer`, or `DRRServer`.
+* `ServerMonitor`: records performance statistics in a scheduling server, such as `WFQServer`, `VirtualClockServer`, `SPServer`, or `DRRServer`.
 
 ## Current utilities
 

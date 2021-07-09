@@ -25,8 +25,8 @@ class Packet:
             an identifier for the packet
         src, dst: int
             identifiers for the source and destination
-        flow_id: int
-            small integer that can be used to identify a flow
+        flow_id: int or str
+            an integer or string that can be used to identify a flow
     """
     def __init__(self,
                  time,

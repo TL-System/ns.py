@@ -45,7 +45,6 @@ wfq_server = WFQServer(env, source_rate, [1, 2])
 monitor = ServerMonitor(env,
                         wfq_server,
                         partial(expovariate, 0.1),
-                        total_flows=2,
                         pkt_in_service_included=True)
 splitter_1 = Splitter()
 splitter_2 = Splitter()

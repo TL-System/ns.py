@@ -16,9 +16,10 @@ class SPServer:
         The simulation environment.
     rate: float
         The bit rate of the port.
-    priorities: list
-        A list of priorities for each possible flow_id. We assume a simple assignment
-        of flow ids to priorities, i.e., flow_id = 0 corresponds to priorities[0], etc.
+    priorities: list or dict
+        This can be either a list or a dictionary. If it is a list, it uses the flow_id
+        as its index to look for the flow's corresponding priority. If it is a dictionary,
+        it contains (flow_id -> priority) pairs for each possible flow_id.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -42,7 +43,13 @@ class SPServer:
         self.prio = priorities
 
         self.stores = {}
-        self.prio_queue_count = [0 for i in range(len(priorities))]
+        if isinstance(priorities, list):
+            self.prio_queue_count = [0 for __ in range(len(priorities))]
+        elif isinstance(priorities, dict):
+            self.prio_queue_count = {prio: 0 for prio in priorities.values()}
+        else:
+            raise ValueError(
+                'Priorities must be either a list or a dictionary.')
 
         self.packets_available = simpy.Store(self.env)
 
@@ -84,13 +91,15 @@ class SPServer:
             raise ValueError("Error: the packet is from an unrecorded flow.")
 
     def packet_in_service(self) -> Packet:
-        """Returns the packet that is currently being sent to the downstream element.
+        """
+        Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in bytes.
+        """
+        Returns the size of the queue for a particular flow_id, in bytes.
         Used by a ServerMonitor.
         """
         if flow_id in self.byte_sizes:
@@ -99,7 +108,8 @@ class SPServer:
         return 0
 
     def size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in the
+        """
+        Returns the size of the queue for a particular flow_id, in the
         number of packets. Used by a ServerMonitor.
         """
         if flow_id in self.stores:
@@ -107,10 +117,27 @@ class SPServer:
 
         return 0
 
+    def all_flows(self) -> list:
+        """
+        Returns a list containing all the flow IDs.
+        """
+        return self.byte_sizes.keys()
+
+    def total_packets(self) -> int:
+        if isinstance(self.prio, list):
+            return sum(self.prio_queue_count)
+        else:
+            return sum(self.prio_queue_count.values())
+
     def run(self):
         """The generator function used in simulations."""
         while True:
-            for prio, count in enumerate(self.prio_queue_count):
+            if isinstance(self.prio, list):
+                prio_queue_counts = enumerate(self.prio_queue_count)
+            else:
+                prio_queue_counts = self.prio_queue_count.items()
+
+            for prio, count in prio_queue_counts:
                 if count > 0:
                     if self.zero_downstream_buffer:
                         ds_store = self.downstream_stores[prio]
@@ -137,7 +164,7 @@ class SPServer:
 
                     break
 
-            if sum(self.prio_queue_count) == 0:
+            if self.total_packets() == 0:
                 yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
@@ -145,10 +172,12 @@ class SPServer:
         self.packets_received += 1
         self.byte_sizes[packet.flow_id] += packet.size
 
-        if sum(self.prio_queue_count) == 0:
+        if self.total_packets() == 0:
             self.packets_available.put(True)
 
         prio = self.prio[packet.flow_id]
+        print(self.prio_queue_count)
+        print(prio)
         self.prio_queue_count[prio] += 1
 
         if self.debug:

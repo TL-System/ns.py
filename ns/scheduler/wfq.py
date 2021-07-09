@@ -15,9 +15,10 @@ class WFQServer:
         The simulation environment.
     rate: float
         The bit rate of the port.
-    weights: list
-        A list of weights for each possible flow_id. We assume a simple assignment
-        of flow ids to weights, i.e., flow_id = 0 corresponds to weights[0], etc.
+    weights: list or dict
+        This can be either a list or a dictionary. If it is a list, it uses the flow_id
+        as its index to look for the flow's corresponding weight. If it is a dictionary,
+        it contains (flow_id -> weight) pairs for each possible flow_id.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -40,11 +41,17 @@ class WFQServer:
         self.rate = rate
         self.weights = weights
 
-        # Initialize all the finish time values
-        self.finish_times = [0.0 for i in range(len(weights))]
+        if isinstance(weights, list):
+            # Initialize all the finish time values
+            self.finish_times = [0.0 for __ in range(len(weights))]
+            # Keep track of the number of packets from each flow in the queue
+            self.flow_queue_count = [0 for __ in range(len(weights))]
+        elif isinstance(weights, dict):
+            self.finish_times = {key: 0.0 for (key, __) in weights.items()}
+            self.flow_queue_count = {key: 0 for (key, __) in weights.items()}
+        else:
+            raise ValueError('Weights must be either a list or a dictionary.')
 
-        # Keep track of the number of packets from each flow in the queue
-        self.flow_queue_count = [0 for i in range(len(weights))]
         self.active_set = set()
         self.vtime = 0.0
         self.out = None
@@ -67,13 +74,15 @@ class WFQServer:
         self.last_update = 0.0
 
     def packet_in_service(self) -> Packet:
-        """Returns the packet that is currently being sent to the downstream element.
+        """
+        Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in bytes.
+        """
+        Returns the size of the queue for a particular flow_id, in bytes.
         Used by a ServerMonitor.
         """
         if flow_id in self.byte_sizes:
@@ -82,10 +91,17 @@ class WFQServer:
         return 0
 
     def size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in the
+        """
+        Returns the size of the queue for a particular flow_id, in the
         number of packets. Used by a ServerMonitor.
         """
         return self.flow_queue_count[flow_id]
+
+    def all_flows(self) -> list:
+        """
+        Returns a list containing all the flow IDs.
+        """
+        return self.byte_sizes.keys()
 
     def update(self, packet):
         """The packet has just been retrieved from this element's own buffer, so

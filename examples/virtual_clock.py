@@ -45,7 +45,6 @@ vc_server = VirtualClockServer(env, source_rate, [2, 1], debug=True)
 monitor = ServerMonitor(env,
                         vc_server,
                         partial(expovariate, 0.1),
-                        total_flows=2,
                         pkt_in_service_included=True)
 splitter_1 = Splitter()
 splitter_2 = Splitter()

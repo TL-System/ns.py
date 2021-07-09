@@ -21,9 +21,10 @@ class DRRServer:
         The simulation environment.
     rate: float
         The bit rate of the port.
-    weights: list
-        A list of weights for each possible packet flow_id. We assume a simple assignment
-        of flow ids to weights, i.e., flow_id = 0 corresponds to weights[0], etc.
+    weights: list or dict
+        This can be either a list or a dictionary. If it is a list, it uses the flow_id
+        as its index to look for the flow's corresponding weight. If it is a dictionary,
+        it contains (flow_id -> weight) pairs for each possible flow_id.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -49,10 +50,24 @@ class DRRServer:
         self.rate = rate
         self.weights = weights
         self.out_queue_id = out_queue_id
-        self.deficit = [0.0 for __ in range(len(weights))]
+
+        if isinstance(weights, list):
+            self.deficit = [0.0 for __ in range(len(weights))]
+            self.flow_queue_count = [0 for __ in range(len(weights))]
+            self.quantum = [
+                self.MIN_QUANTUM * x / min(weights) for x in weights
+            ]
+        elif isinstance(weights, dict):
+            self.deficit = {key: 0.0 for (key, __) in weights.items()}
+            self.flow_queue_count = {key: 0 for (key, __) in weights.items()}
+            self.quantum = {
+                key: self.MIN_QUANTUM * value / min(weights.values())
+                for (key, value) in weights.items()
+            }
+        else:
+            raise ValueError('Weights must be either a list or a dictionary.')
+
         self.head_of_line = {}
-        self.flow_queue_count = [0 for __ in range(len(weights))]
-        self.quantum = [self.MIN_QUANTUM * x / min(weights) for x in weights]
         self.active_set = set()
 
         # One FIFO queue for each flow_id
@@ -91,8 +106,6 @@ class DRRServer:
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id}"
             )
 
-        # todo: implement queue-level drr
-        #       as an alternative to flow-level drr (curr. impl)
         self.deficit[packet.flow_id] -= packet.size
 
         if self.debug:
@@ -110,13 +123,15 @@ class DRRServer:
                 "Error: the packet to be sent has never been received.")
 
     def packet_in_service(self) -> Packet:
-        """Returns the packet that is currently being sent to the downstream element.
+        """
+        Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
     def byte_size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in bytes.
+        """
+        Returns the size of the queue for a particular flow_id, in bytes.
         Used by a ServerMonitor.
         """
         if flow_id in self.flow_queue_count:
@@ -125,7 +140,8 @@ class DRRServer:
         return 0
 
     def size(self, flow_id) -> int:
-        """Returns the size of the queue for a particular flow_id, in the
+        """
+        Returns the size of the queue for a particular flow_id, in the
         number of packets. Used by a ServerMonitor.
         """
         if flow_id in self.flow_queue_count:
@@ -133,17 +149,34 @@ class DRRServer:
 
         return 0
 
+    def all_flows(self) -> list:
+        """
+        Returns a list containing all the flow IDs.
+        """
+        return self.byte_sizes.keys()
+
+    def total_packets(self) -> int:
+        if isinstance(self.weights, list):
+            return sum(self.flow_queue_count)
+        else:
+            return sum(self.flow_queue_count.values())
+
     def run(self):
         """The generator function used in simulations."""
         while True:
-            while sum(self.flow_queue_count) > 0:
-                for flow_id, count in enumerate(self.flow_queue_count):
+            while self.total_packets() > 0:
+                if isinstance(self.weights, list):
+                    flow_queue_counts = enumerate(self.flow_queue_count)
+                else:
+                    flow_queue_counts = self.flow_queue_count.items()
+
+                for flow_id, count in flow_queue_counts:
                     if count > 0:
                         self.deficit[flow_id] += self.quantum[flow_id]
                         if self.debug:
                             print(
-                                f"Flow queue length: {self.flow_queue_count}",
-                                f"Deficit counters: {self.deficit}")
+                                f"Flow queue length: {self.flow_queue_count}, ",
+                                f"deficit counters: {self.deficit}")
 
                     while self.deficit[flow_id] > 0 and self.flow_queue_count[
                             flow_id] > 0:
@@ -196,9 +229,9 @@ class DRRServer:
 
         if self.debug:
             print(
-                f"Packet arrived at {self.env.now}, flow_id {flow_id},"
-                f"packet_id {packet.packet_id}, deficit {self.deficit[flow_id]}"
-                f"Deficit counters: {self.deficit}")
+                f"Packet arrived at {self.env.now}, flow_id {flow_id}, "
+                f"packet_id {packet.packet_id}, deficit {self.deficit[flow_id]}, "
+                f"deficit counters: {self.deficit}")
 
         if not flow_id in self.stores:
             self.stores[flow_id] = simpy.Store(self.env)
@@ -206,7 +239,7 @@ class DRRServer:
             if self.zero_downstream_buffer:
                 self.downstream_stores[flow_id] = simpy.Store(self.env)
 
-        if sum(self.flow_queue_count) == 0:
+        if self.total_packets() == 0:
             self.packets_available.put(True)
 
         self.flow_queue_count[flow_id] += 1

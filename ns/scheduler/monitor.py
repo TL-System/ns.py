@@ -35,18 +35,18 @@ class ServerMonitor:
 
         size(flow_id) -> int: returns the queue length in the number of packets for a
         flow with a particular flow ID
+
+        all_flows -> list: returns a list containing all the flow IDs
     """
     def __init__(self,
                  env,
                  server,
                  dist,
-                 total_flows,
                  pkt_in_service_included=False) -> None:
 
         self.server = server
         self.env = env
         self.dist = dist
-        self.total_flows = total_flows
         self.pkt_in_service_included = pkt_in_service_included
 
         self.sizes = dd(list)
@@ -59,7 +59,7 @@ class ServerMonitor:
         while True:
             yield self.env.timeout(self.dist())
 
-            for flow_id in range(self.total_flows):
+            for flow_id in self.server.all_flows():
                 total = self.server.size(flow_id)
                 total_bytes = self.server.byte_size(flow_id)
 
