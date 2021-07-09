@@ -43,8 +43,6 @@ for grp_id in range(total_groups):
     for flow_id in range(total_flows_per_group):
         flow_weights[f'grp_{grp_id}_flow_{flow_id}'] = 1
 
-    group_weights[f'grp_{grp_id}'] = 1
-
     drr_server_per_group[f'grp_{grp_id}'] = DRRServer(env,
                                                       source_rate,
                                                       flow_weights,
