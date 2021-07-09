@@ -1,5 +1,8 @@
 """
-An example of using the Deficit Round Robin (DRR) server.
+This example shows how to construct a two-level topology consisting of Deficit Round
+Robin (DRR) servers. It also shows how to use strings for flow IDs and to use dictionaries
+to provide per-flow weights to DRR servers, so that group IDs and per-group flow IDs can
+be easily used to construct globally unique flow IDs.
 """
 import simpy
 
@@ -23,7 +26,6 @@ total_groups = 3
 total_flows_per_group = 8
 source_rate = 8.0 * const_size() / packet_arrival()
 
-pg = {}
 group_weights = {}
 drr_server_per_group = {}
 
