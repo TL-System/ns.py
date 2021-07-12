@@ -176,8 +176,6 @@ class SPServer:
             self.packets_available.put(True)
 
         prio = self.prio[packet.flow_id]
-        print(self.prio_queue_count)
-        print(prio)
         self.prio_queue_count[prio] += 1
 
         if self.debug:
