@@ -36,7 +36,7 @@ class DRRServer:
     debug: bool
         If True, prints more verbose debug information.
     """
-    MIN_QUANTUM = 1000
+    MIN_QUANTUM = 1500
 
     def __init__(self,
                  env,
@@ -44,12 +44,10 @@ class DRRServer:
                  weights: list,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
-                 debug=False,
-                 out_queue_id=None) -> None:
+                 debug=False) -> None:
         self.env = env
         self.rate = rate
         self.weights = weights
-        self.out_queue_id = out_queue_id
 
         if isinstance(weights, list):
             self.deficit = [0.0 for __ in range(len(weights))]
@@ -108,7 +106,7 @@ class DRRServer:
 
         if self.debug:
             print(
-                f"Deficit for {packet.flow_id} reduced to {self.deficit[packet.flow_id]}"
+                f"Deficit reduced to {self.deficit[packet.flow_id]} for flow {packet.flow_id}"
             )
 
         self.flow_queue_count[packet.flow_id] -= 1
@@ -199,15 +197,11 @@ class DRRServer:
                                                    self.rate)
 
                             if self.zero_downstream_buffer:
-                                if self.out_queue_id:
-                                    packet.flow_id = self.out_queue_id
                                 self.out.put(
                                     packet,
                                     upstream_update=self.update,
                                     upstream_store=self.stores[flow_id])
                             else:
-                                if self.out_queue_id:
-                                    packet.flow_id = self.out_queue_id
                                 self.update(packet)
                                 self.out.put(packet)
 
