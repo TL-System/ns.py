@@ -96,7 +96,7 @@ The network components that have already been implemented include:
 
 * `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 
-* `two_level_drr.py`: this example shows how to construct a two-level topology consisting of Deficit Round Robin (DRR) servers. It also shows how to use strings for flow IDs and to use dictionaries to provide per-flow weights to DRR servers, so that group IDs and per-group flow IDs can be easily used to construct globally unique flow IDs.
+* `two_level_drr.py`, `two_level_wfq.py`, `two_level_sp.py`: these examples have shown how to construct a two-level topology consisting of Deficit Round Robin (DRR), Weighted Fair Queueing (WFQ) and Static Priority (SP) servers. They also show how to use strings for flow IDs and to use dictionaries to provide per-flow weights to the DRR, WFQ, or SP servers, so that group IDs and per-group flow IDs can be easily used to construct globally unique flow IDs.
 
 * `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
 

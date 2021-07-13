@@ -9,7 +9,7 @@ import simpy
 from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.port.port import Port
-from ns.scheduler.drr import DRRServer
+from ns.scheduler.wfq import WFQServer
 
 
 def packet_arrival():
@@ -36,11 +36,7 @@ for grp_id in range(total_groups):
         group_weights[f'grp_{grp_id}_flow_{flow_id}'] = 1
 
 ps = PacketSink(env)
-drr_server = DRRServer(env,
-                       service_rate_L1,
-                       group_weights,
-                       zero_buffer=True,
-                       debug=False)
+drr_server = WFQServer(env, service_rate_L1, group_weights, zero_buffer=True)
 drr_server.out = ps
 
 # Setting up the DRR server for each group
@@ -49,13 +45,12 @@ for grp_id in range(total_groups):
     for flow_id in range(total_flows_per_group):
         flow_weights[f'grp_{grp_id}_flow_{flow_id}'] = 1
 
-    drr_server_per_group[f'grp_{grp_id}'] = DRRServer(
+    drr_server_per_group[f'grp_{grp_id}'] = WFQServer(
         env,
         service_rate_L2,
         flow_weights,
         zero_buffer=True,
-        zero_downstream_buffer=True,
-        debug=True)
+        zero_downstream_buffer=True)
 
     for flow_id in range(total_flows_per_group):
         pg = DistPacketGenerator(env,
@@ -64,8 +59,7 @@ for grp_id in range(total_groups):
                                  const_size,
                                  initial_delay=0.0,
                                  finish=3,
-                                 flow_id=f"grp_{grp_id}_flow_{flow_id}",
-                                 debug=True)
+                                 flow_id=f"grp_{grp_id}_flow_{flow_id}")
         tail_drop_buffer = Port(env,
                                 source_rate,
                                 qlimit=None,
