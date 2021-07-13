@@ -36,7 +36,7 @@ class DRRServer:
     debug: bool
         If True, prints more verbose debug information.
     """
-    MIN_QUANTUM = 1500
+    MIN_QUANTUM = 1000
 
     def __init__(self,
                  env,
@@ -106,10 +106,10 @@ class DRRServer:
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id}"
             )
 
-        self.deficit[packet.flow_id] -= packet.size
-
         if self.debug:
-            print(f"Deficit reduced to {self.deficit[packet.flow_id]}")
+            print(
+                f"Deficit for {packet.flow_id} reduced to {self.deficit[packet.flow_id]}"
+            )
 
         self.flow_queue_count[packet.flow_id] -= 1
 
@@ -211,6 +211,7 @@ class DRRServer:
                                 self.update(packet)
                                 self.out.put(packet)
 
+                            self.deficit[packet.flow_id] -= packet.size
                             self.current_packet = None
                         else:
                             assert not flow_id in self.head_of_line
