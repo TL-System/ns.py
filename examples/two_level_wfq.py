@@ -1,6 +1,6 @@
 """
-This example shows how to construct a two-level topology consisting of Deficit Round
-Robin (DRR) servers. It also shows how to use strings for flow IDs and to use dictionaries
+This example shows how to construct a two-level topology consisting of Weighted Fair
+Queueing (WFQ) servers. It also shows how to use strings for flow IDs and to use dictionaries
 to provide per-flow weights to DRR servers, so that group IDs and per-group flow IDs can
 be easily used to construct globally unique flow IDs.
 """
