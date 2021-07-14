@@ -74,7 +74,8 @@ for grp_id in range(total_groups):
 
         pg.out = tail_drop_buffer
         tail_drop_buffer.out = drr_server_per_group[f'grp_{grp_id}']
-        drr_server_per_group[f'grp_{grp_id}'].out = drr_server
+
+    drr_server_per_group[f'grp_{grp_id}'].out = drr_server
 
 env.run(until=100)
 
