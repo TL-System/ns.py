@@ -43,13 +43,21 @@ class SPServer:
         self.prio = priorities
 
         self.stores = {}
+        self.prio_queue_count = {}
+
         if isinstance(priorities, list):
-            self.prio_queue_count = [0 for __ in range(len(priorities))]
+            priorities_list = priorities
         elif isinstance(priorities, dict):
-            self.prio_queue_count = {prio: 0 for prio in priorities.values()}
+            priorities_list = priorities.values()
         else:
             raise ValueError(
                 'Priorities must be either a list or a dictionary.')
+
+        for prio in priorities_list:
+            if prio not in self.prio_queue_count:
+                self.prio_queue_count[prio] = 0
+
+        self.priorities_list = sorted(self.prio_queue_count, reverse=True)
 
         self.packets_available = simpy.Store(self.env)
 
@@ -80,8 +88,8 @@ class SPServer:
 
         if self.debug:
             print(
-                f"Sent out packet {packet.packet_id} of priority {packet.prio}"
-            )
+                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
+                f"of priority {packet.prio}")
 
         self.prio_queue_count[packet.prio] -= 1
 
@@ -124,21 +132,16 @@ class SPServer:
         return self.byte_sizes.keys()
 
     def total_packets(self) -> int:
-        if isinstance(self.prio, list):
-            return sum(self.prio_queue_count)
-        else:
-            return sum(self.prio_queue_count.values())
+        """
+        Returns the total number of packets currently in the queues.
+        """
+        return sum(self.prio_queue_count.values())
 
     def run(self):
         """The generator function used in simulations."""
         while True:
-            if isinstance(self.prio, list):
-                prio_queue_counts = enumerate(self.prio_queue_count)
-            else:
-                prio_queue_counts = self.prio_queue_count.items()
-
-            for prio, count in prio_queue_counts:
-                if count > 0:
+            for prio in self.priorities_list:
+                if self.prio_queue_count[prio] > 0:
                     if self.zero_downstream_buffer:
                         ds_store = self.downstream_stores[prio]
                         packet = yield ds_store.get()
@@ -179,9 +182,8 @@ class SPServer:
         self.prio_queue_count[prio] += 1
 
         if self.debug:
-            print(
-                f"At time {self.env.now}: received packet {packet.packet_id} from flow {packet.flow_id}"
-            )
+            print("At time {:.2f}: received packet {:d} from flow {:d}".format(
+                self.env.now, packet.packet_id, packet.flow_id))
 
         if not prio in self.stores:
             self.stores[prio] = simpy.Store(self.env)
