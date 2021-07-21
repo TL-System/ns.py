@@ -3,6 +3,7 @@ Implements a Static Priority (SP) server.
 """
 
 from collections import defaultdict as dd
+import uuid
 
 import simpy
 from ns.packet.packet import Packet
@@ -42,6 +43,7 @@ class SPServer:
         self.rate = rate
         self.prio = priorities
 
+        self.element_id = uuid.uuid1()
         self.stores = {}
         self.prio_queue_count = {}
 
@@ -89,9 +91,9 @@ class SPServer:
         if self.debug:
             print(
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"of priority {packet.prio}")
+                f"of priority {packet.prio[self.element_id]}")
 
-        self.prio_queue_count[packet.prio] -= 1
+        self.prio_queue_count[packet.prio[self.element_id]] -= 1
 
         if packet.flow_id in self.byte_sizes:
             self.byte_sizes[packet.flow_id] -= packet.size
@@ -145,7 +147,7 @@ class SPServer:
                     if self.zero_downstream_buffer:
                         ds_store = self.downstream_stores[prio]
                         packet = yield ds_store.get()
-                        packet.prio = prio
+                        packet.prio[self.element_id] = prio
 
                         self.current_packet = packet
                         yield self.env.timeout(packet.size * 8.0 / self.rate)
@@ -157,7 +159,7 @@ class SPServer:
                     else:
                         store = self.stores[prio]
                         packet = yield store.get()
-                        packet.prio = prio
+                        packet.prio[self.element_id] = prio
                         self.update(packet)
 
                         self.current_packet = packet

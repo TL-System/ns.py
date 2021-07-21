@@ -43,7 +43,7 @@ class Packet:
         self.flow_id = flow_id
 
         self.color = None  # Used by the two-rate tri-color token bucket shaper
-        self.prio = 0  # used by the Static Priority scheduler
+        self.prio = {}  # used by the Static Priority scheduler
         self.ack = 0  # used by TCPPacketGenerator and TCPSink
         self.current_time = 0  # used by the Wire element
         self.perhop_time = {}  # used by Port to record per-hop arrival times

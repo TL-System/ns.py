@@ -90,6 +90,8 @@ The network components that have already been implemented include:
 
 * `two_rate_token_bucket.py`: this example creates a two-rate three-color traffic shaper. It showcases `DistPacketGenerator`, `PacketSink`, and `TwoRateTokenBucketShaper`.
 
+* `static_priority.py`: this example shows how to use two Static Priority (SP) schedulers to construct a more complex two-layer scheduler, turning on `zero_downstream_buffer` for the upstream scheduler and `zero_buffer` for the downstream one. It showcases `DistPacketGenerator`, `PacketSink`, and `SPServer`.
+
 * `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
 
 * `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `VirtualClockQServer`, and `ServerMonitor`.
