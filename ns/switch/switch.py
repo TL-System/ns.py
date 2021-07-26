@@ -81,7 +81,7 @@ class FairPacketSwitch:
         self.env = env
         self.ports = []
         self.egress_ports = []
-        self.schedulers = []
+
         for __ in range(nports):
             egress_port = Port(env,
                                rate=port_rate,
