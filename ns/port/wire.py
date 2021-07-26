@@ -14,10 +14,10 @@ class Wire:
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         delay: float
             a no-parameter function that returns the successive propagation
-            delays on this wire
+            delays on this wire.
     """
     def __init__(self, env, delay_dist, wire_id=0, debug=False):
         self.store = simpy.Store(env)

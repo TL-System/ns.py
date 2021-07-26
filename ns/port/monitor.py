@@ -11,7 +11,7 @@ class PortMonitor:
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         port: Port
             the switch port object to be monitored.
         dist: function

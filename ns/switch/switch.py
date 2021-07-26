@@ -10,18 +10,18 @@ from ns.scheduler.virtual_clock import VirtualClockServer
 
 
 class SimplePacketSwitch:
-    """ Implements a simple packet switch with FIFO bounded buffers for outgoing ports.
+    """ Implements a packet switch with a FIFO bounded buffer on each of the outgoing ports.
 
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         nports: int
             the total number of ports on this switch.
         port_rate: float
-            the bit rate of the port
+            the bit rate of the port.
         buffer_size: int
-            the size of an outgoing port' buffer
+            the size of an outgoing port' bounded buffer, in packets.
         debug: bool
             If True, prints more verbose debug information.
     """
@@ -48,25 +48,25 @@ class SimplePacketSwitch:
 
 
 class FairPacketSwitch:
-    """ Implements a simple packet switch with WFQ, Virtual Clock, DRR schedulers, as well
-        as bounded buffers for outgoing ports.
+    """ Implements a fair packet switch with a choice of a WFQ, Virtual Clock, or DRR
+        scheduler, as well as bounded buffers, on each of the outgoing ports.
 
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         nports: int
             the total number of ports on this switch.
         port_rate: float
-            the bit rate of each outgoing port
+            the bit rate of each outgoing port.
         buffer_size: int
-            the size of each outgoing port's buffer
+            the size of an outgoing port' bounded buffer, in packets.
         weights: list or dict
             This can be either a list or a dictionary. If it is a list, it uses the flow_id
             as its index to look for the flow's corresponding weight. If it is a dictionary,
             it contains (flow_id -> weight) pairs for each possible flow_id.
         type: str (possible values: 'WFQ', 'DRR', or 'VirtualClock')
-            The type of the fair scheduler used for each egress port.
+            The type of the fair scheduler used for each outgoing port.
         debug: bool
             If True, prints more verbose debug information.
     """

@@ -24,11 +24,11 @@ class REDPort(Port):
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         rate: float
-            the bit rate of the port
+            the bit rate of the port.
         element_id: int
-            the element id of this port
+            the element id of this port.
         qlimit: integer (or None)
             The upper limit for the average queue length, beyond which all packets will
             be dropped. The queue length can be measured in bytes or packets, and includes

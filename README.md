@@ -66,6 +66,10 @@ The network components that have already been implemented include:
 
 * `VirtualClockServer`: a Virtual Clock scheduler.
 
+* `SimplePacketSwitch`: a packet switch with a FIFO bounded buffer on each of the outgoing ports.
+
+* `FairPacketSwitch`: a fair packet switch with a choice of a WFQ, Virtual Clock, or DRR scheduler, as well as bounded buffers, on each of the outgoing ports.
+
 * `PortMonitor`: records the number of packets in a `Port`. The monitoring interval follows a given distribution.
 
 * `ServerMonitor`: records performance statistics in a scheduling server, such as `WFQServer`, `VirtualClockServer`, `SPServer`, or `DRRServer`.

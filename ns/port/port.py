@@ -12,11 +12,11 @@ class Port:
         Parameters
         ----------
         env: simpy.Environment
-            the simulation environment
+            the simulation environment.
         rate: float
-            the bit rate of the port
+            the bit rate of the port.
         element_id: int
-            the element id of this port
+            the element id of this port.
         qlimit: integer (or None)
             a queue limit in bytes or packets (including the packet in service), beyond
             which all packets will be dropped.
