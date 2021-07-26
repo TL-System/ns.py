@@ -21,7 +21,7 @@ class VirtualClockServer:
             The simulation environment.
         rate: float
             The bit rate of the port.
-        vticks: dict
+        vticks: list or dict
             This can be either a list or a dictionary. If it is a list, it uses the flow_id
             as its index to look for the flow's corresponding 'vtick'. If it is a dictionary,
             it contains (flow_id -> vtick) pairs for each possible flow_id. We assume

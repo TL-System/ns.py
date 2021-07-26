@@ -7,6 +7,7 @@ import simpy
 from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
 from ns.switch.switch import SimplePacketSwitch
+from ns.switch.switch import FairPacketSwitch
 from ns.topos.fattree import build as build_fattree
 from ns.topos.utils import generate_fib, generate_flows
 
@@ -25,6 +26,8 @@ for n in ft.nodes():
     if ft.nodes[n]['type'] == 'host':
         hosts.add(n)
 
+weights = {}
+
 all_flows = generate_flows(ft, hosts, n)
 size_dist = partial(expovariate, 1.0 / mean_pkt_size)
 for fid in all_flows:
@@ -39,12 +42,14 @@ for fid in all_flows:
 
     all_flows[fid].pkt_gen = pg
     all_flows[fid].pkt_sink = ps
+    weights[fid] = 1
 
 ft = generate_fib(ft, all_flows)
 
 for n in ft.nodes():
     node = ft.nodes[n]
-    node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
+    # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
+    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'WFQ')
     node['device'].demux.fib = node['flow_to_port']
 
 for n in ft.nodes():

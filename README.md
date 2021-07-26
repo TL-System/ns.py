@@ -102,7 +102,7 @@ The network components that have already been implemented include:
 
 * `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
 
-* `fattree_fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, and `SimplePacketSwitch`.
+* `fattree_fifo.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, `SimplePacketSwitch`, and `FairPacketSwitch`. If per-flow fairness is desired, `FairPacketSwitch` would be used, along with Weighted Fair Queueing, Deficit Round Robin, or Virtual Clock as the scheduling discipline at each outgoing port of the swtich.
 
 ## Writing New Network Components
 
