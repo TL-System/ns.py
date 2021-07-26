@@ -1,5 +1,5 @@
 """ 
-Implements a packet switch with FIFO or WFQ bounded buffers for outgoing ports.
+Implements a packet switch with FIFO or WFQ/DRR/Virtual Clock bounded buffers for outgoing ports.
 """
 
 from ns.port.port import Port
@@ -48,7 +48,7 @@ class SimplePacketSwitch:
 
 
 class FairPacketSwitch:
-    """ Implements a fair packet switch with a choice of a WFQ, Virtual Clock, or DRR
+    """ Implements a fair packet switch with a choice of a WFQ, DRR, or Virtual Clock
         scheduler, as well as bounded buffers, on each of the outgoing ports.
 
         Parameters
