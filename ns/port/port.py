@@ -14,7 +14,7 @@ class Port:
         env: simpy.Environment
             the simulation environment.
         rate: float
-            the bit rate of the port.
+            the bit rate of the port (0 for unlimited).
         element_id: int
             the element id of this port.
         qlimit: integer (or None)
