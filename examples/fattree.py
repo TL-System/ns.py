@@ -49,7 +49,9 @@ ft = generate_fib(ft, all_flows)
 for n in ft.nodes():
     node = ft.nodes[n]
     # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
-    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'WFQ')
+    flow_classes = lambda x: int(x / 2)
+    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'WFQ',
+                                      flow_classes)
     node['device'].demux.fib = node['flow_to_port']
 
 for n in ft.nodes():

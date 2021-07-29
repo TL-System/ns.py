@@ -61,7 +61,7 @@ for grp_id in range(total_groups):
                                  finish=3,
                                  flow_id=f"grp_{grp_id}_flow_{flow_id}")
         tail_drop_buffer = Port(env,
-                                source_rate,
+                                0,
                                 qlimit=None,
                                 zero_downstream_buffer=True,
                                 debug=True)

@@ -1,6 +1,7 @@
 """ 
 Implements a packet switch with FIFO or WFQ/DRR/Virtual Clock bounded buffers for outgoing ports.
 """
+from collections.abc import Callable
 
 from ns.port.port import Port
 from ns.demux.fib_demux import FIBDemux
@@ -77,6 +78,7 @@ class FairPacketSwitch:
                  buffer_size: int,
                  weights,
                  server: str,
+                 flow_classes: Callable = None,
                  debug: bool = False) -> None:
         self.env = env
         self.ports = []
@@ -95,6 +97,7 @@ class FairPacketSwitch:
                 scheduler = WFQServer(env,
                                       rate=port_rate,
                                       weights=weights,
+                                      flow_classes=flow_classes,
                                       zero_buffer=True,
                                       debug=debug)
             elif server == 'DRR':

@@ -184,7 +184,7 @@ class SPServer:
         self.prio_queue_count[prio] += 1
 
         if self.debug:
-            print("At time {:.2f}: received packet {:d} from flow {:d}".format(
+            print("At time {:.2f}: received packet {:d} from flow {}".format(
                 self.env.now, packet.packet_id, packet.flow_id))
 
         if not prio in self.stores:

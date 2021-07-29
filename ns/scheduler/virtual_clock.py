@@ -7,6 +7,7 @@ L. Zhang, "Virtual Clock: A New Traffic Control Algorithm for Packet Switching N
 in ACM SIGCOMM Computer Communication Review, vol. 20, pp. 19, 1990.
 """
 from collections import defaultdict as dd
+from collections.abc import Callable
 
 from ns.packet.packet import Packet
 from ns.utils import taggedstore
@@ -22,11 +23,15 @@ class VirtualClockServer:
         rate: float
             The bit rate of the port.
         vticks: list or dict
-            This can be either a list or a dictionary. If it is a list, it uses the flow_id
-            as its index to look for the flow's corresponding 'vtick'. If it is a dictionary,
-            it contains (flow_id -> vtick) pairs for each possible flow_id. We assume
-            that the vticks are the inverse of the desired rates for the corresponding flows,
-            in bits per second.
+            This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
+            or class_id, if class-based fair queueing is activated using the `flow_classes'
+            parameter below --- as its index to look for the flow's corresponding 'vtick'.
+            If it is a dictionary, it contains (flow_id or class_id -> vtick) pairs for each
+            possible flow_id or class_id.  We assume that the vticks are the inverse of the
+            desired rates for the corresponding flows, in bits per second.
+        flow_classes: function
+            This is a function that matches flow_id's to class_ids, used to implement class-based
+            Virtual Clock. The default is None, which is equivalent to flow-based Virtual Clock.
         zero_buffer: bool
             Does this server have a zero-length buffer? This is useful when multiple
             basic elements need to be put together to construct a more complex element
@@ -42,23 +47,34 @@ class VirtualClockServer:
                  env,
                  rate,
                  vticks,
+                 flow_classes: Callable = None,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
-                 debug=False):
+                 debug: bool = False):
         self.env = env
         self.rate = rate
         self.vticks = vticks
 
-        if isinstance(self.vticks, list):
-            self.aux_vc = [0.0 for __ in range(len(vticks))]
-            self.v_clocks = [0.0 for __ in range(len(vticks))]
+        if flow_classes is not None:
+            self.flow_classes = flow_classes
+        else:
+            self.flow_classes = lambda x: x
 
-            # Keep track of the number of packets from each flow in the queue
-            self.flow_queue_count = [0 for __ in range(len(vticks))]
-        elif isinstance(self.vticks, dict):
-            self.aux_vc = {key: 0.0 for (key, __) in vticks.items()}
-            self.v_clocks = {key: 0.0 for (key, __) in vticks.items()}
-            self.flow_queue_count = {key: 0 for (key, __) in vticks.items()}
+        self.aux_vc = {}
+        self.v_clocks = {}
+        self.flow_queue_count = {}
+
+        if isinstance(vticks, list):
+            for queue_id in range(len(vticks)):
+                self.aux_vc[queue_id] = 0.0
+                self.v_clocks[queue_id] = 0.0
+                self.flow_queue_count[queue_id] = 0
+
+        elif isinstance(vticks, dict):
+            for (queue_id, __) in vticks.items():
+                self.aux_vc[queue_id] = 0.0
+                self.v_clocks[queue_id] = 0.0
+                self.flow_queue_count[queue_id] = 0
         else:
             raise ValueError('vticks must be either a list or a dictionary.')
 
@@ -87,22 +103,22 @@ class VirtualClockServer:
         """
         return self.current_packet
 
-    def byte_size(self, flow_id) -> int:
+    def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in bytes.
+        Returns the size of the queue for a particular queue_id, in bytes.
         Used by a ServerMonitor.
         """
-        if flow_id in self.byte_sizes:
-            return self.byte_sizes[flow_id]
+        if queue_id in self.byte_sizes:
+            return self.byte_sizes[queue_id]
 
         return 0
 
-    def size(self, flow_id) -> int:
+    def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in the
+        Returns the size of the queue for a particular queue_id, in the
         number of packets. Used by a ServerMonitor.
         """
-        return self.flow_queue_count[flow_id]
+        return self.flow_queue_count[queue_id]
 
     def all_flows(self) -> list:
         """
@@ -121,13 +137,14 @@ class VirtualClockServer:
             del self.upstream_updates[packet]
 
         flow_id = packet.flow_id
-        self.flow_queue_count[flow_id] -= 1
+        self.flow_queue_count[self.flow_classes(flow_id)] -= 1
 
         if self.debug:
-            print(f"Sent Packet {packet.packet_id} from flow {flow_id}")
+            print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
+                  f"belonging to class {self.flow_classes(packet.flow_id)}")
 
-        if flow_id in self.byte_sizes:
-            self.byte_sizes[flow_id] -= packet.size
+        if self.flow_classes(flow_id) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
         else:
             raise ValueError("Error: the packet is from an unrecorded flow.")
 
@@ -154,38 +171,44 @@ class VirtualClockServer:
     def put(self, packet, upstream_update=None, upstream_store=None):
         """ Sends a packet to this element. """
         self.packets_received += 1
-        self.byte_sizes[packet.flow_id] += packet.size
+        self.byte_sizes[self.flow_classes(packet.flow_id)] += packet.size
         now = self.env.now
         flow_id = packet.flow_id
-        self.flow_queue_count[flow_id] += 1
+        self.flow_queue_count[self.flow_classes(flow_id)] += 1
 
-        if self.v_clocks[flow_id] == 0:
+        if self.v_clocks[self.flow_classes(flow_id)] == 0:
             # Upon receiving the first packet from this flow_id, set its
             # virtual clock to the current real time
-            self.v_clocks[flow_id] = now
+            self.v_clocks[self.flow_classes(flow_id)] = now
 
         # Update virtual clocks (vc) for the corresponding flow. We assume
         # that vticks is the desired bit time, i.e., the inverse of the
         # desired bits per second data rate. Hence, we multiply this
         # value by the size of the packet in bits.
-        self.aux_vc[flow_id] = max(now, self.aux_vc[flow_id])
-        self.v_clocks[flow_id] = self.v_clocks[
-            flow_id] + self.vticks[flow_id] * packet.size * 8.0
-        self.aux_vc[flow_id] += self.vticks[flow_id]
+        self.aux_vc[self.flow_classes(flow_id)] = max(
+            now, self.aux_vc[self.flow_classes(flow_id)])
+        self.v_clocks[self.flow_classes(flow_id)] = self.v_clocks[
+            self.flow_classes(flow_id)] + self.vticks[self.flow_classes(
+                flow_id)] * packet.size * 8.0
+        self.aux_vc[self.flow_classes(flow_id)] += self.vticks[
+            self.flow_classes(flow_id)]
 
         # Lots of work to do here to implement the queueing discipline
 
         if self.debug:
             print(
                 f"Packet arrived at {self.env.now}, with flow_id {flow_id}, "
-                f"packet_id {packet.packet_id}, virtual clocks {self.v_clocks[flow_id]}, "
-                f"aux_vc {self.aux_vc[flow_id]}")
+                f"belong to class {self.flow_classes(flow_id)}, "
+                f"packet_id {packet.packet_id}, virtual clocks {self.v_clocks[self.flow_classes(flow_id)]}, "
+                f"aux_vc {self.aux_vc[self.flow_classes(flow_id)]}")
 
         if self.zero_buffer and upstream_update is not None and upstream_store is not None:
             self.upstream_stores[packet] = upstream_store
             self.upstream_updates[packet] = upstream_update
 
         if self.zero_downstream_buffer:
-            self.downstream_store.put((self.aux_vc[flow_id], packet))
+            self.downstream_store.put(
+                (self.aux_vc[self.flow_classes(flow_id)], packet))
 
-        return self.store.put((self.aux_vc[flow_id], packet))
+        return self.store.put(
+            (self.aux_vc[self.flow_classes(flow_id)], packet))
