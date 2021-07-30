@@ -66,7 +66,8 @@ class DRRServer:
             for queue_id, weight in enumerate(weights):
                 self.deficit[queue_id] = 0.0
                 self.flow_queue_count[queue_id] = 0
-                self.quantum = self.MIN_QUANTUM * weight / min(weights)
+                self.quantum[queue_id] = self.MIN_QUANTUM * weight / min(
+                    weights)
 
         elif isinstance(weights, dict):
             for (queue_id, value) in weights.items():
@@ -166,19 +167,13 @@ class DRRServer:
         return self.byte_sizes.keys()
 
     def total_packets(self) -> int:
-        if isinstance(self.weights, list):
-            return sum(self.flow_queue_count)
-        else:
-            return sum(self.flow_queue_count.values())
+        return sum(self.flow_queue_count.values())
 
     def run(self):
         """The generator function used in simulations."""
         while True:
             while self.total_packets() > 0:
-                if isinstance(self.weights, list):
-                    flow_queue_counts = enumerate(self.flow_queue_count)
-                else:
-                    flow_queue_counts = self.flow_queue_count.items()
+                flow_queue_counts = self.flow_queue_count.items()
 
                 for queue_id, count in flow_queue_counts:
                     if count > 0:
