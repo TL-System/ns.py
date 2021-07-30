@@ -24,11 +24,13 @@ class WFQServer:
     weights: list or dict
         This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
         or class_id, if class-based fair queueing is activated using the `flow_classes' parameter
-        below --- as its index to look for the flow's corresponding weight. If it is a dictionary,
-        it contains (flow_id or class_id -> weight) pairs for each possible flow_id or class_id.
+        below --- as its index to look for the flow (or class)'s corresponding weight. If it is a
+        dictionary, it contains (flow_id or class_id -> weight) pairs for each possible flow_id
+        or class_id.
     flow_classes: function
         This is a function that matches flow_id's to class_ids, used to implement class-based
-        Weighted Fair Queueing. The default is None, which is equivalent to flow-based WFQ.
+        Weighted Fair Queueing. The default is an identity lambda function, which is equivalent
+        to flow-based WFQ.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element

@@ -29,7 +29,8 @@ class DRRServer:
         it contains (flow_id or class_id -> weight) pairs for each possible flow_id or class_id.
     flow_classes: function
         This is a function that matches flow_id's to class_ids, used to implement class-based
-        Deficit Round Robin. The default is None, which is equivalent to flow-based DRR.
+        Deficit Round Robin. The default is an identity lambda function, which is equivalent to
+        flow-based DRR.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -140,7 +141,7 @@ class DRRServer:
 
     def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in bytes.
+        Returns the size of the queue for a particular queue_id, in bytes.
         Used by a ServerMonitor.
         """
         if queue_id in self.flow_queue_count:
@@ -150,7 +151,7 @@ class DRRServer:
 
     def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in the
+        Returns the size of the queue for a particular queue_id, in the
         number of packets. Used by a ServerMonitor.
         """
         if queue_id in self.flow_queue_count:

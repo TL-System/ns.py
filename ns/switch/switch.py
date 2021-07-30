@@ -8,6 +8,7 @@ from ns.demux.fib_demux import FIBDemux
 from ns.scheduler.wfq import WFQServer
 from ns.scheduler.drr import DRRServer
 from ns.scheduler.virtual_clock import VirtualClockServer
+from ns.scheduler.sp import SPServer
 
 
 class SimplePacketSwitch:
@@ -114,9 +115,16 @@ class FairPacketSwitch:
                                                flow_classes=flow_classes,
                                                zero_buffer=True,
                                                debug=debug)
+            elif server == 'SP':
+                scheduler = SPServer(env,
+                                     rate=port_rate,
+                                     priorities=weights,
+                                     flow_classes=flow_classes,
+                                     zero_buffer=True,
+                                     debug=debug)
             else:
                 raise ValueError(
-                    "Scheduler type must be either 'WFQ', 'DRR', or 'VirtualClock'."
+                    "Scheduler type must be 'WFQ', 'DRR', 'SP', or 'VirtualClock'."
                 )
 
             egress_port.out = scheduler

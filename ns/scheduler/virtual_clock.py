@@ -25,13 +25,14 @@ class VirtualClockServer:
         vticks: list or dict
             This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
             or class_id, if class-based fair queueing is activated using the `flow_classes'
-            parameter below --- as its index to look for the flow's corresponding 'vtick'.
-            If it is a dictionary, it contains (flow_id or class_id -> vtick) pairs for each
-            possible flow_id or class_id.  We assume that the vticks are the inverse of the
-            desired rates for the corresponding flows, in bits per second.
+            parameter below --- as its index to look for the flow (or class)'s corresponding
+            'vtick'.  If it is a dictionary, it contains (flow_id or class_id -> vtick) pairs
+            for each possible flow_id or class_id.  We assume that the vticks are the inverse of
+            the desired rates for the corresponding flows, in bits per second.
         flow_classes: function
             This is a function that matches flow_id's to class_ids, used to implement class-based
-            Virtual Clock. The default is None, which is equivalent to flow-based Virtual Clock.
+            Virtual Clock. The default is an identity lambda function, which is equivalent to
+            flow-based Virtual Clock.
         zero_buffer: bool
             Does this server have a zero-length buffer? This is useful when multiple
             basic elements need to be put together to construct a more complex element

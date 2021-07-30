@@ -2,8 +2,9 @@
 Implements a Static Priority (SP) server.
 """
 
-from collections import defaultdict as dd
 import uuid
+from collections import defaultdict as dd
+from collections.abc import Callable
 
 import simpy
 from ns.packet.packet import Packet
@@ -18,9 +19,15 @@ class SPServer:
     rate: float
         The bit rate of the port.
     priorities: list or dict
-        This can be either a list or a dictionary. If it is a list, it uses the flow_id
-        as its index to look for the flow's corresponding priority. If it is a dictionary,
-        it contains (flow_id -> priority) pairs for each possible flow_id.
+        This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
+        or class_id, if class-based static priority scheduling is activated using the
+        `flow_classes' parameter below --- as its index to look for the flow (or class)'s
+        corresponding priority. If it is a dictionary, it contains (flow_id or class_id
+        -> priority) pairs for each possible flow_id or class_id.
+    flow_classes: function
+        This is a function that matches flow_id's to class_ids, used to implement class-based
+        static priority scheduling. The default is an identity lambda function, which is
+        equivalent to flow-based WFQ.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -36,12 +43,14 @@ class SPServer:
                  env,
                  rate,
                  priorities,
+                 flow_classes: Callable = lambda x: x,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug=False) -> None:
         self.env = env
         self.rate = rate
         self.prio = priorities
+        self.flow_classes = flow_classes
 
         self.element_id = uuid.uuid1()
         self.stores = {}
@@ -91,12 +100,13 @@ class SPServer:
         if self.debug:
             print(
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {self.flow_classes(packet.packet_id)} "
                 f"of priority {packet.prio[self.element_id]}")
 
         self.prio_queue_count[packet.prio[self.element_id]] -= 1
 
-        if packet.flow_id in self.byte_sizes:
-            self.byte_sizes[packet.flow_id] -= packet.size
+        if self.flow_classes(packet.flow_id) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
         else:
             raise ValueError("Error: the packet is from an unrecorded flow.")
 
@@ -107,23 +117,23 @@ class SPServer:
         """
         return self.current_packet
 
-    def byte_size(self, flow_id) -> int:
+    def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in bytes.
+        Returns the size of the queue for a particular queue_id, in bytes.
         Used by a ServerMonitor.
         """
-        if flow_id in self.byte_sizes:
-            return self.byte_sizes[flow_id]
+        if queue_id in self.byte_sizes:
+            return self.byte_sizes[queue_id]
 
         return 0
 
-    def size(self, flow_id) -> int:
+    def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular flow_id, in the
+        Returns the size of the queue for a particular queue_id, in the
         number of packets. Used by a ServerMonitor.
         """
-        if flow_id in self.stores:
-            return len(self.stores[flow_id].items)
+        if queue_id in self.stores:
+            return len(self.stores[queue_id].items)
 
         return 0
 
@@ -175,17 +185,20 @@ class SPServer:
     def put(self, packet, upstream_update=None, upstream_store=None):
         """ Sends a packet to this element. """
         self.packets_received += 1
-        self.byte_sizes[packet.flow_id] += packet.size
+        flow_id = packet.flow_id
+        self.byte_sizes[self.flow_classes(flow_id)] += packet.size
 
         if self.total_packets() == 0:
             self.packets_available.put(True)
 
-        prio = self.prio[packet.flow_id]
+        prio = self.prio[self.flow_classes(flow_id)]
         self.prio_queue_count[prio] += 1
 
         if self.debug:
-            print("At time {:.2f}: received packet {:d} from flow {}".format(
-                self.env.now, packet.packet_id, packet.flow_id))
+            print(
+                "At time {:.2f}: received packet {:d} from flow {} belonging to class {}"
+                .format(self.env.now, packet.packet_id, flow_id,
+                        self.flow_classes(flow_id)))
 
         if not prio in self.stores:
             self.stores[prio] = simpy.Store(self.env)
