@@ -48,14 +48,14 @@ n_classes_per_port = 4
 weights = {c: 1 for c in range(n_classes_per_port)}
 
 
-def flow_classes(f_id, n_id=0, fib=None):
+def flow_to_classes(f_id, n_id=0, fib=None):
     return (f_id + n_id + fib[f_id]) % n_classes_per_port
 
 
 for node_id in ft.nodes():
     node = ft.nodes[node_id]
     # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
-    flow_classes = partial(flow_classes,
+    flow_classes = partial(flow_to_classes,
                            n_id=node_id,
                            fib=node['flow_to_port'])
     node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'DRR',

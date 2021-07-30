@@ -68,7 +68,7 @@ The network components that have already been implemented include:
 
 * `SimplePacketSwitch`: a packet switch with a FIFO bounded buffer on each of the outgoing ports.
 
-* `FairPacketSwitch`: a fair packet switch with a choice of a WFQ, DRR, or Virtual Clock scheduler, as well as bounded buffers, on each of the outgoing ports.
+* `FairPacketSwitch`: a fair packet switch with a choice of a WFQ, DRR, Static Priority or Virtual Clock scheduler, as well as bounded buffers, on each of the outgoing ports. It also shows an example how a simple hash function can be used to map tuples of (flow_id, node_id, and port_id) to class IDs, and then use the parameter `flow_classes` to activate class-based scheduling rather than flow_based scheduling.
 
 * `PortMonitor`: records the number of packets in a `Port`. The monitoring interval follows a given distribution.
 
