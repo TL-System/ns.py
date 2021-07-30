@@ -104,12 +104,14 @@ class FairPacketSwitch:
                 scheduler = DRRServer(env,
                                       rate=port_rate,
                                       weights=weights,
+                                      flow_classes=flow_classes,
                                       zero_buffer=True,
                                       debug=debug)
             elif server == 'VirtualClock':
                 scheduler = VirtualClockServer(env,
                                                rate=port_rate,
                                                vticks=weights,
+                                               flow_classes=flow_classes,
                                                zero_buffer=True,
                                                debug=debug)
             else:

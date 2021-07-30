@@ -44,7 +44,7 @@ class WFQServer:
                  env,
                  rate: float,
                  weights,
-                 flow_classes: Callable = None,
+                 flow_classes: Callable = lambda x: x,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug: bool = False) -> None:
@@ -52,11 +52,7 @@ class WFQServer:
         self.rate = rate
         self.weights = weights
 
-        if flow_classes is not None:
-            self.flow_classes = flow_classes
-        else:
-            self.flow_classes = lambda x: x
-
+        self.flow_classes = flow_classes
         self.finish_times = {}
         self.flow_queue_count = {}
 

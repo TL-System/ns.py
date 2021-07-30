@@ -47,7 +47,7 @@ class DRRServer:
                  env,
                  rate,
                  weights: list,
-                 flow_classes: Callable = None,
+                 flow_classes: Callable = lambda x: x,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug: bool = False) -> None:
@@ -55,10 +55,7 @@ class DRRServer:
         self.rate = rate
         self.weights = weights
 
-        if flow_classes is not None:
-            self.flow_classes = flow_classes
-        else:
-            self.flow_classes = lambda x: x
+        self.flow_classes = flow_classes
 
         self.deficit = {}
         self.flow_queue_count = {}
@@ -82,7 +79,7 @@ class DRRServer:
         self.head_of_line = {}
         self.active_set = set()
 
-        # One FIFO queue for each flow_id
+        # One FIFO queue for each flow_id or class_id
         self.stores = {}
 
         self.current_packet = None
@@ -115,8 +112,8 @@ class DRRServer:
 
         if self.debug:
             print(
-                f"Sent out packet {packet.packet_id} from flow {packet.flow_id}"
-            )
+                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {self.flow_classes(packet.flow_id)}")
 
         if self.debug:
             print(
@@ -128,7 +125,7 @@ class DRRServer:
         if self.flow_queue_count[self.flow_classes(packet.flow_id)] == 0:
             self.deficit[self.flow_classes(packet.flow_id)] = 0.0
 
-        if packet.flow_id in self.byte_sizes:
+        if self.flow_classes(packet.flow_id) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
         else:
             raise ValueError(

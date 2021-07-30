@@ -13,7 +13,7 @@ from ns.topos.utils import generate_fib, generate_flows
 
 env = simpy.Environment()
 
-n = 100
+n_flows = 100
 k = 4
 pir = 100000
 buffer_size = 1000
@@ -26,10 +26,9 @@ for n in ft.nodes():
     if ft.nodes[n]['type'] == 'host':
         hosts.add(n)
 
-weights = {}
-
-all_flows = generate_flows(ft, hosts, n)
+all_flows = generate_flows(ft, hosts, n_flows)
 size_dist = partial(expovariate, 1.0 / mean_pkt_size)
+
 for fid in all_flows:
     arr_dist = partial(expovariate, 1 + np.random.rand())
 
@@ -42,15 +41,24 @@ for fid in all_flows:
 
     all_flows[fid].pkt_gen = pg
     all_flows[fid].pkt_sink = ps
-    weights[fid] = 1
 
 ft = generate_fib(ft, all_flows)
 
-for n in ft.nodes():
-    node = ft.nodes[n]
+n_classes_per_port = 4
+weights = {c: 1 for c in range(n_classes_per_port)}
+
+
+def flow_classes(f_id, n_id=0, fib=None):
+    return (f_id + n_id + fib[f_id]) % n_classes_per_port
+
+
+for node_id in ft.nodes():
+    node = ft.nodes[node_id]
     # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
-    flow_classes = lambda x: int(x / 2)
-    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'WFQ',
+    flow_classes = partial(flow_classes,
+                           n_id=node_id,
+                           fib=node['flow_to_port'])
+    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'DRR',
                                       flow_classes)
     node['device'].demux.fib = node['flow_to_port']
 

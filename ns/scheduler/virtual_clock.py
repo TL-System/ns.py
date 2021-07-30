@@ -47,7 +47,7 @@ class VirtualClockServer:
                  env,
                  rate,
                  vticks,
-                 flow_classes: Callable = None,
+                 flow_classes: Callable = lambda x: x,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug: bool = False):
@@ -55,10 +55,7 @@ class VirtualClockServer:
         self.rate = rate
         self.vticks = vticks
 
-        if flow_classes is not None:
-            self.flow_classes = flow_classes
-        else:
-            self.flow_classes = lambda x: x
+        self.flow_classes = flow_classes
 
         self.aux_vc = {}
         self.v_clocks = {}
