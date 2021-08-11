@@ -2,7 +2,7 @@
 
 This discrete-event network simulator is based on [`simpy`](https://simpy.readthedocs.io/en/latest/), which is a general-purpose discrete event simulation framework for Python. `ns.py` is designed to be flexible and reusable, and can be used to connect multiple networking components together easily, including packet generators, network links, switch elements, schedulers, traffic shapers, traffic monitors, and demultiplexing elements.
 
-# Installation
+## Installation
 
 First, launch the terminal and create a new `conda` environment (say, called `ns.py`):
 
@@ -20,7 +20,7 @@ $ pip install ns.py
 
 That's it! You can now try to run some examples in the `examples/` directory. More examples will be added as existing components are refined and new components are introduced.
 
-## Current Network Components
+## Current network components
 
 The network components that have already been implemented include:
 
@@ -80,7 +80,7 @@ The network components that have already been implemented include:
 
 * `Config`: a global singleton instance that reads parameter settings from a configuration file. Use `Config()` to access the instance globally.
 
-## Current Examples (in increasing levels of complexity)
+## Current examples (in increasing levels of complexity)
 
 * `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Wire`.
 
@@ -108,7 +108,7 @@ The network components that have already been implemented include:
 
 * `fattree.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, `SimplePacketSwitch`, and `FairPacketSwitch`. If per-flow fairness is desired, `FairPacketSwitch` would be used, along with Weighted Fair Queueing, Deficit Round Robin, or Virtual Clock as the scheduling discipline at each outgoing port of the switch.
 
-## Writing New Network Components
+## Writing new network components
 
 To design and implement new network components in this framework, you will first need to read the [10-minute SimPy tutorial](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html). It literally takes 10 minutes to read, but if that is still a bit too long, you can safely skip the section on *Process Interaction*, as this feature will rarely be used in this network simulation framework.
 
