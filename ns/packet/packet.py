@@ -36,8 +36,7 @@ class Packet:
                  src="source",
                  dst="destination",
                  flow_id=0,
-                 payload=None,
-                 server_sock=None):
+                 payload=None):
         self.time = time
         self.size = size
         self.packet_id = packet_id
@@ -46,7 +45,6 @@ class Packet:
         self.dst = dst
         self.flow_id = flow_id
         self.payload = payload
-        self.server_sock = server_sock
 
         self.color = None  # Used by the two-rate tri-color token bucket shaper
         self.prio = {}  # used by the Static Priority scheduler

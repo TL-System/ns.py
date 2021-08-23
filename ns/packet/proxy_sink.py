@@ -2,11 +2,15 @@
 Implements a ProxySink, designed to forward packets to a real-world TCP server, observing
 arrival times from the ns.py simulation session.
 """
+import socket
 import threading
 import time
 from collections import defaultdict as dd
+from select import select
 
 import simpy
+
+from ns.packet.packet import Packet
 
 
 class ProxySink:
@@ -36,6 +40,8 @@ class ProxySink:
     """
     def __init__(self,
                  env,
+                 destination,
+                 packet_size: int = 4096,
                  rec_arrivals: bool = True,
                  absolute_arrivals: bool = True,
                  rec_waits: bool = True,
@@ -43,6 +49,8 @@ class ProxySink:
                  debug: bool = False):
         self.store = simpy.Store(env)
         self.env = env
+        self.destination = destination
+        self.packet_size = packet_size
         self.rec_waits = rec_waits
         self.rec_flow_ids = rec_flow_ids
         self.rec_arrivals = rec_arrivals
@@ -59,19 +67,102 @@ class ProxySink:
         self.last_arrival = dd(lambda: 0)
 
         self.debug = debug
+        self.out = None
 
-    def send_to_server(self, packet):
-        packet.server_sock.send(packet.payload)
+        self.flow_ids = {}
+        self.sockets = {}
+
+        self.last_response_time = 0
+        self.last_response_realtime = 0
+        self.responses_sent = 0
+
+        self.action = env.process(self.run())
+
+    def on_accept(self, packet):
+        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            server_sock.connect(self.destination)
+        except socket.timeout:
+            print(f'Timed out connecting to server {self.destination}.')
+
+        self.flow_ids[server_sock] = packet.flow_id
+        self.sockets[packet.flow_id] = server_sock
+
+    def on_close(self, sock):
+        print(f"{sock.getpeername()} has disconnected.")
+
+        flow_id = self.flow_ids[sock]
+        del self.flow_ids[sock]
+        del self.sockets[flow_id]
+
+        sock.close()
+
+    def send_to_app(self, packet):
+        server_sock = self.sockets[packet.flow_id]
+        server_sock.send(packet.payload)
+
+    def run(self):
+        """The generator function used in simulations."""
+        while True:
+            input_ready, __, __ = select(list(self.flow_ids.keys()), [], [],
+                                         0.1)
+
+            for selected_sock in input_ready:
+                data = selected_sock.recv(self.packet_size)
+
+                if not data:
+                    self.on_close(selected_sock)
+                else:
+                    print(
+                        f"Received response from {selected_sock.getpeername()}: {data}"
+                    )
+
+                    # wait for the appropriate time to transmit a new packet with payload
+                    if self.last_response_time > 0:
+                        current_realtime = time.process_time()
+                        inter_arrival_time = self.env.now - self.last_response_time
+                        inter_arrival_realtime = current_realtime - self.last_response_realtime
+                        self.last_response_time = self.env.now
+                        self.last_response_realtime = current_realtime
+
+                        assert inter_arrival_realtime > inter_arrival_time
+
+                        yield self.env.timeout(inter_arrival_realtime -
+                                               inter_arrival_time)
+
+                    self.responses_sent += 1
+                    packet = Packet(self.env.now,
+                                    self.packet_size,
+                                    self.responses_sent,
+                                    realtime=time.process_time(),
+                                    flow_id=self.flow_ids[selected_sock],
+                                    payload=data)
+
+                    if self.debug:
+                        print(
+                            f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
+                            f"time {self.env.now}.")
+
+                    self.out.put(packet)
+
+            if not input_ready:
+                # If there are no ready sockets, yield to the other simulated elements
+                yield self.env.timeout(0)
 
     def put(self, packet):
         """ Sends a packet to this element. """
         now = self.env.now
 
-        packet_delay = self.env.now - packet.time
+        if packet.flow_id not in self.flow_ids.values():
+            # new client arrived, establishing a new connection to the server
+            self.on_accept(packet)
+
+        packet_delay = now - packet.time
         packet_delay_realtime = time.process_time() - packet.realtime
 
         delayed_action = threading.Timer(packet_delay - packet_delay_realtime,
-                                         self.send_to_server,
+                                         self.send_to_app,
                                          args=[packet])
         delayed_action.start()
 

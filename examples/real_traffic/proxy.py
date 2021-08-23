@@ -21,15 +21,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
     env = simpy.Environment()
 
-    ps = ProxySink(env, rec_flow_ids=False, debug=True)
+    ps = ProxySink(env,
+                   destination=(args.server_host, int(args.server_port)),
+                   rec_flow_ids=False,
+                   debug=True)
 
-    pg = ProxyPacketGenerator(env,
-                              "flow_1",
-                              destination=(args.server_host,
-                                           int(args.server_port)),
-                              listen_port=int(args.listen_port))
+    pg = ProxyPacketGenerator(env, "client", listen_port=int(args.listen_port))
 
     pg.out = ps
+    ps.out = pg
 
     env.run(until=1000)
 
