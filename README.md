@@ -32,9 +32,13 @@ The network components that have already been implemented include:
 
 * `TCPPacketGenerator`: generates packets using TCP as the transport protocol.
 
+* `ProxyPacketGenerator`: redirects real-world packets (with fixed packet sizes) into the simulation environment.
+
 * `PacketSink`: receives packets and records delay statistics.
 
 * `TCPSink`: receives packets, records delay statistics, and produces acknowledgements back to a TCP sender.
+
+* `ProxySink`: redirects all received packets to a destination real-world TCP server.
 
 * `Port`: an output port on a switch with a given rate and buffer size (in either bytes or the number of packets), using the simple tail-drop mechanism to drop packets.
 
@@ -107,6 +111,14 @@ The network components that have already been implemented include:
 * `red_wfq.py`: this example shows how to combine a Random Early Detection (RED) buffer (or a tail-drop buffer) and a WFQ server. The RED or tail-drop buffer serves as an upstream input buffer, configured to recognize that its downstream element has a zero-buffer configuration. The WFQ server is initialized with zero buffering as the downstream element after the RED or tail-drop buffer. Packets will be dropped when the downstream WFQ server is the bottleneck. It showcases `DistPacketGenerator`, `PacketSink`, `Port`, `REDPort`, `WFQServer`, and `Splitter`, as well as how `zero_buffer` and `zero_downstream_buffer` can be used to construct more complex network elements using elementary elements.
 
 * `fattree.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, `SimplePacketSwitch`, and `FairPacketSwitch`. If per-flow fairness is desired, `FairPacketSwitch` would be used, along with Weighted Fair Queueing, Deficit Round Robin, or Virtual Clock as the scheduling discipline at each outgoing port of the switch.
+
+* `real_traffic/proxy.py`: an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy. A simple echo client and echo server have been provided for an example demonstration how the proxy works. The proxy also works with any other types of network clients (such as a modern web browser) and network servers (such as a node.js webserver).
+
+## Emulation mode
+
+Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulation mode* that serves as a proxy between a real-world client (such as a modern web browser) and a real-world server (such as a node.js webserver). All incoming traffic from a real-world client are handled by the `ProxyPacketGenerator`, sent via a simulated network topology, and forwarded by the `ProxySink` to a real-world server. Here is a high-level overview of the design of `ns.py`'s emulation mode:
+
+![High-level overview of ns.py's emulation mode](https://github.com/TL-System/ns.py/blob/main/docs/emulation/emulation_mode.svg)
 
 ## Writing new network components
 

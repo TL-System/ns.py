@@ -29,10 +29,6 @@ class PacketSink:
     rec_flow_ids: bool
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used
-    ack:
-        if this is not None, the same packet will be sent back to this element as
-        an acknowledgement, with a constant size of 32 and a new flow_id of 1000 +
-        this packet's flow_id.
     debug: bool
         If True, prints more verbose debug information.
     """

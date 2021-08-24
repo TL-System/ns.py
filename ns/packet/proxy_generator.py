@@ -18,7 +18,15 @@ class ProxyPacketGenerator:
         env: simpy.Environment
             The simulation environment.
         element_id: str
-            the ID of this element.
+            a string that serves as the ID of this element for debugging purposes.
+        flow_id: int
+            the starting point of flow IDs. Consecutive flow IDs will be assigned to new
+            clients starting from this value.
+        listen_port: the listening point for new connections.
+        packet_size: int
+            the size of each packet when receiving real-world traffic.
+        debug: bool
+            If True, prints more verbose debug information.        
     """
     def __init__(self,
                  env,
@@ -97,9 +105,8 @@ class ProxyPacketGenerator:
                         self.on_close(selected_sock)
                     else:
                         if self.debug:
-                            print(
-                                f"{self.element_id} received data from {selected_sock.getpeername()}: {data}"
-                            )
+                            print(f"{self.element_id} received data from "
+                                  f"{selected_sock.getpeername()}: {data}")
 
                         # wait for the appropriate time to transmit a new packet with payload
                         if self.last_arrival_time > 0:
@@ -138,6 +145,7 @@ class ProxyPacketGenerator:
                                        self.env.now)
 
     def send_to_app(self, packet):
+        """ Sends a packet to the application-layer real-world client. """
         client_sock = self.sockets[packet.flow_id]
         client_sock.send(packet.payload)
 

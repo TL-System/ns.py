@@ -21,6 +21,13 @@ class ProxySink:
     ----------
     env: simpy.Environment
         the simulation environment
+    element_id: str
+        a string that serves as the ID of this element for debugging purposes.
+    destination: Tuple
+        a tuple that includes the hostname and port number of the real-world destination server
+        where packets should be relayed to.
+    packet_size: int
+        the size of each packet when receiving real-world traffic.
     rec_arrivals: bool
         if True, arrivals will be recorded
     absolute_arrivals: bool
@@ -31,10 +38,6 @@ class ProxySink:
     rec_flow_ids: bool
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used
-    ack:
-        if this is not None, the same packet will be sent back to this element as
-        an acknowledgement, with a constant size of 32 and a new flow_id of 1000 +
-        this packet's flow_id.
     debug: bool
         If True, prints more verbose debug information.
     """
@@ -43,9 +46,9 @@ class ProxySink:
                  element_id: str,
                  destination,
                  packet_size: int = 4096,
-                 rec_arrivals: bool = True,
-                 absolute_arrivals: bool = True,
-                 rec_waits: bool = True,
+                 rec_arrivals: bool = False,
+                 absolute_arrivals: bool = False,
+                 rec_waits: bool = False,
                  rec_flow_ids: bool = False,
                  debug: bool = False):
         self.store = simpy.Store(env)
@@ -102,6 +105,7 @@ class ProxySink:
         sock.close()
 
     def send_to_app(self, packet):
+        """ Sends a packet to the application-layer real-world server. """
         server_sock = self.sockets[packet.flow_id]
         server_sock.send(packet.payload)
 
@@ -118,9 +122,8 @@ class ProxySink:
                     self.on_close(selected_sock)
                 else:
                     if self.debug:
-                        print(
-                            f"{self.element_id} received response from {selected_sock.getpeername()}: {data}"
-                        )
+                        print(f"{self.element_id} received response from "
+                              f"{selected_sock.getpeername()}: {data}")
 
                     # wait for the appropriate time to transmit a new packet with payload
                     if self.last_response_time > 0:
