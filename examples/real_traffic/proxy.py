@@ -3,11 +3,19 @@ A basic example that connects two packet generators to a network wire with
 a propagation delay distribution, and then to a packet sink.
 """
 
-import simpy
 import argparse
+
+import simpy
 
 from ns.packet.proxy_generator import ProxyPacketGenerator
 from ns.packet.proxy_sink import ProxySink
+from ns.port.wire import Wire
+
+
+def delay_dist():
+    """ Network wires experience a constant propagation delay of 0.1 seconds. """
+    return 0.1
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -21,25 +29,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
     env = simpy.Environment()
 
-    ps = ProxySink(env,
-                   destination=(args.server_host, int(args.server_port)),
-                   rec_flow_ids=False,
-                   debug=True)
+    wire1_downstream = Wire(env, delay_dist)
+    wire2_upstream = Wire(env, delay_dist)
+    client = ProxyPacketGenerator(env,
+                                  "client",
+                                  listen_port=int(args.listen_port))
+    server = ProxySink(env,
+                       "server",
+                       destination=(args.server_host, int(args.server_port)))
 
-    pg = ProxyPacketGenerator(env, "client", listen_port=int(args.listen_port))
-
-    pg.out = ps
-    ps.out = pg
+    client.out = wire1_downstream
+    wire1_downstream.out = server
+    server.out = wire2_upstream
+    wire2_upstream.out = client
 
     env.run(until=1000)
-
-    print("Flow 1 packet delays: " +
-          ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_1']]))
-    print("Flow 2 packet delays: " +
-          ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_2']]))
-
-    print("Packet arrival times in flow 1: " +
-          ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_1']]))
-
-    print("Packet arrival times in flow 2: " +
-          ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_2']]))

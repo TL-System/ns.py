@@ -27,8 +27,7 @@ class Wire:
         self.out = None
         self.packets_rec = 0
         self.debug = debug
-        self.action = env.process(
-            self.run())  # starts the run() method as a SimPy process
+        self.action = env.process(self.run())
 
     def run(self):
         """The generator function used in simulations."""

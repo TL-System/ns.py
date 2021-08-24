@@ -31,6 +31,7 @@ class ProxyPacketGenerator:
         self.element_id = element_id
         self.next_flow_id = flow_id
         self.packet_size = packet_size
+        self.init_realtime = time.time()
         self.out = None
         self.packets_sent = 0
         self.last_arrival_time = 0
@@ -95,13 +96,14 @@ class ProxyPacketGenerator:
                     if not data:
                         self.on_close(selected_sock)
                     else:
-                        print(
-                            f"Received data from {selected_sock.getpeername()}: {data}"
-                        )
+                        if self.debug:
+                            print(
+                                f"{self.element_id} received data from {selected_sock.getpeername()}: {data}"
+                            )
 
                         # wait for the appropriate time to transmit a new packet with payload
                         if self.last_arrival_time > 0:
-                            current_realtime = time.process_time()
+                            current_realtime = time.time()
                             inter_arrival_time = self.env.now - self.last_arrival_time
                             inter_arrival_realtime = current_realtime - self.last_arrival_realtime
                             self.last_arrival_time = self.env.now
@@ -116,21 +118,24 @@ class ProxyPacketGenerator:
                         packet = Packet(self.env.now,
                                         self.packet_size,
                                         self.packets_sent,
-                                        realtime=time.process_time(),
+                                        realtime=time.time() -
+                                        self.init_realtime,
                                         src=self.element_id,
                                         flow_id=self.flow_ids[selected_sock],
                                         payload=data)
 
                         if self.debug:
                             print(
-                                f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                                f"time {self.env.now}.")
+                                f"{self.element_id} sent packet {packet.packet_id} with "
+                                f"flow_id {packet.flow_id} at time {self.env.now}."
+                            )
 
                         self.out.put(packet)
 
             if not input_ready:
                 # If there are no ready sockets, yield to the other simulated elements
-                yield self.env.timeout(0)
+                yield self.env.timeout(time.time() - self.init_realtime -
+                                       self.env.now)
 
     def send_to_app(self, packet):
         client_sock = self.sockets[packet.flow_id]
@@ -141,7 +146,7 @@ class ProxyPacketGenerator:
         now = self.env.now
 
         packet_delay = now - packet.time
-        packet_delay_realtime = time.process_time() - packet.realtime
+        packet_delay_realtime = time.time() - packet.realtime
 
         delayed_action = threading.Timer(packet_delay - packet_delay_realtime,
                                          self.send_to_app,

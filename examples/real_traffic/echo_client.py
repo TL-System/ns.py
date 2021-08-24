@@ -1,4 +1,5 @@
 import socket
+import time
 
 
 def get_constants(prefix):
@@ -13,12 +14,11 @@ protocols = get_constants('IPPROTO_')
 
 # Create a TCP/IP socket
 sock = socket.create_connection(('localhost', 5000))
+init_time = time.time()
 
 try:
-
-    # Send data
-    message = 'This is the message.  It will be repeated.'
-    print('sending "%s"' % message)
+    message = 'This is a new message.  It will be echoed.'
+    print('Sent "{}" at time {:.2f}.'.format(message, time.time() - init_time))
     sock.sendall(bytes(message, 'utf-8'))
 
     amount_received = 0
@@ -27,8 +27,9 @@ try:
     while amount_received < amount_expected:
         data = sock.recv(64)
         amount_received += len(data)
-        print('received "%s"' % data)
+        print('Received "{}" at time {:.2f}.'.format(data,
+                                                     time.time() - init_time))
 
 finally:
-    print('closing socket')
+    print('Disconnecting.')
     sock.close()

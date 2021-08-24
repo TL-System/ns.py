@@ -40,15 +40,18 @@ class ProxySink:
     """
     def __init__(self,
                  env,
+                 element_id: str,
                  destination,
                  packet_size: int = 4096,
                  rec_arrivals: bool = True,
                  absolute_arrivals: bool = True,
                  rec_waits: bool = True,
-                 rec_flow_ids: bool = True,
+                 rec_flow_ids: bool = False,
                  debug: bool = False):
         self.store = simpy.Store(env)
         self.env = env
+        self.element_id = element_id
+        self.init_realtime = time.time()
         self.destination = destination
         self.packet_size = packet_size
         self.rec_waits = rec_waits
@@ -114,13 +117,14 @@ class ProxySink:
                 if not data:
                     self.on_close(selected_sock)
                 else:
-                    print(
-                        f"Received response from {selected_sock.getpeername()}: {data}"
-                    )
+                    if self.debug:
+                        print(
+                            f"{self.element_id} received response from {selected_sock.getpeername()}: {data}"
+                        )
 
                     # wait for the appropriate time to transmit a new packet with payload
                     if self.last_response_time > 0:
-                        current_realtime = time.process_time()
+                        current_realtime = time.time()
                         inter_arrival_time = self.env.now - self.last_response_time
                         inter_arrival_realtime = current_realtime - self.last_response_realtime
                         self.last_response_time = self.env.now
@@ -135,20 +139,22 @@ class ProxySink:
                     packet = Packet(self.env.now,
                                     self.packet_size,
                                     self.responses_sent,
-                                    realtime=time.process_time(),
+                                    realtime=time.time() - self.init_realtime,
                                     flow_id=self.flow_ids[selected_sock],
                                     payload=data)
 
                     if self.debug:
                         print(
-                            f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                            f"time {self.env.now}.")
+                            f"{self.element_id} sent packet {packet.packet_id} "
+                            f"with flow_id {packet.flow_id} at time {self.env.now}."
+                        )
 
                     self.out.put(packet)
 
             if not input_ready:
                 # If there are no ready sockets, yield to the other simulated elements
-                yield self.env.timeout(0)
+                yield self.env.timeout(time.time() - self.init_realtime -
+                                       self.env.now)
 
     def put(self, packet):
         """ Sends a packet to this element. """
@@ -159,7 +165,7 @@ class ProxySink:
             self.on_accept(packet)
 
         packet_delay = now - packet.time
-        packet_delay_realtime = time.process_time() - packet.realtime
+        packet_delay_realtime = time.time() - packet.realtime
 
         delayed_action = threading.Timer(packet_delay - packet_delay_realtime,
                                          self.send_to_app,
@@ -196,9 +202,10 @@ class ProxySink:
                 time_elapsed = self.env.now - (
                     self.packet_times[rec_index][-10] +
                     self.waits[rec_index][-10])
-                print(
-                    "Average throughput (last 10 packets): {:.2f} bytes/second."
-                    .format(bytes_received / time_elapsed))
+                if time_elapsed > 0:
+                    print(
+                        "Average throughput (last 10 packets): {:.2f} bytes/second."
+                        .format(bytes_received / time_elapsed))
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size

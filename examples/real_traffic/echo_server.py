@@ -1,5 +1,5 @@
 import socket
-import sys
+import time
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -11,6 +11,7 @@ sock.bind(server_address)
 
 # Listen for incoming connections
 sock.listen(1)
+init_time = time.time()
 
 while True:
     # Wait for a connection
@@ -23,12 +24,18 @@ while True:
         # Receive the data in small chunks and retransmit it
         while True:
             data = connection.recv(64)
-            print('received "%s"' % data)
+            print('received "{}" at time {:.2f}.'.format(
+                data,
+                time.time() - init_time))
             if data:
-                print('sending data back to the client')
+                print('sending "{}" back to the client at time {:.2f}'.format(
+                    data,
+                    time.time() - init_time))
                 connection.sendall(data)
             else:
-                print('no more data from', client_address)
+                print('no more data from {} at time {:.2f}'.format(
+                    client_address,
+                    time.time() - init_time))
                 break
 
     finally:
