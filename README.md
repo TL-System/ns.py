@@ -112,8 +112,6 @@ The network components that have already been implemented include:
 
 * `fattree.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, `SimplePacketSwitch`, and `FairPacketSwitch`. If per-flow fairness is desired, `FairPacketSwitch` would be used, along with Weighted Fair Queueing, Deficit Round Robin, or Virtual Clock as the scheduling discipline at each outgoing port of the switch.
 
-* `real_traffic/proxy.py`: an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy. A simple echo client and echo server have been provided for an example demonstration how the proxy works. The proxy also works with any other types of network clients (such as a modern web browser) and network servers (such as a node.js webserver).
-
 ## Emulation mode
 
 Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulation mode* that serves as a proxy between a real-world client (such as a modern web browser) and a real-world server (such as a node.js webserver). All incoming traffic from a real-world client are handled by the `ProxyPacketGenerator`, sent via a simulated network topology, and forwarded by the `ProxySink` to a real-world server. Here is a high-level overview of the design of `ns.py`'s emulation mode:
@@ -122,6 +120,31 @@ Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulat
   <img src="https://github.com/TL-System/ns.py/blob/main/docs/emulation/emulation_mode.svg" alt="High-level overview of ns.py's emulation mode"/>
 </p>
 
+`examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective. 
+
+A simple echo client and echo server have been provided for an example demonstration how the proxy works. To run this example with the provided echo client and echo server, start the server first:
+
+```shell
+python examples/real_traffic/echo_server.py
+```
+
+The echo server will listen on port 10000 on localhost.
+
+Now run the provided simple example for the `ns.py` proxy:
+
+```shell
+python examples/real_traffic/proxy.py 5000 localhost 10000
+```
+
+The proxy will now listen on port 5000, and redirects all traffic to `localhost:10000`, which is where the echo server is.
+
+Finally, run the echo client:
+
+```shell
+python examples/real_traffic/echo_client.py
+```
+
+It will send one simple message to port 5000, where the proxy is.
 ## Writing new network components
 
 To design and implement new network components in this framework, you will first need to read the [10-minute SimPy tutorial](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html). It literally takes 10 minutes to read, but if that is still a bit too long, you can safely skip the section on *Process Interaction*, as this feature will rarely be used in this network simulation framework.
