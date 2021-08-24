@@ -118,7 +118,9 @@ The network components that have already been implemented include:
 
 Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulation mode* that serves as a proxy between a real-world client (such as a modern web browser) and a real-world server (such as a node.js webserver). All incoming traffic from a real-world client are handled by the `ProxyPacketGenerator`, sent via a simulated network topology, and forwarded by the `ProxySink` to a real-world server. Here is a high-level overview of the design of `ns.py`'s emulation mode:
 
-![High-level overview of ns.py's emulation mode](https://github.com/TL-System/ns.py/blob/main/docs/emulation/emulation_mode.svg)
+<p align="center">
+  <img src="https://github.com/TL-System/ns.py/blob/main/docs/emulation/emulation_mode.svg" alt="High-level overview of ns.py's emulation mode"/>
+</p>
 
 ## Writing new network components
 
