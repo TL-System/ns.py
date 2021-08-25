@@ -59,6 +59,7 @@ class ProxyPacketGenerator:
         self.action = env.process(self.run())
 
     def on_accept(self):
+        """ When a client connects, establish its associated states. """
         client_sock, client_addr = self.sock.accept()
         print(f"{client_addr} has connected.")
         self.flow_ids[client_sock] = self.next_flow_id
@@ -66,6 +67,7 @@ class ProxyPacketGenerator:
         self.next_flow_id += 1
 
     def on_close(self, sock):
+        """ If a client disconnects, remove its associated states. """
         print(f"{sock.getpeername()} has disconnected.")
 
         flow_id = self.flow_ids[sock]
@@ -75,6 +77,7 @@ class ProxyPacketGenerator:
         sock.close()
 
     def remove_closed_sockets(self):
+        """ Remove all closed sockets. """
         closed_flow_id = -1
 
         for sock in self.flow_ids:
@@ -87,7 +90,7 @@ class ProxyPacketGenerator:
             del self.sockets[closed_flow_id]
 
     def run(self):
-        """The generator function used in simulations."""
+        """ The generator function used in simulations. """
         while True:
             self.remove_closed_sockets()
 
@@ -146,8 +149,9 @@ class ProxyPacketGenerator:
 
     def send_to_app(self, packet):
         """ Sends a packet to the application-layer real-world client. """
-        client_sock = self.sockets[packet.flow_id]
-        client_sock.send(packet.payload)
+        if packet.flow_id in self.sockets:
+            client_sock = self.sockets[packet.flow_id]
+            client_sock.send(packet.payload)
 
     def put(self, packet):
         """ Sends a packet to this element. """

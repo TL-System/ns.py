@@ -122,13 +122,15 @@ Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulat
 
 `examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective. 
 
+### Testing the emulation mode with a simple echo server
+
 A simple echo client and echo server have been provided for an example demonstration how the proxy works. To run this example with the provided echo client and echo server, start the server first:
 
 ```shell
-python examples/real_traffic/echo_server.py
+python examples/real_traffic/echo_server.py 10000
 ```
 
-The echo server will listen on port 10000 on localhost.
+The echo server will listen on port 10000 on `localhost`.
 
 Now run the provided simple example for the `ns.py` proxy:
 
@@ -141,10 +143,36 @@ The proxy will now listen on port 5000, and redirects all traffic to `localhost:
 Finally, run the echo client:
 
 ```shell
-python examples/real_traffic/echo_client.py
+python examples/real_traffic/echo_client.py localhost 5000
 ```
 
 It will send one simple message to port 5000, where the proxy is.
+
+### Testing the emulation mode with a simple HTTPS server
+
+A simple HTTPS server has been provided in `examples/real_traffic`. To use it to test the emulation mode, you will need to generate a self-signed server certificate first:
+
+```shell
+openssl req -new -x509 -keyout server_cert.pem -out server_cert.pem -days 365 -nodes
+```
+
+Then run the HTTPS server:
+```shell
+python examples/real_traffic/https_server.py 4443 server_cert.pem
+```
+
+Now you can run the `ns.py` proxy with the HTTPS server as its destination:
+
+```shell
+python examples/real_traffic/proxy.py 5000 localhost 4443
+```
+
+Finally, run a `curl` HTTPS client to connect to the HTTP server:
+
+```shell
+curl -v https://localhost:5000 --insecure
+```
+
 ## Writing new network components
 
 To design and implement new network components in this framework, you will first need to read the [10-minute SimPy tutorial](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html). It literally takes 10 minutes to read, but if that is still a bit too long, you can safely skip the section on *Process Interaction*, as this feature will rarely be used in this network simulation framework.
