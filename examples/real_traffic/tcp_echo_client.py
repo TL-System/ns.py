@@ -1,7 +1,6 @@
+import argparse
 import socket
 import time
-
-import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -18,7 +17,8 @@ if __name__ == '__main__':
 
     try:
         message = 'This is a new message.  It will be echoed.'
-        print('Sent "{}" at time {:.2f}.'.format(message, time.time() - init_time))
+        print('Sent "{}" at time {:.2f}.'.format(message,
+                                                 time.time() - init_time))
         sock.sendall(bytes(message, 'utf-8'))
 
         amount_received = 0
@@ -27,7 +27,9 @@ if __name__ == '__main__':
         while amount_received < amount_expected:
             data = sock.recv(64)
             amount_received += len(data)
-            print('Received "{}" at time {:.2f}.'.format(data, time.time() - init_time))
+            print('Received "{}" at time {:.2f}.'.format(
+                data,
+                time.time() - init_time))
 
     finally:
         print('Disconnecting.')

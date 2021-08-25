@@ -34,25 +34,34 @@ class ProxyPacketGenerator:
                  flow_id: int = 0,
                  listen_port: int = 3000,
                  packet_size: int = 4096,
+                 protocol: str = 'tcp',
                  debug: bool = False):
         self.env = env
         self.element_id = element_id
         self.next_flow_id = flow_id
         self.packet_size = packet_size
+        self.protocol = protocol
+
         self.init_realtime = time.time()
         self.out = None
         self.packets_sent = 0
         self.last_arrival_time = 0
         self.last_arrival_realtime = 0
-
         self.debug = debug
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind(('127.0.0.1', listen_port))
-        self.sock.listen()
+        if self.protocol == 'tcp':
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind(('localhost', listen_port))
+            self.sock.listen()
+        elif self.protocol == 'udp':
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind(('localhost', listen_port))
+        else:
+            raise ValueError("Protocol should be either 'tcp' or 'udp'.")
 
-        # Associating sockets to flow IDs
+        # Associating sockets (for TCP) or client addresses (for UDP) to flow IDs
         self.flow_ids = {}
         self.sockets = {}
 
@@ -92,24 +101,33 @@ class ProxyPacketGenerator:
     def run(self):
         """ The generator function used in simulations. """
         while True:
-            self.remove_closed_sockets()
+            if self.protocol == 'tcp':
+                self.remove_closed_sockets()
 
-            # receiving data from the listening TCP socket
+            # receiving data from the active sockets
             input_ready, __, __ = select(
                 [self.sock] + list(self.flow_ids.keys()), [], [], 0.1)
 
             for selected_sock in input_ready:
-                if selected_sock == self.sock:
+                if selected_sock == self.sock and self.protocol == 'tcp':
                     self.on_accept()
                 else:
-                    data = selected_sock.recv(self.packet_size)
+                    if self.protocol == 'tcp':
+                        data = selected_sock.recv(self.packet_size)
+                    else:
+                        data, self.client_addr = selected_sock.recvfrom(
+                            self.packet_size)
 
-                    if not data:
+                    if not data and self.protocol == 'tcp':
                         self.on_close(selected_sock)
                     else:
                         if self.debug:
-                            print(f"{self.element_id} received data from "
-                                  f"{selected_sock.getpeername()}: {data}")
+                            if self.protocol == 'tcp':
+                                print(f"{self.element_id} received data from "
+                                      f"{selected_sock.getpeername()}: {data}")
+                            else:
+                                print(f"{self.element_id} received data from "
+                                      f"{self.client_addr}: {data}")
 
                         # wait for the appropriate time to transmit a new packet with payload
                         if self.last_arrival_time > 0:
@@ -125,14 +143,25 @@ class ProxyPacketGenerator:
                                                    inter_arrival_time)
 
                         self.packets_sent += 1
-                        packet = Packet(self.env.now,
-                                        self.packet_size,
-                                        self.packets_sent,
-                                        realtime=time.time() -
-                                        self.init_realtime,
-                                        src=self.element_id,
-                                        flow_id=self.flow_ids[selected_sock],
-                                        payload=data)
+
+                        if self.protocol == 'tcp':
+                            packet = Packet(
+                                self.env.now,
+                                self.packet_size,
+                                self.packets_sent,
+                                realtime=time.time() - self.init_realtime,
+                                src=self.element_id,
+                                flow_id=self.flow_ids[selected_sock],
+                                payload=data)
+                        else:
+                            packet = Packet(self.env.now,
+                                            self.packet_size,
+                                            self.packets_sent,
+                                            realtime=time.time() -
+                                            self.init_realtime,
+                                            src=self.element_id,
+                                            flow_id=self.next_flow_id,
+                                            payload=data)
 
                         if self.debug:
                             print(
@@ -149,9 +178,14 @@ class ProxyPacketGenerator:
 
     def send_to_app(self, packet):
         """ Sends a packet to the application-layer real-world client. """
-        if packet.flow_id in self.sockets:
-            client_sock = self.sockets[packet.flow_id]
-            client_sock.send(packet.payload)
+        if self.protocol == 'tcp':
+            if packet.flow_id in self.sockets:
+                client_sock = self.sockets[packet.flow_id]
+                client_sock.send(packet.payload)
+        elif self.protocol == 'udp':
+            self.sock.sendto(packet.payload, self.client_addr)
+        else:
+            raise ValueError("Protocol should be either 'tcp' or 'udp'.")
 
     def put(self, packet):
         """ Sends a packet to this element. """

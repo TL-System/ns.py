@@ -122,31 +122,49 @@ Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulat
 
 `examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective. 
 
-### Testing the emulation mode with a simple echo server
+### Testing the emulation mode with simple TCP and UDP echo servers
 
 A simple echo client and echo server have been provided for an example demonstration how the proxy works. To run this example with the provided echo client and echo server, start the server first:
 
 ```shell
-python examples/real_traffic/echo_server.py 10000
+python examples/real_traffic/tcp_echo_server.py 10000
 ```
 
-The echo server will listen on port 10000 on `localhost`.
+The TCP echo server will listen on port 10000 on `localhost`.
 
-Now run the provided simple example for the `ns.py` proxy:
+Now run the provided simple example for a TCP `ns.py` proxy:
 
 ```shell
-python examples/real_traffic/proxy.py 5000 localhost 10000
+python examples/real_traffic/proxy.py 5000 localhost 10000 tcp
 ```
 
-The proxy will now listen on port 5000, and redirects all traffic to `localhost:10000`, which is where the echo server is.
+This TCP proxy will now listen on port 5000, and redirects all traffic to `localhost:10000`, which is where the TCP echo server is.
 
-Finally, run the echo client:
+Finally, run the TCP echo client:
 
 ```shell
-python examples/real_traffic/echo_client.py localhost 5000
+python examples/real_traffic/tcp_echo_client.py localhost 5000
 ```
 
-It will send one simple message to port 5000, where the proxy is.
+It will send one simple message to port 5000, where the TCP proxy is.
+
+To use an UDP proxy instead, first run the UDP echo server, which listens on port 10000 on `localhost`:
+
+```shell
+python examples/real_traffic/udp_echo_server.py 10000
+```
+
+Then run the UDP `ns.py` proxy on port 10000, asking it to redirect all traffic to `localhost:10000`, where the UDP echo server is.
+
+```shell
+python examples/real_traffic/proxy.py 5000 localhost 10000 udp
+```
+
+Finally, run the UDP echo client:
+
+```shell
+python examples/real_traffic/udp_echo_client.py localhost 5000 Hello World
+```
 
 ### Testing the emulation mode with a simple HTTPS server
 

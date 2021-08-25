@@ -46,21 +46,25 @@ class ProxySink:
                  element_id: str,
                  destination,
                  packet_size: int = 4096,
+                 protocol: str = 'tcp',
                  rec_arrivals: bool = False,
                  absolute_arrivals: bool = False,
                  rec_waits: bool = False,
                  rec_flow_ids: bool = False,
                  debug: bool = False):
+        self.init_realtime = time.time()
+
         self.store = simpy.Store(env)
         self.env = env
         self.element_id = element_id
-        self.init_realtime = time.time()
         self.destination = destination
         self.packet_size = packet_size
-        self.rec_waits = rec_waits
-        self.rec_flow_ids = rec_flow_ids
+        self.protocol = protocol
         self.rec_arrivals = rec_arrivals
         self.absolute_arrivals = absolute_arrivals
+        self.rec_waits = rec_waits
+        self.rec_flow_ids = rec_flow_ids
+
         self.waits = dd(list)
         self.arrivals = dd(list)
         self.packets_received = dd(lambda: 0)
@@ -84,7 +88,9 @@ class ProxySink:
 
         self.action = env.process(self.run())
 
-    def on_accept(self, packet):
+        self.udpserver_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def on_tcp_accept(self, packet):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
@@ -106,24 +112,34 @@ class ProxySink:
 
     def send_to_app(self, packet):
         """ Sends a packet to the application-layer real-world server. """
-        server_sock = self.sockets[packet.flow_id]
-        server_sock.send(packet.payload)
+        if self.protocol == 'tcp':
+            server_sock = self.sockets[packet.flow_id]
+            server_sock.send(packet.payload)
+        elif self.protocol == 'udp':
+            self.udpserver_sock.sendto(packet.payload, self.destination)
+        else:
+            raise ValueError("Protocol should be either 'tcp' or 'udp'.")
 
     def run(self):
         """The generator function used in simulations."""
         while True:
-            input_ready, __, __ = select(list(self.flow_ids.keys()), [], [],
+            input_ready, __, __ = select([self.udpserver_sock] +
+                                         list(self.flow_ids.keys()), [], [],
                                          0.1)
 
             for selected_sock in input_ready:
                 data = selected_sock.recv(self.packet_size)
 
-                if not data:
+                if not data and self.protocol == 'tcp':
                     self.on_close(selected_sock)
                 else:
                     if self.debug:
-                        print(f"{self.element_id} received response from "
-                              f"{selected_sock.getpeername()}: {data}")
+                        if self.protocol == 'tcp':
+                            print(f"{self.element_id} received response from "
+                                  f"{selected_sock.getpeername()}: {data}")
+                        else:
+                            print(f"{self.element_id} received data from "
+                                  f"{self.destination}: {data}")
 
                     # wait for the appropriate time to transmit a new packet with payload
                     if self.last_response_time > 0:
@@ -139,12 +155,22 @@ class ProxySink:
                                                inter_arrival_time)
 
                     self.responses_sent += 1
-                    packet = Packet(self.env.now,
-                                    self.packet_size,
-                                    self.responses_sent,
-                                    realtime=time.time() - self.init_realtime,
-                                    flow_id=self.flow_ids[selected_sock],
-                                    payload=data)
+
+                    if self.protocol == 'tcp':
+                        packet = Packet(self.env.now,
+                                        self.packet_size,
+                                        self.responses_sent,
+                                        realtime=time.time() -
+                                        self.init_realtime,
+                                        flow_id=self.flow_ids[selected_sock],
+                                        payload=data)
+                    else:
+                        packet = Packet(self.env.now,
+                                        self.packet_size,
+                                        self.responses_sent,
+                                        realtime=time.time() -
+                                        self.init_realtime,
+                                        payload=data)
 
                     if self.debug:
                         print(
@@ -164,8 +190,9 @@ class ProxySink:
         now = self.env.now
 
         if packet.flow_id not in self.flow_ids.values():
-            # new client arrived, establishing a new connection to the server
-            self.on_accept(packet)
+            if self.protocol == 'tcp':
+                # new client arrived, establishing a new connection to the server
+                self.on_tcp_accept(packet)
 
         packet_delay = now - packet.time
         packet_delay_realtime = time.time() - packet.realtime

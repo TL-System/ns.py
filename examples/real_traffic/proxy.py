@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument("server_port",
                         help="The remote port to connect to.",
                         type=int)
+    parser.add_argument("protocol", help="'tcp' or 'udp'", type=str)
     args = parser.parse_args()
     env = simpy.Environment()
 
@@ -33,10 +34,14 @@ if __name__ == '__main__':
     wire2_upstream = Wire(env, delay_dist)
     client = ProxyPacketGenerator(env,
                                   "client",
-                                  listen_port=int(args.listen_port))
+                                  listen_port=int(args.listen_port),
+                                  protocol=str(args.protocol),
+                                  debug=True)
     server = ProxySink(env,
                        "server",
-                       destination=(args.server_host, int(args.server_port)))
+                       destination=(args.server_host, int(args.server_port)),
+                       protocol=str(args.protocol),
+                       debug=True)
 
     client.out = wire1_downstream
     wire1_downstream.out = server

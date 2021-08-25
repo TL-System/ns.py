@@ -1,6 +1,7 @@
+""" A simple TCP echo server. """
+import argparse
 import socket
 import time
-import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -37,9 +38,9 @@ if __name__ == '__main__':
                     data,
                     time.time() - init_time))
                 if data:
-                    print('sending "{}" back to the client at time {:.2f}'.format(
-                        data,
-                        time.time() - init_time))
+                    print('sending "{}" back to the client at time {:.2f}'.
+                          format(data,
+                                 time.time() - init_time))
                     connection.sendall(data)
                 else:
                     print('no more data from {} at time {:.2f}'.format(
