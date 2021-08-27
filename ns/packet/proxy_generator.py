@@ -19,28 +19,24 @@ class ProxyPacketGenerator:
             The simulation environment.
         element_id: str
             a string that serves as the ID of this element for debugging purposes.
-        flow_id: int
-            the starting point of flow IDs. Consecutive flow IDs will be assigned to new
-            clients starting from this value.
         listen_port: the listening point for new connections.
         packet_size: int
             the size of each packet when receiving real-world traffic.
         debug: bool
-            If True, prints more verbose debug information.        
+            If True, prints more verbose debug information.
     """
     def __init__(self,
                  env,
                  element_id: str,
-                 flow_id: int = 0,
                  listen_port: int = 3000,
-                 packet_size: int = 4096,
+                 packet_size: int = 40960,
                  protocol: str = 'tcp',
                  debug: bool = False):
         self.env = env
         self.element_id = element_id
-        self.next_flow_id = flow_id
         self.packet_size = packet_size
         self.protocol = protocol
+        self.flow_id = 0
 
         self.init_realtime = time.time()
         self.out = None
@@ -67,21 +63,37 @@ class ProxyPacketGenerator:
 
         self.action = env.process(self.run())
 
-    def on_accept(self):
+    def on_tcp_accept(self):
         """ When a client connects, establish its associated states. """
         client_sock, client_addr = self.sock.accept()
-        print(f"{client_addr} has connected.")
-        self.flow_ids[client_sock] = self.next_flow_id
-        self.sockets[self.next_flow_id] = client_sock
-        self.next_flow_id += 1
+        print(f"{self.element_id}: {client_addr} has connected.")
 
-    def on_close(self, sock):
+        # using the port number as the flow ID
+        self.flow_id = client_addr[1]
+        self.flow_ids[client_sock] = self.flow_id
+        self.sockets[self.flow_id] = client_sock
+
+    def on_tcp_close(self, sock):
         """ If a client disconnects, remove its associated states. """
-        print(f"{sock.getpeername()} has disconnected.")
+        print(f"{self.element_id}: {sock.getpeername()} has disconnected.")
 
         flow_id = self.flow_ids[sock]
         del self.flow_ids[sock]
         del self.sockets[flow_id]
+
+        packet = Packet(self.env.now,
+                        0,
+                        self.packets_sent,
+                        src=self.element_id,
+                        flow_id=flow_id,
+                        payload=None)
+
+        if self.debug:
+            print(
+                f"{self.element_id} sent a closing packet {packet.packet_id} with "
+                f"flow_id {packet.flow_id} at time {self.env.now}.")
+
+        self.out.put(packet)
 
         sock.close()
 
@@ -105,12 +117,12 @@ class ProxyPacketGenerator:
                 self.remove_closed_sockets()
 
             # receiving data from the active sockets
-            input_ready, __, __ = select(
-                [self.sock] + list(self.flow_ids.keys()), [], [], 0.1)
+            inputs = [self.sock] + list(self.flow_ids.keys())
+            input_ready, __, __ = select(inputs, [], inputs, 0.01)
 
             for selected_sock in input_ready:
                 if selected_sock == self.sock and self.protocol == 'tcp':
-                    self.on_accept()
+                    self.on_tcp_accept()
                 else:
                     if self.protocol == 'tcp':
                         data = selected_sock.recv(self.packet_size)
@@ -119,7 +131,7 @@ class ProxyPacketGenerator:
                             self.packet_size)
 
                     if not data and self.protocol == 'tcp':
-                        self.on_close(selected_sock)
+                        self.on_tcp_close(selected_sock)
                     else:
                         if self.debug:
                             if self.protocol == 'tcp':
@@ -131,12 +143,11 @@ class ProxyPacketGenerator:
 
                         # wait for the appropriate time to transmit a new packet with payload
                         if self.last_arrival_time > 0:
-                            current_realtime = time.time()
+                            current_realtime = time.time() - self.init_realtime
                             inter_arrival_time = self.env.now - self.last_arrival_time
                             inter_arrival_realtime = current_realtime - self.last_arrival_realtime
                             self.last_arrival_time = self.env.now
                             self.last_arrival_realtime = current_realtime
-
                             assert inter_arrival_realtime > inter_arrival_time
 
                             yield self.env.timeout(inter_arrival_realtime -
@@ -160,7 +171,7 @@ class ProxyPacketGenerator:
                                             realtime=time.time() -
                                             self.init_realtime,
                                             src=self.element_id,
-                                            flow_id=self.next_flow_id,
+                                            flow_id=self.flow_id,
                                             payload=data)
 
                         if self.debug:
@@ -192,9 +203,14 @@ class ProxyPacketGenerator:
         now = self.env.now
 
         packet_delay = now - packet.time
-        packet_delay_realtime = time.time() - packet.realtime
+        packet_delay_realtime = time.time(
+        ) - self.init_realtime - packet.realtime
 
-        delayed_action = threading.Timer(packet_delay - packet_delay_realtime,
-                                         self.send_to_app,
-                                         args=[packet])
-        delayed_action.start()
+        if packet_delay > packet_delay_realtime:
+            delayed_action = threading.Timer(packet_delay -
+                                             packet_delay_realtime,
+                                             self.send_to_app,
+                                             args=[packet])
+            delayed_action.start()
+        else:
+            self.send_to_app(packet)

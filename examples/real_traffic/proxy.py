@@ -33,15 +33,17 @@ if __name__ == '__main__':
     wire1_downstream = Wire(env, delay_dist)
     wire2_upstream = Wire(env, delay_dist)
     client = ProxyPacketGenerator(env,
-                                  "client",
+                                  "ProxyPacketGenerator",
+                                  packet_size=40960,
                                   listen_port=int(args.listen_port),
                                   protocol=str(args.protocol),
-                                  debug=True)
+                                  debug=False)
     server = ProxySink(env,
-                       "server",
+                       "ProxySink",
+                       packet_size=40960,
                        destination=(args.server_host, int(args.server_port)),
                        protocol=str(args.protocol),
-                       debug=True)
+                       debug=False)
 
     client.out = wire1_downstream
     wire1_downstream.out = server

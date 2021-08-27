@@ -45,7 +45,7 @@ class ProxySink:
                  env,
                  element_id: str,
                  destination,
-                 packet_size: int = 4096,
+                 packet_size: int = 40960,
                  protocol: str = 'tcp',
                  rec_arrivals: bool = False,
                  absolute_arrivals: bool = False,
@@ -91,6 +91,7 @@ class ProxySink:
         self.udpserver_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def on_tcp_accept(self, packet):
+        """ When a new client arrives at the proxy sink. """
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
@@ -101,8 +102,9 @@ class ProxySink:
         self.flow_ids[server_sock] = packet.flow_id
         self.sockets[packet.flow_id] = server_sock
 
-    def on_close(self, sock):
-        print(f"{sock.getpeername()} has disconnected.")
+    def on_tcp_close(self, sock):
+        """ Removes relevant states when a server disconnects. """
+        print(f"{self.element_id}: {sock.getpeername()} has disconnected.")
 
         flow_id = self.flow_ids[sock]
         del self.flow_ids[sock]
@@ -123,15 +125,14 @@ class ProxySink:
     def run(self):
         """The generator function used in simulations."""
         while True:
-            input_ready, __, __ = select([self.udpserver_sock] +
-                                         list(self.flow_ids.keys()), [], [],
-                                         0.1)
+            inputs = [self.udpserver_sock] + list(self.flow_ids.keys())
+            input_ready, __, __ = select(inputs, [], inputs, 0.01)
 
             for selected_sock in input_ready:
                 data = selected_sock.recv(self.packet_size)
 
                 if not data and self.protocol == 'tcp':
-                    self.on_close(selected_sock)
+                    self.on_tcp_close(selected_sock)
                 else:
                     if self.debug:
                         if self.protocol == 'tcp':
@@ -187,55 +188,67 @@ class ProxySink:
 
     def put(self, packet):
         """ Sends a packet to this element. """
-        now = self.env.now
-
-        if packet.flow_id not in self.flow_ids.values():
-            if self.protocol == 'tcp':
-                # new client arrived, establishing a new connection to the server
-                self.on_tcp_accept(packet)
-
-        packet_delay = now - packet.time
-        packet_delay_realtime = time.time() - packet.realtime
-
-        delayed_action = threading.Timer(packet_delay - packet_delay_realtime,
-                                         self.send_to_app,
-                                         args=[packet])
-        delayed_action.start()
-
-        if self.rec_flow_ids:
-            rec_index = packet.flow_id
+        # If the packet is closing a flow
+        if packet.size == 0 and not packet.payload and self.protocol == 'tcp':
+            if packet.flow_id in self.sockets:
+                sock = self.sockets[packet.flow_id]
+                del self.flow_ids[sock]
+                del self.sockets[packet.flow_id]
         else:
-            rec_index = packet.src
+            now = self.env.now
 
-        if self.rec_waits:
-            self.waits[rec_index].append(packet_delay)
-            self.packet_sizes[rec_index].append(packet.size)
-            self.packet_times[rec_index].append(packet.time)
-            self.perhop_times[rec_index].append(packet.perhop_time)
+            if packet.flow_id not in self.flow_ids.values():
+                if self.protocol == 'tcp':
+                    # new client arrived, establishing a new connection to the server
+                    self.on_tcp_accept(packet)
 
-        if self.rec_arrivals:
-            self.arrivals[rec_index].append(now)
-            if len(self.arrivals[rec_index]) == 1:
-                self.first_arrival[rec_index] = now
+            packet_delay = now - packet.time
+            packet_delay_realtime = time.time(
+            ) - self.init_realtime - packet.realtime
 
-            if not self.absolute_arrivals:
-                self.arrivals[rec_index][
-                    -1] = now - self.last_arrival[rec_index]
+            if packet_delay > packet_delay_realtime:
+                delayed_action = threading.Timer(packet_delay -
+                                                 packet_delay_realtime,
+                                                 self.send_to_app,
+                                                 args=[packet])
+                delayed_action.start()
+            else:
+                self.send_to_app(packet)
 
-            self.last_arrival[rec_index] = now
+            if self.rec_flow_ids:
+                rec_index = packet.flow_id
+            else:
+                rec_index = packet.src
 
-        if self.debug:
-            print("At time {:.2f}, packet {:d} arrived.".format(
-                now, packet.packet_id))
-            if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
-                bytes_received = sum(self.packet_sizes[rec_index][-9:])
-                time_elapsed = self.env.now - (
-                    self.packet_times[rec_index][-10] +
-                    self.waits[rec_index][-10])
-                if time_elapsed > 0:
-                    print(
-                        "Average throughput (last 10 packets): {:.2f} bytes/second."
-                        .format(bytes_received / time_elapsed))
+            if self.rec_waits:
+                self.waits[rec_index].append(packet_delay)
+                self.packet_sizes[rec_index].append(packet.size)
+                self.packet_times[rec_index].append(packet.time)
+                self.perhop_times[rec_index].append(packet.perhop_time)
 
-        self.packets_received[rec_index] += 1
-        self.bytes_received[rec_index] += packet.size
+            if self.rec_arrivals:
+                self.arrivals[rec_index].append(now)
+                if len(self.arrivals[rec_index]) == 1:
+                    self.first_arrival[rec_index] = now
+
+                if not self.absolute_arrivals:
+                    self.arrivals[rec_index][
+                        -1] = now - self.last_arrival[rec_index]
+
+                self.last_arrival[rec_index] = now
+
+            if self.debug:
+                print("At time {:.2f}, packet {:d} arrived at {}.".format(
+                    now, packet.packet_id, self.element_id))
+                if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
+                    bytes_received = sum(self.packet_sizes[rec_index][-9:])
+                    time_elapsed = self.env.now - (
+                        self.packet_times[rec_index][-10] +
+                        self.waits[rec_index][-10])
+                    if time_elapsed > 0:
+                        print(
+                            "Average throughput (last 10 packets): {:.2f} bytes/second."
+                            .format(bytes_received / time_elapsed))
+
+            self.packets_received[rec_index] += 1
+            self.bytes_received[rec_index] += packet.size
