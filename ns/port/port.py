@@ -33,10 +33,10 @@ class Port:
     def __init__(self,
                  env,
                  rate: float,
-                 element_id: int = None,
                  qlimit: int = None,
                  limit_bytes: bool = False,
                  zero_downstream_buffer: bool = False,
+                 element_id: int = None,
                  debug: bool = False):
         self.store = simpy.Store(env)
         self.rate = rate

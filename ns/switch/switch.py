@@ -24,6 +24,8 @@ class SimplePacketSwitch:
             the bit rate of the port.
         buffer_size: int
             the size of an outgoing port' bounded buffer, in packets.
+        element_id: str
+            The (optional) element ID of this component.
         debug: bool
             If True, prints more verbose debug information.
     """
@@ -32,15 +34,17 @@ class SimplePacketSwitch:
                  nports: int,
                  port_rate: float,
                  buffer_size: int,
+                 element_id: str = "",
                  debug: bool = False) -> None:
         self.env = env
         self.ports = []
-        for __ in range(nports):
+        for port in range(nports):
             self.ports.append(
                 Port(env,
                      rate=port_rate,
                      qlimit=buffer_size,
                      limit_bytes=False,
+                     element_id=f"{element_id}_{port}",
                      debug=debug))
         self.demux = FIBDemux(fib=None, outs=self.ports, default=None)
 
@@ -73,8 +77,10 @@ class FairPacketSwitch:
             This is a function that matches flow_id's to class_ids, used to implement a class-based
             scheduling discipline. The default is an identity lambda function, which is equivalent
             to flow-based scheduling.
-        type: str (possible values: 'WFQ', 'DRR', 'SP', or 'VirtualClock')
+        server: str (possible values: 'WFQ', 'DRR', 'SP', or 'VirtualClock')
             The type of the scheduling discipline used for each outgoing port.
+        element_id: str
+            The (optional) element ID of this component.
         debug: bool
             If True, prints more verbose debug information.
     """
@@ -86,17 +92,19 @@ class FairPacketSwitch:
                  weights,
                  server: str,
                  flow_classes: Callable = lambda x: x,
+                 element_id: str = "",
                  debug: bool = False) -> None:
         self.env = env
         self.ports = []
         self.egress_ports = []
 
-        for __ in range(nports):
+        for port in range(nports):
             egress_port = Port(env,
                                rate=0,
                                qlimit=buffer_size,
                                limit_bytes=False,
                                zero_downstream_buffer=True,
+                               element_id=f"{element_id}_{port}",
                                debug=debug)
 
             scheduler = None

@@ -54,12 +54,18 @@ def flow_to_classes(f_id, n_id=0, fib=None):
 
 for node_id in ft.nodes():
     node = ft.nodes[node_id]
-    # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size)
+    # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size, element_id=f"{node_id}")
     flow_classes = partial(flow_to_classes,
                            n_id=node_id,
                            fib=node['flow_to_port'])
-    node['device'] = FairPacketSwitch(env, k, pir, buffer_size, weights, 'DRR',
-                                      flow_classes)
+    node['device'] = FairPacketSwitch(env,
+                                      k,
+                                      pir,
+                                      buffer_size,
+                                      weights,
+                                      'DRR',
+                                      flow_classes,
+                                      element_id=f"{node_id}")
     node['device'].demux.fib = node['flow_to_port']
 
 for n in ft.nodes():
@@ -77,3 +83,4 @@ for flow_id in sample(all_flows.keys(), 5):
     print(f"Flow {flow_id}")
     print(all_flows[flow_id].pkt_sink.waits)
     print(all_flows[flow_id].pkt_sink.arrivals)
+    print(all_flows[flow_id].pkt_sink.perhop_times)
