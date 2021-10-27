@@ -24,14 +24,14 @@ pg1 = DistPacketGenerator(env,
                           packet_arrival,
                           const_size,
                           initial_delay=0.0,
-                          finish=35,
+                          finish=50,
                           flow_id=0)
 pg2 = DistPacketGenerator(env,
                           "flow_1",
                           packet_arrival,
                           const_size,
                           initial_delay=10.0,
-                          finish=35,
+                          finish=50,
                           flow_id=1)
 ps = PacketSink(env)
 sink_1 = PacketSink(env)
