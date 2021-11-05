@@ -103,35 +103,48 @@ class DRRServer:
         self.debug = debug
         self.action = env.process(self.run())
 
-    def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly."""
-        if self.zero_buffer:
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+    def update_stats(self, packet):
+        """
+        The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
+        configuration), we need to update the internal statistics related to this event.
+        """
+        self.flow_queue_count[self.flow_classes(packet.flow_id)] -= 1
 
-        if self.debug:
-            print(
-                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet.flow_id)}")
+        self.deficit[self.flow_classes(packet.flow_id)] -= packet.size
+
+        if self.flow_queue_count[self.flow_classes(packet.flow_id)] == 0:
+            self.deficit[self.flow_classes(packet.flow_id)] = 0.0
 
         if self.debug:
             print(
                 f"Deficit reduced to {self.deficit[packet.flow_id]} for flow {packet.flow_id}"
             )
 
-        self.flow_queue_count[self.flow_classes(packet.flow_id)] -= 1
-
-        if self.flow_queue_count[self.flow_classes(packet.flow_id)] == 0:
-            self.deficit[self.flow_classes(packet.flow_id)] = 0.0
-
         if self.flow_classes(packet.flow_id) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
         else:
             raise ValueError(
                 "Error: the packet to be sent has never been received.")
+
+        if self.debug:
+            print(
+                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {self.flow_classes(packet.flow_id)}")
+
+
+    def update(self, packet):
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
+        configuration.
+        """
+        # With no local buffers, this element needs to pull the packet from upstream
+        if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
+            self.upstream_stores[packet].get()
+            del self.upstream_stores[packet]
+            self.upstream_updates[packet](packet)
+            del self.upstream_updates[packet]
 
     def packet_in_service(self) -> Packet:
         """
@@ -204,16 +217,17 @@ class DRRServer:
                                                    self.rate)
 
                             if self.zero_downstream_buffer:
+                                self.update_stats(packet)
+
                                 self.out.put(
                                     packet,
                                     upstream_update=self.update,
                                     upstream_store=self.stores[queue_id])
                             else:
+                                self.update_stats(packet)
                                 self.update(packet)
                                 self.out.put(packet)
 
-                            self.deficit[self.flow_classes(
-                                packet.flow_id)] -= packet.size
                             self.current_packet = None
                         else:
                             assert not queue_id in self.head_of_line
@@ -234,7 +248,8 @@ class DRRServer:
             print(
                 f"Packet arrived at {self.env.now}, flow_id {flow_id}, "
                 f"belonging to class {self.flow_classes(flow_id)} "
-                f"packet_id {packet.packet_id}, deficit {self.deficit[self.flow_classes(flow_id)]}, "
+                f"packet_id {packet.packet_id}, "
+                f"deficit {self.deficit[self.flow_classes(flow_id)]}, "
                 f"deficit counters: {self.deficit}")
 
         if not self.flow_classes(flow_id) in self.stores:

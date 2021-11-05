@@ -61,9 +61,14 @@ class TokenBucketShaper:
         self.action = env.process(self.run())
 
     def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly."""
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
+        configuration.
+        """
+        # With no local buffers, this element needs to pull the packet from upstream
         if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
             self.upstream_updates[packet](packet)
@@ -80,7 +85,6 @@ class TokenBucketShaper:
                 packet = yield self.downstream_stores.get()
             else:
                 packet = yield self.store.get()
-                self.update(packet)
 
             now = self.env.now
 
@@ -109,6 +113,7 @@ class TokenBucketShaper:
                                  upstream_update=self.update,
                                  upstream_store=self.store)
                 else:
+                    self.update(packet)
                     self.out.put(packet)
             else:
                 yield self.env.timeout(packet.size * 8.0 / self.peak)
@@ -117,6 +122,7 @@ class TokenBucketShaper:
                                  upstream_update=self.update,
                                  upstream_store=self.store)
                 else:
+                    self.update(packet)
                     self.out.put(packet)
 
             self.packets_sent += 1

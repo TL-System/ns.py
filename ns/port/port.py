@@ -60,9 +60,14 @@ class Port:
         self.action = env.process(self.run())
 
     def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly."""
-        self.byte_size -= packet.size
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers.
+        """
+        # There is nothing that needs to be done, just print a debug message
+        if self.debug:
+            print(f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}.")
+
 
     def run(self):
         """The generator function used in simulations."""
@@ -71,13 +76,14 @@ class Port:
                 packet = yield self.downstream_store.get()
             else:
                 packet = yield self.store.get()
-                self.update(packet)
 
             self.busy = 1
             self.busy_packet_size = packet.size
 
             if self.rate > 0:
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+            self.byte_size -= packet.size
 
             if self.zero_downstream_buffer:
                 self.out.put(packet,

@@ -94,6 +94,38 @@ class VirtualClockServer:
         self.store = taggedstore.TaggedStore(env)
         self.action = env.process(self.run())
 
+
+    def update_stats(self, packet):
+        """
+        The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
+        configuration), we need to update the internal statistics related to this event.
+        """
+        self.flow_queue_count[self.flow_classes(packet.flow_id)] -= 1
+
+        if self.flow_classes(packet.flow_id) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
+        else:
+            raise ValueError("Error: the packet is from an unrecorded flow.")
+
+        if self.debug:
+            print(f"Sent Packet {packet.packet_id} from flow {packet.flow_id} "
+                  f"belonging to class {self.flow_classes(packet.flow_id)}")
+
+    def update(self, packet):
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
+        configuration.
+        """
+        # With no local buffers, this element needs to pull the packet from upstream
+        if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
+            self.upstream_stores[packet].get()
+            del self.upstream_stores[packet]
+            self.upstream_updates[packet](packet)
+            del self.upstream_updates[packet]
+
+
     def packet_in_service(self) -> Packet:
         """
         Returns the packet that is currently being sent to the downstream element.
@@ -124,35 +156,16 @@ class VirtualClockServer:
         """
         return self.byte_sizes.keys()
 
-    def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly.
-        """
-        if self.zero_buffer:
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
-
-        flow_id = packet.flow_id
-        self.flow_queue_count[self.flow_classes(flow_id)] -= 1
-
-        if self.debug:
-            print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
-                  f"belonging to class {self.flow_classes(packet.flow_id)}")
-
-        if self.flow_classes(flow_id) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
-        else:
-            raise ValueError("Error: the packet is from an unrecorded flow.")
 
     def run(self):
         """The generator function used in simulations."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_store.get()
+
                 self.current_packet = packet
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+
                 self.out.put(packet,
                              upstream_update=self.update,
                              upstream_store=self.store)

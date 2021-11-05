@@ -8,7 +8,7 @@ First, launch the terminal and create a new `conda` environment (say, called `ns
 
 ```shell
 $ conda update conda
-$ conda create -n ns.py python=3.8
+$ conda create -n ns.py python=3.9
 $ conda activate ns.py
 ```
 

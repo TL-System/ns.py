@@ -88,14 +88,17 @@ class SPServer:
         self.debug = debug
         self.action = env.process(self.run())
 
-    def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly."""
-        if self.zero_buffer:
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+    def update_stats(self, packet):
+        """
+        The packet has been sent (or authorized to be sent if this scheduler has a zero-buffer
+        configuration), we need to update the internal statistics related to this event.
+        """
+        self.prio_queue_count[packet.prio[self.element_id]] -= 1
+
+        if self.flow_classes(packet.flow_id) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
+        else:
+            raise ValueError("Error: the packet is from an unrecorded flow.")
 
         if self.debug:
             print(
@@ -103,10 +106,20 @@ class SPServer:
                 f"belonging to class {self.flow_classes(packet.packet_id)} "
                 f"of priority {packet.prio[self.element_id]}")
 
-        if self.flow_classes(packet.flow_id) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
-        else:
-            raise ValueError("Error: the packet is from an unrecorded flow.")
+    def update(self, packet):
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
+        configuration.
+        """
+        # With no local buffers, this element needs to pull the packet from upstream
+        if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
+            self.upstream_stores[packet].get()
+            del self.upstream_stores[packet]
+            self.upstream_updates[packet](packet)
+            del self.upstream_updates[packet]
+
 
     def packet_in_service(self) -> Packet:
         """
@@ -160,7 +173,7 @@ class SPServer:
                         self.current_packet = packet
                         yield self.env.timeout(packet.size * 8.0 / self.rate)
 
-                        self.prio_queue_count[prio] -= 1
+                        self.update_stats(packet)
                         self.out.put(packet,
                                      upstream_update=self.update,
                                      upstream_store=self.stores[prio])
@@ -169,10 +182,12 @@ class SPServer:
                         store = self.stores[prio]
                         packet = yield store.get()
                         packet.prio[self.element_id] = prio
-                        self.update(packet)
 
                         self.current_packet = packet
                         yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+                        self.update_stats(packet)
+                        self.update(packet)
                         self.out.put(packet)
                         self.current_packet = None
 

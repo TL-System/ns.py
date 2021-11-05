@@ -91,6 +91,51 @@ class WFQServer:
         self.action = env.process(self.run())
         self.last_update = 0.0
 
+
+    def update_stats(self, packet):
+        """
+        The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
+        configuration), we need to update the internal statistics related to this event.
+        """
+        flow_id = packet.flow_id
+
+        self.flow_queue_count[self.flow_classes(flow_id)] -= 1
+
+        if self.flow_queue_count[self.flow_classes(flow_id)] == 0:
+            self.active_set.remove(self.flow_classes(flow_id))
+
+        self.last_update = self.env.now
+
+        if len(self.active_set) == 0:
+            self.vtime = 0.0
+            for (queue_id, __) in self.finish_times.items():
+                self.finish_times[queue_id] = 0.0
+
+        if self.flow_classes(flow_id) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
+        else:
+            raise ValueError("Error: the packet is from an unrecorded flow.")
+
+        if self.debug:
+            print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
+                  f"belonging to class {self.flow_classes(flow_id)}")
+
+
+    def update(self, packet):
+        """
+        The packet has just been retrieved from this element's own buffer by a downstream
+        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
+        configuration.
+        """
+        # With no local buffers, this element needs to pull the packet from upstream
+        if self.zero_buffer:
+            # For each packet, remove it from its own upstream's store
+            self.upstream_stores[packet].get()
+            del self.upstream_stores[packet]
+            self.upstream_updates[packet](packet)
+            del self.upstream_updates[packet]
+
+
     def packet_in_service(self) -> Packet:
         """
         Returns the packet that is currently being sent to the downstream element.
@@ -122,36 +167,6 @@ class WFQServer:
         """
         return self.byte_sizes.keys()
 
-    def update(self, packet):
-        """The packet has just been retrieved from this element's own buffer, so
-        update internal housekeeping states accordingly.
-        """
-        if self.zero_buffer:
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
-
-        self.last_update = self.env.now
-        flow_id = packet.flow_id
-
-        self.flow_queue_count[self.flow_classes(flow_id)] -= 1
-        if self.flow_queue_count[self.flow_classes(flow_id)] == 0:
-            self.active_set.remove(self.flow_classes(flow_id))
-
-        if len(self.active_set) == 0:
-            self.vtime = 0.0
-            for (queue_id, __) in self.finish_times.items():
-                self.finish_times[queue_id] = 0.0
-
-        if self.debug:
-            print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
-                  f"belonging to class {self.flow_classes(flow_id)}")
-
-        if self.flow_classes(flow_id) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
-        else:
-            raise ValueError("Error: the packet is from an unrecorded flow.")
 
     def run(self):
         """The generator function used in simulations."""
@@ -160,16 +175,20 @@ class WFQServer:
                 packet = yield self.downstream_store.get()
                 self.current_packet = packet
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+                self.update_stats(packet)
                 self.out.put(packet,
                              upstream_update=self.update,
                              upstream_store=self.store)
                 self.current_packet = None
             else:
                 packet = yield self.store.get()
-                self.update(packet)
 
                 self.current_packet = packet
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+                self.update_stats(packet)
+                self.update(packet)
                 self.out.put(packet)
                 self.current_packet = None
 
