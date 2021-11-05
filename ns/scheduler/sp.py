@@ -103,8 +103,6 @@ class SPServer:
                 f"belonging to class {self.flow_classes(packet.packet_id)} "
                 f"of priority {packet.prio[self.element_id]}")
 
-        self.prio_queue_count[packet.prio[self.element_id]] -= 1
-
         if self.flow_classes(packet.flow_id) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
         else:
@@ -162,6 +160,7 @@ class SPServer:
                         self.current_packet = packet
                         yield self.env.timeout(packet.size * 8.0 / self.rate)
 
+                        self.prio_queue_count[prio] -= 1
                         self.out.put(packet,
                                      upstream_update=self.update,
                                      upstream_store=self.stores[prio])
