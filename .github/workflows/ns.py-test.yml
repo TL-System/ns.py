@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install dependencies
+      run: |
+        sudo apt install -y python3-pip git
+        pip3 install -r requirements.txt --upgrade
+        pip3 install .
+
+    - name: Running the examples
+      run: |
+        cd examples
+        find . -name '*.py' -exec python {} \;
