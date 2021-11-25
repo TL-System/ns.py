@@ -7,8 +7,8 @@ from random import randint, seed
 
 from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
-from pipeline.Pareto_on_off_trace_generator import pareto_onoff_generator
-from pipeline.MAP_MSP_trace_generator import BMAP_generator
+from ns.utils.generators.pareto_onoff_generator import pareto_onoff_generator
+from ns.utils.generators.MAP_MSP_generator import BMAP_generator
 
 MIN_PKT_SIZE = 100
 MAX_PKT_SIZE = 1500
@@ -32,15 +32,17 @@ if __name__ == '__main__':
     simulation_time = 20
     pg_duration = 18
 
-    #### 1) to generate inter-arrival times ~ pareto-onoff model
-    # y = pareto_onoff_generator(on_min=0.5 / 3,
-    #                            on_alpha=1.5,
-    #                            off_min=0.5 / 3,
-    #                            off_alpha=1.5,
-    #                            on_rate=2e5,
-    #                            pktsize=(MIN_PKT_SIZE + MAX_PKT_SIZE) / 2)
+    # (1) to generate inter-arrival times ~ pareto-onoff model
+    """
+    y = pareto_onoff_generator(on_min=0.5 / 3,
+                                on_alpha=1.5,
+                                off_min=0.5 / 3,
+                                off_alpha=1.5,
+                                on_rate=2e5,
+                                pktsize=(MIN_PKT_SIZE + MAX_PKT_SIZE) / 2)
+    """
 
-    #### 2) to generate inter-arrival times ~ MAP or BMAP model
+    # (2) to generate inter-arrival times ~ MAP or BMAP model
     D0 = np.array([[-114.46031, 11.3081, 8.42701],
                    [158.689, -29152.1587, 20.5697],
                    [1.08335, 0.188837, -1.94212]])
