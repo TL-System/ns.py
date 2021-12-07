@@ -39,7 +39,7 @@ class TracePacketGenerator:
         try:
             while self.env.now < self.finish:
                 row = re.split(r"\s+", next(row_generator).rstrip('[\t ]+\n'))
-                if flow_id is None:
+                if self.flow_id is None:
                     flow_id = int(row[0])
                     packet_id = int(row[1])
                     time = float(row[2])
