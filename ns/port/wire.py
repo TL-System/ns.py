@@ -5,7 +5,7 @@ capacity limit can be modeled using an upstream port or server element in
 the network.
 """
 import simpy
-
+import random
 
 class Wire:
     """ Implements a network wire (cable) that introduces a propagation delay.
@@ -19,9 +19,10 @@ class Wire:
             a no-parameter function that returns the successive propagation
             delays on this wire.
     """
-    def __init__(self, env, delay_dist, wire_id=0, debug=False):
+    def __init__(self, env, delay_dist, loss_rate=0, wire_id=0, debug=False):
         self.store = simpy.Store(env)
         self.delay_dist = delay_dist
+        self.loss_rate = loss_rate
         self.env = env
         self.wire_id = wire_id
         self.out = None
@@ -34,20 +35,25 @@ class Wire:
         while True:
             packet = yield self.store.get()
 
-            # The amount of time for this packet to stay in my store
-            queued_time = self.env.now - packet.current_time
-            delay = self.delay_dist()
+            if random.uniform(0, 1) >= self.loss_rate:
+                # The amount of time for this packet to stay in my store
+                queued_time = self.env.now - packet.current_time
+                delay = self.delay_dist()
 
-            # If queued time for this packet is greater than its propagation delay,
-            # it implies that the previous packet had experienced a longer delay.
-            # Since out-of-order delivery is not supported in simulation, deliver
-            # to the next component immediately.
-            if queued_time < delay:
-                yield self.env.timeout(delay - queued_time)
+                # If queued time for this packet is greater than its propagation delay,
+                # it implies that the previous packet had experienced a longer delay.
+                # Since out-of-order delivery is not supported in simulation, deliver
+                # to the next component immediately.
+                if queued_time < delay:
+                    yield self.env.timeout(delay - queued_time)
 
-            if self.debug:
-                print("Left wire #{} at {:.3f}: {}".format(
-                    self.wire_id, self.env.now, packet))
+                if self.debug:
+                    print("Left wire #{} at {:.3f}: {}".format(
+                        self.wire_id, self.env.now, packet))
+            else:
+                if self.debug:
+                    print("Dropped on wire #{} at {:.3f}: {}".format(
+                        self.wire_id, self.env.now, packet)")
 
             self.out.put(packet)
 
