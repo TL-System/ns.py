@@ -4,8 +4,10 @@ to model a limited network capacity on this network cable, since such a
 capacity limit can be modeled using an upstream port or server element in
 the network.
 """
-import simpy
 import random
+
+import simpy
+
 
 class Wire:
     """ Implements a network wire (cable) that introduces a propagation delay.
@@ -15,14 +17,23 @@ class Wire:
         ----------
         env: simpy.Environment
             the simulation environment.
-        delay: float
+        delay_dist: function
             a no-parameter function that returns the successive propagation
             delays on this wire.
+        loss_dist: function
+            a function that takes one optional parameter, which is the packet ID, and
+            returns the loss rate.
     """
-    def __init__(self, env, delay_dist, loss_dist=None, wire_id=0, debug=False):
+
+    def __init__(self,
+                 env,
+                 delay_dist,
+                 loss_dist=None,
+                 wire_id=0,
+                 debug=False):
         self.store = simpy.Store(env)
         self.delay_dist = delay_dist
-        self.loss_rate = loss_dist
+        self.loss_dist = loss_dist
         self.env = env
         self.wire_id = wire_id
         self.out = None
@@ -35,7 +46,8 @@ class Wire:
         while True:
             packet = yield self.store.get()
 
-            if self.loss_dist is None or random.uniform(0, 1) >= self.loss_dist():
+            if self.loss_dist is None or random.uniform(
+                    0, 1) >= self.loss_dist(packet_id=packet.packet_id):
                 # The amount of time for this packet to stay in my store
                 queued_time = self.env.now - packet.current_time
                 delay = self.delay_dist()
