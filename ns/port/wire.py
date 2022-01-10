@@ -19,10 +19,10 @@ class Wire:
             a no-parameter function that returns the successive propagation
             delays on this wire.
     """
-    def __init__(self, env, delay_dist, loss_rate=0, wire_id=0, debug=False):
+    def __init__(self, env, delay_dist, loss_dist=None, wire_id=0, debug=False):
         self.store = simpy.Store(env)
         self.delay_dist = delay_dist
-        self.loss_rate = loss_rate
+        self.loss_rate = loss_dist
         self.env = env
         self.wire_id = wire_id
         self.out = None
@@ -35,7 +35,7 @@ class Wire:
         while True:
             packet = yield self.store.get()
 
-            if random.uniform(0, 1) >= self.loss_rate:
+            if self.loss_dist is None or random.uniform(0, 1) >= self.loss_dist():
                 # The amount of time for this packet to stay in my store
                 queued_time = self.env.now - packet.current_time
                 delay = self.delay_dist()
@@ -53,7 +53,7 @@ class Wire:
             else:
                 if self.debug:
                     print("Dropped on wire #{} at {:.3f}: {}".format(
-                        self.wire_id, self.env.now, packet)")
+                        self.wire_id, self.env.now, packet))
 
             self.out.put(packet)
 
