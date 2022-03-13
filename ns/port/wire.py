@@ -69,8 +69,6 @@ class Wire:
                     print("Dropped on wire #{} at {:.3f}: {}".format(
                         self.wire_id, self.env.now, packet))
 
-            # self.out.put(packet)
-
     def put(self, packet):
         """ Sends a packet to this element. """
         self.packets_rec += 1
