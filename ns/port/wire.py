@@ -59,6 +59,8 @@ class Wire:
                 if queued_time < delay:
                     yield self.env.timeout(delay - queued_time)
 
+                self.out.put(packet)
+
                 if self.debug:
                     print("Left wire #{} at {:.3f}: {}".format(
                         self.wire_id, self.env.now, packet))
@@ -67,7 +69,7 @@ class Wire:
                     print("Dropped on wire #{} at {:.3f}: {}".format(
                         self.wire_id, self.env.now, packet))
 
-            self.out.put(packet)
+            # self.out.put(packet)
 
     def put(self, packet):
         """ Sends a packet to this element. """
