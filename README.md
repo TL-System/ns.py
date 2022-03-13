@@ -18,7 +18,11 @@ Then, install `ns.py` using `pip`:
 $ pip install ns.py
 ```
 
-That's it! You can now try to run some examples in the `examples/` directory. More examples will be added as existing components are refined and new components are introduced.
+That's it! You can now try to run some examples in the `examples/` directory. To upgrade Python packages in the current environment, run the command:
+
+```shell
+$ python upgrade_packages.py
+```
 
 ## Current network components
 
