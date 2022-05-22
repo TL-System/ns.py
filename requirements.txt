@@ -1,4 +1,3 @@
-matplotlib
 simpy
 networkx
 pyyaml

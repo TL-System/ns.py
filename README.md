@@ -90,6 +90,8 @@ The network components that have already been implemented include:
 
 ## Current examples (in increasing levels of complexity)
 
+Some of these examples requires installing `matplotlib`. It has not been included in the list of dependencies in `ns.py`, and needs to be installed separately in the current Python environment.
+
 * `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Wire`.
 
 * `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Port`.
