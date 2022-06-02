@@ -3,8 +3,11 @@ Implements a Weighted Fair Queueing (WFQ) server.
 
 Reference:
 
-Class-Based Weighted Fair Queueing,
-https://www.cisco.com/en/US/docs/ios/12_0t/12_0t5/feature/guide/cbwfq.html#wp17641
+A. K. Parekh, R. G. Gallager, "A Generalized Processor Sharing Approach to Flow Control
+in Integrated Services Networks: The Single-Node Case," IEEE/ACM Trans. Networking,
+vol. 1, no. 3, pp. 344-357, June 1993.
+
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=234856
 """
 from collections import defaultdict as dd
 from collections.abc import Callable
@@ -42,6 +45,7 @@ class WFQServer:
     debug: bool
         If True, prints more verbose debug information.
     """
+
     def __init__(self,
                  env,
                  rate: float,
@@ -91,7 +95,6 @@ class WFQServer:
         self.action = env.process(self.run())
         self.last_update = 0.0
 
-
     def update_stats(self, packet):
         """
         The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
@@ -104,7 +107,16 @@ class WFQServer:
         if self.flow_queue_count[self.flow_classes(flow_id)] == 0:
             self.active_set.remove(self.flow_classes(flow_id))
 
-        self.last_update = self.env.now
+        # Updating the virtual time based on the new set of active flow classes
+        weight_sum = 0.0
+
+        for i in self.active_set:
+            weight_sum += self.weights[i]
+
+        now = self.env.now
+        self.vtime += (now - self.last_update) / weight_sum
+
+        self.last_update = now
 
         if len(self.active_set) == 0:
             self.vtime = 0.0
@@ -120,7 +132,6 @@ class WFQServer:
             print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
                   f"belonging to class {self.flow_classes(flow_id)}")
 
-
     def update(self, packet):
         """
         The packet has just been retrieved from this element's own buffer by a downstream
@@ -134,7 +145,6 @@ class WFQServer:
             del self.upstream_stores[packet]
             self.upstream_updates[packet](packet)
             del self.upstream_updates[packet]
-
 
     def packet_in_service(self) -> Packet:
         """
@@ -167,7 +177,6 @@ class WFQServer:
         """
         return self.byte_sizes.keys()
 
-
     def run(self):
         """The generator function used in simulations."""
         while True:
@@ -197,23 +206,26 @@ class WFQServer:
         self.packets_received += 1
         flow_id = packet.flow_id
 
-        self.byte_sizes[self.flow_classes(flow_id)] += packet.size
-        now = self.env.now
-        self.flow_queue_count[self.flow_classes(flow_id)] += 1
-        self.active_set.add(self.flow_classes(flow_id))
-
+        # Updating the virtual time and the finish time for each flow class
         weight_sum = 0.0
         for i in self.active_set:
             weight_sum += self.weights[i]
+
+        now = self.env.now
 
         self.vtime += (now - self.last_update) / weight_sum
         self.finish_times[self.flow_classes(flow_id)] = max(
             self.finish_times[self.flow_classes(flow_id)], self.vtime
         ) + packet.size * 8.0 / self.weights[self.flow_classes(flow_id)]
 
+        # Updating the byte sizes, the flow queue count, and the set of active flows
+        self.byte_sizes[self.flow_classes(flow_id)] += packet.size
+        self.flow_queue_count[self.flow_classes(flow_id)] += 1
+        self.active_set.add(self.flow_classes(flow_id))
+
         if self.debug:
             print(
-                f"Packet arrived at {self.env.now}, with flow_id {flow_id}, "
+                f"Packet arrived at {now}, with flow_id {flow_id}, "
                 f"belonging to class {self.flow_classes(flow_id)}, "
                 f"packet_id {packet.packet_id}, "
                 f"finish_time {self.finish_times[self.flow_classes(flow_id)]}")
