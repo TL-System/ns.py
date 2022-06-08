@@ -100,28 +100,29 @@ class WFQServer:
         The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
         configuration), we need to update the internal statistics related to this event.
         """
-        flow_id = packet.flow_id
 
+        weight_sum = 0.0
+        now = self.env.now
+
+        # Updating the virtual time based on the current set of active flow classes
+        for i in self.active_set:
+            weight_sum += self.weights[i]
+
+        self.vtime += (now - self.last_update) / weight_sum
+
+        # Computing the new set of active flow classes
+        flow_id = packet.flow_id
         self.flow_queue_count[self.flow_classes(flow_id)] -= 1
 
         if self.flow_queue_count[self.flow_classes(flow_id)] == 0:
             self.active_set.remove(self.flow_classes(flow_id))
 
-        # Updating the virtual time based on the new set of active flow classes
-        weight_sum = 0.0
-
-        for i in self.active_set:
-            weight_sum += self.weights[i]
-
-        now = self.env.now
-        self.vtime += (now - self.last_update) / weight_sum
-
-        self.last_update = now
-
         if len(self.active_set) == 0:
             self.vtime = 0.0
             for (queue_id, __) in self.finish_times.items():
                 self.finish_times[queue_id] = 0.0
+
+        self.last_update = now
 
         if self.flow_classes(flow_id) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
@@ -207,16 +208,22 @@ class WFQServer:
         flow_id = packet.flow_id
 
         # Updating the virtual time and the finish time for each flow class
-        weight_sum = 0.0
-        for i in self.active_set:
-            weight_sum += self.weights[i]
-
         now = self.env.now
 
-        self.vtime += (now - self.last_update) / weight_sum
-        self.finish_times[self.flow_classes(flow_id)] = max(
-            self.finish_times[self.flow_classes(flow_id)], self.vtime
-        ) + packet.size * 8.0 / self.weights[self.flow_classes(flow_id)]
+        if len(self.active_set) == 0:
+            self.vtime = 0.0
+            for (queue_id, __) in self.finish_times.items():
+                self.finish_times[queue_id] = 0.0
+        else:
+            weight_sum = 0.0
+
+            for i in self.active_set:
+                weight_sum += self.weights[i]
+
+            self.vtime += (now - self.last_update) / weight_sum
+            self.finish_times[self.flow_classes(flow_id)] = max(
+                self.finish_times[self.flow_classes(flow_id)], self.vtime
+            ) + packet.size * 8.0 / self.weights[self.flow_classes(flow_id)]
 
         # Updating the byte sizes, the flow queue count, and the set of active flows
         self.byte_sizes[self.flow_classes(flow_id)] += packet.size
