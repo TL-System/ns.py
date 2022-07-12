@@ -33,6 +33,7 @@ class Packet:
                  size,
                  packet_id,
                  realtime=0,
+                 delivered=-1,
                  src="source",
                  dst="destination",
                  flow_id=0,
@@ -45,7 +46,10 @@ class Packet:
         self.dst = dst
         self.flow_id = flow_id
         self.payload = payload
+        if(delivered == -1) : self.delivered = packet_id
+        else: self.delivered = delivered
 
+        self.is_app_limited = False
         self.color = None  # Used by the two-rate tri-color token bucket shaper
         self.prio = {}  # used by the Static Priority scheduler
         self.ack = 0  # used by TCPPacketGenerator and TCPSink

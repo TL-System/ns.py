@@ -110,7 +110,6 @@ class TCPPacketGenerator:
                           "flow_id {:d} at time {:.4f}.".format(
                               packet.packet_id, packet.size, packet.flow_id,
                               self.env.now))
-
                 self.out.put(packet)
 
                 self.next_seq += packet.size
