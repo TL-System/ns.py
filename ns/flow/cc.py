@@ -34,10 +34,6 @@ class CongestionControl:
     def __repr__(self):
         return f"cwnd: {self.cwnd}, ssthresh: {self.ssthresh}"
 
-    def need_est_delivery_rate(self):
-        """ Need to use the draft to estimate the delievery rate u"""
-        return False
-
     @abstractmethod
     def ack_received(self, rtt: float = 0, current_time: float = 0):
         """ Actions to be taken when a new ack has been received. """

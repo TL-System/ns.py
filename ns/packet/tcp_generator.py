@@ -6,6 +6,7 @@ import simpy
 
 from ns.packet.packet import Packet
 from ns.utils.timer import Timer
+from ns.packet.rate_sample import RateSample, Connection
 
 
 class TCPPacketGenerator:
@@ -21,6 +22,7 @@ class TCPPacketGenerator:
             The ID for this element.
         rec_flow: bool
             Are we recording the statistics of packets generated?
+        rate_sample: RateSample
     """
     def __init__(self,
                  env,
@@ -34,6 +36,8 @@ class TCPPacketGenerator:
         self.out = None
         self.flow = flow
         self.congestion_control = cc
+        self.rate_sample = RateSample()
+        self.C = Connection()
 
         self.mss = 512  # maximum segment size, in bytes
         self.last_arrival = 0  # the time when data last arrived from the flow
@@ -102,7 +106,8 @@ class TCPPacketGenerator:
                                 self.next_seq,
                                 src=self.flow.src,
                                 flow_id=self.flow.fid)
-
+                
+                print("Packet_id:{} element_id:{}".format(packet.packet_id, self.element_id))
                 self.sent_packets[packet.packet_id] = packet
 
                 if self.debug:
@@ -110,7 +115,7 @@ class TCPPacketGenerator:
                           "flow_id {:d} at time {:.4f}.".format(
                               packet.packet_id, packet.size, packet.flow_id,
                               self.env.now))
-
+                self.rate_sample.send_packet(self.C, self.sent_packets.__len__(), self.env.now)
                 self.out.put(packet)
 
                 self.next_seq += packet.size
@@ -150,6 +155,7 @@ class TCPPacketGenerator:
         self.timers[packet_id].restart(self.rto)
 
     def put(self, ack):
+
         """ On receiving an acknowledgment packet. """
         assert ack.flow_id >= 10000  # the received packet must be an ack
 
@@ -195,7 +201,12 @@ class TCPPacketGenerator:
         if self.dupack == 0:
             # new ack received, update the RTT estimate and the retransmission timout
             sample_rtt = self.env.now - ack.time
-
+            for i in range(self.last_ack, ack.ack, self.mss):
+                if i in self.sent_packets.keys(): 
+                    self.rate_sample.updaterate_sample(self.sent_packets[i], self.C, self.env.now)
+            self.rate_sample.update_sample_group(self.C, sample_rtt)
+            print(self.C.delivered)
+            
             # Jacobsen '88: Congestion Avoidance and Control
             sample_err = sample_rtt - self.rtt_estimate
             self.rtt_estimate += 0.125 * sample_err
@@ -211,7 +222,6 @@ class TCPPacketGenerator:
                 print(
                     "Congestion window size = {:.1f}, last ack = {:d}.".format(
                         self.congestion_control.cwnd, self.last_ack))
-
             if ack.packet_id in self.timers:
                 self.timers[ack.packet_id].stop()
                 del self.timers[ack.packet_id]
