@@ -39,6 +39,8 @@ class Packet:
                  flow_id=0,
                  payload=None):
         self.time = time
+        self.delivered_time = 0
+        self.first_sent_time = 0
         self.size = size
         self.packet_id = packet_id
         self.realtime = realtime

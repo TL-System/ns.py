@@ -1,4 +1,4 @@
-class ratesample:
+class RateSample:
     """
     The class rate sample used for estimation of delivery rate
     Y. Cheng, N. Cardwell, S. Hassas Yeganeh, V.Jacvobson 
@@ -8,6 +8,7 @@ class ratesample:
         self.delivery_rate = 0
         self.delivered = 0
         self.prior_delivered = 0
+        self.prior_time = 0
         self.newly_acked = 0
         self.last_acked = 0
         self.delivery_rate = 0
@@ -42,15 +43,14 @@ class ratesample:
         
         packet.delivered_time = 0
 
-
     def update_sample_group(self, C, minRTT = -1):
-        if(minRTT>0):
-            if (self.minRTT == -1):
-                self.minRTT = minRTT
-            self.minRTT = min(self.minRTT, minRTT)
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
         if(self.prior_time == 0): 
+            if(minRTT>0):
+                if (self.minRTT == -1):
+                    self.minRTT = minRTT
+                self.minRTT = min(self.minRTT, minRTT)
             return False
         self.delivered = self.newly_acked = C.delivered - self.prior_delivered 
         self.interval = max(self.ack_elapsed, self.send_elapsed)
@@ -59,8 +59,18 @@ class ratesample:
             return False
         if(self.interval > 0):
             self.delivery_rate = self.delivered / self.interval
+        if(minRTT>0):
+            if (self.minRTT == -1):
+                self.minRTT = minRTT
+            self.minRTT = min(self.minRTT, minRTT)
         return True
 
+class Connection:
+    def __init__(self):
+        self.is_app_limited = 0
+        self.first_sent_time = 0
+        self.delivered = 0
+        self.delivered_time = 0
 
         
         
