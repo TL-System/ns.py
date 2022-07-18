@@ -3,6 +3,7 @@ The base class for congestion control algorithms, designed to supply the TCPPack
 with congestion control decisions.
 """
 from abc import abstractmethod
+from ns.packet.rate_sample import RateSample, Connection
 
 
 class CongestionControl:
@@ -58,6 +59,9 @@ class CongestionControl:
         """ Actions to be taken when more than three consecutive dupacks are received. """
         # fast retransmit in RFC 2001 and TCP Reno
         self.cwnd += self.mss
+    
+    def set_before_control(self, rs:RateSample, C:Connection, current_time:int):
+        pass
 
 
 class TCPReno(CongestionControl):

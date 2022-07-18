@@ -24,13 +24,13 @@ class RateSample:
             C.first_sent_time = C.delivered_time = current_time
         packet.first_sent_time = C.first_sent_time
         packet.delivered_time = C.delivered_time
-        # packet.delivered = C.delivered
+        packet.delivered = C.delivered
         # packet.is_app_limited = (C.is_app_limited != 0)
         
     def updaterate_sample(self, packet, C ,current_time):
         if packet.delivered_time == 0:
             return # packet already sacked
-        C.delivered += packet.size
+        C.delivered += 1
         C.delivered_time = current_time
 
         if (packet.delivered < self.prior_delivered):
