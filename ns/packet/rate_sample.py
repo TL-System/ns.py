@@ -18,8 +18,9 @@ class RateSample:
         self.ack_elapsed = 0
         self.send_elapsed = 0
         self.minRTT = -1
+        self.rtt = -1
         
-    def send_packet(packet, C, packets_in_flight, current_time):
+    def send_packet(self, packet, C, packets_in_flight, current_time):
         if (packets_in_flight == 0):
             C.first_sent_time = C.delivered_time = current_time
         packet.first_sent_time = C.first_sent_time
@@ -44,6 +45,7 @@ class RateSample:
         packet.delivered_time = 0
 
     def update_sample_group(self, C, minRTT = -1):
+        self.rtt = minRTT
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
         if(self.prior_time == 0): 
