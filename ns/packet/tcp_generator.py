@@ -115,7 +115,7 @@ class TCPPacketGenerator:
                           "flow_id {:d} at time {:.4f}.".format(
                               packet.packet_id, packet.size, packet.flow_id,
                               self.env.now))
-                self.rate_sample.send_packet(self.C, self.sent_packets.__len__(), self.env.now)
+                self.rate_sample.send_packet(packet, self.C, self.sent_packets.__len__(), self.env.now)
                 self.out.put(packet)
 
                 self.next_seq += packet.size
@@ -138,6 +138,10 @@ class TCPPacketGenerator:
         if self.debug:
             print("Timer expired for packet {:d} at time {:.4f}.".format(
                 packet_id, self.env.now))
+        
+        self.rate_sample.newly_lost += 1
+        for packet in self.sent_packets.values():
+            packet.lost += 1
 
         self.congestion_control.timer_expired()
 
@@ -201,9 +205,14 @@ class TCPPacketGenerator:
         if self.dupack == 0:
             # new ack received, update the RTT estimate and the retransmission timout
             sample_rtt = self.env.now - ack.time
+            self.rate_sample.newly_acked = 0
             for i in range(self.last_ack, ack.ack, self.mss):
+                print(f"Last ack {self.last_ack}, ack is {ack.ack}, i is {i}")
                 if i in self.sent_packets.keys(): 
+                    self.last_ack = i #Not very important?
+                    #The line above may lead to unknown failure, remove it if necessary
                     self.rate_sample.updaterate_sample(self.sent_packets[i], self.C, self.env.now)
+                    self.rate_sample.newly_acked += 1
             self.rate_sample.update_sample_group(self.C, sample_rtt)
             print(self.C.delivered)
             
@@ -212,9 +221,11 @@ class TCPPacketGenerator:
             self.rtt_estimate += 0.125 * sample_err
             self.est_deviation += 0.25 * (abs(sample_err) - self.est_deviation)
             self.rto = self.rtt_estimate + 4 * self.est_deviation
+        
+            self.congestion_control.set_before_control(self.rate_sample, self.C, self.sent_packets[self.last_ack], self.env.now, self.sent_packets.__len__())
+            self.congestion_control.ack_received(sample_rtt)
 
-            self.last_ack = ack.ack
-            self.congestion_control.ack_received(sample_rtt, self.env.now)
+            if(ack.ack > self.last_ack): self.last_ack = ack.ack
 
             if self.debug:
                 print("Ack received till sequence number {:d} at time {:.4f}.".
@@ -226,5 +237,7 @@ class TCPPacketGenerator:
                 self.timers[ack.packet_id].stop()
                 del self.timers[ack.packet_id]
                 del self.sent_packets[ack.packet_id]
+            
+            self.rate_sample.newly_lost = 0
 
             self.cwnd_available.put(True)

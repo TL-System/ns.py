@@ -4,6 +4,7 @@ with congestion control decisions.
 """
 from abc import abstractmethod
 from ns.packet.rate_sample import RateSample, Connection
+from ns.packet.packet import Packet
 
 
 class CongestionControl:
@@ -60,7 +61,7 @@ class CongestionControl:
         # fast retransmit in RFC 2001 and TCP Reno
         self.cwnd += self.mss
     
-    def set_before_control(self, rs:RateSample, C:Connection, current_time:int):
+    def set_before_control(self, rs:RateSample, C:Connection, packet:Packet, current_time, packet_in_flight=0):
         pass
 
 

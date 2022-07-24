@@ -1,3 +1,5 @@
+#TBD: rs.newly_lost, what's the difference between lost?
+
 class RateSample:
     """
     The class rate sample used for estimation of delivery rate
@@ -19,6 +21,9 @@ class RateSample:
         self.send_elapsed = 0
         self.minRTT = -1
         self.rtt = -1
+        self.lost = 0
+        self.is_app_limited = False
+        self.newly_lost = 0
         
     def send_packet(self, packet, C, packets_in_flight, current_time):
         if (packets_in_flight == 0):
@@ -26,9 +31,10 @@ class RateSample:
         packet.first_sent_time = C.first_sent_time
         packet.delivered_time = C.delivered_time
         packet.delivered = C.delivered
-        # packet.is_app_limited = (C.is_app_limited != 0)
+        packet.is_app_limited = (C.is_app_limited != 0)
         
     def updaterate_sample(self, packet, C ,current_time):
+        self.lost = packet.lost
         if packet.delivered_time == 0:
             return # packet already sacked
         C.delivered += 1

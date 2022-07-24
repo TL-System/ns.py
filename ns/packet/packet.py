@@ -48,6 +48,7 @@ class Packet:
         self.dst = dst
         self.flow_id = flow_id
         self.payload = payload
+        self.lost = 0
         if(delivered == -1) : self.delivered = packet_id
         else: self.delivered = delivered
 
