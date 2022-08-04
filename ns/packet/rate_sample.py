@@ -24,6 +24,10 @@ class RateSample:
         self.lost = 0
         self.is_app_limited = False
         self.newly_lost = 0
+        self.full_lost = 0
+        self.tx_in_flight = -1
+        self.new_group = True
+        self.tx_in_flight_time_stamp = 0
         
     def send_packet(self, packet, C, packets_in_flight, current_time):
         if (packets_in_flight == 0):
@@ -49,9 +53,15 @@ class RateSample:
             C.first_sent_time = packet.sent_time
         
         packet.delivered_time = 0
+        if(self.new_group):
+            self.tx_in_flight = packet.tx_in_flight
+        elif (packet.time > self.tx_in_flight_time_stamp):
+            self.tx_in_flight = packet.tx_in_flight
+        self.new_group = False
 
     def update_sample_group(self, C, minRTT = -1):
         self.rtt = minRTT
+        self.new_group = True
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
         if(self.prior_time == 0): 
@@ -79,6 +89,3 @@ class Connection:
         self.first_sent_time = 0
         self.delivered = 0
         self.delivered_time = 0
-
-        
-        

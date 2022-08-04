@@ -37,7 +37,8 @@ class Packet:
                  src="source",
                  dst="destination",
                  flow_id=0,
-                 payload=None):
+                 payload=None,
+                 tx_in_flight=-1):
         self.time = time
         self.delivered_time = 0
         self.first_sent_time = 0
@@ -49,6 +50,8 @@ class Packet:
         self.flow_id = flow_id
         self.payload = payload
         self.lost = 0
+        self.self_lost = False
+        self.tx_in_flight = tx_in_flight
         if(delivered == -1) : self.delivered = packet_id
         else: self.delivered = delivered
 

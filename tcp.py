@@ -9,6 +9,8 @@ from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
 from ns.flow.flow import Flow
 from ns.flow.bbr import TCPBbr
+from ns.flow.cubic import TCPCubic as Cubic
+import matplotlib.pyplot as plt
 
 
 def packet_arrival():
@@ -28,45 +30,122 @@ def delay_dist():
 
 env = simpy.Environment()
 
-flow = Flow(fid=0,
+flow1 = Flow(fid=0,
             src='flow 1',
             dst='flow 1',
             finish_time=10,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
-sender = TCPPacketGenerator(env,
-                            element_id=15,
-                            flow=flow,
-                            cc=TCPBbr(),
+flow2 = Flow(fid=1,
+            src='flow 2',
+            dst='flow 2',
+            finish_time=10,
+            arrival_dist=packet_arrival,
+            size_dist=packet_size)
+
+sender1 = TCPPacketGenerator(env,
+                            element_id=1,
+                            flow=flow1,
+                            #cc=TCPBbr(),
+                            cc=Cubic(),
                             rtt_estimate=0.5,
                             debug=True)
+
+sender2 = TCPPacketGenerator(env,
+                            element_id=2,
+                            flow=flow2,
+                            #cc=TCPBbr(),
+                            cc=Cubic(),
+                            rtt_estimate=0.5,
+                            debug=True)
+
 
 wire1_downstream = Wire(env, delay_dist)
 wire1_upstream = Wire(env, delay_dist)
 wire2_downstream = Wire(env, delay_dist)
 wire2_upstream = Wire(env, delay_dist)
 
-switch = SimplePacketSwitch(
+wire3_downstream = Wire(env, delay_dist)
+wire3_upstream = Wire(env, delay_dist)
+wire4_downstream = Wire(env, delay_dist)
+wire4_upstream = Wire(env, delay_dist)
+wire5_downstream = Wire(env, delay_dist)
+wire5_upstream = Wire(env, delay_dist)
+
+switch1 = SimplePacketSwitch(
     env,
-    nports=2,
+    nports=3,
     port_rate=16384,  # in bits/second
     buffer_size=5,  # in packets
     debug=True)
 
-receiver = TCPSink(env, rec_waits=True, debug=True)
+switch2 = SimplePacketSwitch(
+    env,
+    nports=3,
+    port_rate=16384,  # in bits/second
+    buffer_size=5,  # in packets
+    debug=True)
 
-sender.out = wire1_downstream
-wire1_downstream.out = switch
-wire2_downstream.out = receiver
-receiver.out = wire2_upstream
-wire2_upstream.out = switch
+receiver1 = TCPSink(env, rec_waits=True, debug=True, element_id= 1)
+receiver2 = TCPSink(env, rec_waits=True, debug=True, element_id= 2)
 
-fib = {0: 0, 10000: 1}
-switch.demux.fib = fib
-switch.demux.outs[0].out = wire2_downstream
-switch.demux.outs[1].out = wire1_upstream
+sender1.out = wire1_downstream
+sender2.out = wire2_downstream
+wire1_downstream.out = switch1
+wire2_downstream.out = switch1
+wire3_downstream.out = receiver1
+wire4_downstream.out = receiver2
+wire5_downstream.out = switch2
+receiver1.out = wire3_upstream
+receiver2.out = wire4_upstream
+wire1_upstream.out = sender1
+wire2_upstream.out = sender2
+wire3_upstream.out = switch2
+wire4_upstream.out = switch2
+wire5_upstream.out = switch1
 
-wire1_upstream.out = sender
+fib1 = {0: 0, 1: 0, 10000: 1, 10001: 2}
+switch1.demux.fib = fib1
+switch1.demux.outs[0].out = wire5_downstream
+switch1.demux.outs[1].out = wire1_upstream
+switch1.demux.outs[2].out = wire2_upstream
+
+fib2 = {0: 0, 1: 1, 10000: 2, 10001: 2}  
+switch2.demux.fib = fib2
+switch2.demux.outs[0].out = wire3_downstream
+switch2.demux.outs[1].out = wire4_downstream
+switch2.demux.outs[2].out = wire5_upstream
 
 env.run(until=100)
+
+# fig, axis = plt.subplots()
+# axis.hist(receiver1.waits[0], bins=100)
+# axis.set_title("Histogram for waiting times #1")
+# axis.set_xlabel("time")
+# axis.set_ylabel("normalized frequency of occurrence")
+# fig.savefig("WaitHis_1_cubic.png")
+# # plt.show()
+
+# fig, axis = plt.subplots()
+# axis.hist(receiver2.waits[1], bins=100)
+# axis.set_title("Histogram for waiting times #2")
+# axis.set_xlabel("time")
+# axis.set_ylabel("normalized frequency of occurrence")
+# fig.savefig("WaitHis_2_cubic.png")
+# # plt.show()
+
+# fig, axis = plt.subplots()
+# axis.hist(receiver1.waits[0], bins=100)
+# axis.set_title("Histogram for system occupation times")
+# axis.set_xlabel("number")
+# axis.set_ylabel("normalized frequency of occurrence")
+# fig.savefig("QueueHistogram_1.png")
+# plt.show()
+# fig, axis = plt.subplots()
+# axis.hist(receiver1.arrivals[0], bins=100, density=True)
+# axis.set_title("Histogram for sink inter-arrival times")
+# axis.set_xlabel("time")
+# axis.set_ylabel("normalized frequency of occurrence")
+# fig.savefig("ArrivalHistogram_1g").pn
+# plt.show()

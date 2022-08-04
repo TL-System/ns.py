@@ -15,13 +15,15 @@ class TCPSink(PacketSink):
                  absolute_arrivals: bool = True,
                  rec_waits: bool = True,
                  rec_flow_ids: bool = True,
-                 debug: bool = False):
+                 debug: bool = False,
+                 element_id: int = 0):
         super().__init__(env, rec_arrivals, absolute_arrivals, rec_waits,
                          rec_flow_ids, debug)
         self.recv_buffer = []
         # the next sequence number expected to be received
         self.next_seq_expected = 0
         self.out = None
+        self.ele_id = element_id
 
     def packet_arrived(self, packet):
         """
@@ -42,6 +44,7 @@ class TCPSink(PacketSink):
         self.recv_buffer = merged_stats
 
     def put(self, packet):
+        print(f">>> ***Packet arrived at {self.ele_id}, with a flow number of {packet.flow_id}.*** <<<")
         """ Sends a packet to this element. """
         super().put(packet)
 

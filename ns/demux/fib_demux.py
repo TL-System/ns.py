@@ -37,6 +37,7 @@ class FIBDemux:
             self.ends[flow_id].put(packet)
         else:
             try:
+                print(f"FIB get {packet.flow_id} for flow and {self.fib[packet.flow_id]} for port")
                 self.outs[self.fib[packet.flow_id]].put(packet)
             except (KeyError, IndexError, ValueError) as exc:
                 print("FIB Demux Error: " + str(exc))

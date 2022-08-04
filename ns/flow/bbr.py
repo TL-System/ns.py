@@ -43,7 +43,6 @@ class BBRAckStates(Enum):
 def update_windowed_max_filter(filter, value, time, window_length):
     filter[time % window_length] = value
     ret = 0
-    print(filter)
     for i in range(window_length):
         if (ret > filter[i]): 
             ret = filter[i]
@@ -58,6 +57,7 @@ class TCPBbr(CongestionControl):
                  debug: bool = False):
         super().__init__(mss, cwnd, ssthresh, debug)
         self.state = BBRState.STARTUP
+        self.bw_probe_samples = 0
         self.prior_cwnd = 0
         self.idle_restart = False
         self.rtprop = float('inf')
@@ -169,7 +169,6 @@ class TCPBbr(CongestionControl):
                       value=self.rs.delivery_rate,
                       time=self.cycle_count,
                       window_length=self.MaxBwFilterLen)
-        # Max Bw Filter Len = 2
 
     def bbr_init_lower_bounds(self):
         if (self.bw_lo == self.inf):
@@ -213,15 +212,14 @@ class TCPBbr(CongestionControl):
         if (self.full_bw_cnt >= 3):
             self.filled_pipe = True
     
-    # def bbr_check_startup_high_loss(self):
-    #     # No Pseudo Code
-    #     # The connection has been in fast recovery for at least one full round trip.
-    #     # The loss rate over the time scale of a single full round trip exceeds BBRLossThresh (2%).
-    #     # There are at least BBRStartupFullLossCnt=3 discontiguous sequence ranges lost in that round trip.
-    #     if (not self.in_fast_recovery):
-    #         return
-    #     if (self.rs.loss_rate > self.loss_thresh and BBRStartupFullLossCnt >= 3):
-    #         self.filled_pipe = True
+    def bbr_check_startup_high_loss(self):
+        # No Pseudo-code
+        if (not self.in_fast_recovery):
+            return
+        loss_rate = self.rs.newly_lost * 100 / self.packet_in_flight 
+        BBRLossThresh = 2
+        if (loss_rate > BBRLossThresh and self.rs.full_lost >= 3):
+            self.filled_pipe = True
 
     def bbr_enter_drain(self):
         self.state = BBRState.DRAIN
@@ -230,7 +228,7 @@ class TCPBbr(CongestionControl):
 
     def bbr_check_startup_done(self):
         self.bbr_check_startup_full_bw()
-        #self.bbr_check_startup_high_loss()
+        self.bbr_check_startup_high_loss()
         if (self.state == BBRState.STARTUP and self.filled_pipe):
             self.bbr_enter_drain()
 
@@ -446,7 +444,7 @@ class TCPBbr(CongestionControl):
             self.bbr_restore_cwnd()
             self.bbr_exit_probertt() 
 
-    def bbr_handle_probertt(self,  ):
+    def bbr_handle_probertt(self):
         self.C.mark_connection_app_limited()
         if (self.probe_rtt_done_stamp == 0 and self.packet_in_flight <= self.bbr_probertt_cwnd()):
             self.probe_rtt_done_stamp = self.current_time + self.ProbeRTTDuration
@@ -497,11 +495,11 @@ class TCPBbr(CongestionControl):
             self.pacing_rate = rate
     
     def bbr_set_send_quantum(self):
-        if (self.pacing_rate < 1.2): #Unit 1.2Mbps
+        if (self.pacing_rate < 157268.4): #Unit 1.2Mbps
             floor = 1 * self.mss #SMSS
         else:
             floor = 2 * self.mss #SMSS
-        self.send_quantum = min(self.pacing_rate * 1, 64) #Unit ms, kBytes
+        self.send_quantum = min(self.pacing_rate * 1000, (64 << 10)) #Unit ms, kBytes
         self.send_quantum = max(self.send_quantum, floor)
     
     def bbr_update_aggregation_budget(self):
@@ -564,6 +562,7 @@ class TCPBbr(CongestionControl):
     def more_dupacks_received(self):
         """ Actions to be taken when more than three consecutive dupacks are received. """
         # fast recovery
+        self.in_fast_recovery = True
         self.prior_cwnd = self.bbr_save_cwnd()
         self.cwnd = self.packet_in_flight + max(self.rs.newly_acked, 1)
         self.packet_conservation = True
