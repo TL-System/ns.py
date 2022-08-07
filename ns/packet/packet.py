@@ -33,6 +33,7 @@ class Packet:
                  size,
                  packet_id,
                  realtime=0,
+                 last_ack_time=0,
                  delivered=-1,
                  src="source",
                  dst="destination",
@@ -40,8 +41,9 @@ class Packet:
                  payload=None,
                  tx_in_flight=-1):
         self.time = time
-        self.delivered_time = 0
+        self.delivered_time = last_ack_time
         self.first_sent_time = 0
+        # self.sent_time = 0
         self.size = size
         self.packet_id = packet_id
         self.realtime = realtime

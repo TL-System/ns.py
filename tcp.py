@@ -47,16 +47,16 @@ flow2 = Flow(fid=1,
 sender1 = TCPPacketGenerator(env,
                             element_id=1,
                             flow=flow1,
-                            #cc=TCPBbr(),
-                            cc=Cubic(),
+                            cc=TCPBbr(),
+                            # cc=Cubic(),
                             rtt_estimate=0.5,
                             debug=True)
 
 sender2 = TCPPacketGenerator(env,
                             element_id=2,
                             flow=flow2,
-                            #cc=TCPBbr(),
-                            cc=Cubic(),
+                            cc=TCPBbr(),
+                            # cc=Cubic(),
                             rtt_estimate=0.5,
                             debug=True)
 
@@ -117,23 +117,23 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=100)
+env.run(until=20)
 
-# fig, axis = plt.subplots()
-# axis.hist(receiver1.waits[0], bins=100)
-# axis.set_title("Histogram for waiting times #1")
-# axis.set_xlabel("time")
-# axis.set_ylabel("normalized frequency of occurrence")
-# fig.savefig("WaitHis_1_cubic.png")
-# # plt.show()
+fig, axis = plt.subplots()
+axis.hist(receiver1.waits[0], bins=100)
+axis.set_title("Histogram for waiting times #1")
+axis.set_xlabel("time")
+axis.set_ylabel("normalized frequency of occurrence")
+fig.savefig("WaitHis_1_bbr.png")
+# plt.show()
 
-# fig, axis = plt.subplots()
-# axis.hist(receiver2.waits[1], bins=100)
-# axis.set_title("Histogram for waiting times #2")
-# axis.set_xlabel("time")
-# axis.set_ylabel("normalized frequency of occurrence")
-# fig.savefig("WaitHis_2_cubic.png")
-# # plt.show()
+fig, axis = plt.subplots()
+axis.hist(receiver2.waits[1], bins=100)
+axis.set_title("Histogram for waiting times #2")
+axis.set_xlabel("time")
+axis.set_ylabel("normalized frequency of occurrence")
+fig.savefig("WaitHis_2_bbr.png")
+# plt.show()
 
 # fig, axis = plt.subplots()
 # axis.hist(receiver1.waits[0], bins=100)

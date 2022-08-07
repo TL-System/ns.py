@@ -44,7 +44,6 @@ class TCPSink(PacketSink):
         self.recv_buffer = merged_stats
 
     def put(self, packet):
-        print(f">>> ***Packet arrived at {self.ele_id}, with a flow number of {packet.flow_id}.*** <<<")
         """ Sends a packet to this element. """
         super().put(packet)
 

@@ -10,8 +10,6 @@ IETF 97: Seoul, Nov 2016
 
 
 # self.rs : newly_acked, delivery_rate, is_app_limited
-# self.packet : delivered, size
-# Remember self.packet.delivered = self.delivered when the package was sent
 # self.C: the connection of the time
 # self.packet_in_flight is something global?
 # Code after one round-trip in fast recovery || upon exiting loss recovery
@@ -90,7 +88,6 @@ class TCPBbr(CongestionControl):
         self.min_rtt = 0
         self.rs = None
         self.C = None
-        self.packet = None
         self.packet_conservation = False
         self.BBRExtraAckedFilterLen = 10
         self.BBRStartupPacingGain = 2.77
@@ -122,7 +119,6 @@ class TCPBbr(CongestionControl):
     def set_before_control(self, rs:RateSample, C:Connection, packet:Packet, current_time, packet_in_flight=0):
         self.rs = rs
         self.C = C
-        self.packet = packet
         self.current_time = current_time
         self.packet_in_flight = packet_in_flight
     
@@ -138,6 +134,7 @@ class TCPBbr(CongestionControl):
             self.loss_round_start = 1
 
     def bbr_update_ack_aggregation(self):
+        # Comment: Significant difference between pseudo code and google code
         interval = (self.current_time - self.extra_acked_interval_start)
         expected_delivered = self.bw * interval
         if (self.extra_acked_delivered <= expected_delivered):
@@ -145,22 +142,21 @@ class TCPBbr(CongestionControl):
             self.extra_acked_interval_start = self.current_time
             self.expected_delivered = 0
         self.extra_acked_delivered += self.rs.newly_acked
-        self.extra = self.extra_acked_delivered - self.expected_delivered
-        self.extra = min(self.expected_delivered, self.cwnd)
+        extra = self.extra_acked_delivered - self.expected_delivered
+        extra = min(self.expected_delivered, self.cwnd)
         self.extra_acked =  update_windowed_max_filter(
             filter=self.BBRExtraAckedFilter,
-            value=self.extra,
+            value= extra,
             time=self.round_count,
             window_length=self.BBRExtraAckedFilterLen)
     
     def bbr_update_round(self):
-        self.delivered += self.packet.size # (Leave something here)
-        if (self.packet.delivered >= self.next_round_delivered):
-            self.next_round_delivered = self.delivered
+        self.round_start = False
+        if (self.rs.interval > 0 and self.rs.prior_delivered >= self.next_round_delivered):
+            self.next_round_delivered = self.C.delivered
             self.round_count += 1
+            self.round_count %= self.BBRExtraAckedFilterLen
             self.round_start = True
-        else:
-            self.round_start = False
 
     def bbr_update_max_bw(self):
         self.bbr_update_round()
@@ -262,7 +258,7 @@ class TCPBbr(CongestionControl):
 
     def bbr_pick_probe_wait(self):
         self.rounds_since_bw_probe = random.randint(0,1)
-        self.bw_probe_wait = 2.0 + random.uniform(0.0, 1.0) #2.0 -> 2.0 sec
+        self.bw_probe_wait = 2.0 + random.uniform(0.0, 1.0)
 
     def bbr_start_probebw_down(self):
         self.bbr_reset_congestion_signals()
@@ -282,6 +278,7 @@ class TCPBbr(CongestionControl):
     
     def bbr_advance_max_bw_filter(self):
         self.cycle_count += 1
+        self.cycle_count %= self.MaxBwFilterLen
     
     def bbr_is_inflight_too_high(self):
         return (self.rs.lost > self.rs.tx_in_flight * self.BBRLossThresh)
@@ -406,12 +403,12 @@ class TCPBbr(CongestionControl):
                 self.bbr_start_probebw_down()
 
     def bbr_update_min_rtt(self):
-        self.probe_rtt_expired = self.current_time > self.probe_rtt_min_stamp + self.ProbeRTTInterval
+        self.probe_rtt_expired = self.current_time > (self.probe_rtt_min_stamp + self.ProbeRTTInterval)
         if (self.rs.rtt >= 0 or self.rs.rtt < self.probe_rtt_min_delay or self.probe_rtt_expired):
             self.probe_rtt_min_delay = self.rs.rtt
             self.probe_rtt_min_stamp = self.current_time
         
-        min_rtt_expired = self.current_time > self.min_rtt_stamp + self.MinRTTFilterLen
+        min_rtt_expired = self.current_time > (self.min_rtt_stamp + self.MinRTTFilterLen)
         if(self.probe_rtt_min_delay < self.min_rtt or min_rtt_expired):
             self.min_rtt = self.probe_rtt_min_delay
             self.min_rtt_stamp = self.probe_rtt_min_stamp

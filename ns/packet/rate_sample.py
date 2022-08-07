@@ -1,4 +1,4 @@
-#TBD: rs.newly_lost, what's the difference between lost?
+#TODO: rs.newly_lost, what's the difference between lost?
 
 class RateSample:
     """
@@ -31,7 +31,8 @@ class RateSample:
         
     def send_packet(self, packet, C, packets_in_flight, current_time):
         if (packets_in_flight == 0):
-            C.first_sent_time = C.delivered_time = current_time
+            C.first_sent_time = current_time
+            C.delivered_time  = current_time
         packet.first_sent_time = C.first_sent_time
         packet.delivered_time = C.delivered_time
         packet.delivered = C.delivered
@@ -39,27 +40,27 @@ class RateSample:
         
     def updaterate_sample(self, packet, C ,current_time):
         self.lost = packet.lost
+        print(f"D_time {packet.delivered_time}")
         if packet.delivered_time == 0:
             return # packet already sacked
-        C.delivered += 1
+        C.delivered += packet.size
         C.delivered_time = current_time
 
-        if (packet.delivered < self.prior_delivered):
+        if (packet.delivered >= self.prior_delivered):
             self.prior_delivered = packet.delivered
             self.prior_time = packet.delivered_time
             self.is_app_limited = packet.is_app_limited
-            self.send_elapsed = packet.sent_time - packet.first_sent_time
+            self.send_elapsed = packet.time - packet.first_sent_time
             self.ack_elapsed = C.delivered_time - packet.delivered_time
-            C.first_sent_time = packet.sent_time
+            C.first_sent_time = packet.time
         
         packet.delivered_time = 0
-        if(self.new_group):
-            self.tx_in_flight = packet.tx_in_flight
-        elif (packet.time > self.tx_in_flight_time_stamp):
+        if(self.new_group or packet.time > self.tx_in_flight_time_stamp):
             self.tx_in_flight = packet.tx_in_flight
         self.new_group = False
 
     def update_sample_group(self, C, minRTT = -1):
+        print(f"Ack elapsed {self.ack_elapsed}, send_elapsed {self.send_elapsed}")
         self.rtt = minRTT
         self.new_group = True
         if(C.is_app_limited and C.delivered > C.is_app_limited):

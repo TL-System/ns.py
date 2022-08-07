@@ -49,6 +49,8 @@ class TCPPacketGenerator:
         self.send_buffer = 0
         # the sequence number of the segment that is last acknowledged
         self.last_ack = 0
+        # the maximum sequence number of the segment that is acknowledged 
+        self.max_ack = 0
         # the count of duplicate acknolwedgments
         self.dupack = 0
         # the RTT estimate
@@ -108,6 +110,7 @@ class TCPPacketGenerator:
                                 src=self.flow.src,
                                 flow_id=self.flow.fid,
                                 tx_in_flight=self.sent_packets.__len__())
+                self.rate_sample.send_packet(packet, self.C, self.sent_packets.__len__(), self.env.now)
                 self.sent_packets[packet.packet_id] = packet
 
                 if self.debug:
@@ -115,7 +118,6 @@ class TCPPacketGenerator:
                           "flow_id {:d} at time {:.4f}.".format(
                               packet.packet_id, packet.size, packet.flow_id,
                               self.env.now))
-                self.rate_sample.send_packet(packet, self.C, self.sent_packets.__len__(), self.env.now)
                 self.out.put(packet)
 
                 self.next_seq += packet.size
@@ -148,6 +150,8 @@ class TCPPacketGenerator:
 
         # retransmitting the segment
         resent_pkt = self.sent_packets[packet_id]
+        resent_pkt.time = self.env.now
+        self.rate_sample.send_packet(resent_pkt, self.C, self.sent_packets.__len__(), self.env.now)
         self.out.put(resent_pkt)
 
         if self.debug:
@@ -164,6 +168,8 @@ class TCPPacketGenerator:
         """ On receiving an acknowledgment packet. """
         assert ack.flow_id >= 10000  # the received packet must be an ack
 
+        self.C.delivered_time = self.env.now
+
         if ack.ack == self.last_ack:
             self.dupack += 1
         else:
@@ -177,6 +183,7 @@ class TCPPacketGenerator:
 
             resent_pkt = self.sent_packets[ack.ack]
             resent_pkt.time = self.env.now
+            resent_pkt.delivered_time = self.C.delivered_time
             if self.debug:
                 print(
                     "Resending packet {:d} with flow_id {:d} at time {:.4f}.".
@@ -192,13 +199,13 @@ class TCPPacketGenerator:
             if self.last_ack + self.congestion_control.cwnd >= ack.ack:
                 resent_pkt = self.sent_packets[ack.ack]
                 resent_pkt.time = self.env.now
-
+                assert self.sent_packets[ack.ack].time == resent_pkt.time
                 if self.debug:
                     print(
                         "Resending packet {:d} with flow_id {:d} at time {:.4f}."
                         .format(resent_pkt.packet_id, resent_pkt.flow_id,
                                 self.env.now))
-
+                self.rate_sample.send_packet(resent_pkt, self.C, self.sent_packets.__len__(), self.env.now)
                 self.out.put(resent_pkt)
 
             return
@@ -208,14 +215,14 @@ class TCPPacketGenerator:
             # new ack received, update the RTT estimate and the retransmission timout
             sample_rtt = self.env.now - ack.time
             self.rate_sample.newly_acked = 0
-            for i in range(self.last_ack, ack.ack, self.mss):
+            for i in range(self.max_ack, ack.ack, self.mss):
                 if i in self.sent_packets.keys(): 
                     self.last_ack = i #Not very important?
                     #The line above may lead to unknown failure, remove it if necessary
                     self.rate_sample.updaterate_sample(self.sent_packets[i], self.C, self.env.now)
                     self.rate_sample.newly_acked += 1
             self.rate_sample.update_sample_group(self.C, sample_rtt)
-            print(self.C.delivered)
+            print(f"Rate sample is {self.rate_sample.delivery_rate}")
             
             last_packet_lost = False
             for packet in self.sent_packets.values():
@@ -231,9 +238,11 @@ class TCPPacketGenerator:
             self.est_deviation += 0.25 * (abs(sample_err) - self.est_deviation)
             self.rto = self.rtt_estimate + 4 * self.est_deviation
         
-            if(ack.ack > self.last_ack): 
-                self.congestion_control.set_before_control(self.rate_sample, self.C, self.sent_packets[self.last_ack], self.env.now, self.sent_packets.__len__())
-                self.last_ack = ack.ack
+            if(ack.ack > self.max_ack): 
+                self.congestion_control.set_before_control(self.rate_sample, self.C, self.sent_packets[self.max_ack], self.env.now, self.sent_packets.__len__())
+                self.max_ack = ack.ack
+
+            self.last_ack = ack.ack
                 
             self.congestion_control.ack_received(sample_rtt)
 
