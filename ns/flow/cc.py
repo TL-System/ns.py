@@ -32,6 +32,10 @@ class CongestionControl:
         self.cwnd: float = cwnd
         self.ssthresh = ssthresh
         self.debug = debug
+        self.next_departure_time = 0
+        self.pacing_rate = 0
+        self.rs = None
+        self.C = None
 
     def __repr__(self):
         return f"cwnd: {self.cwnd}, ssthresh: {self.ssthresh}"
@@ -40,7 +44,7 @@ class CongestionControl:
     def ack_received(self, rtt: float = 0, current_time: float = 0):
         """ Actions to be taken when a new ack has been received. """
 
-    def timer_expired(self):
+    def timer_expired(self, packet):
         """ Actions to be taken when a timer expired. """
         # setting the congestion window to 1 segment
         self.cwnd = self.mss
@@ -50,18 +54,18 @@ class CongestionControl:
         # RFC 2001 and TCP Reno
         self.cwnd = self.ssthresh
 
-    def consecutive_dupacks_received(self):
+    def consecutive_dupacks_received(self, packet):
         """ Actions to be taken when three consecutive dupacks are received. """
         # fast retransmit in RFC 2001 and TCP Reno
         self.ssthresh = max(2 * self.mss, self.cwnd / 2)
         self.cwnd = self.ssthresh + 3 * self.mss
 
-    def more_dupacks_received(self):
+    def more_dupacks_received(self, packet):
         """ Actions to be taken when more than three consecutive dupacks are received. """
         # fast retransmit in RFC 2001 and TCP Reno
         self.cwnd += self.mss
     
-    def set_before_control(self, rs:RateSample, C:Connection, packet:Packet, current_time, packet_in_flight=0):
+    def set_before_control(self, current_time, packet_in_flight=0):
         pass
 
 

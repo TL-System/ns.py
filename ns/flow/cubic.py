@@ -88,7 +88,7 @@ class TCPCubic(CongestionControl):
             if self.cnt > max_cnt:
                 self.cnt = max_cnt
 
-    def timer_expired(self):
+    def timer_expired(self, packet):
         """ Actions to be taken when a timer expired. """
         # setting the congestion window to 1 segment
         self.cwnd = self.mss

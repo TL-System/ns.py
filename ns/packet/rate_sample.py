@@ -40,7 +40,6 @@ class RateSample:
         
     def updaterate_sample(self, packet, C ,current_time):
         self.lost = packet.lost
-        print(f"D_time {packet.delivered_time}")
         if packet.delivered_time == 0:
             return # packet already sacked
         C.delivered += packet.size
@@ -60,28 +59,27 @@ class RateSample:
         self.new_group = False
 
     def update_sample_group(self, C, minRTT = -1):
-        print(f"Ack elapsed {self.ack_elapsed}, send_elapsed {self.send_elapsed}")
         self.rtt = minRTT
         self.new_group = True
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
-        if(self.prior_time == 0): 
-            if(minRTT>0):
-                if (self.minRTT == -1):
-                    self.minRTT = minRTT
-                self.minRTT = min(self.minRTT, minRTT)
-            return False
+        # if(self.prior_time == 0): 
+        #     if(minRTT>0):
+        #         if (self.minRTT == -1):
+        #             self.minRTT = minRTT
+        #         self.minRTT = min(self.minRTT, minRTT)
+        #     return False
+        self.minRTT = minRTT
         self.delivered = self.newly_acked = C.delivered - self.prior_delivered 
         self.interval = max(self.ack_elapsed, self.send_elapsed)
         if(self.interval < self.minRTT):
             self.interval = -1
             return False
-        if(self.interval > 0):
-            self.delivery_rate = self.delivered / self.interval
-        if(minRTT>0):
-            if (self.minRTT == -1):
-                self.minRTT = minRTT
-            self.minRTT = min(self.minRTT, minRTT)
+        self.delivery_rate = self.delivered / self.interval
+        # if(minRTT>0):
+        #     if (self.minRTT == -1):
+        #         self.minRTT = minRTT
+        #     self.minRTT = min(self.minRTT, minRTT)
         return True
 
 class Connection:
@@ -90,3 +88,19 @@ class Connection:
         self.first_sent_time = 0
         self.delivered = 0
         self.delivered_time = 0
+        self.pipe = 0 # How to estimate
+        self.lost_out = 0
+        self.retrans_out = 0
+    
+    def mark_connection_app_limited(self):
+        self.is_app_limited = 1
+    
+    # CheckIfApplicationLimited():
+    # if (C.write_seq - SND.NXT < SND.MSS and
+    #     C.pending_transmissions == 0 and
+    #     C.pipe < cwnd and
+    #     C.lost_out <= C.retrans_out)
+    #   C.app_limited = (C.delivered + C.pipe) ? : 1
+    def check_if_application_limited(self):
+        if (self.pending_trans):
+            self.is_app_limited = 1
