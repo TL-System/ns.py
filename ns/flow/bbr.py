@@ -42,7 +42,7 @@ def update_windowed_max_filter(filter, value, time, window_length):
     filter[time % window_length] = value
     ret = 0
     for i in range(window_length):
-        if (ret > filter[i]): 
+        if (ret < filter[i]): 
             ret = filter[i]
     return ret
     
@@ -78,6 +78,7 @@ class TCPBbr(CongestionControl):
         self.inflight_latest = 0
         self.loss_round_delivered = 0
         self.loss_in_round = 0
+        self.extra_acked = 0
         self.extra_acked_interval_start = 0
         self.extra_acked_delivered = 0
         self.probe_rtt_expired = False
@@ -113,6 +114,7 @@ class TCPBbr(CongestionControl):
         self.pacing_rate = self.cwnd / rtt_estimate * self.BBRStartupPacingGain
         self.pacing_gain = self.BBRStartupPacingGain
         self.cwnd_gain = self.BBRStartupCwndGain 
+        self.beta = 0.7
 
     def set_before_control(self, current_time, packet_in_flight=0):
         self.current_time = current_time
@@ -162,7 +164,7 @@ class TCPBbr(CongestionControl):
     
     def bbr_update_round(self):
         self.round_start = False
-        if (self.rs.interval > 0 and self.rs.prior_delivered >= self.next_round_delivered):
+        if (self.rs.prior_delivered >= self.next_round_delivered):
             self.next_round_delivered = self.C.delivered
             self.round_count += 1
             self.round_count %= self.BBRExtraAckedFilterLen
@@ -170,11 +172,13 @@ class TCPBbr(CongestionControl):
 
     def bbr_update_max_bw(self):
         self.bbr_update_round()
+        print(f" end deli rate {self.rs.delivery_rate}, {self.rs.is_app_limited}, {self.cycle_count}")
         if (self.rs.delivery_rate >= self.max_bw or not self.rs.is_app_limited):
             self.max_bw = update_windowed_max_filter(filter=self.BBRMaxBwFilter,
                       value=self.rs.delivery_rate,
                       time=self.cycle_count,
                       window_length=self.MaxBwFilterLen)
+            print(f"end max bw {self.max_bw}")
 
     def bbr_init_lower_bounds(self):
         if (self.bw_lo == self.inf):
@@ -197,7 +201,7 @@ class TCPBbr(CongestionControl):
         self.bbr_update_max_bw()
         if(self.rs.lost > 0):
             self.loss_in_round = 1
-        if (self.loss_in_round > 0):
+        if (self.loss_in_round == 0):
             return #wait until the end of round trip
         self.bbr_adapt_lower_bounds_from_congestion()
         self.loss_in_round= 0
@@ -210,6 +214,7 @@ class TCPBbr(CongestionControl):
     def bbr_check_startup_full_bw(self):
         if (self.filled_pipe or not self.round_start or self.rs.is_app_limited):
             return
+        print(f"end - FULL BW {self.full_bw}, {self.max_bw}, {self.bw_latest}")
         if (self.max_bw >= self.full_bw * 1.25):
             self.full_bw = self.max_bw
             self.full_bw_cnt = 0
@@ -224,6 +229,7 @@ class TCPBbr(CongestionControl):
             return
         loss_rate = self.rs.newly_lost * 100 / self.packet_in_flight 
         BBRLossThresh = 2
+        print("Loss rate", loss_rate, self.rs.full_lost)
         if (loss_rate > BBRLossThresh and self.rs.full_lost >= 3):
             self.filled_pipe = True
 
@@ -255,8 +261,8 @@ class TCPBbr(CongestionControl):
     def bbr_inflight(self, gain, bw: float = 0):
         if(bw == 0.0): 
             bw = self.bw
-        self.inflight = self.bbr_bdp_multiple(bw, gain)
-        return self.bbr_quantization_budget(self.inflight)
+        inflight = self.bbr_bdp_multiple(bw, gain)
+        return self.bbr_quantization_budget(inflight)
 
     def bbr_reset_congestion_signals(self):
         self.loss_in_round = 0
@@ -371,7 +377,7 @@ class TCPBbr(CongestionControl):
     def bbr_inflight_with_headroom(self):
         if (self.inflight_hi == self.inf):
             return self.inf
-        headroom=max(1, self.inflight_hi * self.BBRHeadroom)
+        headroom=max(self.mss, self.inflight_hi * self.BBRHeadroom)
         return max(self.inflight_hi - headroom, self.BBRMinPipeCwnd)
 
     def bbr_check_time_to_cruise(self):
@@ -487,7 +493,7 @@ class TCPBbr(CongestionControl):
     # """ Update BBR parameteself.rs upon the arrival of a new ACK """
         self.bbr_update_latest_delivery_signal()
         self.bbr_update_congestion_signal()
-        self.bbr_update_ack_aggregation()
+        # self.bbr_update_ack_aggregation()
         self.bbr_check_startup_done()
         self.bbr_check_drain()
         self.bbr_update_probebw_cycle_phase()
@@ -564,8 +570,6 @@ class TCPBbr(CongestionControl):
 
     def ack_received(self, rtt: float = 0):
         self.rs.rtt = rtt
-        self.packet_conservation = False
-        self.in_fast_recovery = False
         self.bbr_update_model_and_state()
         self.bbr_update_control_param()
 
@@ -587,26 +591,35 @@ class TCPBbr(CongestionControl):
             self.rs.tx_in_flight = self.bbr_inflight_hi_from_lost_packet(packet)
             self.bbr_handle_inflight_too_high()
 
+    def bbr_modulate_cwnd_for_recovery(self):
+        if self.rs.newly_lost > 0:
+            self.cwnd = max(self.cwnd-self.rs.newly_lost, self.mss)
+        if (self.packet_conservation):
+            self.cwnd = max(self.cwnd, self.packet_in_flight)
+    
     def consecutive_dupacks_received(self, packet):
         """ Actions to be taken when three consecutive dupacks are received. """
         # fast retransmit in RFC 2001 and TCP Reno
-        self.bbr_handle_lost_packet
+        self.bbr_handle_lost_packet(packet)
         self.in_fast_recovery = True
-        self.ssthresh = max(2 * self.mss, self.cwnd / 2)
-        self.cwnd = self.ssthresh + 3 * self.mss
+        self.prior_cwnd = self.bbr_save_cwnd()
+        self.cwnd = self.packet_in_flight + self.mss
+        self.packet_conservation = True
 
     def more_dupacks_received(self, packet):
         """ Actions to be taken when more than three consecutive dupacks are received. """
         # fast recovery
         self.in_fast_recovery = True
-        self.prior_cwnd = self.bbr_save_cwnd()
-        self.cwnd = self.packet_in_flight + max(self.rs.newly_acked, 1)
-        self.packet_conservation = True
-    
+        self.bbr_modulate_cwnd_for_recovery()
+        self.packet_conservation = False
+        
     def timer_expired(self, packet):
         """ Actions to be taken when a timer expired. """
         # setting the congestion window to 1 segment
+        self.bbr_handle_lost_packet(packet)
         self.prior_cwnd = self.bbr_save_cwnd()
-        self.cwnd = self.packet_in_flight + 1
+        self.cwnd = self.packet_in_flight + self.mss
 
-        
+    def dupack_over(self):
+        self.in_fast_recovery = False
+        self.packet_conservation = False

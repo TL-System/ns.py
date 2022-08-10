@@ -44,6 +44,7 @@ class RateSample:
             return # packet already sacked
         C.delivered += packet.size
         C.delivered_time = current_time
+        self.newly_acked += packet.size
 
         if (packet.delivered >= self.prior_delivered):
             self.prior_delivered = packet.delivered
@@ -53,6 +54,7 @@ class RateSample:
             self.ack_elapsed = C.delivered_time - packet.delivered_time
             C.first_sent_time = packet.time
         
+        self.delivered = C.delivered - packet.delivered
         packet.delivered_time = 0
         if(self.new_group or packet.time > self.tx_in_flight_time_stamp):
             self.tx_in_flight = packet.tx_in_flight
@@ -63,23 +65,12 @@ class RateSample:
         self.new_group = True
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
-        # if(self.prior_time == 0): 
-        #     if(minRTT>0):
-        #         if (self.minRTT == -1):
-        #             self.minRTT = minRTT
-        #         self.minRTT = min(self.minRTT, minRTT)
-        #     return False
         self.minRTT = minRTT
-        self.delivered = self.newly_acked = C.delivered - self.prior_delivered 
         self.interval = max(self.ack_elapsed, self.send_elapsed)
         if(self.interval < self.minRTT):
             self.interval = -1
             return False
         self.delivery_rate = self.delivered / self.interval
-        # if(minRTT>0):
-        #     if (self.minRTT == -1):
-        #         self.minRTT = minRTT
-        #     self.minRTT = min(self.minRTT, minRTT)
         return True
 
 class Connection:
@@ -91,6 +82,7 @@ class Connection:
         self.pipe = 0 # How to estimate
         self.lost_out = 0
         self.retrans_out = 0
+        self.is_cwnd_limited = False
     
     def mark_connection_app_limited(self):
         self.is_app_limited = 1
