@@ -25,6 +25,7 @@ class RateSample:
         self.is_app_limited = False
         self.newly_lost = 0
         self.full_lost = 0
+        self.prior_lost = 0
         self.tx_in_flight = -1
         self.new_group = True
         self.tx_in_flight_time_stamp = 0
@@ -36,6 +37,7 @@ class RateSample:
         packet.first_sent_time = C.first_sent_time
         packet.delivered_time = C.delivered_time
         packet.delivered = C.delivered
+        packet.lost = C.lost
         packet.is_app_limited = (C.is_app_limited != 0)
         
     def updaterate_sample(self, packet, C ,current_time):
@@ -54,18 +56,22 @@ class RateSample:
             self.ack_elapsed = C.delivered_time - packet.delivered_time
             C.first_sent_time = packet.time
         
-        self.delivered = C.delivered - packet.delivered
         packet.delivered_time = 0
-        if(self.new_group or packet.time > self.tx_in_flight_time_stamp):
-            self.tx_in_flight = packet.tx_in_flight
-        self.new_group = False
+        # if(self.new_group or packet.time > self.tx_in_flight_time_stamp):
+        #     self.tx_in_flight = packet.tx_in_flight
+        # self.new_group = False
 
     def update_sample_group(self, C, minRTT = -1):
         self.rtt = minRTT
-        self.new_group = True
+        # self.new_group = True
+        self.newly_lost = C.lost - self.prior_lost
+        self.prior_lost = self.newly_lost
+        
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
+        
         self.minRTT = minRTT
+        self.delivered = C.delivered - self.prior_delivered
         self.interval = max(self.ack_elapsed, self.send_elapsed)
         if(self.interval < self.minRTT):
             self.interval = -1
@@ -79,12 +85,14 @@ class Connection:
         self.first_sent_time = 0
         self.delivered = 0
         self.delivered_time = 0
+        self.lost = 0
         self.pipe = 0 # How to estimate
         self.lost_out = 0
         self.retrans_out = 0
         self.is_cwnd_limited = False
     
     def mark_connection_app_limited(self):
+        #self.is_app_limited = (self.delivered + packets_in_flight) ? : 1
         self.is_app_limited = 1
     
     # CheckIfApplicationLimited():

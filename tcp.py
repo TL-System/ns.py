@@ -35,14 +35,14 @@ env = simpy.Environment()
 flow1 = Flow(fid=0,
             src='flow 1',
             dst='flow 1',
-            finish_time=10,
+            finish_time=50,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
 flow2 = Flow(fid=1,
             src='flow 2',
             dst='flow 2',
-            finish_time=10,
+            finish_time=50,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
@@ -119,7 +119,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=100)
+env.run(until=500)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])
