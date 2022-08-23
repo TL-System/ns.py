@@ -7,7 +7,7 @@ from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
-from ns.flow.flow import Flow
+from ns.flow.flow import Flow, AppType
 from ns.flow.bbr import TCPBbr
 from ns.flow.cubic import TCPCubic as Cubic
 import matplotlib.pyplot as plt
@@ -35,14 +35,18 @@ env = simpy.Environment()
 flow1 = Flow(fid=0,
             src='flow 1',
             dst='flow 1',
-            finish_time=50,
+            finish_time=1000,
+            typ = AppType.FILE_DOWNLD,
+            size = 32768, 
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
 flow2 = Flow(fid=1,
             src='flow 2',
             dst='flow 2',
-            finish_time=50,
+            typ = AppType.FILE_DOWNLD,
+            finish_time=1000,
+            size = 32768,
             arrival_dist=packet_arrival,
             size_dist=packet_size)
 
@@ -119,7 +123,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=500)
+env.run(until=1000)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])

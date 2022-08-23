@@ -1,4 +1,4 @@
-#TODO: rs.newly_lost, what's the difference between lost?
+#TODO: .newly_lost, what's the difference between lost?
 
 class RateSample:
     """
@@ -27,8 +27,6 @@ class RateSample:
         self.full_lost = 0
         self.prior_lost = 0
         self.tx_in_flight = -1
-        self.new_group = True
-        self.tx_in_flight_time_stamp = 0
         
     def send_packet(self, packet, C, packets_in_flight, current_time):
         if (packets_in_flight == 0):
@@ -54,12 +52,10 @@ class RateSample:
             self.is_app_limited = packet.is_app_limited
             self.send_elapsed = packet.time - packet.first_sent_time
             self.ack_elapsed = C.delivered_time - packet.delivered_time
+            self.tx_in_flight = packet.tx_in_flight
             C.first_sent_time = packet.time
         
         packet.delivered_time = 0
-        # if(self.new_group or packet.time > self.tx_in_flight_time_stamp):
-        #     self.tx_in_flight = packet.tx_in_flight
-        # self.new_group = False
 
     def update_sample_group(self, C, minRTT = -1):
         self.rtt = minRTT
@@ -102,5 +98,4 @@ class Connection:
     #     C.lost_out <= C.retrans_out)
     #   C.app_limited = (C.delivered + C.pipe) ? : 1
     def check_if_application_limited(self):
-        if (self.pending_trans):
-            self.is_app_limited = 1
+        pass

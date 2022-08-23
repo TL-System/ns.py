@@ -2,7 +2,12 @@
 
 from dataclasses import dataclass
 from collections.abc import Callable
+from enum import Enum, auto
 
+class AppType(Enum):
+    FILE_DOWNLD = auto(),
+    VIDEO = auto(),
+    GAME = auto()
 
 @dataclass
 class Flow:
@@ -18,6 +23,28 @@ class Flow:
     pkt_gen: object = None
     pkt_sink: object = None
     path: list = None
+    typ: AppType = AppType.FILE_DOWNLD
+    last_arrival: float = 0
 
     def __repr__(self) -> str:
         return f"Flow {self.fid} on {self.path}"
+    
+    def init_send_buffer(self):
+        if (self.typ == AppType.FILE_DOWNLD):
+            return self.size
+        else:
+            return 0
+
+    def next_send_buffer(self, current_time):
+        if (self.typ == AppType.FILE_DOWNLD):
+            return 0
+        new_packet = 0
+        arrival_wait = self.arrival_dist()
+
+        while (current_time - self.last_arrival > arrival_wait):
+            new_packet += self.size_dist()
+            self.last_arrival += arrival_wait
+            arrival_wait = self.arrival_dist()
+
+        return new_packet
+               

@@ -37,6 +37,7 @@ class BBRAckStates(Enum):
     ACKS_PROBE_FEEDBACK = 1
     ACKS_PROBE_STOPPING = 2
     ACKS_REFILLING = 3
+    ACKS_INIT = 4
 
 def update_windowed_max_filter(filter, value, time, window_length):
     filter[time % window_length] = value
@@ -97,8 +98,8 @@ class TCPBbr(CongestionControl):
         self.BBRMinPipeCwnd = 4 * mss
         self.current_time = None
         self.filled_pipe = False
-        self.ProbeRTTInterval = 5 #sec
-        self.MinRTTFilterLen = 10 #sec
+        self.ProbeRTTInterval = 5 # should be 5 sec
+        self.MinRTTFilterLen = 10 # should be 10 sec
         self.ProbeRTTDuration = 0.2 #sec or 200ms
         self.BBRHeadroom = 0.85
         self.BBRPacingMarginPercent = 1
@@ -116,10 +117,11 @@ class TCPBbr(CongestionControl):
         self.cwnd_gain = self.BBRStartupCwndGain 
         self.beta = 0.7
         self.send_quantum = self.mss
+        self.ack_phase = BBRAckStates.ACKS_INIT
 
     def set_before_control(self, current_time, packet_in_flight=0):
         self.current_time = current_time
-        self.packet_in_flight = packet_in_flight * self.mss
+        self.packet_in_flight = packet_in_flight
     
     def bbr_set_pacing_rate_with_gain(self,gain):
         rate = gain * self.bw * (100 - self.BBRPacingMarginPercent) / 100
@@ -173,7 +175,7 @@ class TCPBbr(CongestionControl):
 
     def bbr_update_max_bw(self):
         self.bbr_update_round()
-        print(f" end deli rate {self.rs.delivery_rate}, {self.rs.is_app_limited}, {self.cycle_count}")
+        # print(f" end deli rate {self.rs.delivery_rate}, {self.rs.is_app_limited}, {self.cycle_count}")
         if (self.rs.delivery_rate >= self.max_bw or not self.rs.is_app_limited):
             self.max_bw = update_windowed_max_filter(filter=self.BBRMaxBwFilter,
                       value=self.rs.delivery_rate,
@@ -225,7 +227,7 @@ class TCPBbr(CongestionControl):
             self.filled_pipe = True
     
     def bbr_check_startup_high_loss(self):
-        # No Pseudo-code
+        # No Pseudo-code, of less significance
         if (not self.in_fast_recovery):
             return
         loss_rate = self.rs.newly_lost * 100 / self.packet_in_flight 
@@ -252,10 +254,10 @@ class TCPBbr(CongestionControl):
     
     def bbr_quantization_budget(self, inflight):
         self.bbr_update_offload_budget()
-        inflight = max(inflight, self.offload_budget)
-        inflight  = max(inflight, self.BBRMinPipeCwnd)
+        # print(f"BBRS- offload {self.offload_budget}")
+        inflight = max(inflight, self.offload_budget, self.BBRMinPipeCwnd)
         if (self.state == BBRState.PROBEBW and self.cycle_idx == BBRSemiState.PROBEBW_UP):
-            inflight += 2
+            inflight += 2 * self.mss
         return inflight
     
     def bbr_inflight(self, gain, bw: float = 0):
@@ -290,7 +292,7 @@ class TCPBbr(CongestionControl):
         self.bbr_start_probebw_down()
 
     def bbr_check_drain(self):
-        if (self.state == BBRState.DRAIN and self.packet_in_flight <= self.bbr_inflight(1.0)) :
+        if (self.state == BBRState.DRAIN and self.packet_in_flight <= self.bbr_inflight(1.0, self.max_bw)) :
             self.bbr_enter_probebw()
     
     def bbr_advance_max_bw_filter(self):
@@ -345,7 +347,7 @@ class TCPBbr(CongestionControl):
             if (self.inflight_hi == self.inf or self.bw_hi == self.inf):
                 return
             self.inflight_hi = max(self.inflight_hi, self.rs.tx_in_flight)
-            self.bw_hi = max(self.rs.delivery_rate, self.bw_hi) # Fake code, self.rs.bw?
+            self.bw_hi = max(self.rs.delivery_rate, self.bw_hi)
             if (self.cycle_idx == BBRSemiState.PROBEBW_UP):
                 self.bbr_probe_inflight_hi_upward()
     
@@ -382,9 +384,9 @@ class TCPBbr(CongestionControl):
         return max(self.inflight_hi - headroom, self.BBRMinPipeCwnd)
 
     def bbr_check_time_to_cruise(self):
-        if (self.inflight > self.bbr_inflight_with_headroom()):
+        if (self.packet_in_flight > self.bbr_inflight_with_headroom()):
             return False
-        if (self.inflight <= self.bbr_inflight(1.0, self.max_bw)):
+        if (self.packet_in_flight <= self.bbr_inflight(1.0, self.max_bw)):
             return True
     
     def bbr_start_probebw_cruise(self):
@@ -403,6 +405,7 @@ class TCPBbr(CongestionControl):
         self.bbr_adapt_upper_bounds()
         if (self.state != BBRState.PROBEBW):
             return
+        # print(self.cycle_idx, self.pacing_rate)
         if(self.cycle_idx == BBRSemiState.PROBEBW_DOWN):
             if (self.bbr_check_time_to_probebw()):
                 return
@@ -416,12 +419,12 @@ class TCPBbr(CongestionControl):
                 self.bw_probe_samples = 1
                 self.bbr_start_probebw_up()
         elif (self.cycle_idx == BBRSemiState.PROBEBW_UP):
-            if (self.bbr_has_elapsed_in_phase(self.min_rtt) and self.inflight > self.bbr_inflight(1.25, self.max_bw)):
+            if (self.bbr_has_elapsed_in_phase(self.min_rtt) and self.packet_in_flight > self.bbr_inflight(1.25, self.max_bw)):
                 self.bbr_start_probebw_down()
 
     def bbr_update_min_rtt(self):
         self.probe_rtt_expired = self.current_time > (self.probe_rtt_min_stamp + self.ProbeRTTInterval)
-        if (self.rs.rtt >= 0 or self.rs.rtt < self.probe_rtt_min_delay or self.probe_rtt_expired):
+        if (self.rs.rtt >= 0 and (self.rs.rtt < self.probe_rtt_min_delay or self.probe_rtt_expired)):
             self.probe_rtt_min_delay = self.rs.rtt
             self.probe_rtt_min_stamp = self.current_time
         
@@ -481,14 +484,16 @@ class TCPBbr(CongestionControl):
             self.bbr_handle_probertt()
         if (self.rs.delivered > 0):
             self.idle_restart = False
-    # Dream never fall Rain Forest
+
     def bbr_advance_latest_delivery_signal(self):
         if (self.loss_round_start):
             self.bw_latest = self.rs.delivery_rate
             self.inflight_latest = self.rs.delivered
     
     def bbr_bound_bw_for_model(self):
-        self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
+        print(f"bw_hi is {self.bw_hi}")
+        # self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
+        self.bw = min(self.max_bw, self.bw_lo)
 
     def bbr_update_model_and_state(self):
     # """ Update BBR parameteself.rs upon the arrival of a new ACK """
@@ -509,11 +514,11 @@ class TCPBbr(CongestionControl):
             self.pacing_rate = rate
     
     def bbr_set_send_quantum(self):
-        if (self.pacing_rate < 715): #Unit 1.2Mbps
+        if (self.pacing_rate < 150000): #Unit 1.2Mbps
             floor = 1 * self.mss #SMSS
         else:
             floor = 2 * self.mss #SMSS
-        self.send_quantum = min(self.pacing_rate, 64) #Unit ms, kBytes
+        self.send_quantum = min(self.pacing_rate / 1000, 64 * 1024) #Unit ms, kBytes
         self.send_quantum = max(self.send_quantum, floor)
     
     def bbr_update_aggregation_budget(self):
@@ -523,9 +528,9 @@ class TCPBbr(CongestionControl):
 
     def bbr_update_max_inflight(self):
         self.bbr_update_aggregation_budget()
-        self.inflight = self.bbr_bdp_multiple(self.bw, self.cwnd_gain)
-        self.inflight += self.extra_acked
-        self.max_inflight = self.bbr_quantization_budget(self.inflight)
+        inflight = self.bbr_bdp_multiple(self.bw, self.cwnd_gain)
+        inflight += self.extra_acked
+        self.max_inflight = self.bbr_quantization_budget(inflight)
 
     def bbr_modulate_cwnd_for_recovery(self):
         if(self.rs.newly_lost > 0):
@@ -579,8 +584,8 @@ class TCPBbr(CongestionControl):
         inflight_prev = self.rs.tx_in_flight - size
         lost_prev = self.rs.lost - size
         lost_prefix = (self.BBRLossThresh * inflight_prev - lost_prev) / (1-self.BBRLossThresh)
-        self.inflight = inflight_prev + lost_prefix
-        return self.inflight
+        inflight = inflight_prev + lost_prefix
+        return inflight
 
     def bbr_handle_lost_packet(self, packet):
         if (self.bw_probe_samples == 0):
