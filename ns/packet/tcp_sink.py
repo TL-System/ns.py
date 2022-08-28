@@ -52,12 +52,12 @@ class TCPSink(PacketSink):
         if len(self.recv_buffer) == 1:
             # in-order delivery: all data up to but not including
             # `next_seq_expected' have been received
-            self.next_seq_expected = packet.packet_id + packet.size
+            self.next_seq_expected = max(packet.packet_id + packet.size, self.next_seq_expected)
         else:
             # out-of-order delivery or retransmissions: needs
             # to go through the receive buffer and find out
             # what the last in-order packet's sequence number is
-            self.next_seq_expected = self.recv_buffer[0][1]
+            self.next_seq_expected = max(self.recv_buffer[0][1], self.next_seq_expected)
 
         # a TCP sink needs to send ack packets back to the TCP packet generator
         assert self.out is not None

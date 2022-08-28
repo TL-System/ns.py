@@ -123,7 +123,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=100)
+env.run(until=1000)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])

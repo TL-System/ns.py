@@ -105,14 +105,15 @@ class TCPPacketGenerator:
                 #     else:
                 #         packet_size = self.mss
                 # self.send_buffer += packet_size
-            
             self.send_buffer += self.flow.next_send_buffer(self.env.now)
             # the sender can transmit up to the size of the congestion window
             if self.env.now - self.congestion_control.next_departure_time < 0:
+                print(self.element_id, "Wait time")
                 yield self.env.timeout(self.congestion_control.next_departure_time - self.env.now)
             elif self.next_seq + self.mss > min(
                     self.send_buffer,
                     self.last_ack + self.congestion_control.cwnd):
+                print(self.element_id, "Wait cwnd")
                 self.congestion_control.C.is_cwnd_limited = True 
                 yield self.cwnd_available.get()
             else:   
@@ -311,4 +312,5 @@ class TCPPacketGenerator:
         if ack.packet_id in self.timers:
             self.sent_packets[ack.packet_id].self_lost = False
             
-        self.cwnd_list.append(self.congestion_control.min_rtt)
+        # self.cwnd_list.append(self.congestion_control.min_rtt)
+        self.cwnd_list.append(self.congestion_control.pacing_rate)
