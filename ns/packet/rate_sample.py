@@ -44,8 +44,6 @@ class RateSample:
             return # packet already sacked
         C.delivered += packet.size
         C.delivered_time = current_time
-        self.newly_acked += packet.size
-
         if (packet.delivered >= self.prior_delivered):
             self.prior_delivered = packet.delivered
             self.prior_time = packet.delivered_time

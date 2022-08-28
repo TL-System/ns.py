@@ -50,7 +50,7 @@ def update_windowed_max_filter(filter, value, time, window_length):
 class TCPBbr(CongestionControl):
     def __init__(self,
                  mss: int = 512,
-                 cwnd: int = 512,
+                 cwnd: int = 2048,
                  ssthresh: int = 65535,
                  inf: float = float("inf"),
                  debug: bool = False,
@@ -85,9 +85,9 @@ class TCPBbr(CongestionControl):
         self.probe_rtt_expired = False
         self.probe_rtt_done_stamp = 0
         self.probe_rtt_min_stamp = 0
-        self.probe_rtt_min_delay = 0
+        self.probe_rtt_min_delay = self.inf
         self.min_rtt_stamp = 0
-        self.min_rtt = 0
+        self.min_rtt = self.inf
         self.packet_conservation = False
         self.BBRExtraAckedFilterLen = 10
         self.BBRStartupPacingGain = 2.77
@@ -175,13 +175,11 @@ class TCPBbr(CongestionControl):
 
     def bbr_update_max_bw(self):
         self.bbr_update_round()
-        # print(f" end deli rate {self.rs.delivery_rate}, {self.rs.is_app_limited}, {self.cycle_count}")
         if (self.rs.delivery_rate >= self.max_bw or not self.rs.is_app_limited):
             self.max_bw = update_windowed_max_filter(filter=self.BBRMaxBwFilter,
                       value=self.rs.delivery_rate,
                       time=self.cycle_count,
                       window_length=self.MaxBwFilterLen)
-            # print(f"end max bw {self.max_bw}")
 
     def bbr_init_lower_bounds(self):
         if (self.bw_lo == self.inf):
@@ -215,7 +213,6 @@ class TCPBbr(CongestionControl):
         self.cwnd_gain = self.BBRStartupCwndGain    
 
     def bbr_check_startup_full_bw(self):
-        # print(f"Max Bw{self.max_bw}, Full Bw{self.full_bw} {self.rs.is_app_limited} {self.round_start}")
         if (self.filled_pipe or not self.round_start or self.rs.is_app_limited):
             return
         if (self.max_bw >= self.full_bw * 1.25):
@@ -254,7 +251,6 @@ class TCPBbr(CongestionControl):
     
     def bbr_quantization_budget(self, inflight):
         self.bbr_update_offload_budget()
-        # print(f"BBRS- offload {self.offload_budget}")
         inflight = max(inflight, self.offload_budget, self.BBRMinPipeCwnd)
         if (self.state == BBRState.PROBEBW and self.cycle_idx == BBRSemiState.PROBEBW_UP):
             inflight += 2 * self.mss
@@ -303,6 +299,7 @@ class TCPBbr(CongestionControl):
         return (self.rs.lost > self.rs.tx_in_flight * self.BBRLossThresh)
 
     def bbr_target_inflight(self):
+        self.bdp = self.bbr_inflight(1.0, min(self.max_bw, self.bw_lo))
         return min(self.bdp, self.cwnd)
         
     def bbr_handle_inflight_too_high(self):
@@ -384,10 +381,12 @@ class TCPBbr(CongestionControl):
         return max(self.inflight_hi - headroom, self.BBRMinPipeCwnd)
 
     def bbr_check_time_to_cruise(self):
+        # print("DOWN CRUISE", self.packet_in_flight, self.bbr_inflight_with_headroom(), self.bbr_inflight(1.0, self.max_bw))
         if (self.packet_in_flight > self.bbr_inflight_with_headroom()):
             return False
         if (self.packet_in_flight <= self.bbr_inflight(1.0, self.max_bw)):
             return True
+        return False
     
     def bbr_start_probebw_cruise(self):
         self.cycle_idx = BBRSemiState.PROBEBW_CRUISE
@@ -424,11 +423,12 @@ class TCPBbr(CongestionControl):
 
     def bbr_update_min_rtt(self):
         self.probe_rtt_expired = self.current_time > (self.probe_rtt_min_stamp + self.ProbeRTTInterval)
-        if (self.rs.rtt >= 0 and (self.rs.rtt < self.probe_rtt_min_delay or self.probe_rtt_expired)):
+        if (self.rs.rtt > 0 and (self.rs.rtt < self.probe_rtt_min_delay or self.probe_rtt_expired)):
             self.probe_rtt_min_delay = self.rs.rtt
             self.probe_rtt_min_stamp = self.current_time
         
         min_rtt_expired = self.current_time > (self.min_rtt_stamp + self.MinRTTFilterLen)
+        # print(f"Inflight rs.rtt {self.rs.rtt}, probe_rtt_min_delay {self.probe_rtt_min_delay}")
         if(self.probe_rtt_min_delay < self.min_rtt or min_rtt_expired):
             self.min_rtt = self.probe_rtt_min_delay
             self.min_rtt_stamp = self.probe_rtt_min_stamp
@@ -491,8 +491,8 @@ class TCPBbr(CongestionControl):
             self.inflight_latest = self.rs.delivered
     
     def bbr_bound_bw_for_model(self):
-        print(f"bw_hi is {self.bw_hi}")
         # self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
+        # print(f"bw is {self.max_bw}, {self.bw_lo}")
         self.bw = min(self.max_bw, self.bw_lo)
 
     def bbr_update_model_and_state(self):
@@ -530,6 +530,7 @@ class TCPBbr(CongestionControl):
         self.bbr_update_aggregation_budget()
         inflight = self.bbr_bdp_multiple(self.bw, self.cwnd_gain)
         inflight += self.extra_acked
+        # print(f"Inflight:{inflight}, extra_acked:{self.extra_acked}, bw:{self.bw}, newly_acked {self.rs.newly_acked}")
         self.max_inflight = self.bbr_quantization_budget(inflight)
 
     def bbr_modulate_cwnd_for_recovery(self):

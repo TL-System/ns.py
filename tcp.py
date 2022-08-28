@@ -25,10 +25,8 @@ def packet_size():
 
 def delay_dist():
     """ Network wires experience a constant propagation delay of 0.1 seconds. """
-    return 0.1
+    return 0.01
 
-def long_dist():
-    return 0.1
 
 env = simpy.Environment()
 
@@ -37,8 +35,9 @@ flow1 = Flow(fid=0,
             dst='flow 1',
             finish_time=1000,
             typ = AppType.FILE_DOWNLD,
-            size = 32768, 
+            size = 1048576, 
             arrival_dist=packet_arrival,
+            start_time=0.01,
             size_dist=packet_size)
 
 flow2 = Flow(fid=1,
@@ -46,24 +45,25 @@ flow2 = Flow(fid=1,
             dst='flow 2',
             typ = AppType.FILE_DOWNLD,
             finish_time=1000,
-            size = 32768,
+            size = 1048576,
             arrival_dist=packet_arrival,
+            start_time=0.01,
             size_dist=packet_size)
 
 sender1 = TCPPacketGenerator(env,
                             element_id=1,
                             flow=flow1,
-                            cc=TCPBbr(rtt_estimate=0.8),
+                            cc=TCPBbr(rtt_estimate=0.08),
                             # cc=Cubic(),
-                            rtt_estimate=0.8,
+                            rtt_estimate=0.08,
                             debug=True)
 
 sender2 = TCPPacketGenerator(env,
                             element_id=2,
                             flow=flow2,
-                            cc=TCPBbr(rtt_estimate=0.8),
+                            cc=TCPBbr(rtt_estimate=0.08),
                             # cc=Cubic(),
-                            rtt_estimate=0.8,
+                            rtt_estimate=0.08,
                             debug=True)
 
 
@@ -76,20 +76,20 @@ wire3_downstream = Wire(env, delay_dist)
 wire3_upstream = Wire(env, delay_dist)
 wire4_downstream = Wire(env, delay_dist)
 wire4_upstream = Wire(env, delay_dist)
-wire5_downstream = Wire(env, long_dist)
-wire5_upstream = Wire(env, long_dist)
+wire5_downstream = Wire(env, delay_dist)
+wire5_upstream = Wire(env, delay_dist)
 
 switch1 = SimplePacketSwitch(
     env,
     nports=3,
-    port_rate=16384,  # in bits/second
+    port_rate=1048576,  # in bits/second
     buffer_size=5,  # in packets
     debug=True)
 
 switch2 = SimplePacketSwitch(
     env,
     nports=3,
-    port_rate=16384,  # in bits/second
+    port_rate=1048576,  # in bits/second
     buffer_size=5,  # in packets
     debug=True)
 
@@ -123,7 +123,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=1000)
+env.run(until=100)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])
@@ -144,10 +144,10 @@ fig.savefig("bbr_WaitHis_2.png")
 # plt.show()
 
 plt.plot(sender1.cwnd_list)
-plt.savefig("bbr_Sender1_cwnd.png")
+plt.savefig("bbr_Sender1_rtt.png")
 
 plt.plot(sender2.cwnd_list)
-plt.savefig("bbr_Sender2_cwnd.png")
+plt.savefig("bbr_Sender2_rtt.png")
 
 # fig, axis = plt.subplots()
 # axis.hist(receiver1.waits[0], bins=100)

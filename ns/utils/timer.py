@@ -31,11 +31,14 @@ class Timer:
 
     def run(self):
         """ The generator function used in simulations. """
-        while self.env.now < self.timer_expiry:
-            yield self.env.timeout(self.timer_expiry - self.env.now)
+        while True:
+            while self.env.now < self.timer_expiry:
+                yield self.env.timeout(self.timer_expiry - self.env.now)
 
-        if not self.stopped:
-            self.timeout_callback(self.timer_id)
+            if not self.stopped:
+                self.timeout_callback(self.timer_id)
+            else:
+                break
 
     def stop(self):
         """ Stopping the timer. """

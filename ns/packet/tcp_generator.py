@@ -30,8 +30,8 @@ class TCPPacketGenerator:
                  flow,
                  cc,
                  element_id=None,
-                 rtt_estimate=1,
-                 granularity=1,
+                 rtt_estimate=0.08,
+                 granularity=0.01,
                  debug=True):
         self.element_id = element_id
         self.env = env
@@ -151,8 +151,8 @@ class TCPPacketGenerator:
     def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
         if self.debug:
-            print("Timer expired for packet {:d} at time {:.4f}.".format(
-                packet_id, self.env.now))
+            print("Timer expired for packet {:d} {:d} at time {:.4f}.".format(
+                packet_id, self.flow.fid, self.env.now))
         
         self.congestion_control.C.lost += self.sent_packets[packet_id].size
         self.sent_packets[packet_id].self_lost = True
@@ -184,6 +184,7 @@ class TCPPacketGenerator:
         assert ack.flow_id >= 10000  # the received packet must be an ack
 
         sample_rtt = self.env.now - ack.time
+        self.congestion_control.rs.newly_acked =  ack.ack - self.last_ack
 
         if ack.ack == self.last_ack:
             if ack.packet_id in self.sent_packets:
@@ -208,9 +209,6 @@ class TCPPacketGenerator:
             self.est_deviation = ( 3*self.est_deviation + sample_err) / 4
             self.rtt_estimate = ( 7*self.rtt_estimate + sample_rtt) / 8
             self.rto = min(self.rtt_estimate + max(4*self.est_deviation, self.granularity), 60) 
-
-        self.congestion_control.rs.newly_acked = 0
-
 
         if self.dupack == 2:
             self.congestion_control.C.lost += self.sent_packets[ack.ack].size
@@ -307,10 +305,10 @@ class TCPPacketGenerator:
         
         print(self.element_id, self.congestion_control.state, self.congestion_control.cycle_idx, 
             self.env.now, self.congestion_control.pacing_rate, self.congestion_control.cwnd, 
-            self.congestion_control.next_departure_time, self.next_seq, self.send_buffer)
+            self.congestion_control.next_departure_time)
         
-        assert self.congestion_control.pacing_rate > 0
+        # assert self.congestion_control.pacing_rate > 0
         if ack.packet_id in self.timers:
             self.sent_packets[ack.packet_id].self_lost = False
             
-        self.cwnd_list.append(self.congestion_control.cwnd)
+        self.cwnd_list.append(self.congestion_control.min_rtt)
