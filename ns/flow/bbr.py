@@ -369,6 +369,7 @@ class TCPBbr(CongestionControl):
         self.cycle_idx = BBRSemiState.PROBEBW_REFILL
 
     def bbr_check_time_to_probebw(self):
+        # print("DOWN", self.bbr_has_elapsed_in_phase(self.bw_probe_wait), self.bbr_is_reno_coexistence_probe_time())
         if (self.bbr_has_elapsed_in_phase(self.bw_probe_wait) or self.bbr_is_reno_coexistence_probe_time()):
             self.bbr_start_probebw_refill()
             return True
@@ -491,9 +492,9 @@ class TCPBbr(CongestionControl):
             self.inflight_latest = self.rs.delivered
     
     def bbr_bound_bw_for_model(self):
-        # self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
+        self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
         # print(f"bw is {self.max_bw}, {self.bw_lo}")
-        self.bw = min(self.max_bw, self.bw_lo)
+        # self.bw = min(self.max_bw, self.bw_lo)
 
     def bbr_update_model_and_state(self):
     # """ Update BBR parameteself.rs upon the arrival of a new ACK """

@@ -74,6 +74,7 @@ class TCPPacketGenerator:
         self.debug = debug
 
         self.cwnd_list = []
+        self.time_list = []
 
     def run(self):
         # FIle download, video, game
@@ -108,12 +109,10 @@ class TCPPacketGenerator:
             self.send_buffer += self.flow.next_send_buffer(self.env.now)
             # the sender can transmit up to the size of the congestion window
             if self.env.now - self.congestion_control.next_departure_time < 0:
-                print(self.element_id, "Wait time")
                 yield self.env.timeout(self.congestion_control.next_departure_time - self.env.now)
             elif self.next_seq + self.mss > min(
                     self.send_buffer,
                     self.last_ack + self.congestion_control.cwnd):
-                print(self.element_id, "Wait cwnd")
                 self.congestion_control.C.is_cwnd_limited = True 
                 yield self.cwnd_available.get()
             else:   
@@ -305,7 +304,7 @@ class TCPPacketGenerator:
             self.cwnd_available.put(True)
         
         print(self.element_id, self.congestion_control.state, self.congestion_control.cycle_idx, 
-            self.env.now, self.congestion_control.pacing_rate, self.congestion_control.cwnd, 
+            self.env.now, self.congestion_control.inflight_lo, self.congestion_control.bw_hi, 
             self.congestion_control.next_departure_time)
         
         # assert self.congestion_control.pacing_rate > 0
@@ -313,4 +312,5 @@ class TCPPacketGenerator:
             self.sent_packets[ack.packet_id].self_lost = False
             
         # self.cwnd_list.append(self.congestion_control.min_rtt)
-        self.cwnd_list.append(self.congestion_control.pacing_rate)
+        self.time_list.append(self.env.now)
+        self.cwnd_list.append(self.packet_in_flight)

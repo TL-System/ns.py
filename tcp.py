@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 def packet_arrival():
     """ Packets arrive with a constant interval of 0.1 seconds. """
-    return 0.1
+    return 0.01
 
 
 def packet_size():
@@ -36,7 +36,7 @@ flow1 = Flow(fid=0,
             finish_time=1000,
             typ = AppType.FILE_DOWNLD,
             size = 1048576, 
-            arrival_dist=packet_arrival,
+            # arrival_dist=packet_arrival,
             start_time=0.01,
             size_dist=packet_size)
 
@@ -46,7 +46,7 @@ flow2 = Flow(fid=1,
             typ = AppType.FILE_DOWNLD,
             finish_time=1000,
             size = 1048576,
-            arrival_dist=packet_arrival,
+            # arrival_dist=packet_arrival,
             start_time=0.01,
             size_dist=packet_size)
 
@@ -123,7 +123,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=1000)
+env.run(until=10)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])
@@ -143,10 +143,10 @@ axis.set_ylabel("normalized frequency of occurrence")
 fig.savefig("bbr_WaitHis_2.png")
 # plt.show()
 
-plt.plot(sender1.cwnd_list)
+plt.plot(sender1.time_list, sender1.cwnd_list)
 plt.savefig("bbr_Sender1_rtt.png")
 
-plt.plot(sender2.cwnd_list)
+plt.plot(sender2.time_list, sender2.cwnd_list)
 plt.savefig("bbr_Sender2_rtt.png")
 
 # fig, axis = plt.subplots()
