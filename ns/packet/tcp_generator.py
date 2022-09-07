@@ -76,6 +76,11 @@ class TCPPacketGenerator:
         self.cwnd_list = []
         self.time_list = []
 
+    def update_next_seq(self):
+        self.send_buffer += self.flow.next_send_buffer(self.env.now)
+        self.congestion_control.C.write_seq = self.send_buffer + 1
+        self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
+        
     def run(self):
         # FIle download, video, game
         """ The generator function used in simulations. """
@@ -106,7 +111,8 @@ class TCPPacketGenerator:
                 #     else:
                 #         packet_size = self.mss
                 # self.send_buffer += packet_size
-            self.send_buffer += self.flow.next_send_buffer(self.env.now)
+            self.update_next_seq()
+            
             # the sender can transmit up to the size of the congestion window
             if self.env.now - self.congestion_control.next_departure_time < 0:
                 yield self.env.timeout(self.congestion_control.next_departure_time - self.env.now)
@@ -143,6 +149,8 @@ class TCPPacketGenerator:
                     timer_id=packet.packet_id,
                     timeout_callback=self.timeout_callback,
                     timeout=self.rto)
+                
+                self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
 
                 if self.debug:
                     print("Setting a timer for packet {:d} with an RTO"
@@ -150,6 +158,7 @@ class TCPPacketGenerator:
 
     def timeout_callback(self, packet_id):
         """ To be called when a timer expired for a packet with 'packet_id'. """
+        self.update_next_seq()
         if self.debug:
             print("Timer expired for packet {:d} {:d} at time {:.4f}.".format(
                 packet_id, self.flow.fid, self.env.now))
@@ -175,14 +184,16 @@ class TCPPacketGenerator:
                          self.env.now))
 
         # starting a new timer for this segment and doubling the retransmission timeout
+        self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
         self.rto *= 2
         self.timers[packet_id].restart(self.rto)
 
     def put(self, ack):
 
         """ On receiving an acknowledgment packet. """
-        assert ack.flow_id >= 10000  # the received packet must be an ack
-
+        self.update_next_seq()
+        self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
+        
         sample_rtt = self.env.now - ack.time
         self.congestion_control.rs.newly_acked =  ack.ack - self.last_ack
 

@@ -463,7 +463,7 @@ class TCPBbr(CongestionControl):
             self.bbr_exit_probertt() 
 
     def bbr_handle_probertt(self):
-        self.C.mark_connection_app_limited()
+        self.C.mark_connection_app_limited(self.packet_in_flight)
         if (self.probe_rtt_done_stamp == 0 and self.packet_in_flight <= self.bbr_probertt_cwnd()):
             self.probe_rtt_done_stamp = self.current_time + self.ProbeRTTDuration
             self.probe_rtt_round_done = False

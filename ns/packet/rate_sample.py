@@ -84,16 +84,27 @@ class Connection:
         self.lost_out = 0
         self.retrans_out = 0
         self.is_cwnd_limited = False
+        self.write_seq = 0
+        self.pending_trans = 0 # In our simulation, this will always be 0
+        
     
-    def mark_connection_app_limited(self):
+    def mark_connection_app_limited(self, packets_in_flight):
         #self.is_app_limited = (self.delivered + packets_in_flight) ? : 1
-        self.is_app_limited = 1
+        if (self.delivered + packets_in_flight == 0): self.is_app_limited = 1
+        else: self.is_app_limited = self.delivered + packets_in_flight
     
-    # CheckIfApplicationLimited():
-    # if (C.write_seq - SND.NXT < SND.MSS and
-    #     C.pending_transmissions == 0 and
-    #     C.pipe < cwnd and
-    #     C.lost_out <= C.retrans_out)
-    #   C.app_limited = (C.delivered + C.pipe) ? : 1
-    def check_if_application_limited(self):
-        pass
+#     The sending application asks the transport layer to send more data; i.e., upon each write from the application, before new application data is enqueued in the transport send buffer or transmitted.
+#     At the beginning of ACK processing, before updating the estimated number of packets in flight, and before congestion control modifies the cwnd or pacing rate.
+#     At the beginning of connection timer processing, for all timers that might result in the transmission of one or more data segments. For example: RTO timers, TLP timers, RACK reordering timers, or Zero Window Probe timers.
+    def check_if_application_limited(self, next, mss, packet_in_flight):
+        """
+            C.write_seq: The data sequence number one higher than that of the last octet queued for transmission in the transport layer write buffer. 
+            C.pending_transmissions: The number of bytes queued for transmission on the sending host at layers lower than the transport layer (i.e. network layer, traffic shaping layer, network device layer).
+            C.lost_out: The number of packets in the current outstanding window that are marked as lost.
+            C.retrans_out: The number of packets in the current outstanding window that are being retransmitted.
+            C.pipe: The sender's estimate of the amount of data outstanding in the network (measured in octets or packets). This includes data packets in the current outstanding window that are being transmitted or retransmitted and have not been SACKed or marked lost
+        """
+        if (self.write_seq - next < mss and self.pending_trans == 0
+            and not self.is_cwnd_limited and self.lost_out <= self.retrans_out):
+            if self.delivered + packet_in_flight > 0 : self.is_app_limited = self.delivered + packet_in_flight
+            else: self.is_app_limited = 1

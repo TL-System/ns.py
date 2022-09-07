@@ -47,7 +47,7 @@ flow2 = Flow(fid=1,
             finish_time=1000,
             size = 1048576,
             # arrival_dist=packet_arrival,
-            start_time=0.01,
+            start_time=1.01,
             size_dist=packet_size)
 
 sender1 = TCPPacketGenerator(env,
@@ -82,14 +82,14 @@ wire5_upstream = Wire(env, delay_dist)
 switch1 = SimplePacketSwitch(
     env,
     nports=3,
-    port_rate=1048576,  # in bits/second
+    port_rate=32768,  # in bits/second
     buffer_size=5,  # in packets
     debug=True)
 
 switch2 = SimplePacketSwitch(
     env,
     nports=3,
-    port_rate=1048576,  # in bits/second
+    port_rate=32768,  # in bits/second
     buffer_size=5,  # in packets
     debug=True)
 
@@ -123,7 +123,7 @@ switch2.demux.outs[0].out = wire3_downstream
 switch2.demux.outs[1].out = wire4_downstream
 switch2.demux.outs[2].out = wire5_upstream
 
-env.run(until=10)
+env.run(until=1000)
 
 fig, axis = plt.subplots()
 print(receiver1.waits[0])
