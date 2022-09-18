@@ -99,7 +99,8 @@ class Connection:
     def check_if_application_limited(self, next, mss, packet_in_flight):
         """
             C.write_seq: The data sequence number one higher than that of the last octet queued for transmission in the transport layer write buffer. 
-            C.pending_transmissions: The number of bytes queued for transmission on the sending host at layers lower than the transport layer (i.e. network layer, traffic shaping layer, network device layer).
+            C.pending_transmissions: The number of bytes queued for transmission on the sending host at layers lower than the transport layer 
+            (i.e. network layer, traffic shaping layer, network device layer).
             C.lost_out: The number of packets in the current outstanding window that are marked as lost.
             C.retrans_out: The number of packets in the current outstanding window that are being retransmitted.
             C.pipe: The sender's estimate of the amount of data outstanding in the network (measured in octets or packets). This includes data packets in the current outstanding window that are being transmitted or retransmitted and have not been SACKed or marked lost

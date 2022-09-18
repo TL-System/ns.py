@@ -323,5 +323,5 @@ class TCPPacketGenerator:
             self.sent_packets[ack.packet_id].self_lost = False
             
         # self.cwnd_list.append(self.congestion_control.min_rtt)
-        self.time_list.append(self.env.now)
-        self.cwnd_list.append(self.packet_in_flight)
+        # self.time_list.append(self.env.now)
+        # self.cwnd_list.append(self.packet_in_flight)
