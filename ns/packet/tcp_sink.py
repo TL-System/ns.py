@@ -69,5 +69,10 @@ class TCPSink(PacketSink):
             flow_id=packet.flow_id + 10000)
 
         acknowledgment.ack = self.next_seq_expected
+        acknowledgment.delivered_time = packet.delivered_time
+        acknowledgment.first_sent_time = packet.first_sent_time
+        acknowledgment.delivered = packet.delivered
+        acknowledgment.lost = packet.lost
+        acknowledgment.is_app_limited = packet.is_app_limited
 
         self.out.put(acknowledgment)

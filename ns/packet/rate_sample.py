@@ -46,10 +46,11 @@ class RateSample:
         C.delivered_time = current_time
         if (packet.delivered >= self.prior_delivered):
             self.prior_delivered = packet.delivered
-            self.prior_time = packet.delivered_time
+            if True:
+                self.send_elapsed = packet.time - packet.first_sent_time
+                self.ack_elapsed = C.delivered_time - packet.delivered_time
+                self.prior_time = packet.delivered_time
             self.is_app_limited = packet.is_app_limited
-            self.send_elapsed = packet.time - packet.first_sent_time
-            self.ack_elapsed = C.delivered_time - packet.delivered_time
             self.tx_in_flight = packet.tx_in_flight
             C.first_sent_time = packet.time
         
@@ -57,7 +58,6 @@ class RateSample:
 
     def update_sample_group(self, C, minRTT = -1):
         self.rtt = minRTT
-        # self.new_group = True
         self.newly_lost = C.lost - self.prior_lost
         self.prior_lost = self.newly_lost
         
@@ -67,6 +67,7 @@ class RateSample:
         self.minRTT = minRTT
         self.delivered = C.delivered - self.prior_delivered
         self.interval = max(self.ack_elapsed, self.send_elapsed)
+        print(f"interval {self.interval}, rtt {self.minRTT}, delivered {self.delivered}, {self.prior_delivered}")
         if(self.interval < self.minRTT):
             self.interval = -1
             return False

@@ -52,6 +52,7 @@ class PacketSink:
         self.packet_sizes = dd(list)
         self.packet_times = dd(list)
         self.perhop_times = dd(list)
+        self.arrivals = dd(list)
 
         self.first_arrival = dd(lambda: 0)
         self.last_arrival = dd(lambda: 0)
@@ -72,6 +73,7 @@ class PacketSink:
             self.packet_sizes[rec_index].append(packet.size)
             self.packet_times[rec_index].append(packet.time)
             self.perhop_times[rec_index].append(packet.perhop_time)
+            self.arrivals[rec_index].append(self.env.now)
 
         if self.rec_arrivals:
             self.arrivals[rec_index].append(now)

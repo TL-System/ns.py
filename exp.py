@@ -28,6 +28,9 @@ def delay_dist():
     """ Network wires experience a constant propagation delay of 0 seconds. """
     return 0
 
+def rm_dist():
+    return 0.1
+
 
 env = simpy.Environment()
 
@@ -48,7 +51,7 @@ flow2 = Flow(fid=1,
             finish_time=1000,
             size = 512000,
             # arrival_dist=packet_arrival,
-            start_time=1.01,
+            start_time=5.01,
             size_dist=packet_size)
 
 sender1 = TCPPacketGenerator(env,
@@ -71,13 +74,13 @@ sender2 = TCPPacketGenerator(env,
 wire1 = Wire(env, delay_dist)
 wire2 = Wire(env, delay_dist)
 wire3 = Wire(env, delay_dist)
-wire4 = Wire(env, delay_dist)
-wire5 = Wire(env, delay_dist)
+wire4 = Wire(env, rm_dist)
+wire5 = Wire(env, rm_dist)
 
-pool = StackDelayer(env, speed=(12<<10))
+pool = StackDelayer(env, speed=12000)
 demux = FlowDemux([wire4, wire5])
 
-max_delay = 0.001 #TBA
+max_delay = 0 #TBA
 delayer1 = Delayer(env, max_delay)
 delayer2 = Delayer(env, max_delay)
 
@@ -100,7 +103,6 @@ delayer2.out = sender2
 env.run(until=1000)
 
 fig, axis = plt.subplots()
-print(receiver1.waits[0])
 axis.hist(receiver1.waits[0], bins=100)
 axis.set_title("Histogram for waiting times #1")
 axis.set_xlabel("time")
@@ -110,18 +112,26 @@ fig.savefig("bbr_WaitHis_1.png")
 
 fig, axis = plt.subplots()
 axis.hist(receiver2.waits[1], bins=100)
-print(receiver2.waits[1])
 axis.set_title("Histogram for waiting times #2")
 axis.set_xlabel("time")
 axis.set_ylabel("normalized frequency of occurrence")
 fig.savefig("bbr_WaitHis_2.png")
 # plt.show()
 
-plt.plot(sender1.time_list, sender1.cwnd_list)
-plt.savefig("bbr_Sender1_rtt.png")
+fig, axis = plt.subplots()
+axis.hist(receiver1.arrivals[0], bins=100)
+axis.set_title("Histogram for arrival times #1")
+axis.set_xlabel("time")
+axis.set_ylabel("normalized frequency of occurrence")
+fig.savefig("bbr_WaitHis_1.png")
+# plt.show()
 
-plt.plot(sender2.time_list, sender2.cwnd_list)
-plt.savefig("bbr_Sender2_rtt.png")
+fig, axis = plt.subplots()
+axis.hist(receiver2.arrivals[1], bins=100)
+axis.set_title("Histogram for arrival times #2")
+axis.set_xlabel("time")
+axis.set_ylabel("normalized frequency of occurrence")
+fig.savefig("bbr_WaitHis_2.png")
 
 # fig, axis = plt.subplots()
 # axis.hist(receiver1.waits[0], bins=100)

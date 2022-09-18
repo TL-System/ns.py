@@ -34,11 +34,15 @@ class Delayer:
                 yield self.queue.get()
             else:
                 packet, delay_time = self.waiting_queue.pop(0)
-                if self.env.now < delay_time: yield self.env.timeout(delay_time-self.env.now)
+                if self.env.now < delay_time:
+                    print(f"delay starts {self.env.now}") 
+                    yield self.env.timeout(delay_time-self.env.now)
+                print(f"delay ends {self.env.now}") 
                 self.out.put(packet)
 
     def put(self,packet):
         delay_time = uniform(0, self.max_delay)
+        print(f"delay_time {delay_time}")
         self.waiting_queue.append((packet, self.env.now + delay_time))
         self.queue.put(True)
 
