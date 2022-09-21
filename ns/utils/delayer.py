@@ -35,9 +35,9 @@ class Delayer:
             else:
                 packet, delay_time = self.waiting_queue.pop(0)
                 if self.env.now < delay_time:
-                    print(f"delay starts {self.env.now}") 
+                    print(f"delay starts {self.env.now} {packet.packet_id} {packet.flow_id}") 
                     yield self.env.timeout(delay_time-self.env.now)
-                print(f"delay ends {self.env.now}") 
+                print(f"delay ends {self.env.now} {packet.packet_id} {packet.flow_id}") 
                 self.out.put(packet)
 
     def put(self,packet):
@@ -77,6 +77,7 @@ class StackDelayer:
                 packet = self.waiting_queue.pop(0)
                 delay_time = packet.size / self.speed
                 yield self.env.timeout(delay_time)
+                print("put packet", packet.packet_id, packet.flow_id)
                 self.out.put(packet)
     
     def put(self,packet):

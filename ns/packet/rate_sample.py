@@ -19,7 +19,7 @@ class RateSample:
         self.interval = 0
         self.ack_elapsed = 0
         self.send_elapsed = 0
-        self.minRTT = -1
+        self.minRTT = 10
         self.rtt = -1
         self.lost = 0
         self.is_app_limited = False
@@ -46,32 +46,33 @@ class RateSample:
         C.delivered_time = current_time
         if (packet.delivered >= self.prior_delivered):
             self.prior_delivered = packet.delivered
-            if True:
+            if not packet.self_lost:
                 self.send_elapsed = packet.time - packet.first_sent_time
                 self.ack_elapsed = C.delivered_time - packet.delivered_time
                 self.prior_time = packet.delivered_time
             self.is_app_limited = packet.is_app_limited
             self.tx_in_flight = packet.tx_in_flight
             C.first_sent_time = packet.time
+            print(f"BBRS-DD deli {packet.delivered}, fst {packet.first_sent_time}, dt {packet.delivered_time}, id{packet.packet_id} {packet.delay_reason}")
         
         packet.delivered_time = 0
 
     def update_sample_group(self, C, minRTT = -1):
         self.rtt = minRTT
         self.newly_lost = C.lost - self.prior_lost
-        self.prior_lost = self.newly_lost
-        
+        self.prior_lost = C.lost
+        # print(f"BBRS ack_elpased{self.ack_elapsed}, send_elapsed{self.send_elapsed}")
         if(C.is_app_limited and C.delivered > C.is_app_limited):
                 C.is_app_limited = 0
         
         self.minRTT = minRTT
         self.delivered = C.delivered - self.prior_delivered
         self.interval = max(self.ack_elapsed, self.send_elapsed)
-        print(f"interval {self.interval}, rtt {self.minRTT}, delivered {self.delivered}, {self.prior_delivered}")
         if(self.interval < self.minRTT):
             self.interval = -1
             return False
         self.delivery_rate = self.delivered / self.interval
+        # print(f"BBRState interval {self.interval}, rtt {self.minRTT}, delivered {self.delivered}, {self.prior_delivered} {self.prior_time} delivery_rate {self.delivery_rate}")
         return True
 
 class Connection:

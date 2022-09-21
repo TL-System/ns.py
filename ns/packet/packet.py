@@ -63,6 +63,7 @@ class Packet:
         self.ack = 0  # used by TCPPacketGenerator and TCPSink
         self.current_time = 0  # used by the Wire element
         self.perhop_time = {}  # used by Port to record per-hop arrival times
+        self.delay_reason = "no_delay"
 
     def __repr__(self):
         return f"id: {self.packet_id}, src: {self.src}, time: {self.time}, size: {self.size}"

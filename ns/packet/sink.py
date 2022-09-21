@@ -87,8 +87,8 @@ class PacketSink:
             self.last_arrival[rec_index] = now
 
         if self.debug:
-            print("At time {:.2f}, packet {:d} arrived.".format(
-                now, packet.packet_id))
+            print("At time {:.2f}, packet {:d} {:d} arrived.".format(
+                now, packet.packet_id, packet.flow_id))
             if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
                 bytes_received = sum(self.packet_sizes[rec_index][-9:])
                 time_elapsed = self.env.now - (

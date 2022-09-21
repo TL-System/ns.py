@@ -31,7 +31,7 @@ class TCPPacketGenerator:
                  flow,
                  cc,
                  element_id=None,
-                 rtt_estimate=0.08,
+                 rtt_estimate=0.14,
                  granularity=0.01,
                  debug=True):
         self.element_id = element_id
@@ -66,16 +66,16 @@ class TCPPacketGenerator:
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
-        # the timers, one for each in-flight packets (segments) sent
-        self.timers = {}
         # the in-flight packets (segments)
         self.sent_packets = {}
 
+        self.timer = None
+        self.to_pkt_id = 0
+
         self.action = env.process(self.run())
         self.debug = debug
-
-        self.cwnd_list = []
-        self.time_list = []
+        self.time_list =  []
+        self.rate_sample_list = []
 
     def update_next_seq(self):
         self.send_buffer += self.flow.next_send_buffer(self.env.now)
@@ -102,15 +102,16 @@ class TCPPacketGenerator:
                         yield self.env.timeout(wait_time)
             
             self.update_next_seq()
-            
+            delay_string = []
             # the sender can transmit up to the size of the congestion window
             if self.env.now - self.congestion_control.next_departure_time < 0:
-                print("pacing rate limited")
+                print("pacing_rate limited")
+                delay_string.append(0)
                 yield self.env.timeout(self.congestion_control.next_departure_time - self.env.now)
             elif self.next_seq + self.mss > min(
                     self.send_buffer,
                     self.last_ack + self.congestion_control.cwnd):
-                print("cwnd limited")
+                delay_string.append(1)
                 self.congestion_control.C.is_cwnd_limited = True 
                 yield self.cwnd_available.get()
             else:   
@@ -120,6 +121,10 @@ class TCPPacketGenerator:
                                 src=self.flow.src,
                                 flow_id=self.flow.fid,
                                 tx_in_flight=self.packet_in_flight)
+                if len(delay_string)==0: packet.delay_reason="no_delay"
+                elif delay_string[-1]==0: packet.delay_reason="pacing_rate"
+                else: packet.delay_reason="cwnd"
+                delay_string=[]
                 self.congestion_control.rs.send_packet(packet, self.congestion_control.C, self.max_ack - self.next_seq, self.env.now)
                 self.congestion_control.next_departure_time = self.env.now
                 
@@ -136,29 +141,29 @@ class TCPPacketGenerator:
                 self.out.put(packet)
 
                 self.next_seq += packet.size
-                self.timers[packet.packet_id] = Timer(
-                    self.env,
-                    timer_id=packet.packet_id,
-                    timeout_callback=self.timeout_callback,
-                    timeout=self.rto)
                 
                 self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
+                
+                if self.timer == None:
+                    self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
+                    self.to_pkt_id = packet.packet_id
 
                 if self.debug:
                     print("Setting a timer for packet {:d} with an RTO"
                           " of {:.4f}.".format(packet.packet_id, self.rto))
 
-    def timeout_callback(self, packet_id):
+    def timeout_callback(self):
         """ To be called when a timer expired for a packet with 'packet_id'. """
         self.update_next_seq()
+        packet_id = self.max_ack
         if self.debug:
             print("Timer expired for packet {:d} {:d} at time {:.4f}.".format(
                 packet_id, self.flow.fid, self.env.now))
         
         self.congestion_control.C.lost += self.sent_packets[packet_id].size
         self.sent_packets[packet_id].self_lost = True
-        # self.packet_in_flight -= 1
         
+        self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
         self.congestion_control.timer_expired(self.sent_packets[packet_id])
 
         # retransmitting the segment
@@ -169,17 +174,19 @@ class TCPPacketGenerator:
         
         if(self.congestion_control.pacing_rate > 0):
             self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
-        # self.packet_in_flight += 1
+       
         self.out.put(resent_pkt)
+        self.rto *= 2
+        if self.rto > 60: self.rto = 60
         if self.debug:
-            print("Resending packet {:d} with flow_id {:d} at time {:.4f}.".
+            print("to Resending packet {:d} with flow_id {:d} at time {:.4f} with a timeout time {:4f}.".
                   format(resent_pkt.packet_id, resent_pkt.flow_id,
-                         self.env.now))
+                         self.env.now, self.env.now + self.rto))
 
         # starting a new timer for this segment and doubling the retransmission timeout
+        self.timer.restart(self.rto)
+
         self.congestion_control.C.check_if_application_limited(self.next_seq, self.mss, self.packet_in_flight)
-        self.rto *= 2
-        self.timers[packet_id].restart(self.rto)
 
     def put(self, ack):
 
@@ -191,7 +198,8 @@ class TCPPacketGenerator:
         self.congestion_control.rs.newly_acked =  ack.ack - self.last_ack
 
         if ack.ack == self.last_ack:
-            if ack.packet_id in self.sent_packets:
+            #if ack.packet_id in self.sent_packets:
+            if True:
                 temp_pkt = copy.copy(ack)
                 temp_pkt.size = self.mss #It is a temporary adjustment here, should be changed later
                 self.congestion_control.rs.updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
@@ -199,22 +207,28 @@ class TCPPacketGenerator:
             if ack.ack < self.next_seq: self.dupack += 1
         else:
             # fast recovery in RFC 2001 and TCP Reno
-            if self.dupack > 0:
-                self.congestion_control.dupack_over()
-                self.dupack = 0
+            self.congestion_control.dupack_over()
+            self.dupack = 0
 
-        print(f"end ACK {ack.ack} {self.dupack} {ack.delivered_time}")
+        print(f"BBRState ACK {ack.ack} {self.dupack} {ack.packet_id} {ack.delivered_time} {self.env.now} {ack.flow_id} {self.element_id}")
         
         # RFC 6298 Update on rto
         if self.max_ack == 0:
             self.rtt_estimate = sample_rtt
             self.est_deviation = sample_rtt / 2
             self.rto = min(self.rtt_estimate + max(4*self.est_deviation, self.granularity), 60)
+            self.rto = max(self.rto, 1)
         else:
             sample_err = self.rtt_estimate - sample_rtt
             self.est_deviation = ( 3*self.est_deviation + sample_err) / 4
             self.rtt_estimate = ( 7*self.rtt_estimate + sample_rtt) / 8
             self.rto = min(self.rtt_estimate + max(4*self.est_deviation, self.granularity), 60) 
+            self.rto = max(self.rto, 1)
+
+        self.max_ack = max(self.max_ack, ack.ack)
+
+        if ack.packet_id == self.to_pkt_id and self.max_ack < self.next_seq:
+            self.timer.restart(self.rto, self.sent_packets[self.max_ack].time)
 
         if self.dupack == 2:
             self.congestion_control.C.lost += self.sent_packets[ack.ack].size
@@ -234,66 +248,48 @@ class TCPPacketGenerator:
             
             if self.debug:
                 print(
-                    "Resending packet {:d} with flow_id {:d} at time {:.4f}.".
+                    "dup Resending packet {:d} with flow_id {:d} at time {:.4f}.".
                     format(resent_pkt.packet_id, resent_pkt.flow_id,
                            self.env.now))
-            
             self.out.put(resent_pkt)
-            self.timers[ack.ack].restart(self.rto)
 
         elif self.dupack > 2:
-            self.congestion_control.C.lost += self.sent_packets[ack.ack].size
             self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
             self.congestion_control.ack_received(sample_rtt)
             self.congestion_control.more_dupacks_received(self.sent_packets[ack.ack])
 
-            if self.last_ack + self.congestion_control.cwnd >= ack.ack and self.env.now > self.congestion_control.next_departure_time:
-                resent_pkt = self.sent_packets[ack.ack]
-                
-                # self.packet_in_flight += 1
-                resent_pkt.time = self.env.now
-                if self.debug:
-                    print(
-                        "Resending packet {:d} with flow_id {:d} at time {:.4f}."
-                        .format(resent_pkt.packet_id, resent_pkt.flow_id,
-                                self.env.now))
-                self.congestion_control.rs.send_packet(resent_pkt, self.congestion_control.C, self.max_ack - self.next_seq, self.env.now)
-                self.congestion_control.next_departure_time = self.env.now
-                if(self.congestion_control.pacing_rate > 0):
-                    self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
-                self.out.put(resent_pkt)
-                self.timers[ack.ack].restart(self.rto)
-
         elif self.dupack == 0:
             self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
+            
             temp_pkt = copy.copy(ack)
             temp_pkt.size = self.mss
-            # new ack received, update the RTT estimate and the retransmission timout
             self.congestion_control.rs.updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
+            
+            bbr_update = False
             if ack.packet_id in self.sent_packets:
+                # temp_pkt = copy.copy(ack)
+                # temp_pkt.size = self.mss
+                # self.congestion_control.rs.updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
+                bbr_update = True
                 self.sent_packets[ack.packet_id].delivered_time = 0
                 self.sent_packets[ack.packet_id].self_lost = False
 
             for i in range(self.max_ack, ack.ack, self.mss):
                 if i in self.sent_packets.keys(): 
-                    if not self.timers[i].stopped:
+                    if self.sent_packets[i].delivered_time:
                         self.packet_in_flight -= self.sent_packets[i].size
-                        self.timers[i].stop()
                     self.congestion_control.rs.updaterate_sample(self.sent_packets[i], self.congestion_control.C, self.env.now)
-                    del self.timers[i]
                     del self.sent_packets[i]
             
             self.congestion_control.rs.update_sample_group(self.congestion_control.C, sample_rtt)
 
             self.congestion_control.rs.full_lost = 0
-            last_packet_lost = False
+            last_packet_lost = -self.mss*2
         
-            for packet in self.sent_packets.values():
+            for id, packet in self.sent_packets.items():
                 if packet.self_lost:
-                    if not last_packet_lost: self.congestion_control.rs.full_lost += 1
-                    last_packet_lost = False
-                else: 
-                    last_packet_lost = False
+                    if id-last_packet_lost>self.mss: self.congestion_control.rs.full_lost += 1
+                    last_packet_lost = id
 
             if(ack.ack > self.max_ack): 
                 self.max_ack = ack.ack
@@ -307,18 +303,20 @@ class TCPPacketGenerator:
                     "Congestion window size = {:.1f}, last ack = {:d}.".format(
                         self.congestion_control.cwnd, self.last_ack))
             
-            self.congestion_control.ack_received(sample_rtt)
+            if bbr_update: self.congestion_control.ack_received(sample_rtt)
+
+            if self.max_ack == self.next_seq and self.timer != None: 
+                self.timer.stop()
+                del self.timer
+                self.timer = None
 
             self.congestion_control.C.is_cwnd_limited = False
             self.cwnd_available.put(True)
         
         print(self.element_id, self.congestion_control.state, self.congestion_control.cycle_idx, 
-            self.env.now, self.congestion_control.cwnd, self.congestion_control.pacing_rate, sample_rtt)
+            self.env.now, self.congestion_control.cwnd, self.congestion_control.pacing_rate, sample_rtt, self.rto)
         
-        # assert self.congestion_control.pacing_rate > 0
-        if ack.packet_id in self.timers:
-            self.sent_packets[ack.packet_id].self_lost = False
+        self.time_list.append(self.env.now)
+        self.rate_sample_list.append(self.congestion_control.rs.delivery_rate)
+        
             
-        # self.cwnd_list.append(self.congestion_control.min_rtt)
-        # self.time_list.append(self.env.now)
-        # self.cwnd_list.append(self.packet_in_flight)

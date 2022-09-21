@@ -51,33 +51,32 @@ flow2 = Flow(fid=1,
             finish_time=1000,
             size = 512000,
             # arrival_dist=packet_arrival,
-            start_time=5.01,
+            start_time=1000.01,
             size_dist=packet_size)
 
 sender1 = TCPPacketGenerator(env,
                             element_id=1,
                             flow=flow1,
-                            cc=TCPBbr(rtt_estimate=0.08),
+                            cc=TCPBbr(rtt_estimate=0.15),
                             # cc=Cubic(),
-                            rtt_estimate=0.08,
+                            rtt_estimate=0.15,
                             debug=True)
 
 sender2 = TCPPacketGenerator(env,
                             element_id=2,
                             flow=flow2,
-                            cc=TCPBbr(rtt_estimate=0.08),
+                            cc=TCPBbr(rtt_estimate=0.15),
                             # cc=Cubic(),
-                            rtt_estimate=0.08,
+                            rtt_estimate=0.15,
                             debug=True)
 
 
 wire1 = Wire(env, delay_dist)
 wire2 = Wire(env, delay_dist)
-wire3 = Wire(env, delay_dist)
 wire4 = Wire(env, rm_dist)
 wire5 = Wire(env, rm_dist)
 
-pool = StackDelayer(env, speed=12000)
+pool = StackDelayer(env, speed=24000)
 demux = FlowDemux([wire4, wire5])
 
 max_delay = 0 #TBA
@@ -91,8 +90,7 @@ sender1.out = wire1
 sender2.out = wire2
 wire1.out = pool
 wire2.out = pool
-pool.out=wire3
-wire3.out = demux
+pool.out= demux
 wire4.out = receiver1
 wire5.out = receiver2
 receiver1.out = delayer1
@@ -100,7 +98,7 @@ receiver2.out = delayer2
 delayer1.out = sender1
 delayer2.out = sender2
 
-env.run(until=1000)
+env.run(until=200)
 
 fig, axis = plt.subplots()
 axis.hist(receiver1.waits[0], bins=100)
@@ -133,17 +131,9 @@ axis.set_xlabel("time")
 axis.set_ylabel("normalized frequency of occurrence")
 fig.savefig("bbr_WaitHis_2.png")
 
-# fig, axis = plt.subplots()
-# axis.hist(receiver1.waits[0], bins=100)
-# axis.set_title("Histogram for system occupation times")
-# axis.set_xlabel("number")
-# axis.set_ylabel("normalized frequency of occurrence")
-# fig.savefig("QueueHistogram_1.png")
-# plt.show()
-# fig, axis = plt.subplots()
-# axis.hist(receiver1.arrivals[0], bins=100, density=True)
-# axis.set_title("Histogram for sink inter-arrival times")
-# axis.set_xlabel("time")
-# axis.set_ylabel("normalized frequency of occurrence")
-# fig.savefig("ArrivalHistogram_1g").pn
-# plt.show()
+plt.plot(sender1.time_list, sender1.rate_sample_list, marker = 'o', # 点的形状
+         markersize = 6, # 点的大小
+         markeredgecolor='black', # 点的边框色
+         markerfacecolor='steelblue' # 点的填充色
+)
+plt.savefig("bbr_rs.png")

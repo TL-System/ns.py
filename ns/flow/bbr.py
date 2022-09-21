@@ -3,7 +3,7 @@ The TCP BBR congestion control algorithm, developed at Google in 2016.
 
 Reference:
 
-Neal Cardwell, Yuchung Cheng, self.C. Stephen Gunn, Soheil Hassas Yeganeh,
+Neal Cardwell, Yuchung Cheng, Stephen Gunn, Soheil Hassas Yeganeh,
 Van Jacobson "BBR Congestion control"
 IETF 97: Seoul, Nov 2016
 """
@@ -50,7 +50,7 @@ def update_windowed_max_filter(filter, value, time, window_length):
 class TCPBbr(CongestionControl):
     def __init__(self,
                  mss: int = 512,
-                 cwnd: int = 1<<17,
+                 cwnd: int = 1<<16,
                  ssthresh: int = 65535,
                  inf: float = float("inf"),
                  debug: bool = False,
@@ -99,7 +99,7 @@ class TCPBbr(CongestionControl):
         self.current_time = None
         self.filled_pipe = False
         self.ProbeRTTInterval = 5 # should be 5 sec
-        self.MinRTTFilterLen = 10 # should be 10 sec
+        self.MinRTTFilterLen = 10 # should be 10 sec (?)
         self.ProbeRTTDuration = 0.2 #sec or 200ms
         self.BBRHeadroom = 0.15
         self.BBRPacingMarginPercent = 1
@@ -260,6 +260,7 @@ class TCPBbr(CongestionControl):
     def bbr_inflight(self, gain, bw: float = 0):
         if(bw == 0.0): 
             bw = self.bw
+        print(f"Drain check bw {bw} rtt {self.min_rtt}")
         inflight = self.bbr_bdp_multiple(bw, gain)
         return self.bbr_quantization_budget(inflight)
 
@@ -289,7 +290,8 @@ class TCPBbr(CongestionControl):
         self.bbr_start_probebw_down()
 
     def bbr_check_drain(self):
-        if (self.state == BBRState.DRAIN and self.packet_in_flight <= self.bbr_inflight(1.0, self.max_bw)) :
+        print(f"Drain Check full_bw {self.full_bw} max_bw {self.max_bw} bw {self.bw} inflight {self.bbr_inflight(1.0, self.max_bw)}")
+        if (self.state == BBRState.DRAIN and self.packet_in_flight <= self.bbr_inflight(1.0, self.full_bw)) :
             self.bbr_enter_probebw()
     
     def bbr_advance_max_bw_filter(self):
@@ -506,7 +508,6 @@ class TCPBbr(CongestionControl):
         self.bbr_bound_bw_for_model()
     
     def bbr_set_pacing_rate(self):
-        print(f"set pacing_rate {self.pacing_gain}, {self.bw}, {self.BBRPacingMarginPercent}")
         rate = self.pacing_gain * self.bw * (100 - self.BBRPacingMarginPercent) / 100
         if (self.filled_pipe or rate > self.pacing_rate):
             self.pacing_rate = rate
@@ -556,16 +557,21 @@ class TCPBbr(CongestionControl):
         self.cwnd = min(self.cwnd, cap)
 
     def bbr_set_cwnd(self):
+        print(f"-a cwnd {self.cwnd}")
         self.bbr_update_max_inflight()
         self.bbr_modulate_cwnd_for_recovery()
+        print(f"a cwnd {self.cwnd}")
         if (not self.packet_conservation):
             if (self.filled_pipe):
                 self.cwnd = min(self.cwnd + self.rs.newly_acked, self.max_inflight)
             elif (self.cwnd < self.max_inflight or self.C.delivered < self.InitialCwnd):
                 self.cwnd += self.rs.newly_acked
             self.cwnd = max(self.cwnd, self.BBRMinPipeCwnd)
+        print(f"b cwnd {self.cwnd}")
         self.bbr_bound_cwnd_for_probertt()
+        print(f"c cwnd {self.cwnd}")
         self.bbr_bound_cwnd_for_model()
+        print(f"d cwnd {self.cwnd}")
 
     def bbr_update_control_param(self):
         self.bbr_set_pacing_rate()

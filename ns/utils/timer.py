@@ -36,7 +36,7 @@ class Timer:
                 yield self.env.timeout(self.timer_expiry - self.env.now)
 
             if not self.stopped:
-                self.timeout_callback(self.timer_id)
+                self.timeout_callback()
             else:
                 break
 
@@ -45,7 +45,8 @@ class Timer:
         self.stopped = True
         self.timer_expiry = self.env.now
 
-    def restart(self, timeout):
+    def restart(self, timeout, start_time=-1):
         """ Restarting the timer with a new timeout value. """
-        self.timer_started = self.env.now
+        if start_time==-1: self.timer_started = self.env.now
+        else: self.timer_started = start_time
         self.timer_expiry = self.timer_started + timeout
