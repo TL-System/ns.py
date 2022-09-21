@@ -39,7 +39,6 @@ class RateSample:
         packet.is_app_limited = (C.is_app_limited != 0)
         
     def updaterate_sample(self, packet, C ,current_time):
-        self.lost = packet.lost
         if packet.delivered_time == 0:
             return # packet already sacked
         C.delivered += packet.size
@@ -53,7 +52,6 @@ class RateSample:
             self.is_app_limited = packet.is_app_limited
             self.tx_in_flight = packet.tx_in_flight
             C.first_sent_time = packet.time
-            print(f"BBRS-DD deli {packet.delivered}, fst {packet.first_sent_time}, dt {packet.delivered_time}, id{packet.packet_id} {packet.delay_reason}")
         
         packet.delivered_time = 0
 

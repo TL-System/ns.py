@@ -169,6 +169,7 @@ class TCPBbr(CongestionControl):
     def bbr_update_round(self):
         self.round_start = False
         if (self.rs.prior_delivered >= self.next_round_delivered):
+            print(f"New nrd {self.next_round_delivered} {self.rs.prior_delivered} {self.rs.delivery_rate}")
             self.next_round_delivered = self.C.delivered
             self.round_count += 1
             self.round_count %= self.BBRExtraAckedFilterLen
@@ -216,6 +217,7 @@ class TCPBbr(CongestionControl):
     def bbr_check_startup_full_bw(self):
         if (self.filled_pipe or not self.round_start or self.rs.is_app_limited):
             return
+        print(f"Startup check max_bw {self.max_bw} full_bw {self.full_bw}")
         if (self.max_bw >= self.full_bw * 1.25):
             self.full_bw = self.max_bw
             self.full_bw_cnt = 0
@@ -260,7 +262,6 @@ class TCPBbr(CongestionControl):
     def bbr_inflight(self, gain, bw: float = 0):
         if(bw == 0.0): 
             bw = self.bw
-        print(f"Drain check bw {bw} rtt {self.min_rtt}")
         inflight = self.bbr_bdp_multiple(bw, gain)
         return self.bbr_quantization_budget(inflight)
 
@@ -285,12 +286,13 @@ class TCPBbr(CongestionControl):
         self.bbr_start_round()
         self.cycle_idx = BBRSemiState.PROBEBW_DOWN
         self.state = BBRState.PROBEBW
+        self.pacing_gain = 0.9
+        self.cwnd_gain = 2
 
     def bbr_enter_probebw(self):
         self.bbr_start_probebw_down()
 
     def bbr_check_drain(self):
-        print(f"Drain Check full_bw {self.full_bw} max_bw {self.max_bw} bw {self.bw} inflight {self.bbr_inflight(1.0, self.max_bw)}")
         if (self.state == BBRState.DRAIN and self.packet_in_flight <= self.bbr_inflight(1.0, self.full_bw)) :
             self.bbr_enter_probebw()
     
@@ -370,6 +372,8 @@ class TCPBbr(CongestionControl):
         self.ack_phase = BBRAckStates.ACKS_REFILLING
         self.bbr_start_round()
         self.cycle_idx = BBRSemiState.PROBEBW_REFILL
+        self.pacing_gain = 1.0
+        self.cwnd_gain = 2
 
     def bbr_check_time_to_probebw(self):
         if (self.bbr_has_elapsed_in_phase(self.bw_probe_wait) or self.bbr_is_reno_coexistence_probe_time()):
@@ -392,12 +396,16 @@ class TCPBbr(CongestionControl):
     
     def bbr_start_probebw_cruise(self):
         self.cycle_idx = BBRSemiState.PROBEBW_CRUISE
+        self.pacing_gain = 1.0
+        self.cwnd_gain = 2
 
     def bbr_start_probebw_up(self):
         self.ack_phase = BBRAckStates.ACKS_PROBE_STARTING
         self.bbr_start_round()
         self.cycle_stamp = self.current_time
         self.cycle_idx = BBRSemiState.PROBEBW_UP
+        self.pacing_gain = 1.25
+        self.cwnd_gain = 2
         self.bbr_raise_inflight_hi_slope()
 
     def bbr_update_probebw_cycle_phase(self):
@@ -492,6 +500,7 @@ class TCPBbr(CongestionControl):
     
     def bbr_bound_bw_for_model(self):
         # self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
+        print(f"BW LOOK {self.max_bw} {self.bw_lo} {self.BBRMaxBwFilter[self.cycle_count]}")
         self.bw = min(self.max_bw, self.bw_lo, self.BBRMaxBwFilter[self.cycle_count])
 
     def bbr_update_model_and_state(self):
@@ -580,7 +589,6 @@ class TCPBbr(CongestionControl):
 
     def ack_received(self, rtt: float = 0):
         self.rs.rtt = rtt
-        print(f"rtt is {rtt}, data rate is {self.rs.delivery_rate}")
         self.bbr_update_model_and_state()
         self.bbr_update_control_param()
 
@@ -596,7 +604,7 @@ class TCPBbr(CongestionControl):
         if (self.bw_probe_samples == 0):
             return
         self.rs.tx_in_flight = packet.tx_in_flight
-        self.rs.lost = packet.lost
+        self.rs.lost = self.C.lost - packet.lost
         self.rs.is_app_limited = self.C.is_app_limited
         if (self.bbr_is_inflight_too_high()):
             self.rs.tx_in_flight = self.bbr_inflight_hi_from_lost_packet(packet)

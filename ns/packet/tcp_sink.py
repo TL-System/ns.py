@@ -67,7 +67,8 @@ class TCPSink(PacketSink):
             size=40,  # default size of the ack packet
             packet_id=packet.packet_id,
             flow_id=packet.flow_id + 10000)
-
+        
+        # assert packet.delivered_time > 0
         acknowledgment.ack = self.next_seq_expected
         acknowledgment.delivered_time = packet.delivered_time
         acknowledgment.first_sent_time = packet.first_sent_time

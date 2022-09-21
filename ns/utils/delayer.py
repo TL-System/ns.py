@@ -2,6 +2,7 @@
 Implements a delayer that calls arbitrary delay within [0,D] without changing the order
 of packets arrived.
 """
+from copy import copy
 from random import uniform
 import simpy
 
@@ -35,15 +36,13 @@ class Delayer:
             else:
                 packet, delay_time = self.waiting_queue.pop(0)
                 if self.env.now < delay_time:
-                    print(f"delay starts {self.env.now} {packet.packet_id} {packet.flow_id}") 
                     yield self.env.timeout(delay_time-self.env.now)
-                print(f"delay ends {self.env.now} {packet.packet_id} {packet.flow_id}") 
                 self.out.put(packet)
 
     def put(self,packet):
+        temp_pkt = copy(packet)
         delay_time = uniform(0, self.max_delay)
-        print(f"delay_time {delay_time}")
-        self.waiting_queue.append((packet, self.env.now + delay_time))
+        self.waiting_queue.append((temp_pkt, self.env.now + delay_time))
         self.queue.put(True)
 
 class StackDelayer:
@@ -77,9 +76,9 @@ class StackDelayer:
                 packet = self.waiting_queue.pop(0)
                 delay_time = packet.size / self.speed
                 yield self.env.timeout(delay_time)
-                print("put packet", packet.packet_id, packet.flow_id)
                 self.out.put(packet)
     
     def put(self,packet):
-        self.waiting_queue.append(packet)
+        temp_pkt = copy(packet)
+        self.waiting_queue.append(temp_pkt)
         self.queue.put(True)

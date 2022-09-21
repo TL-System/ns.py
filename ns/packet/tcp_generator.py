@@ -127,7 +127,7 @@ class TCPPacketGenerator:
                 delay_string=[]
                 self.congestion_control.rs.send_packet(packet, self.congestion_control.C, self.max_ack - self.next_seq, self.env.now)
                 self.congestion_control.next_departure_time = self.env.now
-                
+                print("pkt.delivered", packet.delivered)
                 if(self.congestion_control.pacing_rate > 0):
                     self.congestion_control.next_departure_time += packet.size / self.congestion_control.pacing_rate
 
@@ -138,6 +138,7 @@ class TCPPacketGenerator:
                           "flow_id {:d} at time {:.4f}, delivered_time {:.4f}.".format(
                               packet.packet_id, packet.size, packet.flow_id,
                               self.env.now, packet.delivered_time))
+                assert packet.delivered_time>0
                 self.out.put(packet)
 
                 self.next_seq += packet.size
@@ -170,11 +171,11 @@ class TCPPacketGenerator:
         resent_pkt = self.sent_packets[packet_id]
         resent_pkt.time = self.env.now
         self.congestion_control.rs.send_packet(resent_pkt, self.congestion_control.C, self.max_ack - self.next_seq, self.env.now)
-        self.congestion_control.next_departure_time = self.env.now
+        # self.congestion_control.next_departure_time = self.env.now
         
-        if(self.congestion_control.pacing_rate > 0):
-            self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
-       
+        # if(self.congestion_control.pacing_rate > 0):
+        #     self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
+        assert resent_pkt.delivered_time>0
         self.out.put(resent_pkt)
         self.rto *= 2
         if self.rto > 60: self.rto = 60
@@ -242,9 +243,10 @@ class TCPPacketGenerator:
             resent_pkt = self.sent_packets[ack.ack]
             resent_pkt.time = self.env.now
             self.congestion_control.rs.send_packet(resent_pkt, self.congestion_control.C, self.max_ack - self.next_seq, self.env.now)
-            self.congestion_control.next_departure_time = self.env.now
-            if(self.congestion_control.pacing_rate > 0):
-                self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
+            assert resent_pkt.delivered_time>0
+            # self.congestion_control.next_departure_time = self.env.now
+            # if(self.congestion_control.pacing_rate > 0):
+            #     self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
             
             if self.debug:
                 print(
@@ -269,8 +271,9 @@ class TCPPacketGenerator:
             if ack.packet_id in self.sent_packets:
                 # temp_pkt = copy.copy(ack)
                 # temp_pkt.size = self.mss
-                # self.congestion_control.rs.updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
+                # self.congestion_control..updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
                 bbr_update = True
+                self.packet_in_flight -= self.sent_packets[ack.packet_id].size
                 self.sent_packets[ack.packet_id].delivered_time = 0
                 self.sent_packets[ack.packet_id].self_lost = False
 
@@ -314,9 +317,10 @@ class TCPPacketGenerator:
             self.cwnd_available.put(True)
         
         print(self.element_id, self.congestion_control.state, self.congestion_control.cycle_idx, 
-            self.env.now, self.congestion_control.cwnd, self.congestion_control.pacing_rate, sample_rtt, self.rto)
+            self.env.now, self.congestion_control.cwnd, self.congestion_control.pacing_rate, self.congestion_control.rs.delivery_rate)
         
         self.time_list.append(self.env.now)
+        # self.rate_sample_list.append(self.congestion_control.bw)
         self.rate_sample_list.append(self.congestion_control.rs.delivery_rate)
         
             

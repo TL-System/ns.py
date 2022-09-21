@@ -39,7 +39,7 @@ flow1 = Flow(fid=0,
             dst='flow 1',
             finish_time=1000,
             typ = AppType.FILE_DOWNLD,
-            size = 512000, 
+            size = 5120000, 
             # arrival_dist=packet_arrival,
             start_time=0.01,
             size_dist=packet_size)
@@ -76,7 +76,7 @@ wire2 = Wire(env, delay_dist)
 wire4 = Wire(env, rm_dist)
 wire5 = Wire(env, rm_dist)
 
-pool = StackDelayer(env, speed=24000)
+pool = StackDelayer(env, speed=12000)
 demux = FlowDemux([wire4, wire5])
 
 max_delay = 0 #TBA
@@ -98,7 +98,7 @@ receiver2.out = delayer2
 delayer1.out = sender1
 delayer2.out = sender2
 
-env.run(until=200)
+env.run(until=100)
 
 fig, axis = plt.subplots()
 axis.hist(receiver1.waits[0], bins=100)
