@@ -169,7 +169,6 @@ class TCPBbr(CongestionControl):
     def bbr_update_round(self):
         self.round_start = False
         if (self.rs.prior_delivered >= self.next_round_delivered):
-            print(f"New nrd {self.next_round_delivered} {self.rs.prior_delivered} {self.rs.delivery_rate}")
             self.next_round_delivered = self.C.delivered
             self.round_count += 1
             self.round_count %= self.BBRExtraAckedFilterLen
@@ -215,9 +214,8 @@ class TCPBbr(CongestionControl):
         self.cwnd_gain = self.BBRStartupCwndGain    
 
     def bbr_check_startup_full_bw(self):
-        if (self.filled_pipe or not self.round_start or self.rs.is_app_limited):
-            return
-        print(f"Startup check max_bw {self.max_bw} full_bw {self.full_bw}")
+        # if (self.filled_pipe or not self.round_start or self.rs.is_app_limited):
+        #     return
         if (self.max_bw >= self.full_bw * 1.25):
             self.full_bw = self.max_bw
             self.full_bw_cnt = 0
@@ -500,7 +498,6 @@ class TCPBbr(CongestionControl):
     
     def bbr_bound_bw_for_model(self):
         # self.bw = min(self.max_bw, self.bw_lo, self.bw_hi)
-        print(f"BW LOOK {self.max_bw} {self.bw_lo} {self.BBRMaxBwFilter[self.cycle_count]}")
         self.bw = min(self.max_bw, self.bw_lo, self.BBRMaxBwFilter[self.cycle_count])
 
     def bbr_update_model_and_state(self):
@@ -566,21 +563,16 @@ class TCPBbr(CongestionControl):
         self.cwnd = min(self.cwnd, cap)
 
     def bbr_set_cwnd(self):
-        print(f"-a cwnd {self.cwnd}")
         self.bbr_update_max_inflight()
         self.bbr_modulate_cwnd_for_recovery()
-        print(f"a cwnd {self.cwnd}")
         if (not self.packet_conservation):
             if (self.filled_pipe):
                 self.cwnd = min(self.cwnd + self.rs.newly_acked, self.max_inflight)
             elif (self.cwnd < self.max_inflight or self.C.delivered < self.InitialCwnd):
                 self.cwnd += self.rs.newly_acked
             self.cwnd = max(self.cwnd, self.BBRMinPipeCwnd)
-        print(f"b cwnd {self.cwnd}")
         self.bbr_bound_cwnd_for_probertt()
-        print(f"c cwnd {self.cwnd}")
         self.bbr_bound_cwnd_for_model()
-        print(f"d cwnd {self.cwnd}")
 
     def bbr_update_control_param(self):
         self.bbr_set_pacing_rate()

@@ -1,6 +1,6 @@
 """
-A basic example that showcases how TCP can be used to generate packets, and how a TCP sink
-can send acknowledgment packets back to the sender in a simple two-hop network.
+A experiment on V. Arun, M. Alizadeh, H. Balakrishnan Starvation in
+End-End Congestion Control, SIGCOMM 2022, Amsterdam, Netherland
 """
 import simpy
 from ns.packet.tcp_generator import TCPPacketGenerator
@@ -39,7 +39,7 @@ flow1 = Flow(fid=0,
             dst='flow 1',
             finish_time=1000,
             typ = AppType.FILE_DOWNLD,
-            size = 5120000, 
+            size = 512000*2, 
             # arrival_dist=packet_arrival,
             start_time=0.01,
             size_dist=packet_size)
@@ -51,7 +51,7 @@ flow2 = Flow(fid=1,
             finish_time=1000,
             size = 512000,
             # arrival_dist=packet_arrival,
-            start_time=1000.01,
+            start_time=20.01,
             size_dist=packet_size)
 
 sender1 = TCPPacketGenerator(env,
@@ -79,8 +79,8 @@ wire5 = Wire(env, rm_dist)
 pool = StackDelayer(env, speed=12000)
 demux = FlowDemux([wire4, wire5])
 
-max_delay = 0 #TBA
-delayer1 = Delayer(env, max_delay)
+max_delay = 0.4 #TBA
+delayer1 = Delayer(env, 0)
 delayer2 = Delayer(env, max_delay)
 
 receiver1 = TCPSink(env, rec_waits=True, debug=True, element_id= 1)
@@ -98,42 +98,4 @@ receiver2.out = delayer2
 delayer1.out = sender1
 delayer2.out = sender2
 
-env.run(until=100)
-
-fig, axis = plt.subplots()
-axis.hist(receiver1.waits[0], bins=100)
-axis.set_title("Histogram for waiting times #1")
-axis.set_xlabel("time")
-axis.set_ylabel("normalized frequency of occurrence")
-fig.savefig("bbr_WaitHis_1.png")
-# plt.show()
-
-fig, axis = plt.subplots()
-axis.hist(receiver2.waits[1], bins=100)
-axis.set_title("Histogram for waiting times #2")
-axis.set_xlabel("time")
-axis.set_ylabel("normalized frequency of occurrence")
-fig.savefig("bbr_WaitHis_2.png")
-# plt.show()
-
-fig, axis = plt.subplots()
-axis.hist(receiver1.arrivals[0], bins=100)
-axis.set_title("Histogram for arrival times #1")
-axis.set_xlabel("time")
-axis.set_ylabel("normalized frequency of occurrence")
-fig.savefig("bbr_WaitHis_1.png")
-# plt.show()
-
-fig, axis = plt.subplots()
-axis.hist(receiver2.arrivals[1], bins=100)
-axis.set_title("Histogram for arrival times #2")
-axis.set_xlabel("time")
-axis.set_ylabel("normalized frequency of occurrence")
-fig.savefig("bbr_WaitHis_2.png")
-
-plt.plot(sender1.time_list, sender1.rate_sample_list, marker = 'o', # 点的形状
-         markersize = 6, # 点的大小
-         markeredgecolor='black', # 点的边框色
-         markerfacecolor='steelblue' # 点的填充色
-)
-plt.savefig("bbr_rs.png")
+env.run(until=1000)
