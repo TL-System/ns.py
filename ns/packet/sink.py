@@ -32,6 +32,7 @@ class PacketSink:
     debug: bool
         If True, prints more verbose debug information.
     """
+
     def __init__(self,
                  env,
                  rec_arrivals: bool = True,
@@ -94,7 +95,7 @@ class PacketSink:
                     self.waits[rec_index][-10])
                 print(
                     "Average throughput (last 10 packets): {:.2f} bytes/second."
-                    .format(bytes_received / time_elapsed))
+                    .format(float(bytes_received) / time_elapsed))
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size
