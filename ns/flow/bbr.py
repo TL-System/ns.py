@@ -51,7 +51,7 @@ def update_windowed_max_filter(_filter, value, time, window_length):
     return ret
 
 
-class TCPBbr(CongestionControl):
+class BBR(CongestionControl):
     def __init__(
         self,
         mss: int = 512,

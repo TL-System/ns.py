@@ -5,7 +5,7 @@ End-End Congestion Control, SIGCOMM 2022, Amsterdam, Netherland
 import simpy
 
 from ns.demux.flow_demux import FlowDemux
-from ns.flow.bbr import TCPBbr
+from ns.flow.bbr import BBR
 from ns.flow.flow import AppType, Flow
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
@@ -62,7 +62,7 @@ sender1 = TCPPacketGenerator(
     env,
     element_id=1,
     flow=flow1,
-    cc=TCPBbr(rtt_estimate=0.15),
+    cc=BBR(rtt_estimate=0.15),
     rtt_estimate=0.15,
     debug=True,
 )
@@ -71,7 +71,7 @@ sender2 = TCPPacketGenerator(
     env,
     element_id=2,
     flow=flow2,
-    cc=TCPBbr(rtt_estimate=0.15),
+    cc=BBR(rtt_estimate=0.15),
     # cc=Cubic(),
     rtt_estimate=0.15,
     debug=True,
