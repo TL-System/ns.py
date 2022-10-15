@@ -2,8 +2,6 @@
 A demultiplexing element that splits packet streams by flow_id.
 """
 
-
-
 class FlowDemux:
     """
     The constructor takes a list of downstream elements for the
@@ -16,10 +14,6 @@ class FlowDemux:
 
     def put(self, packet):
         """ Sends a packet to this element. """
-        if (packet.delivered_time == 0):
-            print("SHIBIE", packet.packet_id, packet.flow_id)
-            assert False
-            
         self.packets_received += 1
         flow_id = packet.flow_id
         if flow_id < len(self.outs):
