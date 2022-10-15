@@ -110,7 +110,7 @@ def BMAP_generator(D_list, initial=None):
     nextpr = np.diag(sojourn) @ D_list[0]
     nextpr = nextpr - np.diag(np.diag(nextpr))
     for Dk in D_list[1:]:
-        nextpr = np.hstack((nextpr, np.diag(sojourn) * Dk))
+        nextpr = np.hstack((nextpr, np.diag(sojourn) @ Dk))
     nextpr = np.cumsum(nextpr, 1)
 
     while True:
