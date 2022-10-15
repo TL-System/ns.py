@@ -41,7 +41,7 @@ flow1 = Flow(
     finish_time=1000,
     typ=AppType.FILE_DOWNLD,
     size=512000 * 2,
-    # arrival_dist=packet_arrival,
+    arrival_dist=packet_arrival,
     start_time=0.01,
     size_dist=packet_size,
 )
@@ -53,7 +53,7 @@ flow2 = Flow(
     typ=AppType.FILE_DOWNLD,
     finish_time=1000,
     size=512000,
-    # arrival_dist=packet_arrival,
+    arrival_dist=packet_arrival,
     start_time=20.01,
     size_dist=packet_size,
 )
@@ -72,7 +72,6 @@ sender2 = TCPPacketGenerator(
     element_id=2,
     flow=flow2,
     cc=BBR(rtt_estimate=0.15),
-    # cc=Cubic(),
     rtt_estimate=0.15,
     debug=True,
 )
@@ -86,7 +85,7 @@ wire5 = Wire(env, rm_dist)
 pool = StackDelayer(env, speed=12000)
 demux = FlowDemux([wire4, wire5])
 
-max_delay = 0.4  # TBA
+max_delay = 0.4
 delayer1 = Delayer(env, 0)
 delayer2 = Delayer(env, max_delay)
 
