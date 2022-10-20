@@ -24,8 +24,6 @@ class Delayer:
     def __init__(self, env, max_delay):
         self.env = env
         self.max_delay = max_delay
-        # self.delay_time = uniform(0, self.max_delay)
-        self.delay_time = max_delay
         self.waiting_queue = []
         self.queue = simpy.Store(env)
         self.out = None
@@ -44,7 +42,8 @@ class Delayer:
 
     def put(self,packet):
         temp_pkt = copy(packet)
-        self.waiting_queue.append((temp_pkt, self.env.now + self.delay_time))
+        delay_time = uniform(0, self.max_delay)
+        self.waiting_queue.append((temp_pkt, self.env.now + delay_time))
         self.queue.put(True)
 
 class StackDelayer:
