@@ -131,7 +131,6 @@ class DRRServer:
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
                 f"belonging to class {self.flow_classes(packet.flow_id)}")
 
-
     def update(self, packet):
         """
         The packet has just been retrieved from this element's own buffer by a downstream
@@ -180,6 +179,9 @@ class DRRServer:
         return self.byte_sizes.keys()
 
     def total_packets(self) -> int:
+        """
+        Returns the total number of packets currently in the server.
+        """
         return sum(self.flow_queue_count.values())
 
     def run(self):
@@ -245,12 +247,11 @@ class DRRServer:
         self.byte_sizes[self.flow_classes(flow_id)] += packet.size
 
         if self.debug:
-            print(
-                f"Packet arrived at {self.env.now}, flow_id {flow_id}, "
-                f"belonging to class {self.flow_classes(flow_id)} "
-                f"packet_id {packet.packet_id}, "
-                f"deficit {self.deficit[self.flow_classes(flow_id)]}, "
-                f"deficit counters: {self.deficit}")
+            print(f"Packet arrived at {self.env.now}, flow_id {flow_id}, "
+                  f"belonging to class {self.flow_classes(flow_id)} "
+                  f"packet_id {packet.packet_id}, "
+                  f"deficit {self.deficit[self.flow_classes(flow_id)]}, "
+                  f"deficit counters: {self.deficit}")
 
         if not self.flow_classes(flow_id) in self.stores:
             self.stores[self.flow_classes(flow_id)] = simpy.Store(self.env)
