@@ -100,7 +100,7 @@ class FairPacketSwitch:
 
         for port in range(nports):
             egress_port = Port(env,
-                               rate=0,
+                               rate=port_rate,
                                qlimit=buffer_size,
                                limit_bytes=False,
                                zero_downstream_buffer=True,
