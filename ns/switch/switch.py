@@ -100,7 +100,7 @@ class FairPacketSwitch:
 
         for port in range(nports):
             egress_port = Port(env,
-                               rate=port_rate,
+                               rate=0,
                                qlimit=buffer_size,
                                limit_bytes=False,
                                zero_downstream_buffer=True,
@@ -142,6 +142,7 @@ class FairPacketSwitch:
                 )
 
             egress_port.out = scheduler
+            scheduler.previous = egress_port
 
             self.egress_ports.append(egress_port)
             self.ports.append(scheduler)

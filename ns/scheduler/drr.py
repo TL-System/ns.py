@@ -91,6 +91,7 @@ class DRRServer:
 
         self.packets_received = 0
         self.out = None
+        self.previous = None
 
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -122,6 +123,7 @@ class DRRServer:
 
         if self.flow_classes(packet.flow_id) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(packet.flow_id)] -= packet.size
+            self.previous.remove_packet(packet)
         else:
             raise ValueError(
                 "Error: the packet to be sent has never been received.")

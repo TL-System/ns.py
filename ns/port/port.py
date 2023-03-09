@@ -38,7 +38,7 @@ class Port:
                  zero_downstream_buffer: bool = False,
                  element_id: int = None,
                  debug: bool = False):
-        self.store = simpy.Store(env)
+        self.store = simpy.FilterStore(env)
         self.rate = rate
         self.env = env
         self.out = None
@@ -68,6 +68,13 @@ class Port:
         if self.debug:
             print(f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}.")
 
+    def remove_packet(self, packet):
+        """
+        This function is used to modify the packet size when a packet
+        has been successfully sent out by the scheduler.
+        """
+        self.byte_size -= packet.size
+        self.store.get(lambda x: x.flow_id == packet.flow_id and x.packet_id == packet.packet_id)
 
     def run(self):
         """The generator function used in simulations."""
@@ -82,8 +89,8 @@ class Port:
 
             if self.rate > 0:
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+                self.byte_size -= packet.size
 
-            self.byte_size -= packet.size
 
             if self.zero_downstream_buffer:
                 self.out.put(packet,
