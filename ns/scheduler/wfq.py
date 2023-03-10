@@ -222,8 +222,9 @@ class WFQServer:
 
             self.vtime += (now - self.last_update) / weight_sum
             self.finish_times[self.flow_classes(flow_id)] = max(
-                self.finish_times[self.flow_classes(flow_id)], self.vtime
-            ) + packet.size * 8.0 / self.weights[self.flow_classes(flow_id)]
+                self.finish_times[self.flow_classes(flow_id)],
+                self.vtime) + packet.size * 8.0 / (
+                    self.rate * self.weights[self.flow_classes(flow_id)])
 
         # Updating the byte sizes, the flow queue count, and the set of active flows
         self.byte_sizes[self.flow_classes(flow_id)] += packet.size
