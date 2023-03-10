@@ -25,7 +25,7 @@ pg1 = DistPacketGenerator(
     packet_arrival,
     const_size,
     initial_delay=0.0,
-    finish=1,
+    finish=3,
     flow_id=0,
     rec_flow=True,
 )
@@ -35,13 +35,13 @@ pg2 = DistPacketGenerator(
     packet_arrival,
     const_size,
     initial_delay=0.1,
-    finish=1,
+    finish=3,
     flow_id=1,
     rec_flow=True,
 )
 ps = PacketSink(env)
 
-port_rate = 8000.0  # in bits
+port_rate = 8000.1  # in bits
 buffer_size = 1100  # in bytes
 
 switch = FairPacketSwitch(
