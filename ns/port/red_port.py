@@ -91,6 +91,9 @@ class REDPort(Port):
         """ Sends a packet to this element. """
         self.packets_received += 1
 
+        if self.zero_downstream_buffer:
+            self.byte_size = sum(packet.size for packet in self.store.items)
+
         if self.limit_bytes:
             current_queue_size = self.byte_size
         else:
