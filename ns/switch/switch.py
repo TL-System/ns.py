@@ -142,7 +142,6 @@ class FairPacketSwitch:
                 )
 
             egress_port.out = scheduler
-            scheduler.previous = egress_port
 
             self.egress_ports.append(egress_port)
             self.ports.append(scheduler)
