@@ -20,10 +20,24 @@ def const_size():
 
 env = simpy.Environment()
 pg1 = DistPacketGenerator(
-    env, "flow_0", packet_arrival, const_size, initial_delay=0.0, finish=1, flow_id=0
+    env,
+    "flow_0",
+    packet_arrival,
+    const_size,
+    initial_delay=0.0,
+    finish=1,
+    flow_id=0,
+    rec_flow=True,
 )
 pg2 = DistPacketGenerator(
-    env, "flow_1", packet_arrival, const_size, initial_delay=0.1, finish=1, flow_id=1
+    env,
+    "flow_1",
+    packet_arrival,
+    const_size,
+    initial_delay=0.1,
+    finish=1,
+    flow_id=1,
+    rec_flow=True,
 )
 ps = PacketSink(env)
 
@@ -56,10 +70,10 @@ print(
 
 print("==========Result==========")
 print("For the switch, the packet arrival times for flow 0 are:")
-print(ps.packet_times[0])
+print(pg1.time_rec)
 
 print("For the switch, the packet arrival times for flow 1 are:")
-print(ps.packet_times[1])
+print(pg2.time_rec)
 
 print("At the packet sink, packet arrival times for flow 0 are:")
 print(ps.arrivals[0])
