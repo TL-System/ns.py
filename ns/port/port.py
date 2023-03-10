@@ -30,6 +30,7 @@ class Port:
         debug: bool
             If True, prints more verbose debug information.
     """
+
     def __init__(self,
                  env,
                  rate: float,
@@ -66,7 +67,9 @@ class Port:
         """
         # There is nothing that needs to be done, just print a debug message
         if self.debug:
-            print(f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}.")
+            print(
+                f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}."
+            )
 
     def run(self):
         """The generator function used in simulations."""
@@ -96,9 +99,13 @@ class Port:
     def put(self, packet):
         """ Sends a packet to this element. """
         self.packets_received += 1
-        
+
         if self.zero_downstream_buffer:
+            # If the downstream node has no buffer, packets will be removed
+            # from this buffer by the downstream node, and the byte size of the
+            # buffer should be recomputed
             self.byte_size = sum(packet.size for packet in self.store.items)
+
         byte_count = self.byte_size + packet.size
 
         if self.element_id is not None:
