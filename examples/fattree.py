@@ -48,8 +48,8 @@ n_classes_per_port = 4
 weights = {c: 1 for c in range(n_classes_per_port)}
 
 
-def flow_to_classes(f_id, n_id=0, fib=None):
-    return (f_id + n_id + fib[f_id]) % n_classes_per_port
+def flow_to_classes(packet, n_id=0, fib=None):
+    return (packet.flow_id + n_id + fib[packet.flow_id]) % n_classes_per_port
 
 
 for node_id in ft.nodes():
