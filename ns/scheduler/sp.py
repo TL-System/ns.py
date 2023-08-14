@@ -39,6 +39,7 @@ class SPServer:
     debug: bool
         If True, prints more verbose debug information.
     """
+
     def __init__(self,
                  env,
                  rate,
@@ -103,7 +104,7 @@ class SPServer:
         if self.debug:
             print(
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet.packet_id)} "
+                f"belonging to class {self.flow_classes(packet.flow_id)} "
                 f"of priority {packet.prio[self.element_id]}")
 
     def update(self, packet):
@@ -119,7 +120,6 @@ class SPServer:
             del self.upstream_stores[packet]
             self.upstream_updates[packet](packet)
             del self.upstream_updates[packet]
-
 
     def packet_in_service(self) -> Packet:
         """
