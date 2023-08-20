@@ -37,7 +37,7 @@ class Timer:
                 yield self.env.timeout(self.timer_expiry - self.env.now)
 
             if not self.stopped:
-                self.timeout_callback(self.timer_id)
+                self.timeout_callback()
 
     def stop(self):
         """ Stopping the timer. """

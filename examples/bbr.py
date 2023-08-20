@@ -63,7 +63,7 @@ sender_1 = TCPPacketGenerator(
     env,
     element_id=1,
     flow=flow_1,
-    cc=BBR(rtt_estimate=0.15),
+    congestion_control=BBR(rtt_estimate=0.15),
     rtt_estimate=0.15,
     debug=True,
 )
@@ -72,7 +72,7 @@ sender_2 = TCPPacketGenerator(
     env,
     element_id=2,
     flow=flow_2,
-    cc=BBR(rtt_estimate=0.15),
+    congestion_control=BBR(rtt_estimate=0.15),
     rtt_estimate=0.15,
     debug=True,
 )
