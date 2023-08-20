@@ -1,6 +1,6 @@
 """
-A experiment on V. Arun, M. Alizadeh, H. Balakrishnan Starvation in
-End-End Congestion Control, SIGCOMM 2022, Amsterdam, Netherland
+A experiment on V. Arun, M. Alizadeh, H. Balakrishnan, "Starvation in
+End-to-End Congestion Control," SIGCOMM 2022, Amsterdam, Netherland
 """
 import simpy
 
@@ -23,18 +23,19 @@ def packet_size():
     return 512
 
 
-def delay_dist():
-    """Network wires experience a constant propagation delay of 0 seconds."""
+def zero_delay():
+    """Network wires that experience a constant propagation delay of 0 seconds."""
     return 0
 
 
-def rm_dist():
+def const_delay():
+    """Network wires that experience a constant propagation delay of 0.1 seconds."""
     return 0.1
 
 
 env = simpy.Environment()
 
-flow1 = Flow(
+flow_1 = Flow(
     fid=0,
     src="flow 1",
     dst="flow 1",
@@ -46,7 +47,7 @@ flow1 = Flow(
     size_dist=packet_size,
 )
 
-flow2 = Flow(
+flow_2 = Flow(
     fid=1,
     src="flow 2",
     dst="flow 2",
@@ -58,50 +59,48 @@ flow2 = Flow(
     size_dist=packet_size,
 )
 
-sender1 = TCPPacketGenerator(
+sender_1 = TCPPacketGenerator(
     env,
     element_id=1,
-    flow=flow1,
+    flow=flow_1,
     cc=BBR(rtt_estimate=0.15),
     rtt_estimate=0.15,
     debug=True,
 )
 
-sender2 = TCPPacketGenerator(
+sender_2 = TCPPacketGenerator(
     env,
     element_id=2,
-    flow=flow2,
+    flow=flow_2,
     cc=BBR(rtt_estimate=0.15),
     rtt_estimate=0.15,
     debug=True,
 )
 
-
-wire1 = Wire(env, delay_dist)
-wire2 = Wire(env, delay_dist)
-wire4 = Wire(env, rm_dist)
-wire5 = Wire(env, rm_dist)
+wire_1 = Wire(env, zero_delay)
+wire_2 = Wire(env, zero_delay)
+wire_4 = Wire(env, const_delay)
+wire_5 = Wire(env, const_delay)
 
 pool = StackDelayer(env, speed=12000)
-demux = FlowDemux([wire4, wire5])
+demux = FlowDemux([wire_4, wire_5])
 
-max_delay = 0.4
-delayer1 = Delayer(env, 0)
-delayer2 = Delayer(env, max_delay)
+delayer_1 = Delayer(env, 0)
+delayer_2 = Delayer(env, 0.4)
 
-receiver1 = TCPSink(env, rec_waits=True, debug=True, element_id=1)
-receiver2 = TCPSink(env, rec_waits=True, debug=True, element_id=2)
+receiver_1 = TCPSink(env, rec_waits=True, debug=True, element_id=1)
+receiver_2 = TCPSink(env, rec_waits=True, debug=True, element_id=2)
 
-sender1.out = wire1
-sender2.out = wire2
-wire1.out = pool
-wire2.out = pool
+sender_1.out = wire_1
+sender_2.out = wire_2
+wire_1.out = pool
+wire_2.out = pool
 pool.out = demux
-wire4.out = receiver1
-wire5.out = receiver2
-receiver1.out = delayer1
-receiver2.out = delayer2
-delayer1.out = sender1
-delayer2.out = sender2
+wire_4.out = receiver_1
+wire_5.out = receiver_2
+receiver_1.out = delayer_1
+receiver_2.out = delayer_2
+delayer_1.out = sender_1
+delayer_2.out = sender_2
 
 env.run(until=1000)
