@@ -44,8 +44,11 @@ class Timer:
         self.stopped = True
         self.timer_expiry = self.env.now
 
-    def restart(self, timeout, start_time=-1):
+    def restart(self, timeout, start_time=0):
         """ Restarting the timer with a new timeout value. """
-        if start_time==-1: self.timer_started = self.env.now
-        else: self.timer_started = start_time
+        if start_time == 0:
+            self.timer_started = self.env.now
+        else:
+            self.timer_started = start_time
+
         self.timer_expiry = self.timer_started + timeout
