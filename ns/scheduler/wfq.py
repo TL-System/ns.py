@@ -31,9 +31,9 @@ class WFQServer:
         dictionary, it contains (flow_id or class_id -> weight) pairs for each possible flow_id
         or class_id.
     flow_classes: function
-        This is a function that matches flow_id's to class_ids, used to implement class-based
-        Weighted Fair Queueing. The default is an identity lambda function, which is equivalent
-        to flow-based WFQ.
+        This is a function that matches a packet's flow_ids to class_ids, used to implement
+        class-based Deficit Round Robin. The default is a lambda function that uses a packet's
+        flow_id as its class_id, which is equivalent to flow-based WFQ.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -50,7 +50,7 @@ class WFQServer:
                  env,
                  rate: float,
                  weights,
-                 flow_classes: Callable = lambda x: x,
+                 flow_classes: Callable = lambda p: p.flow_id,
                  zero_buffer=False,
                  zero_downstream_buffer=False,
                  debug: bool = False) -> None:
@@ -111,11 +111,10 @@ class WFQServer:
         self.vtime += (now - self.last_update) / weight_sum
 
         # Computing the new set of active flow classes
-        flow_id = packet.flow_id
-        self.flow_queue_count[self.flow_classes(flow_id)] -= 1
+        self.flow_queue_count[self.flow_classes(packet)] -= 1
 
-        if self.flow_queue_count[self.flow_classes(flow_id)] == 0:
-            self.active_set.remove(self.flow_classes(flow_id))
+        if self.flow_queue_count[self.flow_classes(packet)] == 0:
+            self.active_set.remove(self.flow_classes(packet))
 
         if len(self.active_set) == 0:
             self.vtime = 0.0
@@ -124,14 +123,14 @@ class WFQServer:
 
         self.last_update = now
 
-        if self.flow_classes(flow_id) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(flow_id)] -= packet.size
+        if self.flow_classes(packet) in self.byte_sizes:
+            self.byte_sizes[self.flow_classes(packet)] -= packet.size
         else:
             raise ValueError("Error: the packet is from an unrecorded flow.")
 
         if self.debug:
-            print(f"Sent Packet {packet.packet_id} from flow {flow_id} "
-                  f"belonging to class {self.flow_classes(flow_id)}")
+            print(f"Sent Packet {packet.packet_id} from flow {packet.flow_id} "
+                  f"belonging to class {self.flow_classes(packet)}")
 
     def update(self, packet):
         """
@@ -221,21 +220,22 @@ class WFQServer:
                 weight_sum += self.weights[i]
 
             self.vtime += (now - self.last_update) / weight_sum
-            self.finish_times[self.flow_classes(flow_id)] = max(
-                self.finish_times[self.flow_classes(flow_id)], self.vtime
-            ) + packet.size * 8.0 / self.weights[self.flow_classes(flow_id)]
+            self.finish_times[self.flow_classes(packet)] = max(
+                self.finish_times[self.flow_classes(packet)],
+                self.vtime) + packet.size * 8.0 / (
+                    self.rate * self.weights[self.flow_classes(packet)])
 
         # Updating the byte sizes, the flow queue count, and the set of active flows
-        self.byte_sizes[self.flow_classes(flow_id)] += packet.size
-        self.flow_queue_count[self.flow_classes(flow_id)] += 1
-        self.active_set.add(self.flow_classes(flow_id))
+        self.byte_sizes[self.flow_classes(packet)] += packet.size
+        self.flow_queue_count[self.flow_classes(packet)] += 1
+        self.active_set.add(self.flow_classes(packet))
 
         if self.debug:
             print(
                 f"Packet arrived at {now}, with flow_id {flow_id}, "
-                f"belonging to class {self.flow_classes(flow_id)}, "
+                f"belonging to class {self.flow_classes(packet)}, "
                 f"packet_id {packet.packet_id}, "
-                f"finish_time {self.finish_times[self.flow_classes(flow_id)]}")
+                f"finish_time {self.finish_times[self.flow_classes(packet)]}")
 
         self.last_update = now
 
@@ -245,7 +245,7 @@ class WFQServer:
 
         if self.zero_downstream_buffer:
             self.downstream_store.put(
-                (self.finish_times[self.flow_classes(flow_id)], packet))
+                (self.finish_times[self.flow_classes(packet)], packet))
 
         return self.store.put(
-            (self.finish_times[self.flow_classes(flow_id)], packet))
+            (self.finish_times[self.flow_classes(packet)], packet))

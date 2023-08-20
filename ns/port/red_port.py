@@ -61,6 +61,7 @@ class REDPort(Port):
         debug: bool
             If True, prints more verbose debug information.
     """
+
     def __init__(self,
                  env,
                  rate: float,
@@ -90,6 +91,12 @@ class REDPort(Port):
     def put(self, packet):
         """ Sends a packet to this element. """
         self.packets_received += 1
+
+        if self.zero_downstream_buffer:
+            # If the downstream node has no buffer, packets will be removed
+            # from this buffer by the downstream node, and the byte size of the
+            # buffer should be recomputed
+            self.byte_size = sum(packet.size for packet in self.store.items)
 
         if self.limit_bytes:
             current_queue_size = self.byte_size

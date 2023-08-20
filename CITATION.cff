@@ -1,0 +1,31 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: ns.py
+message: A Pythonic Discrete Event Network Simulator
+type: software
+authors:
+  - given-names: Baochun
+    family-names: Li
+    email: bli@ece.toronto.edu
+    affiliation: University of Toronto
+  - given-names: Li
+    family-names: Chen
+    email: lichen@zgclab.edu.cn
+    affiliation: Zhongguancun Laboratory
+    orcid: 'https://orcid.org/0000-0002-4228-7885'
+  - given-names: Xi
+    family-names: Peng
+    email: pancy.pengxi@huawei.com
+    affiliation: Huawei
+repository-code: 'https://github.com/TL-System/ns.py'
+abstract: A Pythonic Discrete Event Network Simulator
+keywords:
+  - Discrete event simulation
+  - Network simulation
+  - Performance evaluation
+license: Apache-2.0
+commit: c8e0cac32eea999b1aea43683745a0c22c97eacd
+version: 0.3.3
+date-released: '2022-06-13'

@@ -20,6 +20,7 @@ class Timer:
         timeout: float
             The timeout value.
     """
+
     def __init__(self, env, timer_id, timeout_callback, timeout):
         self.env = env
         self.timer_id = timer_id
@@ -36,9 +37,7 @@ class Timer:
                 yield self.env.timeout(self.timer_expiry - self.env.now)
 
             if not self.stopped:
-                self.timeout_callback()
-            else:
-                break
+                self.timeout_callback(self.timer_id)
 
     def stop(self):
         """ Stopping the timer. """
