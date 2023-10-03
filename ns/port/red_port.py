@@ -108,10 +108,10 @@ class REDPort(Port):
         self.average_queue_size = self.average_queue_size * (
             1 - alpha) + current_queue_size * alpha
 
-        if self.average_queue_size >= self.qlimit:
+        if current_queue_size > self.qlimit:
             self.packets_dropped += 1
             if self.debug:
-                print(f"The average queue length {self.average_queue_size} "
+                print(f"The current queue length {current_queue_size} "
                       f"exceeds the upper limit {self.qlimit}.")
         elif self.average_queue_size >= self.max_threshold:
             rand = random.uniform(0, 1)
