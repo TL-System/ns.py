@@ -98,10 +98,11 @@ class REDPort(Port):
             # buffer should be recomputed
             self.byte_size = sum(packet.size for packet in self.store.items)
 
+        # current queue size is observed upon enqueueing the new packet
         if self.limit_bytes:
-            current_queue_size = self.byte_size
+            current_queue_size = self.byte_size + packet.size
         else:
-            current_queue_size = len(self.store.items)
+            current_queue_size = len(self.store.items) + 1
 
         alpha = 2**-self.weight_factor
         self.average_queue_size = self.average_queue_size * (
