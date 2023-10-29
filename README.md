@@ -118,6 +118,24 @@ Some of these examples requires installing `matplotlib`. It has not been include
 
 * `fattree.py`: an example that shows how to construct and use a FatTree topology for network flow simulation. It showcases `DistPacketGenerator`, `PacketSink`, `SimplePacketSwitch`, and `FairPacketSwitch`. If per-flow fairness is desired, `FairPacketSwitch` would be used, along with Weighted Fair Queueing, Deficit Round Robin, or Virtual Clock as the scheduling discipline at each outgoing port of the switch.
 
+## Cython
+
+We are adding Cython support to `ns.py` gradually. To compile both `simpy` and `ns.py` to C using Cython, use the provided `setup.py` in `/cython`, and place it at the top-level directory that contains the source code of `simpy` or `ns`. Then run:
+
+```shell
+python setup.py build_ext --inplace
+```
+
+Make sure that a C compiler such as `clang` has already been installed. To build a source pip package for distribution, one can run:
+
+```shell
+python setup.py sdist
+```
+
+Note that this is still a work-in-progress, as the package metadata should be included in `setup.py` for the pip package to be useful.
+
+Without changing any Python source code and adding Cython types, the speed up achieved was around 15% (for example, from 62 to 52 seconds).
+
 ## Emulation mode
 
 Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulation mode* that serves as a proxy between a real-world client (such as a modern web browser) and a real-world server (such as a node.js webserver). All incoming traffic from a real-world client are handled by the `ProxyPacketGenerator`, sent via a simulated network topology, and forwarded by the `ProxySink` to a real-world server. Here is a high-level overview of the design of `ns.py`'s emulation mode:
@@ -285,3 +303,4 @@ self.deficit[flow_id] += self.quantum[flow_id]
 ```
 
 Most often, the mapping between flow IDs and per-flow parameters, such as weights in a Weighted Fair Queueing scheduler or priorities in a Static Priority scheduler, need to be stored in a dictionary, and then used to initialized these schedulers. An optional (but not recommended) style is to assign consecutive integers as flow IDs to the flows throughout the entire network, and then use simple lists of per-flow parameters to initialize the schedulers. In this case, flow IDs will be directly used as indices to look up these lists to find the parameter values.
+
