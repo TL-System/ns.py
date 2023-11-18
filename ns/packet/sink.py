@@ -53,6 +53,7 @@ class PacketSink:
         self.packet_sizes = dd(list)
         self.packet_times = dd(list)
         self.perhop_times = dd(list)
+        self.arrivals = dd(list)
 
         self.first_arrival = dd(lambda: 0)
         self.last_arrival = dd(lambda: 0)
@@ -73,6 +74,7 @@ class PacketSink:
             self.packet_sizes[rec_index].append(packet.size)
             self.packet_times[rec_index].append(packet.time)
             self.perhop_times[rec_index].append(packet.perhop_time)
+            self.arrivals[rec_index].append(self.env.now)
 
         if self.rec_arrivals:
             self.arrivals[rec_index].append(now)
@@ -86,8 +88,8 @@ class PacketSink:
             self.last_arrival[rec_index] = now
 
         if self.debug:
-            print("At time {:.2f}, packet {:d} arrived.".format(
-                now, packet.packet_id))
+            print("At time {:.2f}, packet {:d} {:d} arrived.".format(
+                now, packet.packet_id, packet.flow_id))
             if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
                 bytes_received = sum(self.packet_sizes[rec_index][-9:])
                 time_elapsed = self.env.now - (
