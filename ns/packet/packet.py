@@ -5,15 +5,16 @@ A very simple class that represents a packet.
 
 class Packet:
     """
-        Packets in ns.py are generally created by packet generators, and will run through
-        a queue at an output port.
+        Packets in ns.py are generally created by packet generators, and will
+        run through a queue at an output port.
 
-        Key fields include: generation time, size, flow_id, packet id, source, and
-        destination. We do not model upper layer protocols, i.e., packets don't contain
-        a payload. The size (in bytes) field is used to determine its transmission time.
+        Key fields include: generation time, size, flow_id, packet id, source,
+        and destination. We do not model upper layer protocols, i.e., packets
+        don't contain a payload. The size (in bytes) field is used to determine
+        its transmission time.
 
-        We use a float to represent the size of the packet in bytes so that we can compare
-        to ideal M/M/1 queues.
+        We use a float to represent the size of the packet in bytes so that we
+        can compare to ideal M/M/1 queues.
 
         Parameters
         ----------
