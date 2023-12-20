@@ -6,39 +6,41 @@ import simpy
 
 
 class Port:
-    """ Models an output port on a switch with a given rate and buffer size (in either bytes
-        or the number of packets), using the simple tail-drop mechanism to drop packets.
+    """Models an output port on a switch with a given rate and buffer size (in either bytes
+    or the number of packets), using the simple tail-drop mechanism to drop packets.
 
-        Parameters
-        ----------
-        env: simpy.Environment
-            the simulation environment.
-        rate: float
-            the bit rate of the port (0 for unlimited).
-        element_id: int
-            the element id of this port.
-        qlimit: integer (or None)
-            a queue limit in bytes or packets (including the packet in service), beyond
-            which all packets will be dropped.
-        limit_bytes: bool
-            if True, the queue limit will be based on bytes; if False, the queue limit
-            will be based on packets.
-        zero_downstream_buffer: bool
-            if True, assume that the downstream element does not have any buffers,
-            and backpressure is in effect so that all waiting packets queue up in this
-            element's buffer.
-        debug: bool
-            If True, prints more verbose debug information.
+    Parameters
+    ----------
+    env: simpy.Environment
+        the simulation environment.
+    rate: float
+        the bit rate of the port (0 for unlimited).
+    element_id: int
+        the element id of this port.
+    qlimit: integer (or None)
+        a queue limit in bytes or packets (including the packet in service), beyond
+        which all packets will be dropped.
+    limit_bytes: bool
+        if True, the queue limit will be based on bytes; if False, the queue limit
+        will be based on packets.
+    zero_downstream_buffer: bool
+        if True, assume that the downstream element does not have any buffers,
+        and backpressure is in effect so that all waiting packets queue up in this
+        element's buffer.
+    debug: bool
+        If True, prints more verbose debug information.
     """
 
-    def __init__(self,
-                 env,
-                 rate: float,
-                 qlimit: int = None,
-                 limit_bytes: bool = False,
-                 zero_downstream_buffer: bool = False,
-                 element_id: int = None,
-                 debug: bool = False):
+    def __init__(
+        self,
+        env,
+        rate: float,
+        qlimit: int = None,
+        limit_bytes: bool = False,
+        zero_downstream_buffer: bool = False,
+        element_id: int = None,
+        debug: bool = False,
+    ):
         self.store = simpy.Store(env)
         self.rate = rate
         self.env = env
@@ -67,9 +69,7 @@ class Port:
         """
         # There is nothing that needs to be done, just print a debug message
         if self.debug:
-            print(
-                f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}."
-            )
+            print(f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}.")
 
     def run(self):
         """The generator function used in simulations."""
@@ -87,9 +87,9 @@ class Port:
                 self.byte_size -= packet.size
 
             if self.zero_downstream_buffer:
-                self.out.put(packet,
-                             upstream_update=self.update,
-                             upstream_store=self.store)
+                self.out.put(
+                    packet, upstream_update=self.update, upstream_store=self.store
+                )
             else:
                 self.out.put(packet)
 
@@ -97,7 +97,7 @@ class Port:
             self.busy_packet_size = 0
 
     def put(self, packet):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
 
         if self.zero_downstream_buffer:
@@ -132,8 +132,7 @@ class Port:
         else:
             # If the packet has not been dropped, record the queue length at this port
             if self.debug:
-                print(
-                    f"Queue length at port: {len(self.store.items)} packets.")
+                print(f"Queue length at port: {len(self.store.items)} packets.")
 
             self.byte_size = byte_count
 
