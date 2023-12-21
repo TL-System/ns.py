@@ -37,7 +37,7 @@ flow = Flow(fid=0,
 
 sender = TCPPacketGenerator(env,
                             flow=flow,
-                            cc=TCPCubic(),
+                            congestion_control=TCPCubic(),
                             rtt_estimate=0.5,
                             debug=True)
 
