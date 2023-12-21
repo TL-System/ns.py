@@ -33,7 +33,8 @@ flow = Flow(fid=0,
             dst='flow 1',
             finish_time=10,
             arrival_dist=packet_arrival,
-            size_dist=packet_size)
+            size_dist=packet_size,
+            size=511)
 
 sender = TCPPacketGenerator(env,
                             flow=flow,
