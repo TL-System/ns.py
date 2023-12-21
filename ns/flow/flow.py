@@ -31,6 +31,7 @@ class Flow:
     
     def init_send_buffer(self):
         if (self.typ == AppType.FILE_DOWNLD):
+            assert self.size, "Parameter size required when type is set to AppType.FILE_DOWNLD (default)."
             return self.size
         else:
             return 0
