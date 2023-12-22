@@ -169,7 +169,7 @@ class BBRPacketGenerator:
                         " of {:.4f}.".format(packet.packet_id, self.rto)
                     )
 
-    def timeout_callback(self):
+    def timeout_callback(self, packet_id=0):
         """To be called when a timer expired for a packet with 'packet_id'."""
         self.update_next_seq()
         packet_id = self.max_ack

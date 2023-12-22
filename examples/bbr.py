@@ -7,7 +7,7 @@ import simpy
 from ns.demux.flow_demux import FlowDemux
 from ns.flow.bbr import BBR
 from ns.flow.flow import AppType, Flow
-from ns.packet.tcp_generator import TCPPacketGenerator
+from ns.packet.bbr_generator import BBRPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.utils.delayer import Delayer, StackDelayer
@@ -59,7 +59,7 @@ flow_2 = Flow(
     size_dist=packet_size,
 )
 
-sender_1 = TCPPacketGenerator(
+sender_1 = BBRPacketGenerator(
     env,
     element_id=1,
     flow=flow_1,
@@ -68,7 +68,7 @@ sender_1 = TCPPacketGenerator(
     debug=True,
 )
 
-sender_2 = TCPPacketGenerator(
+sender_2 = BBRPacketGenerator(
     env,
     element_id=2,
     flow=flow_2,
