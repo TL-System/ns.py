@@ -7,39 +7,37 @@ from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
-from ns.flow.flow import Flow
+from ns.flow.flow import AppType, Flow
 from ns.flow.cubic import TCPCubic
 
 
 def packet_arrival():
-    """ Packets arrive with a constant interval of 0.1 seconds. """
+    """Packets arrive with a constant interval of 0.1 seconds."""
     return 0.1
 
 
 def packet_size():
-    """ The packets have a constant size of 1024 bytes. """
+    """The packets have a constant size of 1024 bytes."""
     return 512
 
 
 def delay_dist():
-    """ Network wires experience a constant propagation delay of 0.1 seconds. """
+    """Network wires experience a constant propagation delay of 0.1 seconds."""
     return 0.1
 
 
 env = simpy.Environment()
 
-flow = Flow(fid=0,
-            src='flow 1',
-            dst='flow 1',
-            finish_time=10,
-            arrival_dist=packet_arrival,
-            size_dist=packet_size)
+flow = Flow(
+    fid=0,
+    src="flow 1",
+    dst="flow 1",
+    finish_time=10,
+    arrival_dist=packet_arrival,
+    size_dist=packet_size,
+)
 
-sender = TCPPacketGenerator(env,
-                            flow=flow,
-                            cc=TCPCubic(),
-                            rtt_estimate=0.5,
-                            debug=True)
+sender = TCPPacketGenerator(env, flow=flow, cc=TCPCubic(), rtt_estimate=0.5, debug=True)
 
 wire1_downstream = Wire(env, delay_dist)
 wire1_upstream = Wire(env, delay_dist)
@@ -51,7 +49,8 @@ switch = SimplePacketSwitch(
     nports=2,
     port_rate=16384,  # in bits/second
     buffer_size=5,  # in packets
-    debug=True)
+    debug=True,
+)
 
 receiver = TCPSink(env, rec_waits=True, debug=True)
 

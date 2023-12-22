@@ -11,7 +11,7 @@ from ns.packet.rate_sample import Connection, RateSample
 from ns.utils.timer import Timer
 
 
-class TCPPacketGenerator:
+class BBRPacketGenerator:
     """Generates packets with a simulated TCP protocol.
 
     Parameters

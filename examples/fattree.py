@@ -72,7 +72,7 @@ for flow_id, flow in all_flows.items():
     flow.pkt_gen.out = ft.nodes[flow.src]["device"]
     ft.nodes[flow.dst]["device"].demux.ends[flow_id] = flow.pkt_sink
 
-env.run(until=1500)
+env.run(until=18012)
 
 for flow_id in sample(sorted(all_flows.keys()), 5):
     print(f"Flow {flow_id}")
