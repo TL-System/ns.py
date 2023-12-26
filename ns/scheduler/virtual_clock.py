@@ -109,7 +109,7 @@ class VirtualClockServer:
 
         if self.debug:
             print(f"Sent Packet {packet.packet_id} from flow {packet.flow_id} "
-                  f"belonging to class {self.flow_classes(packet)}")
+                  f"belonging to class {self.flow_classes(packet)} at time {self.env.now}")
 
     def update(self, packet):
         """
@@ -164,6 +164,7 @@ class VirtualClockServer:
                 self.current_packet = packet
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
 
+                self.update_stats(packet)
                 self.out.put(packet,
                              upstream_update=self.update,
                              upstream_store=self.store)
@@ -174,6 +175,8 @@ class VirtualClockServer:
 
                 self.current_packet = packet
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+                self.update_stats(packet)
                 self.out.put(packet)
                 self.current_packet = None
 
