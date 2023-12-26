@@ -11,7 +11,7 @@ import simpy
 
 
 class PacketSink:
-    """ A PacketSink is designed to record both arrival times and waiting times from the incoming
+    """A PacketSink is designed to record both arrival times and waiting times from the incoming
     packets. By default, it records absolute arrival times, but it can also be initialized to record
     inter-arrival times.
 
@@ -33,13 +33,15 @@ class PacketSink:
         If True, prints more verbose debug information.
     """
 
-    def __init__(self,
-                 env,
-                 rec_arrivals: bool = True,
-                 absolute_arrivals: bool = True,
-                 rec_waits: bool = True,
-                 rec_flow_ids: bool = True,
-                 debug: bool = False):
+    def __init__(
+        self,
+        env,
+        rec_arrivals: bool = True,
+        absolute_arrivals: bool = True,
+        rec_waits: bool = True,
+        rec_flow_ids: bool = True,
+        debug: bool = False,
+    ):
         self.store = simpy.Store(env)
         self.env = env
         self.rec_waits = rec_waits
@@ -61,7 +63,7 @@ class PacketSink:
         self.debug = debug
 
     def put(self, packet):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         now = self.env.now
 
         if self.rec_flow_ids:
@@ -82,22 +84,26 @@ class PacketSink:
                 self.first_arrival[rec_index] = now
 
             if not self.absolute_arrivals:
-                self.arrivals[rec_index][
-                    -1] = now - self.last_arrival[rec_index]
+                self.arrivals[rec_index][-1] = now - self.last_arrival[rec_index]
 
             self.last_arrival[rec_index] = now
 
         if self.debug:
-            print("At time {:.2f}, packet {:d} {:d} arrived.".format(
-                now, packet.packet_id, packet.flow_id))
+            print(
+                "At time {:.2f}, packet {:d} in flow {:d} arrived.".format(
+                    now, packet.packet_id, packet.flow_id
+                )
+            )
             if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
                 bytes_received = sum(self.packet_sizes[rec_index][-9:])
                 time_elapsed = self.env.now - (
-                    self.packet_times[rec_index][-10] +
-                    self.waits[rec_index][-10])
+                    self.packet_times[rec_index][-10] + self.waits[rec_index][-10]
+                )
                 print(
-                    "Average throughput (last 10 packets): {:.2f} bytes/second."
-                    .format(float(bytes_received) / time_elapsed))
+                    "Average throughput (last 10 packets): {:.2f} bytes/second.".format(
+                        float(bytes_received) / time_elapsed
+                    )
+                )
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size

@@ -22,30 +22,21 @@ def const_size():
 
 
 env = simpy.Environment()
-pg1 = DistPacketGenerator(env,
-                          "flow_0",
-                          packet_arrival,
-                          const_size,
-                          initial_delay=0.0,
-                          finish=50,
-                          flow_id=0)
-pg2 = DistPacketGenerator(env,
-                          "flow_1",
-                          packet_arrival,
-                          const_size,
-                          initial_delay=10.0,
-                          finish=50,
-                          flow_id=1)
+pg1 = DistPacketGenerator(
+    env, "flow_0", packet_arrival, const_size, initial_delay=0.0, finish=50, flow_id=0
+)
+pg2 = DistPacketGenerator(
+    env, "flow_1", packet_arrival, const_size, initial_delay=10.0, finish=50, flow_id=1
+)
 ps = PacketSink(env)
 sink_1 = PacketSink(env)
 sink_2 = PacketSink(env)
 
-source_rate = 8.0 * const_size() / packet_arrival()
+source_rate = 4600.0
 vc_server = VirtualClockServer(env, source_rate, [2, 1], debug=True)
-monitor = ServerMonitor(env,
-                        vc_server,
-                        partial(expovariate, 0.1),
-                        pkt_in_service_included=True)
+monitor = ServerMonitor(
+    env, vc_server, partial(expovariate, 0.1), pkt_in_service_included=True
+)
 splitter_1 = Splitter()
 splitter_2 = Splitter()
 
@@ -61,19 +52,13 @@ vc_server.out = ps
 
 env.run(until=1000)
 
-print(
-    "At the Virtual Clock server, the queue lengths in # packets for flow 0 are:"
-)
+print("At the Virtual Clock server, the queue lengths in # packets for flow 0 are:")
 print(monitor.sizes[0])
-print(
-    "At the Virtual Clock server, the queue lengths in # packets for flow 1 are:"
-)
+print("At the Virtual Clock server, the queue lengths in # packets for flow 1 are:")
 print(monitor.sizes[1])
-print(
-    "At the Virtual Clock server, the queue lengths in bytes for flow 0 are:")
+print("At the Virtual Clock server, the queue lengths in bytes for flow 0 are:")
 print(monitor.byte_sizes[0])
-print(
-    "At the Virtual Clock server, the queue lengths in bytes for flow 1 are:")
+print("At the Virtual Clock server, the queue lengths in bytes for flow 1 are:")
 print(monitor.byte_sizes[1])
 
 print("At the packet sink, packet arrival times for flow 0 are:")
@@ -83,26 +68,16 @@ print("At the packet sink, packet arrival times for flow 1 are:")
 print(ps.arrivals[1])
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
-ax1.vlines(sink_1.arrivals[0],
-           0.0,
-           1.0,
-           colors="g",
-           linewidth=2.0,
-           label='Flow 0')
-ax1.vlines(sink_2.arrivals[1],
-           0.0,
-           0.7,
-           colors="r",
-           linewidth=2.0,
-           label='Flow 1')
+ax1.vlines(sink_1.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label="Flow 0")
+ax1.vlines(sink_2.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label="Flow 1")
 ax1.set_title("Arrival times at the VC server")
 ax1.set_ylim([0, 1.5])
 ax1.set_xlim([0, max(sink_1.arrivals[0]) + 10])
 ax1.grid(True)
 ax1.legend()
 
-ax2.vlines(ps.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label='Flow 0')
-ax2.vlines(ps.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label='Flow 1')
+ax2.vlines(ps.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label="Flow 0")
+ax2.vlines(ps.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label="Flow 1")
 ax2.set_title("Departure times from the VC server")
 ax2.set_xlabel("time")
 ax2.set_ylim([0, 1.5])
