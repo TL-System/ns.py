@@ -229,6 +229,7 @@ class WFQServer:
             for i in self.active_set:
                 weight_sum += self.weights[i]
 
+            self.vtime += (now - self.last_update) / weight_sum
             self.finish_times[self.flow_classes(packet)] = max(
                 self.finish_times[self.flow_classes(packet)], self.vtime
             ) + packet.size * 8.0 / (
