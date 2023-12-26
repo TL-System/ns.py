@@ -115,13 +115,7 @@ class WFQServer:
         # Computing the new set of active flow classes
         self.flow_queue_count[self.flow_classes(packet)] -= 1
 
-        print(
-            f"Before removing {self.flow_classes(packet)} from the active set at time {now}."
-        )
-        print(f"flow_queue_count = {self.flow_queue_count}")
-
         if self.flow_queue_count[self.flow_classes(packet)] == 0:
-            print(f"Removing {self.flow_classes(packet)} from the active set.")
             self.active_set.remove(self.flow_classes(packet))
 
         if len(self.active_set) == 0:
