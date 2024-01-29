@@ -1,7 +1,6 @@
 from functools import partial
 from random import expovariate, sample
 
-import numpy as np
 import simpy
 
 from ns.packet.dist_generator import DistPacketGenerator
@@ -13,15 +12,15 @@ from ns.topos.utils import generate_fib, generate_flows
 
 env = simpy.Environment()
 
-n_flows = 128
-k = 8
+n_flows = 512
+k = 16
 pir = 100000
 buffer_size = 1000
-mean_pkt_size = 1000.0
+mean_pkt_size = 1500.0
 
 
 def size_dist():
-    return 1000
+    return 1500
 
 
 def arrival_dist():
@@ -56,10 +55,12 @@ def flow_to_classes(packet, n_id=0, fib=None):
 
 for node_id in ft.nodes():
     node = ft.nodes[node_id]
-    # node['device'] = SimplePacketSwitch(env, k, pir, buffer_size, element_id=f"{node_id}")
     flow_classes = partial(flow_to_classes, n_id=node_id, fib=node["flow_to_port"])
-    node["device"] = FairPacketSwitch(
-        env, k, pir, buffer_size, weights, "DRR", flow_classes, element_id=f"{node_id}"
+    # node["device"] = FairPacketSwitch(
+    #     env, k, pir, buffer_size, weights, "DRR", flow_classes, element_id=f"{node_id}"
+    # ）
+    node["device"] = SimplePacketSwitch(
+        env, k, pir, buffer_size, element_id=f"{node_id}"
     )
     node["device"].demux.fib = node["flow_to_port"]
 
@@ -72,7 +73,7 @@ for flow_id, flow in all_flows.items():
     flow.pkt_gen.out = ft.nodes[flow.src]["device"]
     ft.nodes[flow.dst]["device"].demux.ends[flow_id] = flow.pkt_sink
 
-env.run(until=18012)
+env.run(until=1000)
 
 for flow_id in sample(sorted(all_flows.keys()), 5):
     print(f"Flow {flow_id}")

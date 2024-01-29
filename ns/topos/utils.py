@@ -17,9 +17,9 @@ def generate_flows(G, hosts, nflows):
     for flow_id in range(nflows):
         src, dst = sample(sorted(hosts), 2)
         all_flows[flow_id] = Flow(flow_id, src, dst)
-        all_flows[flow_id].path = sample(
-            list(nx.all_simple_paths(G, src, dst, cutoff=nx.diameter(G))), 1
-        )[0]
+        # all_flows[flow_id].path = sample(
+        #    list(nx.all_simple_paths(G, src, dst, cutoff=nx.diameter(G))), 1
+        all_flows[flow_id].path = sample(list(nx.all_shortest_paths(G, src, dst)), 1)[0]
     return all_flows
 
 
