@@ -248,9 +248,23 @@ class TCPPacketGenerator:
                     )
                 )
 
-            if ack.packet_id in self.timers:
-                self.timers[ack.packet_id].stop()
-                del self.timers[ack.packet_id]
-                del self.sent_packets[ack.packet_id]
+            # this acknowledgment should acknowledge all the intermediate
+            # segments sent between the lost packet and the receipt of the
+            # first duplicate ACK, if any
+            acked_packets = [
+                packet_id
+                for packet_id, _ in self.timers.items()
+                if packet_id <= ack.packet_id
+            ]
+            for packet_id in acked_packets:
+                if self.debug:
+                    print(
+                        "Stopped timer {:d} at time {:.4f}.".format(
+                            packet_id, self.env.now
+                        )
+                    )
+                self.timers[packet_id].stop()
+                del self.timers[packet_id]
+                del self.sent_packets[packet_id]
 
             self.cwnd_available.put(True)
