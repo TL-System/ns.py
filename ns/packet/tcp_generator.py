@@ -187,17 +187,39 @@ class TCPPacketGenerator:
             self.congestion_control.more_dupacks_received()
 
             if self.last_ack + self.congestion_control.cwnd >= ack.ack:
-                resent_pkt = self.sent_packets[ack.ack]
-                resent_pkt.time = self.env.now
+                packet = Packet(
+                    self.env.now,
+                    self.mss,
+                    self.next_seq,
+                    src=self.flow.src,
+                    flow_id=self.flow.fid,
+                )
+
+                self.sent_packets[packet.packet_id] = packet
 
                 if self.debug:
                     print(
-                        "Resending packet {:d} with flow_id {:d} at time {:.4f}.".format(
-                            resent_pkt.packet_id, resent_pkt.flow_id, self.env.now
+                        "Sent packet {:d} with size {:d}, "
+                        "flow_id {:d} at time {:.4f} as dupack > 3.".format(
+                            packet.packet_id, packet.size, packet.flow_id, self.env.now
                         )
                     )
 
-                self.out.put(resent_pkt)
+                self.out.put(packet)
+
+                self.next_seq += packet.size
+                self.timers[packet.packet_id] = Timer(
+                    self.env,
+                    timer_id=packet.packet_id,
+                    timeout_callback=self.timeout_callback,
+                    timeout=self.rto,
+                )
+
+                if self.debug:
+                    print(
+                        "Setting a timer for packet {:d} with an RTO"
+                        " of {:.4f}.".format(packet.packet_id, self.rto)
+                    )
 
             return
 
@@ -226,9 +248,23 @@ class TCPPacketGenerator:
                     )
                 )
 
-            if ack.packet_id in self.timers:
-                self.timers[ack.packet_id].stop()
-                del self.timers[ack.packet_id]
-                del self.sent_packets[ack.packet_id]
+            # this acknowledgment should acknowledge all the intermediate
+            # segments sent between the lost packet and the receipt of the
+            # first duplicate ACK, if any
+            acked_packets = [
+                packet_id
+                for packet_id, _ in self.timers.items()
+                if packet_id <= ack.packet_id
+            ]
+            for packet_id in acked_packets:
+                if self.debug:
+                    print(
+                        "Stopped timer {:d} at time {:.4f}.".format(
+                            packet_id, self.env.now
+                        )
+                    )
+                self.timers[packet_id].stop()
+                del self.timers[packet_id]
+                del self.sent_packets[packet_id]
 
             self.cwnd_available.put(True)

@@ -47,6 +47,7 @@ class CongestionControl:
 
     def timer_expired(self, packet=None):
         """Actions to be taken when a timer expired."""
+        self.ssthresh = max(2 * self.mss, self.cwnd / 2)
         # setting the congestion window to 1 segment
         self.cwnd = self.mss
 
