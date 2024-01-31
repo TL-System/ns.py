@@ -258,7 +258,7 @@ class TCPPacketGenerator:
 
             if self.debug:
                 print(
-                    "TCPPacketGenerator {:d} Ack received till sequence number {:d} at time {:.4f}.".format(
+                    "TCPPacketGenerator {:d} received Ack till sequence number {:d} at time {:.4f}.".format(
                         self.element_id, ack.ack, self.env.now
                     )
                 )
