@@ -162,7 +162,7 @@ class TCPPacketGenerator:
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
-        self.rto *= 2
+        # self.rto *= 2
         # self.timers[packet_id].restart(self.rto)
 
     def put(self, ack):
