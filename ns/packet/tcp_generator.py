@@ -274,7 +274,7 @@ class TCPPacketGenerator:
             acked_packets = [
                 packet_id
                 for packet_id, _ in self.sent_packets.items()
-                if packet_id <= ack.packet_id
+                if packet_id < ack.ack
             ]
             for packet_id in acked_packets:
                 # if self.debug:
