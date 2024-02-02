@@ -91,8 +91,8 @@ for flow_id, flow in all_flows.items():
 
 env.run(until=100)
 
-for flow_id in sample(sorted(all_flows.keys()), 5):
-    print(f"Flow {flow_id}")
-    # print(all_flows[flow_id].pkt_sink.waits)
-    # print(all_flows[flow_id].pkt_sink.arrivals)
-    # print(all_flows[flow_id].pkt_sink.perhop_times)
+# for flow_id in sample(sorted(all_flows.keys()), 5):
+#     print(f"Flow {flow_id}")
+#     print(all_flows[flow_id].pkt_sink.waits)
+#     print(all_flows[flow_id].pkt_sink.arrivals)
+#     print(all_flows[flow_id].pkt_sink.perhop_times)
