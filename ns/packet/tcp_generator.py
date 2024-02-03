@@ -117,20 +117,20 @@ class TCPPacketGenerator:
                 self.out.put(packet)
 
                 self.next_seq += packet.size
-                # self.timers[packet.packet_id] = Timer(
-                #     self.env,
-                #     timer_id=packet.packet_id,
-                #     timeout_callback=self.timeout_callback,
-                #     timeout=self.rto,
-                # )
+                self.timers[packet.packet_id] = Timer(
+                    self.env,
+                    timer_id=packet.packet_id,
+                    timeout_callback=self.timeout_callback,
+                    timeout=self.rto,
+                )
 
-                # if self.debug:
-                #     print(
-                #         " TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                #         " of {:.4f}.".format(
-                #             self.element_id, packet.packet_id, self.rto
-                #         )
-                #     )
+                if self.debug:
+                    print(
+                        " TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
+                        " of {:.4f}.".format(
+                            self.element_id, packet.packet_id, self.rto
+                        )
+                    )
             else:
                 # No further space in the congestion window to transmit packets
                 # at this time, waiting for acknowledgements
@@ -162,8 +162,8 @@ class TCPPacketGenerator:
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
-        # self.rto *= 2
-        # self.timers[packet_id].restart(self.rto)
+        self.rto *= 2
+        self.timers[packet_id].restart(self.rto)
 
     def put(self, ack):
         """On receiving an acknowledgment packet."""
@@ -224,20 +224,20 @@ class TCPPacketGenerator:
                     self.out.put(packet)
 
                     self.next_seq += packet.size
-                    # self.timers[packet.packet_id] = Timer(
-                    #     self.env,
-                    #     timer_id=packet.packet_id,
-                    #     timeout_callback=self.timeout_callback,
-                    #     timeout=self.rto,
-                    # )
+                    self.timers[packet.packet_id] = Timer(
+                        self.env,
+                        timer_id=packet.packet_id,
+                        timeout_callback=self.timeout_callback,
+                        timeout=self.rto,
+                    )
 
-                    # if self.debug:
-                    #     print(
-                    #         "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                    #         " of {:.4f}.".format(
-                    #             self.element_id, packet.packet_id, self.rto
-                    #         )
-                    #     )
+                    if self.debug:
+                        print(
+                            "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
+                            " of {:.4f}.".format(
+                                self.element_id, packet.packet_id, self.rto
+                            )
+                        )
 
             return
 
@@ -275,14 +275,14 @@ class TCPPacketGenerator:
                 if packet_id < ack.ack
             ]
             for packet_id in acked_packets:
-                # if self.debug:
-                #     print(
-                #         "TCPPacketGenerator {:d} stopped timer {:d} at time {:.4f}.".format(
-                #             self.element_id, packet_id, self.env.now
-                #         )
-                #     )
-                # self.timers[packet_id].stop()
-                # del self.timers[packet_id]
+                if self.debug:
+                    print(
+                        "TCPPacketGenerator {:d} stopped timer {:d} at time {:.4f}.".format(
+                            self.element_id, packet_id, self.env.now
+                        )
+                    )
+                self.timers[packet_id].stop()
+                del self.timers[packet_id]
                 del self.sent_packets[packet_id]
 
             self.cwnd_available.put(True)
