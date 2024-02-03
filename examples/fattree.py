@@ -12,19 +12,19 @@ from ns.topos.utils import generate_fib, generate_flows
 
 env = simpy.Environment()
 
-n_flows = 512
-k = 16
-pir = 100000
+n_flows = 200
+finish_time = 10.0
+k = 32
+pir = 1000000000  # 1Gbps
 buffer_size = 1000
-mean_pkt_size = 1500.0
 
 
 def size_dist():
-    return 1500
+    return 1024
 
 
 def arrival_dist():
-    return 1.0
+    return 0.0008  # 10Mbps
 
 
 ft = build_fattree(k)
@@ -37,7 +37,9 @@ for n in ft.nodes():
 all_flows = generate_flows(ft, hosts, n_flows)
 
 for fid in all_flows:
-    pg = DistPacketGenerator(env, f"Flow_{fid}", arrival_dist, size_dist, flow_id=fid)
+    pg = DistPacketGenerator(
+        env, f"Flow_{fid}", arrival_dist, size_dist, finish=finish_time, flow_id=fid
+    )
     ps = PacketSink(env)
 
     all_flows[fid].pkt_gen = pg
@@ -45,7 +47,7 @@ for fid in all_flows:
 
 ft = generate_fib(ft, all_flows)
 
-n_classes_per_port = 4
+n_classes_per_port = n_flows
 weights = {c: 1 for c in range(n_classes_per_port)}
 
 
@@ -56,12 +58,15 @@ def flow_to_classes(packet, n_id=0, fib=None):
 for node_id in ft.nodes():
     node = ft.nodes[node_id]
     flow_classes = partial(flow_to_classes, n_id=node_id, fib=node["flow_to_port"])
-    # node["device"] = FairPacketSwitch(
-    #     env, k, pir, buffer_size, weights, "DRR", flow_classes, element_id=f"{node_id}"
-    # ）
-    node["device"] = SimplePacketSwitch(
-        env, k, pir, buffer_size, element_id=f"{node_id}"
+
+    node["device"] = FairPacketSwitch(
+        env, k, pir, buffer_size, weights, "DRR", flow_classes, element_id=f"{node_id}"
     )
+
+    # node["device"] = SimplePacketSwitch(
+    #     env, k, pir, buffer_size, element_id=f"{node_id}"
+    # )
+
     node["device"].demux.fib = node["flow_to_port"]
 
 for n in ft.nodes():
@@ -75,8 +80,8 @@ for flow_id, flow in all_flows.items():
 
 env.run(until=1000)
 
-for flow_id in sample(sorted(all_flows.keys()), 5):
-    print(f"Flow {flow_id}")
-    print(all_flows[flow_id].pkt_sink.waits)
-    print(all_flows[flow_id].pkt_sink.arrivals)
-    print(all_flows[flow_id].pkt_sink.perhop_times)
+# for flow_id in sample(sorted(all_flows.keys()), 5):
+#     print(f"Flow {flow_id}")
+#     print(all_flows[flow_id].pkt_sink.waits)
+#     print(all_flows[flow_id].pkt_sink.arrivals)
+#     print(all_flows[flow_id].pkt_sink.perhop_times)

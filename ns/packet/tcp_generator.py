@@ -177,10 +177,9 @@ class TCPPacketGenerator:
                 self.congestion_control.dupack_over()
                 self.dupack = 0
 
-        if self.dupack == 3:
-            self.congestion_control.consecutive_dupacks_received()
-
-            print("!!!", self.element_id, self.sent_packets)
+        if self.dupack >= 3:
+            if self.dupack == 3:
+                self.congestion_control.consecutive_dupacks_received()
 
             resent_pkt = self.sent_packets[ack.ack]
             resent_pkt.time = self.env.now
@@ -196,50 +195,49 @@ class TCPPacketGenerator:
 
             self.out.put(resent_pkt)
 
-            return
-        elif self.dupack > 3:
-            self.congestion_control.more_dupacks_received()
+            if self.dupack > 3:
+                self.congestion_control.more_dupacks_received()
 
-            if self.last_ack + self.congestion_control.cwnd >= ack.ack:
-                packet = Packet(
-                    self.env.now,
-                    self.mss,
-                    self.next_seq,
-                    src=self.flow.src,
-                    flow_id=self.flow.fid,
-                )
-
-                self.sent_packets[packet.packet_id] = packet
-
-                if self.debug:
-                    print(
-                        "TCPPacketGenerator {:d} sent packet {:d} with size {:d}, "
-                        "flow_id {:d} at time {:.4f} as dupack > 3.".format(
-                            self.element_id,
-                            packet.packet_id,
-                            packet.size,
-                            packet.flow_id,
-                            self.env.now,
-                        )
+                if self.last_ack + self.congestion_control.cwnd >= ack.ack:
+                    packet = Packet(
+                        self.env.now,
+                        self.mss,
+                        self.next_seq,
+                        src=self.flow.src,
+                        flow_id=self.flow.fid,
                     )
 
-                self.out.put(packet)
+                    self.sent_packets[packet.packet_id] = packet
 
-                self.next_seq += packet.size
-                self.timers[packet.packet_id] = Timer(
-                    self.env,
-                    timer_id=packet.packet_id,
-                    timeout_callback=self.timeout_callback,
-                    timeout=self.rto,
-                )
-
-                if self.debug:
-                    print(
-                        "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                        " of {:.4f}.".format(
-                            self.element_id, packet.packet_id, self.rto
+                    if self.debug:
+                        print(
+                            "TCPPacketGenerator {:d} sent packet {:d} with size {:d}, "
+                            "flow_id {:d} at time {:.4f} as dupack > 3.".format(
+                                self.element_id,
+                                packet.packet_id,
+                                packet.size,
+                                packet.flow_id,
+                                self.env.now,
+                            )
                         )
+
+                    self.out.put(packet)
+
+                    self.next_seq += packet.size
+                    self.timers[packet.packet_id] = Timer(
+                        self.env,
+                        timer_id=packet.packet_id,
+                        timeout_callback=self.timeout_callback,
+                        timeout=self.rto,
                     )
+
+                    if self.debug:
+                        print(
+                            "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
+                            " of {:.4f}.".format(
+                                self.element_id, packet.packet_id, self.rto
+                            )
+                        )
 
             return
 
@@ -273,8 +271,8 @@ class TCPPacketGenerator:
             # first duplicate ACK, if any
             acked_packets = [
                 packet_id
-                for packet_id, _ in self.timers.items()
-                if packet_id <= ack.packet_id
+                for packet_id, _ in self.sent_packets.items()
+                if packet_id < ack.ack
             ]
             for packet_id in acked_packets:
                 if self.debug:
