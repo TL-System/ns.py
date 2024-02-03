@@ -34,12 +34,6 @@ class TCPSink(PacketSink):
         Insert the packet into the receive buffer, which is a priority queue
         that is sorted based on the sequence number of the packet (packet_id).
         """
-        send_ack = True
-
-        for start, end in self.recv_buffer:
-            if start >= packet.packet_id and end <= packet.packet_id + packet.size:
-                send_ack = False
-                break
 
         self.recv_buffer.append([packet.packet_id, packet.packet_id + packet.size])
 
@@ -53,33 +47,30 @@ class TCPSink(PacketSink):
                 merged_stats.append([start, end])
         self.recv_buffer = merged_stats
 
-        return send_ack
-
     def put(self, packet):
         """Sends a packet to this element."""
         super().put(packet)
 
-        send_ack = self.packet_arrived(packet)
+        self.packet_arrived(packet)
 
         self.next_seq_expected = self.recv_buffer[0][1]
 
-        if send_ack:
-            # a TCP sink needs to send ack packets back to the TCP packet generator
-            assert self.out is not None
+        # a TCP sink needs to send ack packets back to the TCP packet generator
+        assert self.out is not None
 
-            acknowledgment = Packet(
-                packet.time,  # used for calculating RTT at the sender
-                size=40,  # default size of the ack packet
-                packet_id=packet.packet_id,
-                flow_id=packet.flow_id + 10000,
-            )
+        acknowledgment = Packet(
+            packet.time,  # used for calculating RTT at the sender
+            size=40,  # default size of the ack packet
+            packet_id=packet.packet_id,
+            flow_id=packet.flow_id + 10000,
+        )
 
-            # assert packet.delivered_time > 0
-            acknowledgment.ack = self.next_seq_expected
-            acknowledgment.delivered_time = packet.delivered_time
-            acknowledgment.first_sent_time = packet.first_sent_time
-            acknowledgment.delivered = packet.delivered
-            acknowledgment.lost = packet.lost
-            acknowledgment.is_app_limited = packet.is_app_limited
+        # assert packet.delivered_time > 0
+        acknowledgment.ack = self.next_seq_expected
+        acknowledgment.delivered_time = packet.delivered_time
+        acknowledgment.first_sent_time = packet.first_sent_time
+        acknowledgment.delivered = packet.delivered
+        acknowledgment.lost = packet.lost
+        acknowledgment.is_app_limited = packet.is_app_limited
 
-            self.out.put(acknowledgment)
+        self.out.put(acknowledgment)
