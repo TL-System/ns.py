@@ -2,6 +2,7 @@
 Implements a packet generator that simulates the TCP protocol, including support for
 various congestion control mechanisms.
 """
+
 import simpy
 
 from ns.packet.packet import Packet
@@ -41,12 +42,12 @@ class TCPPacketGenerator:
         self.last_ack = 0
         # the count of duplicate acknolwedgments
         self.dupack = 0
-        # the RTT estimate
-        self.rtt_var = 0
+        # deviation of the RTT
+        self.rtt_var = 0.0
         # smoothed RTT
-        self.smoothed_rtt = 0
+        self.smoothed_rtt = 0.0
         # the retransmission timeout
-        self.rto = 1
+        self.rto = 1.0
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
