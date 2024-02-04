@@ -2,6 +2,7 @@
 Implements a packet generator that simulates the TCP protocol, including support for
 various congestion control mechanisms.
 """
+
 import simpy
 
 from ns.packet.packet import Packet
@@ -23,7 +24,7 @@ class TCPPacketGenerator:
         Are we recording the statistics of packets generated?
     """
 
-    def __init__(self, env, flow, cc, element_id=None, rtt_estimate=1, debug=False):
+    def __init__(self, env, flow, cc, element_id=None, debug=False):
         self.element_id = element_id
         self.env = env
         self.out = None
@@ -41,12 +42,12 @@ class TCPPacketGenerator:
         self.last_ack = 0
         # the count of duplicate acknolwedgments
         self.dupack = 0
-        # the RTT estimate
-        self.rtt_estimate = rtt_estimate
+        # deviation of the RTT
+        self.rtt_var = 0.0
+        # smoothed RTT
+        self.smoothed_rtt = 0.0
         # the retransmission timeout
-        self.rto = self.rtt_estimate * 2
-        # an estimate of the RTT deviation
-        self.est_deviation = 0
+        self.rto = 1.0
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
@@ -245,11 +246,34 @@ class TCPPacketGenerator:
             # new ack received, update the RTT estimate and the retransmission timout
             sample_rtt = self.env.now - ack.time
 
-            # Jacobsen '88: Congestion Avoidance and Control
-            sample_err = sample_rtt - self.rtt_estimate
-            self.rtt_estimate += 0.125 * sample_err
-            self.est_deviation += 0.25 * (abs(sample_err) - self.est_deviation)
-            self.rto = self.rtt_estimate + 4 * self.est_deviation
+            # Authoritative sources for RTO calculation
+
+            # RFC 6298: Computing TCP's Retransmission Timer
+
+            # This RFC specifically focuses on the RTO algorithm and updates the
+            # way RTO is calculated. It obsoletes the RTO calculation described
+            # in RFC 2988. The updated algorithm is commonly referred to as the
+            # "Karn/Partridge Algorithm."
+
+            alpha = 0.125
+            beta = 0.25
+
+            # calculates the deviation (RTTVAR) of the RTT to account for
+            # variations in the network
+            if self.rtt_var == 0.0:
+                self.rtt_var = sample_rtt / 2.0
+            else:
+                deviation = self.smoothed_rtt - sample_rtt
+                self.rtt_var = (1.0 - beta) * self.rtt_var + beta * abs(deviation)
+
+            # computes a smoothed round-trip time (SRTT)
+            if self.smoothed_rtt == 0.0:
+                self.smoothed_rtt = sample_rtt
+            else:
+                self.smoothed_rtt = (
+                    1.0 - alpha
+                ) * self.smoothed_rtt + alpha * sample_rtt
+            self.rto = max(1.0, self.smoothed_rtt + 4.0 * self.rtt_var)
 
             self.last_ack = ack.ack
             self.congestion_control.ack_received(sample_rtt, self.env.now)

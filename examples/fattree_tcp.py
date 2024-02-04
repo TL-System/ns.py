@@ -47,7 +47,7 @@ all_flows = generate_flows(
 
 for fid in all_flows:
     pg = TCPPacketGenerator(
-        env, all_flows[fid], cc=TCPReno(), element_id=fid, rtt_estimate=0.5, debug=False
+        env, all_flows[fid], cc=TCPReno(), element_id=fid, debug=False
     )
     ps = TCPSink(env)
 
