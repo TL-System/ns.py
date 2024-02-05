@@ -2,6 +2,7 @@
 A basic example that showcases how TCP can be used to generate packets, and how a TCP sink
 can send acknowledgment packets back to the sender in a simple two-hop network.
 """
+
 import simpy
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
@@ -32,12 +33,12 @@ flow = Flow(
     fid=0,
     src="flow 1",
     dst="flow 1",
-    finish_time=10,
+    finish_time=1,
     arrival_dist=packet_arrival,
     size_dist=packet_size,
 )
 
-sender = TCPPacketGenerator(env, flow=flow, cc=TCPCubic(), rtt_estimate=0.5, debug=True)
+sender = TCPPacketGenerator(env, flow=flow, cc=TCPCubic(), debug=True)
 
 wire1_downstream = Wire(env, delay_dist)
 wire1_upstream = Wire(env, delay_dist)
