@@ -5,6 +5,7 @@ various congestion control mechanisms.
 
 import simpy
 
+from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.packet import Packet
 from ns.utils.timer import Timer
 
@@ -64,33 +65,29 @@ class TCPPacketGenerator:
         if self.flow.start_time:
             yield self.env.timeout(self.flow.start_time)
 
+        # creates a AppPacketGenerator to send packets from application-layer
+        # flow
+        app_pg = DistPacketGenerator(
+            self.env,
+            self.flow.flow_id,
+            self.flow.arrival_dist,
+            self.flow.size_dist,
+            0.0,
+            self.flow.finish,
+            self.flow.flow_id,
+            debug=self.debug,
+        )
+
+        app_pg.out = self
+
+        self.env.process(app_pg.run())
+
         while self.env.now < self.flow.finish_time:
             if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
 
-            while self.next_seq >= self.send_buffer:
-                # retrieving more packets from the (application-layer) flow
-                if self.flow.arrival_dist is not None:
-                    # if the flow has an arrival distribution, wait for the next arrival
-                    wait_time = self.flow.arrival_dist() - (
-                        self.env.now - self.last_arrival
-                    )
-                    if wait_time > 0:
-                        yield self.env.timeout(wait_time)
-                    self.last_arrival = self.env.now
-
-                packet_size = 0
-                if self.flow.size_dist is not None:
-                    packet_size = self.flow.size_dist()
-                else:
-                    if self.flow.size is not None:
-                        packet_size = min(self.mss, self.flow.size - self.next_seq)
-                    else:
-                        packet_size = self.mss
-                self.send_buffer += packet_size
-
             # the sender can transmit up to the size of the congestion window
-            if self.next_seq + self.mss <= min(
+            while self.next_seq + self.mss <= min(
                 self.send_buffer, self.last_ack + self.congestion_control.cwnd
             ):
                 packet = Packet(
@@ -134,7 +131,8 @@ class TCPPacketGenerator:
                     )
             else:
                 # No further space in the congestion window to transmit packets
-                # at this time, waiting for acknowledgements
+                # at this time, waiting for acknowledgements and packets from
+                # AppPacketGenerator
                 yield self.cwnd_available.get()
 
     def timeout_callback(self, packet_id=0):
@@ -166,10 +164,17 @@ class TCPPacketGenerator:
         self.rto *= 2
         self.timers[packet_id].restart(self.rto)
 
-    def put(self, ack):
-        """On receiving an acknowledgment packet."""
-        assert ack.flow_id >= 10000  # the received packet must be an ack
+    def put(self, packet):
+        """On receiving a packet."""
+        if packet.ack == None:
+            # the received packet is from AppPacketGenerator
+            # retrieves this packet
+            self.send_buffer += packet.size
+        else:
+            # the received packet is an acknowledgment from TCPSink
+            self.receive_ack(packet)
 
+    def receive_ack(self, ack):
         if ack.ack == self.last_ack:
             self.dupack += 1
         else:
