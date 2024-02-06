@@ -106,8 +106,8 @@ class TCPPacketGenerator:
                 if self.debug:
                     print(
                         f"TCPPacketGenerator {self.element_id} sent packet {packet.packet_id} "
-                        "with size {packet.size}, flow_id {packet.flow_id} at "
-                        "time {self.env.now:.4f}."
+                        f"with size {packet.size}, flow_id {packet.flow_id} at "
+                        f"time {self.env.now:.4f}."
                     )
 
                 self.out.put(packet)
@@ -123,7 +123,7 @@ class TCPPacketGenerator:
                 if self.debug:
                     print(
                         f"TCPPacketGenerator {self.element_id} is setting a timer "
-                        "for packet {packet.packet_id} with an RTO of {self.rto:.4f}."
+                        f"for packet {packet.packet_id} with an RTO of {self.rto:.4f}."
                     )
             else:
                 # No further space in the congestion window to transmit packets
@@ -147,7 +147,7 @@ class TCPPacketGenerator:
         if self.debug:
             print(
                 f"TCPPacketGenerator {self.element_id} is resending packet {resent_pkt.packet_id} "
-                "with flow_id {resent_pkt.flow_id} at time {self.env.now:.4f}."
+                f"with flow_id {resent_pkt.flow_id} at time {self.env.now:.4f}."
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
@@ -175,8 +175,8 @@ class TCPPacketGenerator:
             if self.debug:
                 print(
                     f"TCPPacketGenerator {self.element_id} is resending packet "
-                    "{resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at time "
-                    "{self.env.now:.4f}."
+                    f"{resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at time "
+                    f"{self.env.now:.4f}."
                 )
 
             self.out.put(resent_pkt)
@@ -198,8 +198,8 @@ class TCPPacketGenerator:
                     if self.debug:
                         print(
                             f"TCPPacketGenerator {self.element_id} sent packet "
-                            "{packet.packet_id} with size {packet.size}, flow_id "
-                            "{packet.flow_id} at time {self.env.now:.4f} as dupack > 3."
+                            f"{packet.packet_id} with size {packet.size}, flow_id "
+                            f"{packet.flow_id} at time {self.env.now:.4f} as dupack > 3."
                         )
 
                     self.out.put(packet)
@@ -215,7 +215,7 @@ class TCPPacketGenerator:
                     if self.debug:
                         print(
                             f"TCPPacketGenerator {self.element_id} is setting a timer for "
-                            "packet {packet.packet_id} with an RTO of {self.rto:.4f}."
+                            f"packet {packet.packet_id} with an RTO of {self.rto:.4f}."
                         )
 
             return
@@ -259,11 +259,11 @@ class TCPPacketGenerator:
             if self.debug:
                 print(
                     f"TCPPacketGenerator {self.element_id} received ack till sequence number "
-                    "{ack.ack} at time {self.env.now:.4f}."
+                    f"{ack.ack} at time {self.env.now:.4f}."
                 )
                 print(
                     f"TCPPacketGenerator {self.element_id} congestion window size = "
-                    "{self.congestion_control.cwnd:.1f}, last ack = {self.last_ack}."
+                    f"{self.congestion_control.cwnd:.1f}, last ack = {self.last_ack}."
                 )
 
             # this acknowledgment should acknowledge all the intermediate
@@ -278,7 +278,7 @@ class TCPPacketGenerator:
                 if self.debug:
                     print(
                         f"TCPPacketGenerator {self.element_id} stopped timer "
-                        "{packet_id} at time {self.env.now:.4f}."
+                        f"{packet_id} at time {self.env.now:.4f}."
                     )
                 self.timers[packet_id].stop()
                 del self.timers[packet_id]
