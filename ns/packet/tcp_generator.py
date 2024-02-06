@@ -117,7 +117,7 @@ class TCPPacketGenerator:
                     self.env,
                     timer_id=packet.packet_id,
                     timeout_callback=self.timeout_callback,
-                    timeout=self.rto,
+                    rto=self.rto,
                 )
 
                 if self.debug:
@@ -151,8 +151,8 @@ class TCPPacketGenerator:
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
-        self.rto *= 2
-        self.timers[packet_id].restart(self.rto)
+        revised_rto = self.timers[packet_id].rto * 2
+        self.timers[packet_id].restart(revised_rto)
 
     def put(self, ack):
         """On receiving an acknowledgment packet."""
@@ -209,7 +209,7 @@ class TCPPacketGenerator:
                         self.env,
                         timer_id=packet.packet_id,
                         timeout_callback=self.timeout_callback,
-                        timeout=self.rto,
+                        rto=self.rto,
                     )
 
                     if self.debug:
