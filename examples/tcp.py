@@ -38,7 +38,9 @@ flow = Flow(
     size_dist=packet_size,
 )
 
-sender = TCPPacketGenerator(env, flow=flow, cc=TCPCubic(), debug=True)
+sender = TCPPacketGenerator(
+    env, flow=flow, cc=TCPCubic(), element_id=flow.src, debug=True
+)
 
 wire1_downstream = Wire(env, delay_dist)
 wire1_upstream = Wire(env, delay_dist)

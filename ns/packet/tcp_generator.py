@@ -60,11 +60,6 @@ class TCPPacketGenerator:
         self.action = env.process(self.run())
         self.debug = debug
 
-    def run(self):
-        """The generator function used in simulations."""
-        if self.flow.start_time:
-            yield self.env.timeout(self.flow.start_time)
-
         # creates a AppPacketGenerator to send packets to TCPPacketGenerator
         # from application-layer flow
         app_pg = DistPacketGenerator(
@@ -72,32 +67,28 @@ class TCPPacketGenerator:
             self.flow.src,
             self.flow.arrival_dist,
             self.flow.size_dist,
-            initial_delay=0.0,
+            initial_delay=0.0 if self.flow.start_time == None else self.flow.start_time,
             finish=self.flow.finish_time,
             size=self.flow.size,
             flow_id=self.flow.fid,
             debug=self.debug,
         )
         app_pg.out = self
-        self.env.process(app_pg.run())
+
+    def run(self):
+        """The generator function used in simulations."""
+        if self.flow.start_time:
+            yield self.env.timeout(self.flow.start_time)
 
         while self.env.now < self.flow.finish_time:
             if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
 
-            print(
-                self.next_seq,
-                self.mss,
-                self.send_buffer,
-                self.last_ack,
-                self.congestion_control.cwnd,
-            )
-
             # the sender can transmit up to the size of the congestion window
-            while self.next_seq + self.mss <= min(
-                self.send_buffer,
-                self.last_ack + self.congestion_control.cwnd
-                and self.next_seq < self.send_buffer,
+            while (
+                self.next_seq + self.mss
+                <= min(self.send_buffer, self.last_ack + self.congestion_control.cwnd)
+                and self.next_seq < self.send_buffer
             ):
                 packet = Packet(
                     self.env.now,
@@ -111,8 +102,8 @@ class TCPPacketGenerator:
 
                 if self.debug:
                     print(
-                        "TCPPacketGenerator {:d} sent packet {:d} with size {:d}, "
-                        "flow_id {:d} at time {:.4f}.".format(
+                        "TCPPacketGenerator {} sent packet {} with size {}, "
+                        "flow_id {} at time {:.4f}.".format(
                             self.element_id,
                             packet.packet_id,
                             packet.size,
@@ -133,13 +124,12 @@ class TCPPacketGenerator:
 
                 if self.debug:
                     print(
-                        " TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                        " of {:.4f}.".format(
+                        "TCPPacketGenerator {} is setting a timer for packet {} with "
+                        "an RTO of {:.4f}.".format(
                             self.element_id, packet.packet_id, self.rto
                         )
                     )
 
-            print("YIELD")
             # No further space in the congestion window to transmit packets at
             # this time, waiting for acknowledgements and packets from
             # AppPacketGenerator
@@ -176,11 +166,9 @@ class TCPPacketGenerator:
 
     def put(self, packet):
         """On receiving a packet."""
-        print("Packet arrive")
         if packet.ack == None:
             # the received packet is from AppPacketGenerator
             self.send_buffer += packet.size
-            print("APP packet arrive, Send Buffer", self.send_buffer)
             self.cwnd_available.put(True)
         else:
             # the received packet is an acknowledgment from TCPSink
@@ -203,7 +191,7 @@ class TCPPacketGenerator:
             resent_pkt.time = self.env.now
             if self.debug:
                 print(
-                    "TCPPacketGenerator {:d} is resending packet {:d} with flow_id {:d} at time {:.4f}.".format(
+                    "TCPPacketGenerator {} is resending packet {} with flow_id {} at time {:.4f}.".format(
                         self.element_id,
                         resent_pkt.packet_id,
                         resent_pkt.flow_id,
@@ -229,8 +217,8 @@ class TCPPacketGenerator:
 
                     if self.debug:
                         print(
-                            "TCPPacketGenerator {:d} sent packet {:d} with size {:d}, "
-                            "flow_id {:d} at time {:.4f} as dupack > 3.".format(
+                            "Due to dupack > 3, TCPPacketGenerator {} sent packet {} "
+                            "with size {}, flow_id {} at time {:.4f}.".format(
                                 self.element_id,
                                 packet.packet_id,
                                 packet.size,
@@ -251,8 +239,8 @@ class TCPPacketGenerator:
 
                     if self.debug:
                         print(
-                            "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                            " of {:.4f}.".format(
+                            "TCPPacketGenerator {} is setting a timer for packet {} "
+                            "with an RTO of {:.4f}.".format(
                                 self.element_id, packet.packet_id, self.rto
                             )
                         )
@@ -297,12 +285,12 @@ class TCPPacketGenerator:
 
             if self.debug:
                 print(
-                    "TCPPacketGenerator {:d} received Ack till sequence number {:d} at time {:.4f}.".format(
+                    "TCPPacketGenerator {} received Ack till sequence number {} at time {:.4f}.".format(
                         self.element_id, ack.ack, self.env.now
                     )
                 )
                 print(
-                    "TCPPacketGenerator {:d} congestion window size = {:.1f}, last ack = {:d}.".format(
+                    "TCPPacketGenerator {} congestion window size = {:.1f}, last ack = {}.".format(
                         self.element_id, self.congestion_control.cwnd, self.last_ack
                     )
                 )
@@ -318,7 +306,7 @@ class TCPPacketGenerator:
             for packet_id in acked_packets:
                 if self.debug:
                     print(
-                        "TCPPacketGenerator {:d} stopped timer {:d} at time {:.4f}.".format(
+                        "TCPPacketGenerator {} stopped timer {} at time {:.4f}.".format(
                             self.element_id, packet_id, self.env.now
                         )
                     )
