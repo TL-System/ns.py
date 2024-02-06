@@ -65,6 +65,7 @@ class DistPacketGenerator:
     def run(self):
         """The generator function used in simulations."""
         yield self.env.timeout(self.initial_delay)
+
         while self.env.now < self.finish and self.sent_size < self.size:
             packet = Packet(
                 self.env.now,
@@ -73,8 +74,6 @@ class DistPacketGenerator:
                 src=self.element_id,
                 flow_id=self.flow_id,
             )
-
-            print("###", self.packets_sent, self.element_id)
 
             # wait for next transmission
             yield self.env.timeout(self.arrival_dist())
@@ -89,6 +88,12 @@ class DistPacketGenerator:
 
             if self.debug:
                 print(
-                    f"DistPacketGenerator sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                    f"time {self.env.now}."
+                    "DistPacketGenerator {} sent packet {} with size {}, "
+                    "flow_id {} at time {:.4f}.".format(
+                        self.element_id,
+                        packet.packet_id,
+                        packet.size,
+                        packet.flow_id,
+                        self.env.now,
+                    )
                 )
