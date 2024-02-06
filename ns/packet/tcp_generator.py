@@ -135,7 +135,7 @@ class TCPPacketGenerator:
         if self.debug:
             print(
                 f"TCPPacketGenerator {self.element_id}'s Timer expired for packet "
-                "{packet_id} at time {self.env.now:.4f}."
+                f"{packet_id} at time {self.env.now:.4f}."
             )
 
         self.congestion_control.timer_expired()
