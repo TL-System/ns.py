@@ -197,14 +197,9 @@ class TCPPacketGenerator:
 
                     if self.debug:
                         print(
-                            "TCPPacketGenerator {:d} sent packet {:d} with size {:d}, "
-                            "flow_id {:d} at time {:.4f} as dupack > 3.".format(
-                                self.element_id,
-                                packet.packet_id,
-                                packet.size,
-                                packet.flow_id,
-                                self.env.now,
-                            )
+                            f"TCPPacketGenerator {self.element_id} sent packet "
+                            "{packet.packet_id} with size {packet.size}, flow_id "
+                            "{packet.flow_id} at time {self.env.now:.4f} as dupack > 3."
                         )
 
                     self.out.put(packet)
@@ -219,10 +214,8 @@ class TCPPacketGenerator:
 
                     if self.debug:
                         print(
-                            "TCPPacketGenerator {:d} is setting a timer for packet {:d} with an RTO"
-                            " of {:.4f}.".format(
-                                self.element_id, packet.packet_id, self.rto
-                            )
+                            f"TCPPacketGenerator {self.element_id} is setting a timer for "
+                            "packet {packet.packet_id} with an RTO of {self.rto:.4f}."
                         )
 
             return
