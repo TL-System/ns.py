@@ -4,12 +4,14 @@ can send acknowledgment packets back to the sender in a simple two-hop network.
 """
 
 import simpy
+
+from ns.flow.cc import TCPReno
+from ns.flow.cubic import TCPCubic
+from ns.flow.flow import AppType, Flow
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
 from ns.switch.switch import SimplePacketSwitch
-from ns.flow.flow import AppType, Flow
-from ns.flow.cubic import TCPCubic
 
 
 def packet_arrival():
@@ -33,13 +35,13 @@ flow = Flow(
     fid=0,
     src="flow 1",
     dst="flow 1",
-    finish_time=1,
+    finish_time=10,
     arrival_dist=packet_arrival,
     size_dist=packet_size,
 )
 
 sender = TCPPacketGenerator(
-    env, flow=flow, cc=TCPCubic(), element_id=flow.src, debug=True
+    env, flow=flow, cc=TCPReno(), element_id=flow.src, debug=True
 )
 
 wire1_downstream = Wire(env, delay_dist)

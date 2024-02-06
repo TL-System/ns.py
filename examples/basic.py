@@ -2,6 +2,7 @@
 A basic example that connects two packet generators to a network wire with
 a propagation delay distribution, and then to a packet sink.
 """
+
 from functools import partial
 import random
 from random import expovariate
@@ -13,12 +14,12 @@ from ns.port.wire import Wire
 
 
 def arrival_1():
-    """ Packets arrive with a constant interval of 1.5 seconds. """
+    """Packets arrive with a constant interval of 1.5 seconds."""
     return 1.5
 
 
 def arrival_2():
-    """ Packets arrive with a constant interval of 2.0 seconds. """
+    """Packets arrive with a constant interval of 2.0 seconds."""
     return 2.0
 
 
@@ -47,13 +48,21 @@ wire2.out = ps
 
 env.run(until=100)
 
-print("Flow 1 packet delays: " +
-      ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_1']]))
-print("Flow 2 packet delays: " +
-      ", ".join(["{:.2f}".format(x) for x in ps.waits['flow_2']]))
+print(
+    "Flow 1 packet delays: "
+    + ", ".join(["{:.2f}".format(x) for x in ps.waits["flow_1"]])
+)
+print(
+    "Flow 2 packet delays: "
+    + ", ".join(["{:.2f}".format(x) for x in ps.waits["flow_2"]])
+)
 
-print("Packet arrival times in flow 1: " +
-      ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_1']]))
+print(
+    "Packet arrival times in flow 1: "
+    + ", ".join(["{:.2f}".format(x) for x in ps.arrivals["flow_1"]])
+)
 
-print("Packet arrival times in flow 2: " +
-      ", ".join(["{:.2f}".format(x) for x in ps.arrivals['flow_2']]))
+print(
+    "Packet arrival times in flow 2: "
+    + ", ".join(["{:.2f}".format(x) for x in ps.arrivals["flow_2"]])
+)
