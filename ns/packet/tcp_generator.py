@@ -134,9 +134,8 @@ class TCPPacketGenerator:
         """To be called when a timer expired for a packet with 'packet_id'."""
         if self.debug:
             print(
-                "TCPPacketGenerator {:d}'s Timer expired for packet {:d} at time {:.4f}.".format(
-                    self.element_id, packet_id, self.env.now
-                )
+                f"TCPPacketGenerator {self.element_id}'s Timer expired for packet "
+                "{packet_id} at time {self.env.now:.4f}."
             )
 
         self.congestion_control.timer_expired()
@@ -147,12 +146,8 @@ class TCPPacketGenerator:
 
         if self.debug:
             print(
-                "TCPPacketGenerator {:d} is resending packet {:d} with flow_id {:d} at time {:.4f}.".format(
-                    self.element_id,
-                    resent_pkt.packet_id,
-                    resent_pkt.flow_id,
-                    self.env.now,
-                )
+                f"TCPPacketGenerator {self.element_id} is resending packet {resent_pkt.packet_id} "
+                "with flow_id {resent_pkt.flow_id} at time {self.env.now:.4f}."
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
@@ -179,12 +174,9 @@ class TCPPacketGenerator:
             resent_pkt.time = self.env.now
             if self.debug:
                 print(
-                    "TCPPacketGenerator {:d} is resending packet {:d} with flow_id {:d} at time {:.4f}.".format(
-                        self.element_id,
-                        resent_pkt.packet_id,
-                        resent_pkt.flow_id,
-                        self.env.now,
-                    )
+                    f"TCPPacketGenerator {self.element_id} is resending packet "
+                    "{resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at time "
+                    "{self.env.now:.4f}."
                 )
 
             self.out.put(resent_pkt)
@@ -273,14 +265,12 @@ class TCPPacketGenerator:
 
             if self.debug:
                 print(
-                    "TCPPacketGenerator {:d} received Ack till sequence number {:d} at time {:.4f}.".format(
-                        self.element_id, ack.ack, self.env.now
-                    )
+                    f"TCPPacketGenerator {self.element_id} received ack till sequence number "
+                    "{ack.ack} at time {self.env.now:.4f}."
                 )
                 print(
-                    "TCPPacketGenerator {:d} congestion window size = {:.1f}, last ack = {:d}.".format(
-                        self.element_id, self.congestion_control.cwnd, self.last_ack
-                    )
+                    f"TCPPacketGenerator {self.element_id} congestion window size = "
+                    "{self.congestion_control.cwnd:.1f}, last ack = {self.last_ack}."
                 )
 
             # this acknowledgment should acknowledge all the intermediate
@@ -294,9 +284,8 @@ class TCPPacketGenerator:
             for packet_id in acked_packets:
                 if self.debug:
                     print(
-                        "TCPPacketGenerator {:d} stopped timer {:d} at time {:.4f}.".format(
-                            self.element_id, packet_id, self.env.now
-                        )
+                        f"TCPPacketGenerator {self.element_id} stopped timer "
+                        "{packet_id} at time {self.env.now:.4f}."
                     )
                 self.timers[packet_id].stop()
                 del self.timers[packet_id]
