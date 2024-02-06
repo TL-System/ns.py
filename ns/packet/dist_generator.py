@@ -88,8 +88,8 @@ class DistPacketGenerator:
 
             if self.debug:
                 print(
-                    "DistPacketGenerator {} sent packet {} with size {}, "
-                    "flow_id {} at time {:.4f}.".format(
+                    "DistPacketGenerator {} sent packet {:d} with size {:d}, "
+                    "flow_id {:d} at time {:.4f}.".format(
                         self.element_id,
                         packet.packet_id,
                         packet.size,
