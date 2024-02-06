@@ -5,6 +5,7 @@ a finish time for packet generation. In addition, one can set the source id and 
 the packets generated. The DistPacketGenerator's `out` member variable is used to connect the
 generator to any network element with a `put()` member function.
 """
+
 from ns.packet.packet import Packet
 
 
@@ -37,7 +38,8 @@ class DistPacketGenerator:
         arrival_dist,
         size_dist,
         initial_delay=0,
-        finish=float("inf"),
+        finish=None,
+        size=None,
         flow_id=0,
         rec_flow=False,
         debug=False,
@@ -47,9 +49,11 @@ class DistPacketGenerator:
         self.arrival_dist = arrival_dist
         self.size_dist = size_dist
         self.initial_delay = initial_delay
-        self.finish = finish
+        self.finish = float("inf") if finish == None else finish
+        self.size = float("inf") if size == None else size
         self.out = None
         self.packets_sent = 0
+        self.sent_size = 0
         self.action = env.process(self.run())
         self.flow_id = flow_id
 
@@ -61,7 +65,8 @@ class DistPacketGenerator:
     def run(self):
         """The generator function used in simulations."""
         yield self.env.timeout(self.initial_delay)
-        while self.env.now < self.finish:
+
+        while self.env.now < self.finish and self.sent_size < self.size:
             packet = Packet(
                 self.env.now,
                 self.size_dist(),
@@ -75,6 +80,7 @@ class DistPacketGenerator:
             self.out.put(packet)
 
             self.packets_sent += 1
+            self.sent_size += packet.size
 
             if self.rec_flow:
                 self.time_rec.append(packet.time)
@@ -82,6 +88,12 @@ class DistPacketGenerator:
 
             if self.debug:
                 print(
-                    f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                    f"time {self.env.now}."
+                    "DistPacketGenerator {} sent packet {:d} with size {:d}, "
+                    "flow_id {:d} at time {:.4f}.".format(
+                        self.element_id,
+                        packet.packet_id,
+                        packet.size,
+                        packet.flow_id,
+                        self.env.now,
+                    )
                 )
