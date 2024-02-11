@@ -20,10 +20,11 @@ class DistPacketGenerator:
     element_id: str
         the ID of this element.
     arrival_dist: function
-        A no-parameter function that returns the successive inter-arrival times of
-        the packets.
+        A no-parameter function that returns the successive inter-arrival times
+        of the packets.
     size_dist: function
-        A no-parameter function that returns the successive sizes of the packets.
+        A no-parameter function that returns the successive sizes of the
+        packets.
     initial_delay: number
         Starts generation after an initial delay. Defaults to 0.
     finish: number

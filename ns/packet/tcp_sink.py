@@ -1,13 +1,15 @@
 """
-Implements a TCPSink, designed to send ack packets back to the TCPPacketGenerator.
+Implements a TCPSink, designed to send ack packets back to the
+TCPPacketGenerator.
 """
+
 from ns.packet.sink import PacketSink
 from ns.packet.packet import Packet
 
 
 class TCPSink(PacketSink):
-    """A TCPSink inherits from the basic PacketSink, and sends ack packets back to the
-    TCPPacketGenerator with advertised receive window sizes.
+    """A TCPSink inherits from the basic PacketSink, and sends ack packets back to
+    the TCPPacketGenerator with advertised receive window sizes.
     """
 
     def __init__(
