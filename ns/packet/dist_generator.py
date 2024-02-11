@@ -1,9 +1,10 @@
 """
-Implements a packet generator that simulates the sending of packets with a specified inter-
-arrival time distribution and a packet size distribution. One can set an initial delay and
-a finish time for packet generation. In addition, one can set the source id and flow ids for
-the packets generated. The DistPacketGenerator's `out` member variable is used to connect the
-generator to any network element with a `put()` member function.
+Implements a packet generator that simulates the sending of packets with a
+specified inter- arrival time distribution and a packet size distribution. One
+can set an initial delay and a finish time for packet generation. In addition,
+one can set the source id and flow ids for the packets generated. The
+DistPacketGenerator's `out` member variable is used to connect the generator to
+any network element with a `put()` member function.
 """
 
 from ns.packet.packet import Packet
@@ -75,8 +76,6 @@ class DistPacketGenerator:
                 flow_id=self.flow_id,
             )
 
-            # wait for next transmission
-            yield self.env.timeout(self.arrival_dist())
             self.out.put(packet)
 
             self.packets_sent += 1
@@ -97,3 +96,6 @@ class DistPacketGenerator:
                         self.env.now,
                     )
                 )
+
+            # waits for the next transmission
+            yield self.env.timeout(self.arrival_dist())
