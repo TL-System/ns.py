@@ -1,10 +1,11 @@
 """
-Implements a PacketSink, designed to record both arrival times and waiting times from the incoming
-packets.
+Implements a PacketSink, designed to record both arrival times and waiting times
+from the incoming packets.
 
-By default, it records absolute arrival times, but it can also be initialized to record
-inter-arrival times.
+By default, it records absolute arrival times, but it can also be initialized to
+record inter-arrival times.
 """
+
 from collections import defaultdict as dd
 
 import simpy

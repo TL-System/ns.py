@@ -1,6 +1,6 @@
 """
-Implements a simple timer that expires after a timeout value. When it expires, it runs
-a provided callback function.
+Implements a simple timer that expires after a timeout value. When it expires,
+it runs a provided callback function.
 """
 
 
