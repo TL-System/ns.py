@@ -13,7 +13,7 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         data = self.request[0].strip()
         socket = self.request[1]
-        print("{} wrote: ".format(self.client_address))
+        print(f"{self.client_address} wrote: ")
         print(data)
         socket.sendto(data, self.client_address)
 

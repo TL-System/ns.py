@@ -21,5 +21,5 @@ if __name__ == '__main__':
                 (args.server_host, int(args.server_port)))
     received = str(sock.recv(1024), "utf-8")
 
-    print("Sent:     {}".format(message))
-    print("Received: {}".format(received))
+    print(f"Sent:     {message}")
+    print(f"Received: {received}")

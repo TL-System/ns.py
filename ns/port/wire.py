@@ -62,13 +62,12 @@ class Wire:
                 self.out.put(packet)
 
                 if self.debug:
-                    print("Left wire #{} at {:.3f}: {}".format(
-                        self.wire_id, self.env.now, packet))
+                    print(f"Left wire #{self.wire_id} at "
+                        f"{self.env.now:.3f}: {packet}")
             else:
                 if self.debug:
-                    print("Dropped on wire #{} at {:.3f}: {}".format(
-                        self.wire_id, self.env.now, packet))
-
+                    print(f"Dropped on wire #{self.wire_id} at "
+                    f"{self.env.now:.3f}: {packet}")
     def put(self, packet):
         """ Sends a packet to this element. """
         self.packets_rec += 1

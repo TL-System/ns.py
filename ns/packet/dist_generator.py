@@ -88,14 +88,9 @@ class DistPacketGenerator:
 
             if self.debug:
                 print(
-                    "DistPacketGenerator {} sent packet {:d} with size {:d}, "
-                    "flow_id {:d} at time {:.4f}.".format(
-                        self.element_id,
-                        packet.packet_id,
-                        packet.size,
-                        packet.flow_id,
-                        self.env.now,
-                    )
+                    f"DistPacketGenerator {self.element_id} sent packet {packet.packet_id}"
+                    f" with size {packet.size}, "
+                    f"flow_id {packet.flow_id} at time {self.env.now:.4f}."
                 )
 
             # waits for the next transmission

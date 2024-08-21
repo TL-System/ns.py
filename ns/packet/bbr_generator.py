@@ -141,14 +141,9 @@ class BBRPacketGenerator:
                 self.packet_in_flight += packet.size
                 if self.debug:
                     print(
-                        "Send packet {:d} with size {:d}, "
-                        "flow_id {:d} at time {:.4f}, delivered_time {:.4f}.".format(
-                            packet.packet_id,
-                            packet.size,
-                            packet.flow_id,
-                            self.env.now,
-                            packet.delivered_time,
-                        )
+                        f"Send packet {packet.packet_id} with size {packet.size}, "
+                        f"flow_id {packet.flow_id} at time {self.env.now:.4f}, "
+                        f"and the packet delivered time is {packet.delivered_time:.4f}."
                     )
                 assert packet.delivered_time > 0
                 self.out.put(packet)
@@ -165,8 +160,8 @@ class BBRPacketGenerator:
 
                 if self.debug:
                     print(
-                        "Setting a timer for packet {:d} with an RTO"
-                        " of {:.4f}.".format(packet.packet_id, self.rto)
+                        f"Setting a timer for packet {packet.packet_id} with an RTO"
+                        f" of {self.rto:.4f}."
                     )
 
     def timeout_callback(self, packet_id=0):
@@ -175,8 +170,8 @@ class BBRPacketGenerator:
         packet_id = self.max_ack
         if self.debug:
             print(
-                "Timer expired for packet {:d} {:d} at time {:.4f}.".format(
-                    packet_id, self.flow.fid, self.env.now
+                f"Timer expired for packet {packet_id} {self.flow.fid} "
+                f"at time {self.env.now:.4f}."
                 )
             )
 
@@ -203,12 +198,8 @@ class BBRPacketGenerator:
             self.rto = 60
         if self.debug:
             print(
-                "to Resending packet {:d} with flow_id {:d} at time {:.4f} with a timeout time {:4f}.".format(
-                    resent_pkt.packet_id,
-                    resent_pkt.flow_id,
-                    self.env.now,
-                    self.env.now + self.rto,
-                )
+                f"to Resending packet {resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} "
+                f"at time {self.env.now:.4f} with a timeout time {self.env.now + self.rto:4f}."
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
@@ -295,9 +286,8 @@ class BBRPacketGenerator:
 
             if self.debug:
                 print(
-                    "dup Resending packet {:d} with flow_id {:d} at time {:.4f}.".format(
-                        resent_pkt.packet_id, resent_pkt.flow_id, self.env.now
-                    )
+                    f"dup Resending packet {resent_pkt.packet_id} with flow_id "
+                    f"{resent_pkt.flow_id} at time {self.env.now:.4f}."
                 )
             self.out.put(resent_pkt)
 
@@ -358,14 +348,12 @@ class BBRPacketGenerator:
 
             if self.debug:
                 print(
-                    "Ack received till sequence number {:d} at time {:.4f}.".format(
-                        ack.ack, self.env.now
-                    )
+                    f"Ack received till sequence number {ack.ack} at time "
+                    f"{self.env.now:.4f}."
                 )
                 print(
-                    "Congestion window size = {:.1f}, last ack = {:d}.".format(
-                        self.congestion_control.cwnd, self.last_ack
-                    )
+                    f"Congestion window size = {self.congestion_control.cwnd:.1f}, "
+                    f"last ack = {self.last_ack}."
                 )
 
             if bbr_update:

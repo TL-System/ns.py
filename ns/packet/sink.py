@@ -91,9 +91,8 @@ class PacketSink:
 
         if self.debug:
             print(
-                "At time {:.2f}, packet {:d} in flow {:d} arrived.".format(
-                    now, packet.packet_id, packet.flow_id
-                )
+                f"At time {now:.2f}, packet {packet.packet_id} in "
+                f"flow {packet.flow_id} arrived."
             )
             if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
                 bytes_received = sum(self.packet_sizes[rec_index][-9:])
@@ -101,9 +100,8 @@ class PacketSink:
                     self.packet_times[rec_index][-10] + self.waits[rec_index][-10]
                 )
                 print(
-                    "Average throughput (last 10 packets): {:.2f} bytes/second.".format(
-                        float(bytes_received) / time_elapsed
-                    )
+                    f"Average throughput (last 10 packets): "
+                    f"{(float(bytes_received) / time_elapsed):.2f} bytes/second."
                 )
 
         self.packets_received[rec_index] += 1

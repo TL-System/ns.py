@@ -34,18 +34,15 @@ if __name__ == '__main__':
             # Receive the data in small chunks and retransmit it
             while True:
                 data = connection.recv(64)
-                print('received "{}" at time {:.2f}.'.format(
-                    data,
-                    time.time() - init_time))
+                print(f'received "{data}" at time {(time.time() - init_time):.2f}.')
                 if data:
                     print('sending "{}" back to the client at time {:.2f}'.
                           format(data,
                                  time.time() - init_time))
                     connection.sendall(data)
                 else:
-                    print('no more data from {} at time {:.2f}'.format(
-                        client_address,
-                        time.time() - init_time))
+                    print(f"no more data from {client_address} at time "
+                    f"{(time.time() - init_time):.2f}")
                     break
 
         finally:
