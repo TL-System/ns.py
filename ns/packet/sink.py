@@ -77,7 +77,6 @@ class PacketSink:
             self.packet_sizes[rec_index].append(packet.size)
             self.packet_times[rec_index].append(packet.time)
             self.perhop_times[rec_index].append(packet.perhop_time)
-            self.arrivals[rec_index].append(self.env.now)
 
         if self.rec_arrivals:
             self.arrivals[rec_index].append(now)
@@ -85,7 +84,9 @@ class PacketSink:
                 self.first_arrival[rec_index] = now
 
             if not self.absolute_arrivals:
-                self.arrivals[rec_index][-1] = now - self.last_arrival[rec_index]
+                self.arrivals[rec_index][-1] = (
+                    now - self.last_arrival[rec_index]
+                )
 
             self.last_arrival[rec_index] = now
 
@@ -97,7 +98,8 @@ class PacketSink:
             if self.rec_waits and len(self.packet_sizes[rec_index]) >= 10:
                 bytes_received = sum(self.packet_sizes[rec_index][-9:])
                 time_elapsed = self.env.now - (
-                    self.packet_times[rec_index][-10] + self.waits[rec_index][-10]
+                    self.packet_times[rec_index][-10]
+                    + self.waits[rec_index][-10]
                 )
                 print(
                     f"Average throughput (last 10 packets): "

@@ -69,7 +69,9 @@ class Port:
         """
         # There is nothing that needs to be done, just print a debug message
         if self.debug:
-            print(f"Retrieved Packet {packet.packet_id} from flow {packet.flow_id}.")
+            print(
+                f"Port: Retrieved Packet {packet.packet_id} from flow {packet.flow_id}."
+            )
 
     def run(self):
         """The generator function used in simulations."""
