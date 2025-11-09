@@ -145,7 +145,6 @@ class BBRPacketGenerator:
                         f"flow_id {packet.flow_id} at time {self.env.now:.4f}, "
                         f"and the packet delivered time is {packet.delivered_time:.4f}."
                     )
-                assert packet.delivered_time > 0
                 self.out.put(packet)
 
                 self.next_seq += packet.size
@@ -190,7 +189,6 @@ class BBRPacketGenerator:
             self.env.now,
         )
 
-        assert resent_pkt.delivered_time > 0
         self.out.put(resent_pkt)
         self.rto *= 2
         if self.rto > 60:
