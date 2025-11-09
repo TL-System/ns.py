@@ -4,25 +4,28 @@ This discrete-event network simulator is based on [`simpy`](https://simpy.readth
 
 ## Installation
 
-First, launch the terminal and create a new `conda` environment (say, called `ns.py`):
+### From PyPI
 
 ```shell
-$ conda update conda
-$ conda create -n ns.py python=3.9
-$ conda activate ns.py
+pip install ns.py
 ```
 
-Then, install `ns.py` using `pip`:
+### Local development with uv
 
-```shell
-$ pip install ns.py
-```
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it's not already on your machine.
+2. Sync the project and provision a Python 3.13 virtual environment:
 
-That's it! You can now try to run some examples in the `examples/` directory. To upgrade Python packages in the current environment, run the command:
+   ```shell
+   uv sync
+   ```
 
-```shell
-$ python upgrade_packages.py
-```
+3. Run commands through `uv run` so they pick up the synced environment. For example:
+
+   ```shell
+   uv run examples/basic.py
+   ```
+
+`uv sync` installs `ns.py` in editable mode along with its dependencies, so subsequent `uv run …` invocations (tests, builds, examples) share the exact same interpreter and packages.
 
 ## Current network components
 
@@ -90,8 +93,6 @@ The network components that have already been implemented include:
 
 ## Current examples (in increasing levels of complexity)
 
-Some of these examples requires installing `matplotlib`. It has not been included in the list of dependencies in `ns.py`, and needs to be installed separately in the current Python environment.
-
 * `basic.py`: A basic example that connects two packet generators to a network wire with a propagation delay distribution, and then to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Wire`.
 
 * `overloaded_switch.py`: an example that contains a packet generator connected to a downstream switch port, which is then connected to a packet sink. It showcases `DistPacketGenerator`, `PacketSink`, and `Port`.
@@ -126,7 +127,7 @@ Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulat
   <img src="https://github.com/TL-System/ns.py/blob/main/docs/emulation/emulation_mode.svg" alt="High-level overview of ns.py's emulation mode"/>
 </p>
 
-`examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective. 
+`examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective.
 
 ### Testing the emulation mode with simple TCP and UDP echo servers
 
@@ -285,4 +286,3 @@ self.deficit[flow_id] += self.quantum[flow_id]
 ```
 
 Most often, the mapping between flow IDs and per-flow parameters, such as weights in a Weighted Fair Queueing scheduler or priorities in a Static Priority scheduler, need to be stored in a dictionary, and then used to initialized these schedulers. An optional (but not recommended) style is to assign consecutive integers as flow IDs to the flows throughout the entire network, and then use simple lists of per-flow parameters to initialize the schedulers. In this case, flow IDs will be directly used as indices to look up these lists to find the parameter values.
-
