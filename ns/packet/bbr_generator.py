@@ -172,7 +172,6 @@ class BBRPacketGenerator:
             print(
                 f"Timer expired for packet {packet_id} {self.flow.fid} "
                 f"at time {self.env.now:.4f}."
-                )
             )
 
         self.congestion_control.C.lost += self.sent_packets[packet_id].size
@@ -269,7 +268,7 @@ class BBRPacketGenerator:
             self.congestion_control.consecutive_dupacks_received(
                 self.sent_packets[ack.ack]
             )
-            self.congestion_control.ack_received(sample_rtt)
+            self.congestion_control.ack_received(sample_rtt, self.env.now)
 
             resent_pkt = self.sent_packets[ack.ack]
             resent_pkt.time = self.env.now
@@ -295,7 +294,7 @@ class BBRPacketGenerator:
             self.congestion_control.set_before_control(
                 self.env.now, self.packet_in_flight
             )
-            self.congestion_control.ack_received(sample_rtt)
+            self.congestion_control.ack_received(sample_rtt, self.env.now)
             self.congestion_control.more_dupacks_received(self.sent_packets[ack.ack])
 
         elif self.dupack == 0:
@@ -357,7 +356,7 @@ class BBRPacketGenerator:
                 )
 
             if bbr_update:
-                self.congestion_control.ack_received(sample_rtt)
+                self.congestion_control.ack_received(sample_rtt, self.env.now)
 
             if self.max_ack == self.next_seq and self.timer is not None:
                 self.timer.stop()
