@@ -14,9 +14,9 @@ from ns.topos.utils import generate_fib, generate_flows
 
 env = simpy.Environment()
 
-n_flows = 512 
+n_flows = 10 
 finish_time = 10
-k = 32
+k = 4 
 pir = 10000000000  # 10Gbps
 buffer_size = 1000
 
