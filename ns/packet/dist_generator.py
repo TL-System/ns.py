@@ -51,8 +51,8 @@ class DistPacketGenerator:
         self.arrival_dist = arrival_dist
         self.size_dist = size_dist
         self.initial_delay = initial_delay
-        self.finish = float("inf") if finish == None else finish
-        self.size = float("inf") if size == None else size
+        self.finish = float("inf") if finish is None else finish
+        self.size = float("inf") if size is None else size
         self.out = None
         self.packets_sent = 0
         self.sent_size = 0

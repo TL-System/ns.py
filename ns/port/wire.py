@@ -4,33 +4,29 @@ to model a limited network capacity on this network cable, since such a
 capacity limit can be modeled using an upstream port or server element in
 the network.
 """
+
 import random
 
 import simpy
 
 
 class Wire:
-    """ Implements a network wire (cable) that introduces a propagation delay.
-        Set the "out" member variable to the entity to receive the packet.
+    """Implements a network wire (cable) that introduces a propagation delay.
+    Set the "out" member variable to the entity to receive the packet.
 
-        Parameters
-        ----------
-        env: simpy.Environment
-            the simulation environment.
-        delay_dist: function
-            a no-parameter function that returns the successive propagation
-            delays on this wire.
-        loss_dist: function
-            a function that takes one optional parameter, which is the packet ID, and
-            returns the loss rate.
+    Parameters
+    ----------
+    env: simpy.Environment
+        the simulation environment.
+    delay_dist: function
+        a no-parameter function that returns the successive propagation
+        delays on this wire.
+    loss_dist: function
+        a function that takes one optional parameter, which is the packet ID, and
+        returns the loss rate.
     """
 
-    def __init__(self,
-                 env,
-                 delay_dist,
-                 loss_dist=None,
-                 wire_id=0,
-                 debug=False):
+    def __init__(self, env, delay_dist, loss_dist=None, wire_id=0, debug=False):
         self.store = simpy.Store(env)
         self.delay_dist = delay_dist
         self.loss_dist = loss_dist
@@ -46,8 +42,9 @@ class Wire:
         while True:
             packet = yield self.store.get()
 
-            if self.loss_dist is None or random.uniform(
-                    0, 1) >= self.loss_dist(packet_id=packet.packet_id):
+            if self.loss_dist is None or random.uniform(0, 1) >= self.loss_dist(
+                packet_id=packet.packet_id
+            ):
                 # The amount of time for this packet to stay in my store
                 queued_time = self.env.now - packet.current_time
                 delay = self.delay_dist()
@@ -62,14 +59,16 @@ class Wire:
                 self.out.put(packet)
 
                 if self.debug:
-                    print(f"Left wire #{self.wire_id} at "
-                        f"{self.env.now:.3f}: {packet}")
+                    print(f"Left wire #{self.wire_id} at {self.env.now:.3f}: {packet}")
             else:
                 if self.debug:
-                    print(f"Dropped on wire #{self.wire_id} at "
-                    f"{self.env.now:.3f}: {packet}")
+                    print(
+                        f"Dropped on wire #{self.wire_id} at "
+                        f"{self.env.now:.3f}: {packet}"
+                    )
+
     def put(self, packet):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_rec += 1
         if self.debug:
             print(f"Entered wire #{self.wire_id} at {self.env.now}: {packet}")

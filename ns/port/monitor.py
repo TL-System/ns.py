@@ -4,20 +4,21 @@ A monitor for a Port.
 
 
 class PortMonitor:
-    """ Looks at the number of items in the Port, in service + in the queue,
-        and records that info in the sizes[] list. The monitor looks at the port
-        at time intervals given by the distribution dist.
+    """Looks at the number of items in the Port, in service + in the queue,
+    and records that info in the sizes[] list. The monitor looks at the port
+    at time intervals given by the distribution dist.
 
-        Parameters
-        ----------
-        env: simpy.Environment
-            the simulation environment.
-        port: Port
-            the switch port object to be monitored.
-        dist: function
-            a no parameter function that returns the successive inter-arrival
-            times of the packets
+    Parameters
+    ----------
+    env: simpy.Environment
+        the simulation environment.
+    port: Port
+        the switch port object to be monitored.
+    dist: function
+        a no parameter function that returns the successive inter-arrival
+        times of the packets
     """
+
     def __init__(self, env, port, dist, pkt_in_service_included=False):
         self.port = port
         self.env = env

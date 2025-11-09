@@ -6,6 +6,7 @@ guidance: it maintains separate STARTUP, DRAIN, PROBE_BW, and PROBE_RTT states,
 tracks bandwidth with a windowed max filter, keeps a 10-second min-RTT sample, and
 cycles pacing gains in PROBE_BW to gently probe for additional bandwidth.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -169,11 +170,11 @@ class BBR(CongestionControl):
         rate = self.rs.delivery_rate
         if rate <= 0:
             return
-        should_replace = (
-            not self.rs.is_app_limited or rate >= self.max_bw * 0.98
-        )
+        should_replace = not self.rs.is_app_limited or rate >= self.max_bw * 0.98
         if should_replace:
-            self.max_bw_slots[self.max_bw_index] = _BandwidthSlot(rate, self.current_time)
+            self.max_bw_slots[self.max_bw_index] = _BandwidthSlot(
+                rate, self.current_time
+            )
             self.max_bw_index = (self.max_bw_index + 1) % self.BW_FILTER_LEN
             self.max_bw = max(slot.value for slot in self.max_bw_slots)
 
@@ -233,8 +234,9 @@ class BBR(CongestionControl):
         # Handle STARTUP/DRAIN transitions.
         if self.state == BBRState.STARTUP and self.filled_pipe:
             self.state = BBRState.DRAIN
-        if self.state == BBRState.DRAIN and self.packet_in_flight <= self._target_inflight(
-            1.0
+        if (
+            self.state == BBRState.DRAIN
+            and self.packet_in_flight <= self._target_inflight(1.0)
         ):
             self.state = BBRState.PROBE_BW
             self._reset_probe_bw_cycle()
@@ -271,7 +273,13 @@ class BBR(CongestionControl):
             # Fall back to initial estimates.
             bw = self.cwnd / self.initial_rtt
         self.pacing_rate = max(
-            (self.mss / max(self.min_rtt if self.min_rtt < float("inf") else self.initial_rtt, 1e-6)),
+            (
+                self.mss
+                / max(
+                    self.min_rtt if self.min_rtt < float("inf") else self.initial_rtt,
+                    1e-6,
+                )
+            ),
             self.pacing_gain * bw,
         )
 
@@ -292,7 +300,9 @@ class BBR(CongestionControl):
         if self.state == BBRState.PROBE_RTT:
             target = min(target, self.BBRMinPipeCwnd)
         if self.packet_conservation:
-            target = max(target, self.packet_in_flight + getattr(self.rs, "newly_acked", 0))
+            target = max(
+                target, self.packet_in_flight + getattr(self.rs, "newly_acked", 0)
+            )
 
         if self.cwnd < target:
             self.cwnd += getattr(self.rs, "newly_acked", 0)

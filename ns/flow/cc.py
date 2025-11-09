@@ -4,6 +4,7 @@ Shared congestion-control infrastructure for loss-based TCP variants.
 The Simulator models cwnd in *bytes* so the helpers provided here enforce RFC 5681/8312
 requirements while letting individual algorithms focus on their window update rules.
 """
+
 from __future__ import annotations
 
 from abc import abstractmethod

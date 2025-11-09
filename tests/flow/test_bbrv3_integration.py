@@ -1,12 +1,12 @@
 import pytest
 
-simpy = pytest.importorskip("simpy")
-
-from ns.flow.bbr import BBR, BBRState
+from ns.flow.bbr import BBR
 from ns.flow.flow import Flow
 from ns.packet.bbr_generator import BBRPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire
+
+simpy = pytest.importorskip("simpy")
 
 
 def const_delay(value):

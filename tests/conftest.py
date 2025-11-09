@@ -1,4 +1,5 @@
 """Ensure the project root is importable when tests run from a built wheel."""
+
 from __future__ import annotations
 
 import sys

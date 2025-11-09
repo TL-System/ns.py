@@ -6,6 +6,7 @@ Reference:
 L. Zhang, "Virtual Clock: A New Traffic Control Algorithm for Packet Switching Networks,"
 in ACM SIGCOMM Computer Communication Review, vol. 20, pp. 19, 1990.
 """
+
 from collections import defaultdict as dd
 from collections.abc import Callable
 

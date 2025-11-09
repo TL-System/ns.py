@@ -8,6 +8,7 @@ Tran. Networking, vol. 4, no. 3, June 1996.
 """
 
 from collections import defaultdict as dd
+from collections import deque
 from collections.abc import Callable
 
 import simpy
@@ -31,6 +32,9 @@ class DRRServer:
         This is a function that matches a packet's flow_ids to class_ids, used to implement
         class-based Deficit Round Robin. The default is a lambda function that uses a packet's
         flow_id as its class_id, which is equivalent to flow-based DRR.
+    mtu_bytes: int
+        Maximum packet size (bytes) expected on any flow. Quanta are automatically
+        sized so that every class receives at least this many bytes per round.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -42,44 +46,50 @@ class DRRServer:
     debug: bool
         If True, prints more verbose debug information.
     """
+
     MIN_QUANTUM = 1500
 
-    def __init__(self,
-                 env,
-                 rate,
-                 weights: list,
-                 flow_classes: Callable = lambda p: p.flow_id,
-                 zero_buffer=False,
-                 zero_downstream_buffer=False,
-                 debug: bool = False) -> None:
+    def __init__(
+        self,
+        env,
+        rate,
+        weights: list,
+        flow_classes: Callable = lambda p: p.flow_id,
+        mtu_bytes: int = 1500,
+        zero_buffer=False,
+        zero_downstream_buffer=False,
+        debug: bool = False,
+    ) -> None:
         self.env = env
         self.rate = rate
         self.weights = weights
 
         self.flow_classes = flow_classes
 
+        self.weight_lookup = {}
         self.deficit = {}
         self.flow_queue_count = {}
         self.quantum = {}
 
         if isinstance(weights, list):
-            for queue_id, weight in enumerate(weights):
-                self.deficit[queue_id] = 0.0
-                self.flow_queue_count[queue_id] = 0
-                self.quantum[queue_id] = self.MIN_QUANTUM * weight / min(
-                    weights)
-
+            iterable = enumerate(weights)
         elif isinstance(weights, dict):
-            for (queue_id, value) in weights.items():
-                self.deficit[queue_id] = 0.0
-                self.flow_queue_count[queue_id] = 0
-                self.quantum[queue_id] = self.MIN_QUANTUM * value / min(
-                    weights.values())
+            iterable = weights.items()
         else:
-            raise ValueError('Weights must be either a list or a dictionary.')
+            raise ValueError("Weights must be either a list or a dictionary.")
+
+        for queue_id, weight in iterable:
+            self.weight_lookup[queue_id] = weight
+            self.deficit[queue_id] = 0.0
+            self.flow_queue_count[queue_id] = 0
+
+        self.min_weight = min(self.weight_lookup.values())
+        self.base_quantum = max(self.MIN_QUANTUM, mtu_bytes)
+        self._recompute_quanta()
 
         self.head_of_line = {}
         self.active_set = set()
+        self.active_queue = deque()
 
         # One FIFO queue for each flow_id or class_id
         self.stores = {}
@@ -88,6 +98,7 @@ class DRRServer:
         self.byte_sizes = dd(lambda: 0)
 
         self.packets_available = simpy.Store(env)
+        self.idle = True
 
         self.packets_received = 0
         self.out = None
@@ -102,6 +113,25 @@ class DRRServer:
 
         self.debug = debug
         self.action = env.process(self.run())
+
+    def _recompute_quanta(self):
+        """Recalculate per-flow quanta when the base quantum changes."""
+        for queue_id, weight in self.weight_lookup.items():
+            self.quantum[queue_id] = self.base_quantum * weight / self.min_weight
+
+    def _activate_flow(self, queue_id):
+        """Add a backlogged flow to the active queue."""
+        if queue_id in self.active_set:
+            return
+
+        if self.flow_queue_count.get(queue_id, 0) == 0:
+            return
+
+        self.active_set.add(queue_id)
+        self.active_queue.append(queue_id)
+
+        if self.idle:
+            self.packets_available.put(True)
 
     def update_stats(self, packet):
         """
@@ -123,13 +153,13 @@ class DRRServer:
         if self.flow_classes(packet) in self.byte_sizes:
             self.byte_sizes[self.flow_classes(packet)] -= packet.size
         else:
-            raise ValueError(
-                "Error: the packet to be sent has never been received.")
+            raise ValueError("Error: the packet to be sent has never been received.")
 
         if self.debug:
             print(
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet)}")
+                f"belonging to class {self.flow_classes(packet)}"
+            )
 
     def update(self, packet):
         """
@@ -187,88 +217,105 @@ class DRRServer:
     def run(self):
         """The generator function used in simulations."""
         while True:
-            while self.total_packets() > 0:
-                flow_queue_counts = self.flow_queue_count.items()
+            if not self.active_queue:
+                self.idle = True
+                yield self.packets_available.get()
+                self.idle = False
+                continue
 
-                for queue_id, count in flow_queue_counts:
-                    if count > 0:
-                        self.deficit[queue_id] += self.quantum[queue_id]
-                        if self.debug:
-                            print(
-                                f"Flow queue length: {self.flow_queue_count}, ",
-                                f"deficit counters: {self.deficit}")
+            queue_id = self.active_queue.popleft()
+            self.active_set.discard(queue_id)
 
-                    while self.deficit[queue_id] > 0 and self.flow_queue_count[
-                            queue_id] > 0:
-                        if queue_id in self.head_of_line:
-                            packet = self.head_of_line[queue_id]
-                            del self.head_of_line[queue_id]
-                        else:
-                            if self.zero_downstream_buffer:
-                                ds_store = self.downstream_stores[queue_id]
-                                packet = yield ds_store.get()
-                            else:
-                                store = self.stores[queue_id]
-                                packet = yield store.get()
+            if self.flow_queue_count.get(queue_id, 0) == 0:
+                self.head_of_line.pop(queue_id, None)
+                self.deficit[queue_id] = 0.0
+                continue
 
-                        assert queue_id == self.flow_classes(packet)
+            self.deficit[queue_id] += self.quantum[queue_id]
+            if self.debug:
+                print(
+                    f"Flow queue length: {self.flow_queue_count}, ",
+                    f"deficit counters: {self.deficit}",
+                )
 
-                        if packet.size <= self.deficit[queue_id]:
-                            self.current_packet = packet
-                            yield self.env.timeout(packet.size * 8.0 /
-                                                   self.rate)
+            while self.deficit[queue_id] > 0 and self.flow_queue_count[queue_id] > 0:
+                if queue_id in self.head_of_line:
+                    packet = self.head_of_line[queue_id]
+                    del self.head_of_line[queue_id]
+                else:
+                    if self.zero_downstream_buffer:
+                        ds_store = self.downstream_stores[queue_id]
+                        packet = yield ds_store.get()
+                    else:
+                        store = self.stores[queue_id]
+                        packet = yield store.get()
 
-                            if self.zero_downstream_buffer:
-                                self.update_stats(packet)
+                assert queue_id == self.flow_classes(packet)
 
-                                self.out.put(
-                                    packet,
-                                    upstream_update=self.update,
-                                    upstream_store=self.stores[queue_id])
-                            else:
-                                self.update_stats(packet)
-                                self.update(packet)
-                                self.out.put(packet)
+                if packet.size <= self.deficit[queue_id]:
+                    self.current_packet = packet
+                    yield self.env.timeout(packet.size * 8.0 / self.rate)
 
-                            self.current_packet = None
-                        else:
-                            assert not queue_id in self.head_of_line
-                            self.head_of_line[queue_id] = packet
-                            break
+                    if self.zero_downstream_buffer:
+                        self.update_stats(packet)
+                        self.out.put(
+                            packet,
+                            upstream_update=self.update,
+                            upstream_store=self.stores[queue_id],
+                        )
+                    else:
+                        self.update_stats(packet)
+                        self.update(packet)
+                        self.out.put(packet)
 
-            # No more packets in the scheduler to process at this time
-            yield self.packets_available.get()
+                    self.current_packet = None
+                else:
+                    assert queue_id not in self.head_of_line
+                    self.head_of_line[queue_id] = packet
+                    break
+
+            if self.flow_queue_count.get(queue_id, 0) > 0:
+                self._activate_flow(queue_id)
+            else:
+                self.deficit[queue_id] = 0.0
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
-        self.byte_sizes[self.flow_classes(packet)] += packet.size
+        flow_class = self.flow_classes(packet)
+        self.byte_sizes[flow_class] += packet.size
+
+        if packet.size > self.base_quantum:
+            self.base_quantum = packet.size
+            self._recompute_quanta()
 
         if self.debug:
             print(
                 f"Packet arrived at {self.env.now}, flow_id {packet.flow_id}, "
-                f"belonging to class {self.flow_classes(packet)} "
+                f"belonging to class {flow_class} "
                 f"packet_id {packet.packet_id}, "
-                f"deficit {self.deficit[self.flow_classes(packet)]}, "
-                f"deficit counters: {self.deficit}")
+                f"deficit {self.deficit[flow_class]}, "
+                f"deficit counters: {self.deficit}"
+            )
 
-        if not self.flow_classes(packet) in self.stores:
-            self.stores[self.flow_classes(packet)] = simpy.Store(self.env)
+        if flow_class not in self.stores:
+            self.stores[flow_class] = simpy.Store(self.env)
 
             if self.zero_downstream_buffer:
-                self.downstream_stores[self.flow_classes(
-                    packet)] = simpy.Store(self.env)
+                self.downstream_stores[flow_class] = simpy.Store(self.env)
 
-        if self.total_packets() == 0:
-            self.packets_available.put(True)
+        self.flow_queue_count[flow_class] += 1
+        self._activate_flow(flow_class)
 
-        self.flow_queue_count[self.flow_classes(packet)] += 1
-
-        if self.zero_buffer and upstream_update is not None and upstream_store is not None:
+        if (
+            self.zero_buffer
+            and upstream_update is not None
+            and upstream_store is not None
+        ):
             self.upstream_stores[packet] = upstream_store
             self.upstream_updates[packet] = upstream_update
 
         if self.zero_downstream_buffer:
-            self.downstream_stores[self.flow_classes(packet)].put(packet)
+            self.downstream_stores[flow_class].put(packet)
 
-        return self.stores[self.flow_classes(packet)].put(packet)
+        return self.stores[flow_class].put(packet)

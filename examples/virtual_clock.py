@@ -1,6 +1,7 @@
 """
 An example of using the Virtual Clock scheduler.
 """
+
 from functools import partial
 from random import expovariate
 

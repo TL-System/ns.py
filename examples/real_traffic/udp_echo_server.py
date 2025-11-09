@@ -1,4 +1,5 @@
-""" A simple UDP echo server. """
+"""A simple UDP echo server."""
+
 import argparse
 import socketserver
 
@@ -10,6 +11,7 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
     there is no connection the client address must be given explicitly
     when sending data back via sendto().
     """
+
     def handle(self):
         data = self.request[0].strip()
         socket = self.request[1]
@@ -20,11 +22,12 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("listen_port",
-                        help="The port this process will listen on.",
-                        type=int)
+    parser.add_argument(
+        "listen_port", help="The port this process will listen on.", type=int
+    )
 
     args = parser.parse_args()
-    with socketserver.UDPServer(("localhost", int(args.listen_port)),
-                                MyUDPHandler) as server:
+    with socketserver.UDPServer(
+        ("localhost", int(args.listen_port)), MyUDPHandler
+    ) as server:
         server.serve_forever()

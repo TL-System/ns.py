@@ -4,6 +4,7 @@ TCP CUBIC congestion control (RFC 8312) as used in Linux since v2.6.19.
 Reference: Sangtae Ha, Injong Rhee, Lisong Xu. "CUBIC: A New TCP-Friendly
 High-Speed TCP Variant," ACM SIGOPS OSR, 42(5):64–74, 2008.
 """
+
 from __future__ import annotations
 
 from ns.flow.cc import LossBasedCongestionControl
@@ -87,7 +88,9 @@ class TCPCubic(LossBasedCongestionControl):
             self.epoch_start = current_time
             self.ack_cnt = 1
             if cwnd_packets < self.W_last_max:
-                self.K = ((self.W_last_max - cwnd_packets) / self.cubic_c) ** (1.0 / 3.0)
+                self.K = ((self.W_last_max - cwnd_packets) / self.cubic_c) ** (
+                    1.0 / 3.0
+                )
                 self.origin_point = self.W_last_max
             else:
                 self.K = 0.0

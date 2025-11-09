@@ -1,11 +1,12 @@
 """
 Implements a performance monitor that records performance statistics for a scheduling server.
 """
+
 from collections import defaultdict as dd
 
 
 class ServerMonitor:
-    """ Looks at the number of packets for each of the flows in a server, in service +
+    """Looks at the number of packets for each of the flows in a server, in service +
     in the queue, and records that info in sizes and byte_sizes, both of which are dictionaries
     that map flow ids to lists of measurements. The server monitor looks at the flow queues
     at time intervals given by the distribution `dist`.
@@ -27,7 +28,7 @@ class ServerMonitor:
 
         To be compatible with this monitor, the scheduling server will need to implement three
         callback functions:
-        
+
         packet_in_service() -> Packet: returns the current packet being sent to the downstream node
 
         byte_size(flow_id) -> int: returns the queue length in bytes for a flow with a
@@ -38,12 +39,8 @@ class ServerMonitor:
 
         all_flows -> list: returns a list containing all the flow IDs
     """
-    def __init__(self,
-                 env,
-                 server,
-                 dist,
-                 pkt_in_service_included=False) -> None:
 
+    def __init__(self, env, server, dist, pkt_in_service_included=False) -> None:
         self.server = server
         self.env = env
         self.dist = dist

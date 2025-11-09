@@ -40,14 +40,16 @@ class SPServer:
         If True, prints more verbose debug information.
     """
 
-    def __init__(self,
-                 env,
-                 rate,
-                 priorities,
-                 flow_classes: Callable = lambda p: p.flow_id,
-                 zero_buffer=False,
-                 zero_downstream_buffer=False,
-                 debug=False) -> None:
+    def __init__(
+        self,
+        env,
+        rate,
+        priorities,
+        flow_classes: Callable = lambda p: p.flow_id,
+        zero_buffer=False,
+        zero_downstream_buffer=False,
+        debug=False,
+    ) -> None:
         self.env = env
         self.rate = rate
         self.prio = priorities
@@ -62,8 +64,7 @@ class SPServer:
         elif isinstance(priorities, dict):
             priorities_list = priorities.values()
         else:
-            raise ValueError(
-                'Priorities must be either a list or a dictionary.')
+            raise ValueError("Priorities must be either a list or a dictionary.")
 
         for prio in priorities_list:
             if prio not in self.prio_queue_count:
@@ -105,7 +106,8 @@ class SPServer:
             print(
                 f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
                 f"belonging to class {self.flow_classes(packet)} "
-                f"of priority {packet.prio[self.element_id]}")
+                f"of priority {packet.prio[self.element_id]}"
+            )
 
     def update(self, packet):
         """
@@ -174,9 +176,11 @@ class SPServer:
                         yield self.env.timeout(packet.size * 8.0 / self.rate)
 
                         self.update_stats(packet)
-                        self.out.put(packet,
-                                     upstream_update=self.update,
-                                     upstream_store=self.stores[prio])
+                        self.out.put(
+                            packet,
+                            upstream_update=self.update,
+                            upstream_store=self.stores[prio],
+                        )
                         self.current_packet = None
                     else:
                         store = self.stores[prio]
@@ -197,7 +201,7 @@ class SPServer:
                 yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
         self.byte_sizes[self.flow_classes(packet)] += packet.size
 
@@ -209,17 +213,25 @@ class SPServer:
 
         if self.debug:
             print(
-                "At time {:.2f}: received packet {:d} from flow {} belonging to class {}"
-                .format(self.env.now, packet.packet_id, packet.flow_id,
-                        self.flow_classes(packet)))
+                "At time {:.2f}: received packet {:d} from flow {} belonging to class {}".format(
+                    self.env.now,
+                    packet.packet_id,
+                    packet.flow_id,
+                    self.flow_classes(packet),
+                )
+            )
 
-        if not prio in self.stores:
+        if prio not in self.stores:
             self.stores[prio] = simpy.Store(self.env)
 
             if self.zero_downstream_buffer:
                 self.downstream_stores[prio] = simpy.Store(self.env)
 
-        if self.zero_buffer and upstream_update is not None and upstream_store is not None:
+        if (
+            self.zero_buffer
+            and upstream_update is not None
+            and upstream_store is not None
+        ):
             self.upstream_stores[packet] = upstream_store
             self.upstream_updates[packet] = upstream_update
 

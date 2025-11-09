@@ -1,4 +1,4 @@
-""" A dataclass for keeping track of all the properties of a network flow. """
+"""A dataclass for keeping track of all the properties of a network flow."""
 
 from dataclasses import dataclass
 from collections.abc import Callable

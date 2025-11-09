@@ -2,6 +2,7 @@
 An very simple example of using the test the packet drop in FairPacketSwitch.
 It shows a bug in packet dropping process.
 """
+
 import simpy
 from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink

@@ -6,8 +6,7 @@ can send acknowledgment packets back to the sender in a simple two-hop network.
 import simpy
 
 from ns.flow.cc import TCPReno
-from ns.flow.cubic import TCPCubic
-from ns.flow.flow import AppType, Flow
+from ns.flow.flow import Flow
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.port.wire import Wire

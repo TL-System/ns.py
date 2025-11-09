@@ -2,11 +2,12 @@
 Implments a two-rate token bucket shaper, with a bucket for committed information rate (CIR) and
 another for the peak information rate (PIR).
 """
+
 import simpy
 
 
 class TwoRateTokenBucketShaper:
-    """ The token bucket size should be greater than the size of the largest packet that
+    """The token bucket size should be greater than the size of the largest packet that
     can occur on input. If this is not the case we always accumulate enough tokens to let
     the current packet pass based on the average rate. This may not be the behavior you desire.
 
@@ -33,15 +34,18 @@ class TwoRateTokenBucketShaper:
     debug: bool
         If True, prints more verbose debug information.
     """
-    def __init__(self,
-                 env,
-                 cir,
-                 cbs,
-                 pir=None,
-                 pbs=None,
-                 zero_buffer=False,
-                 zero_downstream_buffer=False,
-                 debug=False):
+
+    def __init__(
+        self,
+        env,
+        cir,
+        cbs,
+        pir=None,
+        pbs=None,
+        zero_buffer=False,
+        zero_downstream_buffer=False,
+        debug=False,
+    ):
         self.store = simpy.Store(env)
         self.env = env
         self.out = None
@@ -59,7 +63,9 @@ class TwoRateTokenBucketShaper:
         if self.zero_downstream_buffer:
             self.downstream_stores = simpy.Store(env)
 
-        self.current_bucket_commit = cbs  # Current size of the committed bucket in bytes
+        self.current_bucket_commit = (
+            cbs  # Current size of the committed bucket in bytes
+        )
         self.current_bucket_peak = pbs  # Current size of the peak bucket in bytes
         self.update_time = 0.0  # Last time the bucket was updated
         self.debug = debug
@@ -92,12 +98,15 @@ class TwoRateTokenBucketShaper:
 
             #  Add tokens to bucket based on current time, both C & B buckets need to add
             self.current_bucket_commit = min(
-                self.cbs, self.current_bucket_commit + self.cir *
-                (now - self.update_time) / 8.0)
+                self.cbs,
+                self.current_bucket_commit + self.cir * (now - self.update_time) / 8.0,
+            )
             if self.pir:
                 self.current_bucket_peak = min(
-                    self.pbs, self.current_bucket_peak + self.pir *
-                    (now - self.update_time) / 8.0)
+                    self.pbs,
+                    self.current_bucket_peak
+                    + self.pir * (now - self.update_time) / 8.0,
+                )
             self.update_time = now
 
             # Check if there are a sufficient number of tokens to allow the packet
@@ -107,42 +116,42 @@ class TwoRateTokenBucketShaper:
                 # first compare with peak bucket
                 if packet.size > self.current_bucket_peak:
                     yield self.env.timeout(
-                        (packet.size - self.current_bucket_peak) * 8.0 /
-                        self.pir)
+                        (packet.size - self.current_bucket_peak) * 8.0 / self.pir
+                    )
                     self.current_bucket_peak = 0.0
-                    packet.color = 'red'
+                    packet.color = "red"
                     self.update_time = self.env.now
                 # then compare with committed bucket: > committed bucket and < peak bucket
                 elif packet.size > self.current_bucket_commit:
                     self.current_bucket_peak -= packet.size
                     self.current_bucket_commit = 0.0
-                    packet.color = 'yellow'
+                    packet.color = "yellow"
                     self.update_time = self.env.now
                 # the packet size < committed bucket
                 else:
                     self.current_bucket_commit -= packet.size
                     self.current_bucket_peak -= packet.size
-                    packet.color = 'green'
+                    packet.color = "green"
                     self.update_time = self.env.now
 
             else:  # use CIR or use CIR as PIR
                 if packet.size > self.current_bucket_commit:
                     yield self.env.timeout(
-                        (packet.size - self.current_bucket_commit) * 8.0 /
-                        self.cir)
+                        (packet.size - self.current_bucket_commit) * 8.0 / self.cir
+                    )
                     self.current_bucket_commit = 0.0
-                    packet.color = 'yellow'
+                    packet.color = "yellow"
                     self.update_time = self.env.now
                 else:
                     self.current_bucket_commit -= packet.size
-                    packet.color = 'green'
+                    packet.color = "green"
                     self.update_time = self.env.now
 
             # Sending the packet now
             if self.zero_downstream_buffer:
-                self.out.put(packet,
-                             upstream_update=self.update,
-                             upstream_store=self.store)
+                self.out.put(
+                    packet, upstream_update=self.update, upstream_store=self.store
+                )
             else:
                 self.update(packet)
                 self.out.put(packet)
@@ -155,9 +164,13 @@ class TwoRateTokenBucketShaper:
                 )
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
-        if self.zero_buffer and upstream_update is not None and upstream_store is not None:
+        if (
+            self.zero_buffer
+            and upstream_update is not None
+            and upstream_store is not None
+        ):
             self.upstream_stores[packet] = upstream_store
             self.upstream_updates[packet] = upstream_update
 

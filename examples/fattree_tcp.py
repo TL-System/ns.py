@@ -1,22 +1,19 @@
 from functools import partial
-from random import expovariate, sample
 
-import numpy as np
 import simpy
 
 from ns.flow.cc import TCPReno
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.switch.switch import SimplePacketSwitch
-from ns.switch.switch import FairPacketSwitch
 from ns.topos.fattree import build as build_fattree
 from ns.topos.utils import generate_fib, generate_flows
 
 env = simpy.Environment()
 
-n_flows = 10 
+n_flows = 10
 finish_time = 10
-k = 4 
+k = 4
 pir = 10000000000  # 10Gbps
 buffer_size = 1000
 

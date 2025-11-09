@@ -1,13 +1,13 @@
 import pytest
 
-simpy = pytest.importorskip("simpy")
-
 from ns.packet.packet import Packet
 from ns.scheduler.drr import DRRServer
 from ns.scheduler.monitor import ServerMonitor
 from ns.scheduler.sp import SPServer
 from ns.scheduler.virtual_clock import VirtualClockServer
 from ns.scheduler.wfq import WFQServer
+
+simpy = pytest.importorskip("simpy")
 
 
 class CaptureSink:
@@ -104,7 +104,7 @@ def test_drr_weighted_round_robin_serves_proportionally():
     assert [entry["packet"].flow_id for entry in sink.observed] == [0, 1, 1]
 
 
-def test_drr_large_packet_waits_until_enough_deficit():
+def test_drr_large_packet_served_without_starvation():
     env = simpy.Environment()
     server = DRRServer(env, rate=1e9, weights=[1, 1])
     sink = CaptureSink(env)
@@ -114,7 +114,7 @@ def test_drr_large_packet_waits_until_enough_deficit():
     enqueue(env, server, make_packet(1, flow_id=1, size=1500))
 
     env.run(until=0.01)
-    assert [entry["packet"].flow_id for entry in sink.observed] == [1, 0]
+    assert [entry["packet"].flow_id for entry in sink.observed] == [0, 1]
 
 
 def test_drr_zero_downstream_buffer_provides_upstream_hooks():
@@ -135,6 +135,46 @@ def test_drr_zero_downstream_buffer_provides_upstream_hooks():
     assert record["upstream_update"] == server.update
     assert record["upstream_store"] == server.stores[0]
     assert server.byte_size(0) == 0
+
+
+def test_drr_updates_quanta_for_large_packets():
+    env = simpy.Environment()
+    server = DRRServer(env, rate=1e9, weights=[1, 2])
+    sink = CaptureSink(env)
+    server.out = sink
+
+    enqueue(env, server, make_packet(0, flow_id=0, size=4096))
+    enqueue(env, server, make_packet(1, flow_id=1, size=1500))
+
+    env.run(until=0.02)
+    assert server.base_quantum >= 4096
+    assert server.quantum[0] >= 4096
+    assert server.quantum[1] == pytest.approx(server.quantum[0] * 2)
+
+
+def test_drr_active_queue_tracks_backlogged_flows():
+    env = simpy.Environment()
+    server = DRRServer(env, rate=1e6, weights=[1, 1, 1])
+    sink = CaptureSink(env)
+    server.out = sink
+
+    enqueue(env, server, make_packet(0, flow_id=0, size=1000))
+    enqueue(env, server, make_packet(1, flow_id=1, size=1000), delay=0.001)
+
+    snapshot = {}
+
+    def probe():
+        yield env.timeout(0.0015)
+        snapshot["queue"] = list(server.active_queue)
+        snapshot["set"] = set(server.active_set)
+
+    env.process(probe())
+    env.run(until=0.05)
+
+    assert snapshot["queue"] == [1]
+    assert snapshot["set"] == {1}
+    assert not server.active_queue
+    assert not server.active_set
 
 
 def test_sp_serves_highest_priority_first():

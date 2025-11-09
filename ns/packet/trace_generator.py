@@ -4,15 +4,17 @@ from ns.packet.packet import Packet
 
 
 class TracePacketGenerator:
-    def __init__(self,
-                 env,
-                 element_id,
-                 filename,
-                 initial_delay=0,
-                 finish=float('inf'),
-                 flow_id=None,
-                 rec_flow=False,
-                 debug=False):
+    def __init__(
+        self,
+        env,
+        element_id,
+        filename,
+        initial_delay=0,
+        finish=float("inf"),
+        flow_id=None,
+        rec_flow=False,
+        debug=False,
+    ):
         self.element_id = element_id
         self.env = env
         self.filename = filename
@@ -38,7 +40,7 @@ class TracePacketGenerator:
 
         try:
             while self.env.now < self.finish:
-                row = re.split(r"\s+", next(row_generator).rstrip('[\t ]+\n'))
+                row = re.split(r"\s+", next(row_generator).rstrip("[\t ]+\n"))
                 if self.flow_id is None:
                     flow_id = int(row[0])
                     packet_id = int(row[1])
@@ -54,11 +56,9 @@ class TracePacketGenerator:
                 last_packet_time = time
 
                 self.packets_sent += 1
-                packet = Packet(self.env.now,
-                                size,
-                                packet_id,
-                                src=self.element_id,
-                                flow_id=flow_id)
+                packet = Packet(
+                    self.env.now, size, packet_id, src=self.element_id, flow_id=flow_id
+                )
                 if self.rec_flow:
                     self.time_rec.append(packet.time)
                     self.size_rec.append(packet.size)
@@ -66,7 +66,8 @@ class TracePacketGenerator:
                 if self.debug:
                     print(
                         f"Sent packet {packet.packet_id} with flow_id {packet.flow_id} at "
-                        f"time {self.env.now}.")
+                        f"time {self.env.now}."
+                    )
 
                 self.out.put(packet)
 

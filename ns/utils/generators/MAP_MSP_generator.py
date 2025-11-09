@@ -3,6 +3,7 @@ from numpy.random import rand
 
 PRECISION_VALUE = 1e-5
 
+
 def solve_CTMC(Q):
     """
     Solve stationary distribution vector x for a CTMC with generator matrix Q
@@ -18,7 +19,7 @@ def solve_CTMC(Q):
     """
 
     if np.any(abs(np.sum(Q, 1) - 0.0) > PRECISION_VALUE):
-        raise ValueError('Invalid CTMC Q matrix: Row sum not equal to 0')
+        raise ValueError("Invalid CTMC Q matrix: Row sum not equal to 0")
     A = Q.copy()
     A[:, 0] = np.ones(A.shape[0])
     b = np.zeros((A.shape[0], 1))
@@ -31,7 +32,7 @@ def solve_CTMC(Q):
 def solve_DTMC(P):
     P = np.asarray(P)
     if np.any(np.sum(P, 1) - 1.0 > PRECISION_VALUE):
-        raise ValueError('Invalid DTMC P matrix: Row sum not equal to 1')
+        raise ValueError("Invalid DTMC P matrix: Row sum not equal to 1")
     return solve_CTMC(P - np.eye(P.shape[0]))
 
 
@@ -44,25 +45,25 @@ def sum_matrix_list(mat_list):
 
 def check_BMAP_representation(D_list, prec=PRECISION_VALUE):
     if len(D_list) == 2:
-        print('Input: MAP representation')
+        print("Input: MAP representation")
     elif len(D_list) > 2:
-        print('Input: BMAP representation')
+        print("Input: BMAP representation")
     else:
-        print('neither MAP or BMAP representation')
+        print("neither MAP or BMAP representation")
         return False
 
     D0 = D_list[0]
     for Dk in D_list[1:]:
         if D0.shape != Dk.shape:
-            print('D0 and Dk have different shapes')
+            print("D0 and Dk have different shapes")
             return False
     for Dk in D_list[1:]:
         if np.min(Dk) < -prec:
-            print('Dk has negative entry')
+            print("Dk has negative entry")
             return False
 
     if np.any(np.abs(np.sum(sum_matrix_list(D_list), 1)) > prec):
-        print('row sum is not zero')
+        print("row sum is not zero")
         return False
 
     return True
@@ -84,13 +85,12 @@ def BMAP_generator(D_list, initial=None):
     -------
     x : one sample.
         if BMAP: list consisting of two values: the inter-arrival time and the type of the
-        arrival.   
-        if MAP: float, inter-arrival time     
+        arrival.
+        if MAP: float, inter-arrival time
     """
 
     if not check_BMAP_representation(D_list):
-        raise ValueError(
-            "Samples From BMAP: Input is not a valid BMAP representation!")
+        raise ValueError("Samples From BMAP: Input is not a valid BMAP representation!")
 
     M = D_list[0].shape[0]
 

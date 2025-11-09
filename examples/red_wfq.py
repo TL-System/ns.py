@@ -6,6 +6,7 @@ element has a zero-buffer configuration. The WFQ server is initialized with zero
 as the downstream element after the RED port. Packets will be dropped when the downstream WFQ
 server is the bottleneck.
 """
+
 import simpy
 
 from ns.packet.dist_generator import DistPacketGenerator
@@ -27,55 +28,45 @@ def packet_size():
 
 
 env = simpy.Environment()
-pg1 = DistPacketGenerator(env,
-                          "flow_1",
-                          packet_arrival,
-                          packet_size,
-                          initial_delay=0.0,
-                          finish=100,
-                          flow_id=0)
-pg2 = DistPacketGenerator(env,
-                          "flow_2",
-                          packet_arrival,
-                          packet_size,
-                          initial_delay=0.0,
-                          finish=100,
-                          flow_id=1)
+pg1 = DistPacketGenerator(
+    env, "flow_1", packet_arrival, packet_size, initial_delay=0.0, finish=100, flow_id=0
+)
+pg2 = DistPacketGenerator(
+    env, "flow_2", packet_arrival, packet_size, initial_delay=0.0, finish=100, flow_id=1
+)
 
 tail_drop_sink = PacketSink(env)
 red_sink = PacketSink(env)
 
 source_rate = 8.0 * packet_size() / packet_arrival()
 
-red_buffer_1 = REDPort(env,
-                       source_rate,
-                       qlimit=8,
-                       max_threshold=6,
-                       min_threshold=2,
-                       max_probability=0.8,
-                       zero_downstream_buffer=True)
-red_buffer_2 = REDPort(env,
-                       source_rate,
-                       qlimit=8,
-                       max_threshold=6,
-                       min_threshold=2,
-                       max_probability=0.8,
-                       zero_downstream_buffer=True)
+red_buffer_1 = REDPort(
+    env,
+    source_rate,
+    qlimit=8,
+    max_threshold=6,
+    min_threshold=2,
+    max_probability=0.8,
+    zero_downstream_buffer=True,
+)
+red_buffer_2 = REDPort(
+    env,
+    source_rate,
+    qlimit=8,
+    max_threshold=6,
+    min_threshold=2,
+    max_probability=0.8,
+    zero_downstream_buffer=True,
+)
 
-tail_drop_buffer_1 = Port(env,
-                          source_rate,
-                          qlimit=8,
-                          zero_downstream_buffer=True)
-tail_drop_buffer_2 = Port(env,
-                          source_rate,
-                          qlimit=8,
-                          zero_downstream_buffer=True)
-wfq_server_1 = WFQServer(env,
-                         source_rate, [0.5 * source_rate, 0.5 * source_rate],
-                         zero_buffer=True)
-wfq_server_2 = WFQServer(env,
-                         source_rate, [0.5 * source_rate, 0.5 * source_rate],
-                         zero_buffer=True)
+tail_drop_buffer_1 = Port(env, source_rate, qlimit=8, zero_downstream_buffer=True)
+tail_drop_buffer_2 = Port(env, source_rate, qlimit=8, zero_downstream_buffer=True)
+wfq_server_1 = WFQServer(
+    env, source_rate, [0.5 * source_rate, 0.5 * source_rate], zero_buffer=True
+)
+wfq_server_2 = WFQServer(
+    env, source_rate, [0.5 * source_rate, 0.5 * source_rate], zero_buffer=True
+)
 splitter_1 = Splitter()
 splitter_2 = Splitter()
 

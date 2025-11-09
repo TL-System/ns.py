@@ -17,6 +17,7 @@ mean waiting time is = 4/3.
 The roughly exponential character of the resulting plot is a demonstration of Burke's theorem,
 which is useful in the analysis of networks of queues.
 """
+
 import random
 from functools import partial
 
@@ -47,19 +48,20 @@ port.out = ps
 
 env.run(until=8000)
 
-print("Last 10 waits: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.waits[0][-10:]]))
+print("Last 10 waits: " + ", ".join(["{:.3f}".format(x) for x in ps.waits[0][-10:]]))
 print("Last 10 queue sizes: {}".format(pm.sizes[-10:]))
-print("Last 10 sink arrival times: " +
-      ", ".join(["{:.3f}".format(x) for x in ps.arrivals[0][-10:]]))
+print(
+    "Last 10 sink arrival times: "
+    + ", ".join(["{:.3f}".format(x) for x in ps.arrivals[0][-10:]])
+)
 print("average wait = {:.3f}".format(sum(ps.waits[0]) / len(ps.waits[0])))
-print("received: {}, dropped {}, sent {}".format(port.packets_received,
-                                                 port.packets_dropped,
-                                                 pg.packets_sent))
-print("loss rate: {}".format(
-    float(port.packets_dropped) / port.packets_received))
-print("average system occupancy: {:.3f}".format(
-    float(sum(pm.sizes)) / len(pm.sizes)))
+print(
+    "received: {}, dropped {}, sent {}".format(
+        port.packets_received, port.packets_dropped, pg.packets_sent
+    )
+)
+print("loss rate: {}".format(float(port.packets_dropped) / port.packets_received))
+print("average system occupancy: {:.3f}".format(float(sum(pm.sizes)) / len(pm.sizes)))
 
 fig, axis = plt.subplots()
 axis.hist(ps.waits[0], bins=100)

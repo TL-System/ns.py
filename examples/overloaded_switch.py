@@ -13,6 +13,7 @@ we have the information from the packet sink and switch port. Note how the first
 incurs a delay of 4 seconds (due to the 200 bps line rate) and also the received and dropped packet
 counts.
 """
+
 import simpy
 
 from ns.packet.dist_generator import DistPacketGenerator
@@ -39,6 +40,8 @@ port.out = ps
 env.run(until=20)
 
 print("waits: {}".format(ps.waits[0]))
-print("received: {}, dropped {}, sent {}".format(ps.packets_received[0],
-                                                 port.packets_dropped,
-                                                 pg.packets_sent))
+print(
+    "received: {}, dropped {}, sent {}".format(
+        ps.packets_received[0], port.packets_dropped, pg.packets_sent
+    )
+)

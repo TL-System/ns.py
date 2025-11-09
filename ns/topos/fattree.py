@@ -43,18 +43,16 @@ def build(k):
     """
     # validate input arguments
     if not isinstance(k, int):
-        raise TypeError('k argument must be of int type')
+        raise TypeError("k argument must be of int type")
     if k < 1 or k % 2 == 1:
-        raise ValueError('k must be a positive even integer')
+        raise ValueError("k must be a positive even integer")
 
     topo = nx.Graph()
     topo.name = "fat_tree_topology(%d)" % (k)
 
     # Create core nodes
-    n_core = (k // 2)**2
-    topo.add_nodes_from([v for v in range(int(n_core))],
-                        layer='core',
-                        type='switch')
+    n_core = (k // 2) ** 2
+    topo.add_nodes_from([v for v in range(int(n_core))], layer="core", type="switch")
 
     # Create aggregation and edge nodes and connect them
     for pod in range(k):
@@ -64,28 +62,24 @@ def build(k):
         edge_end_node = edge_start_node + k // 2
         aggr_nodes = range(aggr_start_node, aggr_end_node)
         edge_nodes = range(edge_start_node, edge_end_node)
-        topo.add_nodes_from(aggr_nodes,
-                            layer='aggregation',
-                            type='switch',
-                            pod=pod)
-        topo.add_nodes_from(edge_nodes, layer='edge', type='switch', pod=pod)
-        topo.add_edges_from([(u, v) for u in aggr_nodes for v in edge_nodes],
-                            type='aggregation_edge')
+        topo.add_nodes_from(aggr_nodes, layer="aggregation", type="switch", pod=pod)
+        topo.add_nodes_from(edge_nodes, layer="edge", type="switch", pod=pod)
+        topo.add_edges_from(
+            [(u, v) for u in aggr_nodes for v in edge_nodes], type="aggregation_edge"
+        )
 
     # Connect core switches to aggregation switches
     for core_node in range(n_core):
         for pod in range(k):
             aggr_node = n_core + (core_node // (k // 2)) + (k * pod)
-            topo.add_edge(core_node, aggr_node, type='core_aggregation')
+            topo.add_edge(core_node, aggr_node, type="core_aggregation")
 
     # Create hosts and connect them to edge switches
-    for u in [v for v in topo.nodes() if topo.nodes[v]['layer'] == 'edge']:
-        leaf_nodes = range(topo.number_of_nodes(),
-                           topo.number_of_nodes() + k // 2)
-        topo.add_nodes_from(leaf_nodes,
-                            layer='leaf',
-                            type='host',
-                            pod=topo.nodes[u]['pod'])
-        topo.add_edges_from([(u, v) for v in leaf_nodes], type='edge_leaf')
+    for u in [v for v in topo.nodes() if topo.nodes[v]["layer"] == "edge"]:
+        leaf_nodes = range(topo.number_of_nodes(), topo.number_of_nodes() + k // 2)
+        topo.add_nodes_from(
+            leaf_nodes, layer="leaf", type="host", pod=topo.nodes[u]["pod"]
+        )
+        topo.add_edges_from([(u, v) for v in leaf_nodes], type="edge_leaf")
 
     return topo

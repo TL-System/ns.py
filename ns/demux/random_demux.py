@@ -1,6 +1,7 @@
 """
 A demultiplexing element that chooses the output port at random.
 """
+
 from random import choices
 
 
@@ -16,6 +17,7 @@ class RandomDemux:
     probs : List
         list of probabilities for the corresponding output ports
     """
+
     def __init__(self, env, probs):
         self.env = env
 
@@ -25,6 +27,6 @@ class RandomDemux:
         self.packets_received = 0
 
     def put(self, packet):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
         choices(self.outs, weights=self.probs)[0].put(packet)

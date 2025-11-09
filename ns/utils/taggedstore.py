@@ -16,6 +16,7 @@ class TaggedStorePut(base.Put):
     The item must be a tuple (tag, contents) where the tag is used
     to sort the content in the TaggedStore.
     """
+
     def __init__(self, resource, item):
         # The item to be put into the store.
         self.item = item
@@ -38,8 +39,9 @@ class TaggedStore(base.BaseResource):
     number (> 0). By default, a Store is of unlimited size. A `ValueError` exception
     is raised if the value is negative.
     """
-    def __init__(self, env, capacity=float('inf')):
-        super().__init__(env, capacity=float('inf'))
+
+    def __init__(self, env, capacity=float("inf")):
+        super().__init__(env, capacity=float("inf"))
 
         if capacity <= 0:
             raise ValueError('"capacity" must be > 0.')
@@ -64,8 +66,7 @@ class TaggedStore(base.BaseResource):
     def _do_put(self, event):
         self.event_count += 1  # Needed this to break heap ties
         if len(self.items) < self._capacity:
-            heappush(self.items,
-                     [event.item[0], self.event_count, event.item[1]])
+            heappush(self.items, [event.item[0], self.event_count, event.item[1]])
             event.succeed()
 
     # When we return an item from the tagged store we do not need to

@@ -1,6 +1,7 @@
 """
 An example of using the Deficit Round Robin (DRR) server.
 """
+
 import simpy
 import matplotlib.pyplot as plt
 
@@ -19,20 +20,12 @@ def const_size():
 
 
 env = simpy.Environment()
-pg1 = DistPacketGenerator(env,
-                          "flow_0",
-                          packet_arrival,
-                          const_size,
-                          initial_delay=0.0,
-                          finish=50,
-                          flow_id=0)
-pg2 = DistPacketGenerator(env,
-                          "flow_1",
-                          packet_arrival,
-                          const_size,
-                          initial_delay=10.0,
-                          finish=50,
-                          flow_id=1)
+pg1 = DistPacketGenerator(
+    env, "flow_0", packet_arrival, const_size, initial_delay=0.0, finish=50, flow_id=0
+)
+pg2 = DistPacketGenerator(
+    env, "flow_1", packet_arrival, const_size, initial_delay=10.0, finish=50, flow_id=1
+)
 ps = PacketSink(env)
 sink_1 = PacketSink(env)
 sink_2 = PacketSink(env)
@@ -61,26 +54,16 @@ print("At the packet sink, packet arrival times for flow 1 are:")
 print(ps.arrivals[1])
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True)
-ax1.vlines(sink_1.arrivals[0],
-           0.0,
-           1.0,
-           colors="g",
-           linewidth=2.0,
-           label='Flow 0')
-ax1.vlines(sink_2.arrivals[1],
-           0.0,
-           0.7,
-           colors="r",
-           linewidth=2.0,
-           label='Flow 1')
+ax1.vlines(sink_1.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label="Flow 0")
+ax1.vlines(sink_2.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label="Flow 1")
 ax1.set_title("Arrival times at DRR switch")
 ax1.set_ylim([0, 1.5])
 ax1.set_xlim([0, max(ps.arrivals[0]) + 10])
 ax1.grid(True)
 ax1.legend()
 
-ax2.vlines(ps.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label='Flow 0')
-ax2.vlines(ps.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label='Flow 1')
+ax2.vlines(ps.arrivals[0], 0.0, 1.0, colors="g", linewidth=2.0, label="Flow 0")
+ax2.vlines(ps.arrivals[1], 0.0, 0.7, colors="r", linewidth=2.0, label="Flow 1")
 ax2.set_title("Departure times from DRR switch")
 ax2.set_xlabel("time")
 ax2.set_ylim([0, 1.5])

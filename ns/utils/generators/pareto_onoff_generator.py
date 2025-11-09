@@ -22,15 +22,17 @@ def paretovariate_generator(xmin=1e-3, alpha=2.0):
     """
 
     u = 1.0 - random()
-    return xmin / u**(1.0 / alpha)
+    return xmin / u ** (1.0 / alpha)
 
 
-def pareto_onoff_generator(on_min=0.5 / 3,
-                           on_alpha=1.5,
-                           off_min=0.5 / 3,
-                           off_alpha=1.5,
-                           on_rate=2e5,
-                           pktsize=1000):
+def pareto_onoff_generator(
+    on_min=0.5 / 3,
+    on_alpha=1.5,
+    off_min=0.5 / 3,
+    off_alpha=1.5,
+    on_rate=2e5,
+    pktsize=1000,
+):
     """
     Pareto on/off traffic generator
     Packets are sent at fixed rate during on periods, and no packets are sent during off periods.
@@ -55,8 +57,7 @@ def pareto_onoff_generator(on_min=0.5 / 3,
 
     while True:
         if remain_pkts == 0:
-            next_burstlen = np.ceil(
-                paretovariate_generator(on_min, on_alpha) + 0.5)
+            next_burstlen = np.ceil(paretovariate_generator(on_min, on_alpha) + 0.5)
             remain_pkts = next_burstlen
             next_idle_time = paretovariate_generator(off_min, off_alpha)
             current_iat = next_idle_time

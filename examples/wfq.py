@@ -1,6 +1,7 @@
 """
 An example of using the Weighted Fair Queueing (WFQ) scheduler.
 """
+
 from functools import partial
 from random import expovariate
 

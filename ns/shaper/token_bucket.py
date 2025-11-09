@@ -1,11 +1,12 @@
 """
 Implements a token bucket shaper.
 """
+
 import simpy
 
 
 class TokenBucketShaper:
-    """ The token bucket size should be greater than the size of the largest packet that
+    """The token bucket size should be greater than the size of the largest packet that
     can occur on input. If this is not the case we always accumulate enough tokens to let
     the current packet pass based on the average rate. This may not be the behavior you desire.
 
@@ -30,14 +31,17 @@ class TokenBucketShaper:
     debug: bool
         If True, prints more verbose debug information.
     """
-    def __init__(self,
-                 env,
-                 rate,
-                 bucket_size,
-                 peak=None,
-                 zero_buffer=False,
-                 zero_downstream_buffer=False,
-                 debug=False):
+
+    def __init__(
+        self,
+        env,
+        rate,
+        bucket_size,
+        peak=None,
+        zero_buffer=False,
+        zero_downstream_buffer=False,
+        debug=False,
+    ):
         self.store = simpy.Store(env)
         self.env = env
         self.rate = rate
@@ -75,8 +79,7 @@ class TokenBucketShaper:
             del self.upstream_updates[packet]
 
         if self.debug:
-            print(
-                f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
+            print(f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
     def run(self):
         """The generator function used in simulations."""
@@ -90,16 +93,20 @@ class TokenBucketShaper:
 
             # Add tokens to the bucket based on the current time
             self.current_bucket = min(
-                self.bucket_size, self.current_bucket + self.rate *
-                (now - self.update_time) / 8.0)
+                self.bucket_size,
+                self.current_bucket + self.rate * (now - self.update_time) / 8.0,
+            )
             self.update_time = now
 
             # Check if there are a sufficient number of tokens to allow the packet
             # to be sent; if not, we will then wait to accumulate enough tokens to
             # allow this packet to be sent regardless of the bucket size.
-            if packet.size > self.current_bucket:  # needs to wait for the bucket to fill
+            if (
+                packet.size > self.current_bucket
+            ):  # needs to wait for the bucket to fill
                 yield self.env.timeout(
-                    (packet.size - self.current_bucket) * 8.0 / self.rate)
+                    (packet.size - self.current_bucket) * 8.0 / self.rate
+                )
                 self.current_bucket = 0.0
                 self.update_time = self.env.now
             else:
@@ -109,32 +116,34 @@ class TokenBucketShaper:
             # Sending the packet now
             if self.peak is None:  # infinite peak rate
                 if self.zero_downstream_buffer:
-                    self.out.put(packet,
-                                 upstream_update=self.update,
-                                 upstream_store=self.store)
+                    self.out.put(
+                        packet, upstream_update=self.update, upstream_store=self.store
+                    )
                 else:
                     self.update(packet)
                     self.out.put(packet)
             else:
                 yield self.env.timeout(packet.size * 8.0 / self.peak)
                 if self.zero_downstream_buffer:
-                    self.out.put(packet,
-                                 upstream_update=self.update,
-                                 upstream_store=self.store)
+                    self.out.put(
+                        packet, upstream_update=self.update, upstream_store=self.store
+                    )
                 else:
                     self.update(packet)
                     self.out.put(packet)
 
             self.packets_sent += 1
             if self.debug:
-                print(
-                    f"Sent packet {packet.packet_id} from flow {packet.flow_id}."
-                )
+                print(f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
-        if self.zero_buffer and upstream_update is not None and upstream_store is not None:
+        if (
+            self.zero_buffer
+            and upstream_update is not None
+            and upstream_store is not None
+        ):
             self.upstream_stores[packet] = upstream_store
             self.upstream_updates[packet] = upstream_update
 

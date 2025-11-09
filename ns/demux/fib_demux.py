@@ -14,11 +14,10 @@ class FIBDemux:
     default:
         default downstream element
     """
-    def __init__(self,
-                 fib: dict = None,
-                 outs: list = None,
-                 ends: dict = None,
-                 default=None) -> None:
+
+    def __init__(
+        self, fib: dict = None, outs: list = None, ends: dict = None, default=None
+    ) -> None:
         self.outs = outs
         self.default = default
         self.packets_received = 0
@@ -29,7 +28,7 @@ class FIBDemux:
             self.ends = dict()
 
     def put(self, packet):
-        """ Sends a packet to this element. """
+        """Sends a packet to this element."""
         self.packets_received += 1
         flow_id = packet.flow_id
 
