@@ -2,7 +2,7 @@ from functools import partial
 
 import simpy
 
-from ns.flow.cc import TCPReno
+from ns.flow.cubic import TCPCubic
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
 from ns.switch.switch import SimplePacketSwitch
@@ -14,7 +14,7 @@ env = simpy.Environment()
 n_flows = 10
 finish_time = 10
 k = 4
-pir = 10000000000  # 10Gbps
+pir = 100000000  # 100 Mbps
 buffer_size = 1000
 
 
@@ -23,7 +23,7 @@ def size_dist():
 
 
 def arrival_dist():
-    return 0.0008  # 10Mbps
+    return 0.0008  # 10 Mbps
 
 
 ft = build_fattree(k)
@@ -44,7 +44,7 @@ all_flows = generate_flows(
 
 for fid in all_flows:
     pg = TCPPacketGenerator(
-        env, all_flows[fid], cc=TCPReno(), element_id=fid, debug=False
+        env, all_flows[fid], cc=TCPCubic(), element_id=fid, debug=False
     )
     ps = TCPSink(env)
 
