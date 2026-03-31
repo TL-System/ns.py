@@ -240,7 +240,11 @@ class TCPPacketGenerator:
             if self.dupack == 3:
                 self.congestion_control.consecutive_dupacks_received()
 
-            state = self._get_segment_state(ack.ack)
+            state = self.segment_state.get(ack.ack)
+            if state is None and ack.ack in self.sent_packets:
+                state = self._get_segment_state(ack.ack)
+            if state is None:
+                return
             state.retransmit_count += 1
             state.last_tx_time = self.env.now
             resent_pkt = self._build_packet(state)

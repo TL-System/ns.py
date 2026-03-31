@@ -200,3 +200,16 @@ def test_tcp_sender_skips_rtt_update_for_ack_covering_retransmitted_data():
     assert sender.congestion_control.ack_received_calls == [(1.0, 5)]
     assert (sender.smoothed_rtt, sender.rtt_var, sender.rto) == before
     assert sink.packets == []
+
+
+def test_tcp_sender_ignores_dupacks_for_unknown_segment_frontier():
+    env = simpy.Environment(initial_time=5)
+    sender, sink = make_sender(env, size=1024)
+    sender.last_ack = 1024
+    sender.dupack = 2
+    sender.next_seq = 1536
+
+    sender.put(make_ack(1024, time=1.0))
+
+    assert sender.congestion_control.consecutive_dupacks_calls == 1
+    assert sink.packets == []
