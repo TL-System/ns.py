@@ -288,3 +288,11 @@ self.deficit[flow_id] += self.quantum[flow_id]
 ```
 
 Most often, the mapping between flow IDs and per-flow parameters, such as weights in a Weighted Fair Queueing scheduler or priorities in a Static Priority scheduler, need to be stored in a dictionary, and then used to initialized these schedulers. An optional (but not recommended) style is to assign consecutive integers as flow IDs to the flows throughout the entire network, and then use simple lists of per-flow parameters to initialize the schedulers. In this case, flow IDs will be directly used as indices to look up these lists to find the parameter values.
+
+## Running Tests
+
+A few dozen tests have been included in the project. To run them, use the command:
+
+```bash
+uv run --with pytest python -m pytest -q
+```
