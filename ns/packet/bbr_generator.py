@@ -70,7 +70,10 @@ class BBRPacketGenerator:
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
-        # the in-flight packets (segments)
+        # In-flight data is keyed by logical segment start sequence number.
+        # The transport rewrite keeps retransmission timing and delivery-rate
+        # metadata in sender-owned state and preserves Packet.time as the
+        # original first-transmit timestamp seen by sinks.
         self.sent_packets = {}
 
         self.timer = None

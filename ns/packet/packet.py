@@ -19,7 +19,10 @@ class Packet:
     Parameters
     ----------
     time: float
-        the time when the packet is generated.
+        the time when the packet is generated. For TCP data packets, transport
+        code treats this as the original first-transmit timestamp used by sinks
+        for end-to-end latency accounting. Retransmit-attempt timing belongs to
+        sender-owned state, not to later mutation of this field.
     size: float
         the size of the packet in bytes
     packet_id: int

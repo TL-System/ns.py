@@ -51,9 +51,14 @@ class TCPPacketGenerator:
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
-        # the timers, one for each in-flight packets (segments) sent
+        # Timers are keyed by the logical segment start sequence number.
+        # Follow-on rewrite steps keep retransmission state in sender-owned
+        # segment metadata rather than in mutable Packet objects.
         self.timers = {}
-        # the in-flight packets (segments)
+        # In-flight data is currently keyed by segment start sequence number.
+        # ACK cleanup must eventually use segment-end semantics
+        # (seq + size <= ack), and each retransmission attempt must emit a
+        # fresh Packet while preserving the original Packet.time.
         self.sent_packets = {}
 
         self.action = env.process(self.run())
