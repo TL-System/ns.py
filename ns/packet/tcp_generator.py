@@ -60,6 +60,8 @@ class TCPPacketGenerator:
         self.smoothed_rtt = 0.0
         # the retransmission timeout
         self.rto = 1.0
+        # the most recent RTT sample that was accepted as unambiguous
+        self.last_rtt_sample = 0.0
         # whether or not space in the congestion window is available
         self.cwnd_available = simpy.Store(env)
 
@@ -104,6 +106,51 @@ class TCPPacketGenerator:
             flow_id=self.flow.fid,
         )
 
+    def _send_new_packet(self, packet_size):
+        """Send a fresh data packet and register sender-owned state for it."""
+        packet = Packet(
+            self.env.now,
+            packet_size,
+            self.next_seq,
+            src=self.flow.src,
+            flow_id=self.flow.fid,
+        )
+
+        self.sent_packets[packet.packet_id] = packet
+        self.segment_state[packet.packet_id] = SegmentState(
+            seq=packet.packet_id,
+            size=packet.size,
+            first_tx_time=packet.time,
+            last_tx_time=packet.time,
+        )
+
+        if self.debug:
+            print(
+                f"TCPPacketGenerator {self.element_id} sent packet {packet.packet_id} "
+                f"with size {packet.size}, flow_id {packet.flow_id} at "
+                f"time {self.env.now:.4f}."
+            )
+
+        self.out.put(packet)
+
+        self.next_seq += packet.size
+        timer = Timer(
+            self.env,
+            timer_id=packet.packet_id,
+            timeout_callback=self.timeout_callback,
+            rto=self.rto,
+        )
+        self.timers[packet.packet_id] = timer
+        self.segment_state[packet.packet_id].timer = timer
+
+        if self.debug:
+            print(
+                f"TCPPacketGenerator {self.element_id} is setting a timer "
+                f"for packet {packet.packet_id} with an RTO of {self.rto:.4f}."
+            )
+
+        return packet
+
     def run(self):
         """The generator function used in simulations."""
         if self.flow.start_time:
@@ -134,51 +181,13 @@ class TCPPacketGenerator:
                         packet_size = self.mss
                 self.send_buffer += packet_size
 
-            # the sender can transmit up to the size of the congestion window
-            if self.next_seq + self.mss <= min(
-                self.send_buffer, self.last_ack + self.congestion_control.cwnd
-            ):
-                packet = Packet(
-                    self.env.now,
-                    self.mss,
-                    self.next_seq,
-                    src=self.flow.src,
-                    flow_id=self.flow.fid,
-                )
-
-                self.sent_packets[packet.packet_id] = packet
-                self.segment_state[packet.packet_id] = SegmentState(
-                    seq=packet.packet_id,
-                    size=packet.size,
-                    first_tx_time=packet.time,
-                    last_tx_time=packet.time,
-                )
-
-                if self.debug:
-                    print(
-                        f"TCPPacketGenerator {self.element_id} sent packet {packet.packet_id} "
-                        f"with size {packet.size}, flow_id {packet.flow_id} at "
-                        f"time {self.env.now:.4f}."
-                    )
-
-                self.out.put(packet)
-
-                self.next_seq += packet.size
-                self.timers[packet.packet_id] = Timer(
-                    self.env,
-                    timer_id=packet.packet_id,
-                    timeout_callback=self.timeout_callback,
-                    rto=self.rto,
-                )
-                self.segment_state[packet.packet_id].timer = self.timers[
-                    packet.packet_id
-                ]
-
-                if self.debug:
-                    print(
-                        f"TCPPacketGenerator {self.element_id} is setting a timer "
-                        f"for packet {packet.packet_id} with an RTO of {self.rto:.4f}."
-                    )
+            # The sender can transmit any positive byte count up to the smaller
+            # of the buffered data and the available congestion window.
+            send_limit = min(self.send_buffer, self.last_ack + self.congestion_control.cwnd)
+            available_bytes = send_limit - self.next_seq
+            if available_bytes > 0:
+                packet_size = min(self.mss, available_bytes)
+                self._send_new_packet(packet_size)
             else:
                 # No further space in the congestion window to transmit packets
                 # at this time, waiting for acknowledgements
@@ -216,6 +225,8 @@ class TCPPacketGenerator:
     def put(self, ack):
         """On receiving an acknowledgment packet."""
         assert ack.flow_id >= 10000  # the received packet must be an ack
+        previous_ack = self.last_ack
+        previous_segment = self.segment_state.get(previous_ack)
 
         if ack.ack == self.last_ack:
             self.dupack += 1
@@ -247,44 +258,28 @@ class TCPPacketGenerator:
                 self.congestion_control.more_dupacks_received()
 
                 if self.last_ack + self.congestion_control.cwnd >= ack.ack:
-                    packet = Packet(
-                        self.env.now,
-                        self.mss,
-                        self.next_seq,
-                        src=self.flow.src,
-                        flow_id=self.flow.fid,
+                    send_limit = min(
+                        self.send_buffer,
+                        self.last_ack + self.congestion_control.cwnd,
                     )
-
-                    self.sent_packets[packet.packet_id] = packet
-
-                    if self.debug:
-                        print(
-                            f"TCPPacketGenerator {self.element_id} sent packet "
-                            f"{packet.packet_id} with size {packet.size}, flow_id "
-                            f"{packet.flow_id} at time {self.env.now:.4f} as dupack > 3."
-                        )
-
-                    self.out.put(packet)
-
-                    self.next_seq += packet.size
-                    self.timers[packet.packet_id] = Timer(
-                        self.env,
-                        timer_id=packet.packet_id,
-                        timeout_callback=self.timeout_callback,
-                        rto=self.rto,
-                    )
-
-                    if self.debug:
-                        print(
-                            f"TCPPacketGenerator {self.element_id} is setting a timer for "
-                            f"packet {packet.packet_id} with an RTO of {self.rto:.4f}."
-                        )
+                    available_bytes = send_limit - self.next_seq
+                    if available_bytes > 0:
+                        self._send_new_packet(min(self.mss, available_bytes))
 
             return
 
         if self.dupack == 0:
-            # new ack received, update the RTT estimate and the retransmission timout
-            sample_rtt = self.env.now - ack.time
+            # Only accept RTT samples for exactly one un-retransmitted segment.
+            eligible_rtt_sample = False
+            sample_rtt = 0.0
+            if (
+                ack.ack > previous_ack
+                and previous_segment is not None
+                and ack.ack == previous_ack + previous_segment.size
+                and previous_segment.retransmit_count == 0
+            ):
+                eligible_rtt_sample = True
+                sample_rtt = self.env.now - previous_segment.first_tx_time
 
             # Authoritative sources for RTO calculation
 
@@ -298,25 +293,35 @@ class TCPPacketGenerator:
             alpha = 0.125
             beta = 0.25
 
-            # calculates the deviation (RTTVAR) of the RTT to account for
-            # variations in the network
-            if self.rtt_var == 0.0:
-                self.rtt_var = sample_rtt / 2.0
-            else:
-                deviation = self.smoothed_rtt - sample_rtt
-                self.rtt_var = (1.0 - beta) * self.rtt_var + beta * abs(deviation)
+            if eligible_rtt_sample:
+                # calculates the deviation (RTTVAR) of the RTT to account for
+                # variations in the network
+                if self.rtt_var == 0.0:
+                    self.rtt_var = sample_rtt / 2.0
+                else:
+                    deviation = self.smoothed_rtt - sample_rtt
+                    self.rtt_var = (1.0 - beta) * self.rtt_var + beta * abs(
+                        deviation
+                    )
 
-            # computes a smoothed round-trip time (SRTT)
-            if self.smoothed_rtt == 0.0:
-                self.smoothed_rtt = sample_rtt
-            else:
-                self.smoothed_rtt = (
-                    1.0 - alpha
-                ) * self.smoothed_rtt + alpha * sample_rtt
-            self.rto = max(1.0, self.smoothed_rtt + 4.0 * self.rtt_var)
+                # computes a smoothed round-trip time (SRTT)
+                if self.smoothed_rtt == 0.0:
+                    self.smoothed_rtt = sample_rtt
+                else:
+                    self.smoothed_rtt = (
+                        1.0 - alpha
+                    ) * self.smoothed_rtt + alpha * sample_rtt
+                self.rto = max(1.0, self.smoothed_rtt + 4.0 * self.rtt_var)
+                self.last_rtt_sample = sample_rtt
 
             self.last_ack = ack.ack
-            self.congestion_control.ack_received(sample_rtt, self.env.now)
+            if eligible_rtt_sample:
+                rtt_for_cc = sample_rtt
+            else:
+                rtt_for_cc = self.smoothed_rtt
+                if rtt_for_cc == 0.0:
+                    rtt_for_cc = self.last_rtt_sample
+            self.congestion_control.ack_received(rtt_for_cc, self.env.now)
 
             if self.debug:
                 print(

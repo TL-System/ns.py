@@ -182,6 +182,10 @@ def test_tcp_sender_skips_rtt_update_for_ack_covering_retransmitted_data():
     sender.last_ack = 0
     sender.dupack = 2
     sender.next_seq = 512
+    sender.smoothed_rtt = 1.0
+    sender.rtt_var = 0.25
+    sender.rto = 2.0
+    sender.last_rtt_sample = 1.0
 
     sender.put(make_ack(0, time=1.0))
     sender.put(make_ack(0, time=1.0))
@@ -189,8 +193,10 @@ def test_tcp_sender_skips_rtt_update_for_ack_covering_retransmitted_data():
     sink.packets.clear()
     sink.waits.clear()
     sender.congestion_control.ack_received_calls.clear()
+    before = (sender.smoothed_rtt, sender.rtt_var, sender.rto)
 
     sender.put(make_ack(512, time=1.2))
 
-    assert sender.congestion_control.ack_received_calls == []
+    assert sender.congestion_control.ack_received_calls == [(1.0, 5)]
+    assert (sender.smoothed_rtt, sender.rtt_var, sender.rto) == before
     assert sink.packets == []
