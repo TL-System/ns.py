@@ -55,8 +55,12 @@ class TCPSink(PacketSink):
         super().put(packet)
 
         self.packet_arrived(packet)
-
-        self.next_seq_expected = self.recv_buffer[0][1]
+        frontier = self.next_seq_expected
+        for start, end in self.recv_buffer:
+            if start > frontier:
+                break
+            frontier = max(frontier, end)
+        self.next_seq_expected = frontier
 
         # a TCP sink needs to send ack packets back to the TCP packet generator
         assert self.out is not None
