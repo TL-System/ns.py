@@ -3,10 +3,22 @@ Implements a packet generator that simulates the TCP protocol, including support
 for various congestion control mechanisms.
 """
 
+from dataclasses import dataclass
+
 import simpy
 
 from ns.packet.packet import Packet
 from ns.utils.timer import Timer
+
+
+@dataclass
+class SegmentState:
+    seq: int
+    size: int
+    first_tx_time: float
+    last_tx_time: float
+    retransmit_count: int = 0
+    timer: Timer = None
 
 
 class TCPPacketGenerator:
@@ -60,9 +72,37 @@ class TCPPacketGenerator:
         # (seq + size <= ack), and each retransmission attempt must emit a
         # fresh Packet while preserving the original Packet.time.
         self.sent_packets = {}
+        self.segment_state = {}
 
         self.action = env.process(self.run())
         self.debug = debug
+
+    def _get_segment_state(self, packet_id):
+        """Return sender-owned logical state for a segment, creating it lazily."""
+        state = self.segment_state.get(packet_id)
+        if state is not None:
+            return state
+
+        packet = self.sent_packets[packet_id]
+        state = SegmentState(
+            seq=packet.packet_id,
+            size=packet.size,
+            first_tx_time=packet.time,
+            last_tx_time=packet.time,
+            timer=self.timers.get(packet_id),
+        )
+        self.segment_state[packet_id] = state
+        return state
+
+    def _build_packet(self, state):
+        """Create a fresh packet attempt from sender-owned segment state."""
+        return Packet(
+            state.first_tx_time,
+            state.size,
+            state.seq,
+            src=self.flow.src,
+            flow_id=self.flow.fid,
+        )
 
     def run(self):
         """The generator function used in simulations."""
@@ -107,6 +147,12 @@ class TCPPacketGenerator:
                 )
 
                 self.sent_packets[packet.packet_id] = packet
+                self.segment_state[packet.packet_id] = SegmentState(
+                    seq=packet.packet_id,
+                    size=packet.size,
+                    first_tx_time=packet.time,
+                    last_tx_time=packet.time,
+                )
 
                 if self.debug:
                     print(
@@ -124,6 +170,9 @@ class TCPPacketGenerator:
                     timeout_callback=self.timeout_callback,
                     rto=self.rto,
                 )
+                self.segment_state[packet.packet_id].timer = self.timers[
+                    packet.packet_id
+                ]
 
                 if self.debug:
                     print(
@@ -146,7 +195,11 @@ class TCPPacketGenerator:
         self.congestion_control.timer_expired()
 
         # retransmitting the segment
-        resent_pkt = self.sent_packets[packet_id]
+        state = self._get_segment_state(packet_id)
+        state.retransmit_count += 1
+        state.last_tx_time = self.env.now
+        resent_pkt = self._build_packet(state)
+        self.sent_packets[packet_id] = resent_pkt
         self.out.put(resent_pkt)
 
         if self.debug:
@@ -157,7 +210,8 @@ class TCPPacketGenerator:
 
         # starting a new timer for this segment and doubling the retransmission timeout
         revised_rto = self.timers[packet_id].rto * 2
-        self.timers[packet_id].restart(revised_rto)
+        state.timer = self.timers[packet_id]
+        state.timer.restart(revised_rto)
 
     def put(self, ack):
         """On receiving an acknowledgment packet."""
@@ -175,8 +229,11 @@ class TCPPacketGenerator:
             if self.dupack == 3:
                 self.congestion_control.consecutive_dupacks_received()
 
-            resent_pkt = self.sent_packets[ack.ack]
-            resent_pkt.time = self.env.now
+            state = self._get_segment_state(ack.ack)
+            state.retransmit_count += 1
+            state.last_tx_time = self.env.now
+            resent_pkt = self._build_packet(state)
+            self.sent_packets[ack.ack] = resent_pkt
             if self.debug:
                 print(
                     f"TCPPacketGenerator {self.element_id} is resending packet "
@@ -274,19 +331,20 @@ class TCPPacketGenerator:
             # this acknowledgment should acknowledge all the intermediate
             # segments sent between the lost packet and the receipt of the
             # first duplicate ACK, if any
-            acked_packets = [
-                packet_id
-                for packet_id, _ in self.sent_packets.items()
-                if packet_id < ack.ack
-            ]
-            for packet_id in acked_packets:
+            acked_packets = []
+            for packet_id, state in self.segment_state.items():
+                if packet_id + state.size <= ack.ack:
+                    acked_packets.append(packet_id)
+
+            for packet_id in sorted(acked_packets):
                 if self.debug:
                     print(
                         f"TCPPacketGenerator {self.element_id} stopped timer "
                         f"{packet_id} at time {self.env.now:.4f}."
                     )
-                self.timers[packet_id].stop()
+                self.segment_state[packet_id].timer.stop()
                 del self.timers[packet_id]
                 del self.sent_packets[packet_id]
+                del self.segment_state[packet_id]
 
             self.cwnd_available.put(True)
