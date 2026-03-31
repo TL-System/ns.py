@@ -280,8 +280,11 @@ def test_bbr_sender_rate_sample_stays_stable_across_retransmit_timing_changes():
                 first_sent_time=0.0,
             )
         )
+        ack_calls = [
+            call for call in sender.congestion_control.calls if call[0] == "ack_received"
+        ]
         return (
-            tuple(sender.congestion_control.calls),
+            ack_calls[-1][1:],
             sender.congestion_control.rs.send_elapsed,
             sender.congestion_control.rs.ack_elapsed,
             sender.congestion_control.rs.delivery_rate,

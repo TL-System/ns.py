@@ -4,12 +4,28 @@ various congestion control mechanisms.
 """
 
 import copy
+from dataclasses import dataclass
 
 import simpy
 
 from ns.packet.packet import Packet
 from ns.packet.rate_sample import Connection, RateSample
 from ns.utils.timer import Timer
+
+
+@dataclass
+class SegmentState:
+    seq: int
+    size: int
+    first_tx_time: float
+    last_tx_time: float
+    first_sent_time: float = 0.0
+    delivered_time: float = 0.0
+    delivered: int = 0
+    lost: int = 0
+    is_app_limited: bool = False
+    tx_in_flight: int = 0
+    retransmit_count: int = 0
 
 
 class BBRPacketGenerator:
@@ -75,12 +91,137 @@ class BBRPacketGenerator:
         # metadata in sender-owned state and preserves Packet.time as the
         # original first-transmit timestamp seen by sinks.
         self.sent_packets = {}
+        self.segment_state = {}
 
         self.timer = None
         self.to_pkt_id = 0
 
         self.action = env.process(self.run())
         self.debug = debug
+
+    def _build_packet(self, state):
+        """Create a fresh packet attempt from sender-owned segment state."""
+        packet = Packet(
+            state.first_tx_time,
+            state.size,
+            state.seq,
+            src=self.flow.src,
+            flow_id=self.flow.fid,
+            tx_in_flight=state.tx_in_flight,
+        )
+        packet.first_sent_time = state.first_sent_time
+        packet.delivered_time = state.delivered_time
+        packet.delivered = state.delivered
+        packet.lost = state.lost
+        packet.is_app_limited = state.is_app_limited
+        return packet
+
+    def _get_segment_state(self, packet_id):
+        """Return sender-owned state for an outstanding BBR segment."""
+        state = self.segment_state.get(packet_id)
+        if state is not None:
+            return state
+
+        packet = self.sent_packets[packet_id]
+        state = SegmentState(
+            seq=packet.packet_id,
+            size=packet.size,
+            first_tx_time=packet.time,
+            last_tx_time=packet.time,
+            first_sent_time=packet.first_sent_time,
+            delivered_time=packet.delivered_time,
+            delivered=packet.delivered,
+            lost=packet.lost,
+            is_app_limited=packet.is_app_limited,
+            tx_in_flight=packet.tx_in_flight,
+        )
+        self.segment_state[packet_id] = state
+        return state
+
+    def _send_new_packet(self, packet_size):
+        """Send a new BBR data packet and register its sender-owned state."""
+        packet = Packet(
+            self.env.now,
+            packet_size,
+            self.next_seq,
+            src=self.flow.src,
+            flow_id=self.flow.fid,
+            tx_in_flight=self.packet_in_flight,
+        )
+        self.congestion_control.rs.send_packet(
+            packet,
+            self.congestion_control.C,
+            self.max_ack - self.next_seq,
+            self.env.now,
+        )
+        self.congestion_control.next_departure_time = self.env.now
+        if self.congestion_control.pacing_rate > 0:
+            self.congestion_control.next_departure_time += (
+                packet.size / self.congestion_control.pacing_rate
+            )
+
+        self.sent_packets[packet.packet_id] = packet
+        self.segment_state[packet.packet_id] = SegmentState(
+            seq=packet.packet_id,
+            size=packet.size,
+            first_tx_time=packet.time,
+            last_tx_time=self.env.now,
+            first_sent_time=packet.first_sent_time,
+            delivered_time=packet.delivered_time,
+            delivered=packet.delivered,
+            lost=packet.lost,
+            is_app_limited=packet.is_app_limited,
+            tx_in_flight=packet.tx_in_flight,
+        )
+        self.packet_in_flight += packet.size
+        if self.debug:
+            print(
+                f"Send packet {packet.packet_id} with size {packet.size}, "
+                f"flow_id {packet.flow_id} at time {self.env.now:.4f}, "
+                f"and the packet delivered time is {packet.delivered_time:.4f}."
+            )
+        self.out.put(packet)
+
+        self.next_seq += packet.size
+
+        self.congestion_control.C.check_if_application_limited(
+            self.next_seq, self.mss, self.packet_in_flight
+        )
+
+        if self.timer is None:
+            self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
+        self.to_pkt_id = packet.packet_id
+
+        if self.debug:
+            print(
+                f"Setting a timer for packet {packet.packet_id} with an RTO"
+                f" of {self.rto:.4f}."
+            )
+
+    def _retransmit_packet(self, packet_id):
+        """Emit a fresh retransmission attempt for an outstanding segment."""
+        state = self._get_segment_state(packet_id)
+        state.retransmit_count += 1
+        state.last_tx_time = self.env.now
+        state.tx_in_flight = self.packet_in_flight
+        resent_pkt = self._build_packet(state)
+        self.sent_packets[packet_id] = resent_pkt
+        return resent_pkt
+
+    def _restart_oldest_timer(self):
+        """Point the retransmission timer at the oldest outstanding segment."""
+        if not self.segment_state:
+            if self.timer is not None:
+                self.timer.stop()
+                self.timer = None
+            self.to_pkt_id = 0
+            return
+
+        oldest_packet_id = min(self.segment_state)
+        self.to_pkt_id = oldest_packet_id
+        if self.timer is None:
+            self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
+        self.timer.restart(self.rto, self.segment_state[oldest_packet_id].last_tx_time)
 
     def update_next_seq(self):
         self.send_buffer += self.flow.next_send_buffer(self.env.now)
@@ -115,84 +256,35 @@ class BBRPacketGenerator:
                 yield self.env.timeout(
                     self.congestion_control.next_departure_time - self.env.now
                 )
-            if self.next_seq + self.mss > min(
-                self.send_buffer, self.last_ack + self.congestion_control.cwnd
-            ):
+            send_limit = min(self.send_buffer, self.last_ack + self.congestion_control.cwnd)
+            available_bytes = send_limit - self.next_seq
+            if available_bytes <= 0:
                 self.congestion_control.C.is_cwnd_limited = True
                 yield self.cwnd_available.get()
             else:
-                packet = Packet(
-                    self.env.now,
-                    self.mss,
-                    self.next_seq,
-                    src=self.flow.src,
-                    flow_id=self.flow.fid,
-                    tx_in_flight=self.packet_in_flight,
-                )
-                self.congestion_control.rs.send_packet(
-                    packet,
-                    self.congestion_control.C,
-                    self.max_ack - self.next_seq,
-                    self.env.now,
-                )
-                self.congestion_control.next_departure_time = self.env.now
-                if self.congestion_control.pacing_rate > 0:
-                    self.congestion_control.next_departure_time += (
-                        packet.size / self.congestion_control.pacing_rate
-                    )
-
-                self.sent_packets[packet.packet_id] = packet
-                self.packet_in_flight += packet.size
-                if self.debug:
-                    print(
-                        f"Send packet {packet.packet_id} with size {packet.size}, "
-                        f"flow_id {packet.flow_id} at time {self.env.now:.4f}, "
-                        f"and the packet delivered time is {packet.delivered_time:.4f}."
-                    )
-                self.out.put(packet)
-
-                self.next_seq += packet.size
-
-                self.congestion_control.C.check_if_application_limited(
-                    self.next_seq, self.mss, self.packet_in_flight
-                )
-
-                if self.timer is None:
-                    self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
-                    self.to_pkt_id = packet.packet_id
-
-                if self.debug:
-                    print(
-                        f"Setting a timer for packet {packet.packet_id} with an RTO"
-                        f" of {self.rto:.4f}."
-                    )
+                self._send_new_packet(min(self.mss, available_bytes))
 
     def timeout_callback(self, packet_id=0):
         """To be called when a timer expired for a packet with 'packet_id'."""
         self.update_next_seq()
-        packet_id = self.max_ack
+        if not self.segment_state:
+            if not self.sent_packets:
+                return
+        packet_id = self.to_pkt_id or min(self.sent_packets)
+        state = self._get_segment_state(packet_id)
         if self.debug:
             print(
                 f"Timer expired for packet {packet_id} {self.flow.fid} "
                 f"at time {self.env.now:.4f}."
             )
 
-        self.congestion_control.C.lost += self.sent_packets[packet_id].size
-        self.sent_packets[packet_id].self_lost = True
+        self.congestion_control.C.lost += state.size
 
         self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
         self.congestion_control.timer_expired(self.sent_packets[packet_id])
 
         # retransmitting the segment
-        resent_pkt = self.sent_packets[packet_id]
-        resent_pkt.time = self.env.now
-        self.congestion_control.rs.send_packet(
-            resent_pkt,
-            self.congestion_control.C,
-            self.max_ack - self.next_seq,
-            self.env.now,
-        )
-
+        resent_pkt = self._retransmit_packet(packet_id)
         self.out.put(resent_pkt)
         self.rto *= 2
         if self.rto > 60:
@@ -204,7 +296,8 @@ class BBRPacketGenerator:
             )
 
         # starting a new timer for this segment and doubling the retransmission timeout
-        self.timer.restart(self.rto)
+        self.timer.restart(self.rto, self.segment_state[packet_id].last_tx_time)
+        self.to_pkt_id = packet_id
 
         self.congestion_control.C.check_if_application_limited(
             self.next_seq, self.mss, self.packet_in_flight
@@ -217,7 +310,7 @@ class BBRPacketGenerator:
             self.next_seq, self.mss, self.packet_in_flight
         )
 
-        sample_rtt = self.env.now - ack.time
+        sample_rtt = self.env.now - ack.first_sent_time
         self.congestion_control.rs.newly_acked = ack.ack - self.last_ack
 
         if ack.ack == self.last_ack:
@@ -256,13 +349,8 @@ class BBRPacketGenerator:
 
         self.max_ack = max(self.max_ack, ack.ack)
 
-        if ack.packet_id == self.to_pkt_id and self.max_ack < self.next_seq:
-            self.timer.restart(self.rto, self.sent_packets[self.max_ack].time)
-
         if self.dupack == 2:
-            self.congestion_control.C.lost += self.sent_packets[ack.ack].size
-
-            self.sent_packets[ack.ack].self_lost = True
+            self.congestion_control.C.lost += self._get_segment_state(ack.ack).size
 
             self.congestion_control.set_before_control(
                 self.env.now, self.packet_in_flight
@@ -272,18 +360,7 @@ class BBRPacketGenerator:
             )
             self.congestion_control.ack_received(sample_rtt, self.env.now)
 
-            resent_pkt = self.sent_packets[ack.ack]
-            resent_pkt.time = self.env.now
-            self.congestion_control.rs.send_packet(
-                resent_pkt,
-                self.congestion_control.C,
-                self.max_ack - self.next_seq,
-                self.env.now,
-            )
-            assert resent_pkt.delivered_time > 0
-            # self.congestion_control.next_departure_time = self.env.now
-            # if(self.congestion_control.pacing_rate > 0):
-            #     self.congestion_control.next_departure_time += resent_pkt.size / self.congestion_control.pacing_rate
+            resent_pkt = self._retransmit_packet(ack.ack)
 
             if self.debug:
                 print(
@@ -304,30 +381,20 @@ class BBRPacketGenerator:
                 self.env.now, self.packet_in_flight
             )
 
-            temp_pkt = copy.copy(ack)
-            temp_pkt.size = self.mss
-            self.congestion_control.rs.updaterate_sample(
-                temp_pkt, self.congestion_control.C, self.env.now
-            )
+            acked_packet_ids = []
+            for packet_id in sorted(self.sent_packets):
+                state = self._get_segment_state(packet_id)
+                if packet_id + state.size <= ack.ack:
+                    acked_packet_ids.append(packet_id)
 
-            bbr_update = False
-            if ack.packet_id in self.sent_packets:
-                # temp_pkt = copy.copy(ack)
-                # temp_pkt.size = self.mss
-                # self.congestion_control..updaterate_sample(temp_pkt, self.congestion_control.C, self.env.now)
-                bbr_update = True
-                self.packet_in_flight -= self.sent_packets[ack.packet_id].size
-                self.sent_packets[ack.packet_id].delivered_time = 0
-                self.sent_packets[ack.packet_id].self_lost = False
-
-            for i in range(self.max_ack, ack.ack, self.mss):
-                if i in self.sent_packets.keys():
-                    if self.sent_packets[i].delivered_time:
-                        self.packet_in_flight -= self.sent_packets[i].size
-                    self.congestion_control.rs.updaterate_sample(
-                        self.sent_packets[i], self.congestion_control.C, self.env.now
-                    )
-                    del self.sent_packets[i]
+            bbr_update = bool(acked_packet_ids)
+            for packet_id in sorted(acked_packet_ids):
+                packet = self.sent_packets[packet_id]
+                if packet.delivered_time:
+                    self.packet_in_flight -= packet.size
+                self.congestion_control.rs.updaterate_sample(
+                    packet, self.congestion_control.C, self.env.now
+                )
 
             self.congestion_control.rs.update_sample_group(
                 self.congestion_control.C, sample_rtt
@@ -360,10 +427,16 @@ class BBRPacketGenerator:
             if bbr_update:
                 self.congestion_control.ack_received(sample_rtt, self.env.now)
 
+            for packet_id in sorted(acked_packet_ids):
+                del self.sent_packets[packet_id]
+                del self.segment_state[packet_id]
+
             if self.max_ack == self.next_seq and self.timer is not None:
                 self.timer.stop()
                 del self.timer
                 self.timer = None
+            elif acked_packet_ids:
+                self._restart_oldest_timer()
 
             self.congestion_control.C.is_cwnd_limited = False
             self.cwnd_available.put(True)
