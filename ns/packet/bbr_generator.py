@@ -190,7 +190,7 @@ class BBRPacketGenerator:
 
         if self.timer is None:
             self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
-        self.to_pkt_id = packet.packet_id
+            self.to_pkt_id = packet.packet_id
 
         if self.debug:
             print(
@@ -310,7 +310,9 @@ class BBRPacketGenerator:
             self.next_seq, self.mss, self.packet_in_flight
         )
 
-        sample_rtt = self.env.now - ack.first_sent_time
+        # ACK RTT follows the acknowledged segment's transport timestamp.
+        # first_sent_time remains the flight-level marker for RateSample only.
+        sample_rtt = self.env.now - ack.time
         self.congestion_control.rs.newly_acked = ack.ack - self.last_ack
 
         if ack.ack == self.last_ack:

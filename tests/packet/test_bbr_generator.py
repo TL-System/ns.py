@@ -199,6 +199,22 @@ def test_bbr_sender_timeout_retransmit_emits_fresh_packet_without_resetting_time
     assert original.time == 1.0
 
 
+def test_bbr_sender_keeps_timeout_pointer_on_oldest_outstanding_segment():
+    env = simpy.Environment()
+    sender, sink = make_sender(env, size=1024)
+
+    env.run(until=0.01)
+
+    sender.timer = DummyTimer(rto=sender.rto)
+
+    assert sender.to_pkt_id == 0
+
+    sender.timeout_callback(0)
+
+    assert sink.packets[-1].packet_id == 0
+    assert sender.to_pkt_id == 0
+
+
 def test_bbr_sender_cleans_up_short_segments_with_segment_end_ack():
     env = simpy.Environment(initial_time=5)
     sender, _ = make_sender(env, size=1024)
@@ -246,7 +262,7 @@ def test_bbr_sender_cleans_up_short_segments_with_segment_end_ack():
 
 
 def test_bbr_sender_rate_sample_stays_stable_across_retransmit_timing_changes():
-    def run_scenario(ack_time, include_timeout):
+    def run_scenario(include_timeout):
         env = simpy.Environment(initial_time=5)
         sender, _ = make_sender(env, size=1024)
         original = Packet(
@@ -275,7 +291,9 @@ def test_bbr_sender_rate_sample_stays_stable_across_retransmit_timing_changes():
             make_ack(
                 0,
                 ack=512,
-                time=ack_time,
+                # ACKs keep the segment's original transmit timestamp even
+                # after a retransmission attempt.
+                time=0.0,
                 delivered_time=1.0,
                 first_sent_time=0.0,
             )
@@ -290,7 +308,54 @@ def test_bbr_sender_rate_sample_stays_stable_across_retransmit_timing_changes():
             sender.congestion_control.rs.delivery_rate,
         )
 
-    clean = run_scenario(ack_time=0.0, include_timeout=False)
-    retransmitted = run_scenario(ack_time=5.0, include_timeout=True)
+    clean = run_scenario(include_timeout=False)
+    retransmitted = run_scenario(include_timeout=True)
 
     assert retransmitted == clean
+
+
+def test_bbr_sender_samples_rtt_from_the_acked_packet_time():
+    env = simpy.Environment(initial_time=8)
+    sender, _ = make_sender(env, size=1024)
+    first = Packet(
+        time=1.0,
+        size=512,
+        packet_id=0,
+        flow_id=1,
+        src="src",
+        dst="dst",
+    )
+    second = Packet(
+        time=3.0,
+        size=512,
+        packet_id=512,
+        flow_id=1,
+        src="src",
+        dst="dst",
+    )
+    for packet in (first, second):
+        packet.delivered_time = 1.0
+        packet.delivered = packet.packet_id
+        packet.first_sent_time = 1.0
+        packet.self_lost = False
+
+    sender.sent_packets = {0: first, 512: second}
+    sender.max_ack = 0
+    sender.last_ack = 0
+    sender.next_seq = 1024
+    sender.packet_in_flight = 1024
+    sender.timer = DummyTimer(rto=1.0)
+
+    sender.put(
+        make_ack(
+            512,
+            ack=1024,
+            time=3.0,
+            delivered_time=1.0,
+            first_sent_time=1.0,
+        )
+    )
+
+    assert sender.congestion_control.calls[-1] == ("ack_received", 5.0, 8)
+    assert sender.rtt_estimate == pytest.approx(5.0)
+    assert sender.rto == pytest.approx(15.0)
