@@ -38,6 +38,8 @@ The network components that have already been implemented include:
 * `TracePacketGenerator`: generates packets according to a trace file, with each row in the trace file representing a packet.
 
 * `TCPPacketGenerator`: generates packets using TCP as the transport protocol.
+  See [`docs/tcp_timing.md`](docs/tcp_timing.md) for the sender/receiver
+  timing contract used by the TCP rewrite.
 
 * `ProxyPacketGenerator`: redirects real-world packets (with fixed packet sizes) into the simulation environment.
 
