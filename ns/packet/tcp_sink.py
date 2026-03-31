@@ -26,7 +26,8 @@ class TCPSink(PacketSink):
             env, rec_arrivals, absolute_arrivals, rec_waits, rec_flow_ids, debug
         )
         self.recv_buffer = []
-        # the next sequence number expected to be received
+        # The cumulative ACK frontier (RCV.NXT). Later receiver fixes must
+        # derive this from the contiguous prefix only and never from a gap.
         self.next_seq_expected = 0
         self.out = None
         self.ele_id = element_id
@@ -54,14 +55,22 @@ class TCPSink(PacketSink):
         super().put(packet)
 
         self.packet_arrived(packet)
-
-        self.next_seq_expected = self.recv_buffer[0][1]
+        frontier = self.next_seq_expected
+        for start, end in self.recv_buffer:
+            if start > frontier:
+                break
+            frontier = max(frontier, end)
+        self.next_seq_expected = frontier
 
         # a TCP sink needs to send ack packets back to the TCP packet generator
         assert self.out is not None
 
         acknowledgment = Packet(
-            packet.time,  # used for calculating RTT at the sender
+            # Preserve the data packet's original first-transmit timestamp.
+            # Sink-side wait accounting depends on Packet.time remaining stable
+            # across retransmissions; sender RTT/RTO work will move attempt
+            # timing onto sender-owned segment metadata instead.
+            packet.time,
             size=40,  # default size of the ack packet
             packet_id=packet.packet_id,
             flow_id=packet.flow_id + 10000,
