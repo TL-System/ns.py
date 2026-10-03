@@ -3,19 +3,27 @@ Implements a Virtual Clock server.
 
 Reference:
 
-L. Zhang, "Virtual Clock: A New Traffic Control Algorithm for Packet Switching Networks,"
-in ACM SIGCOMM Computer Communication Review, vol. 20, pp. 19, 1990.
+L. Zhang, "VirtualClock: A New Traffic Control Algorithm for Packet-Switched
+Networks," ACM Transactions on Computer Systems, vol. 9, no. 2, pp. 101-124,
+May 1991, section 3.1 (the expanded version of the SIGCOMM 1990 paper).
 """
 
 from collections import defaultdict as dd
 from collections.abc import Callable
+from math import isfinite
 
 from ns.packet.packet import Packet
 from ns.utils import taggedstore
 
 
 class VirtualClockServer:
-    """Implements a virtual clock server.
+    """Order nonpreemptive packet service by per-class reserved-rate clocks.
+
+    This implements the paper's data-forwarding rule with an unlimited queue.
+    It does not implement the AR/AI flow-monitoring feedback, periodic clock
+    synchronization, or buffer-overflow policy. ``v_clocks`` retains the raw
+    cumulative monitoring clock; ``aux_vc`` supplies scheduling tags in seconds.
+    Tags order eligible packets but never delay service on an otherwise idle link.
 
     Parameters
     ----------
@@ -24,16 +32,12 @@ class VirtualClockServer:
     rate: float
         The bit rate of the port.
     vticks: list or dict
-        This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
-        or class_id, if class-based fair queueing is activated using the `flow_classes'
-        parameter below --- as its index to look for the flow (or class)'s corresponding
-        'vtick'.  If it is a dictionary, it contains (flow_id or class_id -> vtick) pairs
-        for each possible flow_id or class_id.  We assume that the vticks are the inverse of
-        the desired rates for the corresponding flows, in bits per second.
+        Positive, finite seconds per bit: the inverse of each class's reserved
+        rate in bits/second. A list uses integer class IDs as indices; a dictionary
+        maps class IDs to vticks. All flows mapped to a class share its clock.
     flow_classes: function
-        This is a function that matches a packet's flow_ids to class_ids, used to implement
-        class-based Deficit Round Robin. The default is a lambda function that uses a packet's
-        flow_id as its class_id, which is equivalent to flow-based Virtual Clock.
+        Maps each packet to a configured class ID. The default uses its flow_id,
+        giving each flow a separate Virtual Clock.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -67,18 +71,18 @@ class VirtualClockServer:
         self.flow_queue_count = {}
 
         if isinstance(vticks, list):
-            for queue_id in range(len(vticks)):
-                self.aux_vc[queue_id] = 0.0
-                self.v_clocks[queue_id] = 0.0
-                self.flow_queue_count[queue_id] = 0
-
+            queue_ids = range(len(vticks))
         elif isinstance(vticks, dict):
-            for queue_id, __ in vticks.items():
-                self.aux_vc[queue_id] = 0.0
-                self.v_clocks[queue_id] = 0.0
-                self.flow_queue_count[queue_id] = 0
+            queue_ids = vticks
         else:
             raise ValueError("vticks must be either a list or a dictionary.")
+
+        for queue_id in queue_ids:
+            if not isfinite(vticks[queue_id]) or vticks[queue_id] <= 0:
+                raise ValueError("Each vtick must be positive and finite.")
+            self.aux_vc[queue_id] = 0.0
+            self.v_clocks[queue_id] = 0.0
+            self.flow_queue_count[queue_id] = 0
 
         self.out = None
         self.packets_received = 0
@@ -96,24 +100,24 @@ class VirtualClockServer:
             self.downstream_store = taggedstore.TaggedStore(env)
 
         self.store = taggedstore.TaggedStore(env)
+        # Wake the process without reserving a packet before service selection.
+        self._wakeup = env.event()
         self.action = env.process(self.run())
 
     def update_stats(self, packet):
-        """
-        The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
-        configuration), we need to update the internal statistics related to this event.
-        """
-        self.flow_queue_count[self.flow_classes(packet)] -= 1
+        """Remove a packet from waiting telemetry when local service starts.
 
-        if self.flow_classes(packet) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(packet)] -= packet.size
-        else:
-            raise ValueError("Error: the packet is from an unrecorded flow.")
+        The packet in service is reported separately by packet_in_service().
+        Downstream retention does not count as waiting for this server either.
+        """
+        class_id = self.flow_classes(packet)
+        self.flow_queue_count[class_id] -= 1
+        self.byte_sizes[class_id] -= packet.size
 
         if self.debug:
             print(
-                f"Sent Packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet)} at time {self.env.now}"
+                f"Started Packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {class_id} at time {self.env.now}"
             )
 
     def update(self, packet):
@@ -123,7 +127,7 @@ class VirtualClockServer:
         configuration.
         """
         # With no local buffers, this element needs to pull the packet from upstream
-        if self.zero_buffer:
+        if self.zero_buffer and packet in self.upstream_stores:
             # For each packet, remove it from its own upstream's store
             self.upstream_stores[packet].get()
             del self.upstream_stores[packet]
@@ -139,85 +143,86 @@ class VirtualClockServer:
 
     def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in bytes.
+        Returns bytes waiting for local service in a flow class.
         Used by a ServerMonitor.
         """
-        if queue_id in self.byte_sizes:
-            return self.byte_sizes[queue_id]
-
-        return 0
+        return self.byte_sizes.get(queue_id, 0)
 
     def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in the
-        number of packets. Used by a ServerMonitor.
+        Returns packets waiting for local service in a flow class.
+        Used by a ServerMonitor; the packet in service is counted separately.
         """
-        return self.flow_queue_count[queue_id]
+        return self.flow_queue_count.get(queue_id, 0)
 
     def all_flows(self) -> list:
         """
-        Returns a list containing all the flow IDs.
+        Returns observed class IDs (flow IDs with the default mapping).
         """
-        return self.byte_sizes.keys()
+        return list(self.byte_sizes)
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for work, select the smallest tag, then serialize one packet.
+
+        Service is nonpreemptive. A zero-time wait before each selection lets
+        arrivals already scheduled at a completion time join the next decision.
+        It does not impose global phases on arbitrary chains of user processes.
+        """
+        queue = self.downstream_store if self.zero_downstream_buffer else self.store
         while True:
+            if not queue.items:
+                self._wakeup = self.env.event()
+                yield self._wakeup
+
+            # Do not leave a pending get() on an idle heap: it could select an
+            # arrival before other arrivals at the same time have been queued.
+            yield self.env.timeout(0)
+            packet = yield queue.get()
+            self.current_packet = packet
+            self.update_stats(packet)
+            # Packet sizes are bytes; convert to bits for link serialization.
+            yield self.env.timeout(packet.size * 8.0 / self.rate)
+
+            # Synchronous downstream callbacks should observe completed service.
+            self.current_packet = None
             if self.zero_downstream_buffer:
-                packet = yield self.downstream_store.get()
-
-                self.current_packet = packet
-                yield self.env.timeout(packet.size * 8.0 / self.rate)
-
-                self.update_stats(packet)
+                # The shared store retains ownership until downstream pulls it.
                 self.out.put(
                     packet, upstream_update=self.update, upstream_store=self.store
                 )
-                self.current_packet = None
             else:
-                packet = yield self.store.get()
-
-                self.current_packet = packet
-                yield self.env.timeout(packet.size * 8.0 / self.rate)
-
-                self.update_stats(packet)
                 self.update(packet)
                 self.out.put(packet)
-                self.current_packet = None
 
     def put(self, packet, upstream_update=None, upstream_store=None):
-        """Sends a packet to this element."""
-        self.packets_received += 1
-        self.byte_sizes[self.flow_classes(packet)] += packet.size
+        """Stamp an arrival in seconds and enqueue it for local service."""
+        class_id = self.flow_classes(packet)
+        # Resolve the configured class before changing any admission accounting.
+        previous_tag = self.aux_vc[class_id]
+        vtick = self.vticks[class_id]
         now = self.env.now
-        self.flow_queue_count[self.flow_classes(packet)] += 1
 
-        if self.v_clocks[self.flow_classes(packet)] == 0:
-            # Upon receiving the first packet from this flow_id, set its
-            # virtual clock to the current real time
-            self.v_clocks[self.flow_classes(packet)] = now
+        if class_id not in self.byte_sizes:
+            self.v_clocks[class_id] = now
 
-        # Update virtual clocks (vc) for the corresponding flow. We assume
-        # that vticks is the desired bit time, i.e., the inverse of the
-        # desired bits per second data rate. Hence, we multiply this
-        # value by the size of the packet in bits.
-        self.aux_vc[self.flow_classes(packet)] = max(
-            now, self.aux_vc[self.flow_classes(packet)]
-        )
-        self.v_clocks[self.flow_classes(packet)] = (
-            self.v_clocks[self.flow_classes(packet)]
-            + self.vticks[self.flow_classes(packet)] * packet.size * 8.0
-        )
-        self.aux_vc[self.flow_classes(packet)] += self.vticks[self.flow_classes(packet)]
+        # Section 3.1 advances both clocks by the packet's reserved service time.
+        # Seconds/bit * bytes * 8 bits/byte gives seconds, even for mixed sizes.
+        tick = vtick * packet.size * 8.0
+        self.v_clocks[class_id] += tick
+        # An idle class earns no credit from silence. Preserve a clock ahead of
+        # real time, but bring a lagging scheduling clock up to this arrival.
+        tag = max(now, previous_tag) + tick
+        self.aux_vc[class_id] = tag
 
-        # Lots of work to do here to implement the queueing discipline
+        self.packets_received += 1
+        self.byte_sizes[class_id] += packet.size
+        self.flow_queue_count[class_id] += 1
 
         if self.debug:
             print(
                 f"Packet arrived at {self.env.now}, with flow_id {packet.flow_id}, "
-                f"belong to class {self.flow_classes(packet)}, "
-                f"packet_id {packet.packet_id}, virtual clocks {self.v_clocks[self.flow_classes(packet)]}, "
-                f"aux_vc {self.aux_vc[self.flow_classes(packet)]}"
+                f"belonging to class {class_id}, packet_id {packet.packet_id}, "
+                f"virtual clock {self.v_clocks[class_id]}, aux_vc {tag}"
             )
 
         if (
@@ -229,6 +234,9 @@ class VirtualClockServer:
             self.upstream_updates[packet] = upstream_update
 
         if self.zero_downstream_buffer:
-            self.downstream_store.put((self.aux_vc[self.flow_classes(packet)], packet))
+            self.downstream_store.put((tag, packet))
 
-        return self.store.put((self.aux_vc[self.flow_classes(packet)], packet))
+        admitted = self.store.put((tag, packet))
+        if not self._wakeup.triggered:
+            self._wakeup.succeed()
+        return admitted
