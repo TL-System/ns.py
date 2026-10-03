@@ -6,22 +6,21 @@ from collections import defaultdict as dd
 
 
 class ServerMonitor:
-    """Looks at the number of packets for each of the flows in a server, in service +
-    in the queue, and records that info in sizes and byte_sizes, both of which are dictionaries
-    that map flow ids to lists of measurements. The server monitor looks at the flow queues
-    at time intervals given by the distribution `dist`.
+    """Sample waiting packets/bytes for each observed scheduler class.
+
+    ``sizes`` and ``byte_sizes`` map class IDs to measurement lists. These IDs
+    equal flow IDs under the default classifier. Optional service inclusion adds
+    the current packet to its mapped class once; downstream retention is excluded.
 
         Parameters
         ----------
         env: simpy.Environment
             The simulation environment.
-        server: SPServer, WFQServer, or DRRServer
+        server: SPServer, WFQServer, DRRServer, or VirtualClockServer
             The server object to be monitored.
         dist: function
             A no-parameter function that returns the successive inter-arrival
             times of the packets.
-        total_flows: int
-            The total number of flows to be monitored.
         pkt_in_service_included: bool
             If True, monitor packets in service + in the queue;
             If False, only monitor packets in queue.
@@ -31,13 +30,14 @@ class ServerMonitor:
 
         packet_in_service() -> Packet: returns the current packet being sent to the downstream node
 
-        byte_size(flow_id) -> int: returns the queue length in bytes for a flow with a
-        particular flow ID
+        byte_size(class_id) -> int: returns waiting bytes in a class
 
-        size(flow_id) -> int: returns the queue length in the number of packets for a
-        flow with a particular flow ID
+        size(class_id) -> int: returns waiting packets in a class
 
-        all_flows -> list: returns a list containing all the flow IDs
+        all_flows() -> list: returns observed class IDs
+
+        flow_classes(packet) -> class ID: maps the packet in service, when supplied;
+        a server without this classifier uses packet.flow_id for compatibility.
     """
 
     def __init__(self, env, server, dist, pkt_in_service_included=False) -> None:
@@ -52,19 +52,26 @@ class ServerMonitor:
         self.action = env.process(self.run())
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait one sampling interval, then observe waiting work and service."""
         while True:
             yield self.env.timeout(self.dist())
 
-            for flow_id in self.server.all_flows():
-                total = self.server.size(flow_id)
-                total_bytes = self.server.byte_size(flow_id)
+            current = (
+                self.server.packet_in_service()
+                if self.pkt_in_service_included else None
+            )
+            if current is not None:
+                classifier = getattr(self.server, "flow_classes", None)
+                service_class = (
+                    classifier(current) if classifier is not None else current.flow_id
+                )
 
-                if self.pkt_in_service_included:
-                    if self.server.packet_in_service() is not None:
-                        if self.server.packet_in_service().flow_id == flow_id:
-                            total += 1
-                            total_bytes += self.server.packet_in_service().size
+            for class_id in self.server.all_flows():
+                total = self.server.size(class_id)
+                total_bytes = self.server.byte_size(class_id)
+                if current is not None and service_class == class_id:
+                    total += 1
+                    total_bytes += current.size
 
-                self.sizes[flow_id].append(total)
-                self.byte_sizes[flow_id].append(total_bytes)
+                self.sizes[class_id].append(total)
+                self.byte_sizes[class_id].append(total_bytes)

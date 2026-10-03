@@ -8,6 +8,7 @@ from collections.abc import Callable
 
 import simpy
 from ns.packet.packet import Packet
+from ns.utils.retained_store import remove_packet
 
 
 class SPServer:
@@ -117,14 +118,7 @@ class SPServer:
         if self.zero_buffer and packet in self.upstream_stores:
             store = self.upstream_stores.pop(packet)
             callback = self.upstream_updates.pop(packet)
-            # SP can select a packet behind another priority in a shared FIFO.
-            # Move only that packet to the head before using Store.get(), which
-            # preserves the remaining FIFO order and wakes pending puts normally.
-            # Minimal upstream adapters without .items retain the legacy get API.
-            if hasattr(store, "items"):
-                index = next(i for i, item in enumerate(store.items) if item is packet)
-                store.items.insert(0, store.items.pop(index))
-            store.get()
+            remove_packet(store, packet)
             callback(packet)
 
     def packet_in_service(self) -> Packet:

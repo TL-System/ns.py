@@ -14,6 +14,7 @@ from math import isfinite
 
 import simpy
 from ns.packet.packet import Packet
+from ns.utils.retained_store import remove_packet
 
 
 class DRRServer:
@@ -174,13 +175,12 @@ class DRRServer:
         Directly injected packets may have no upstream hooks even in zero-buffer
         mode. A downstream calls this after removing our retained store reference.
         """
-        # With no local buffers, this element needs to pull the packet from upstream
         if self.zero_buffer and packet in self.upstream_stores:
-            # For each packet, remove it from its own upstream's store
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+            # Clear hooks before callbacks, which may synchronously revisit us.
+            store = self.upstream_stores.pop(packet)
+            callback = self.upstream_updates.pop(packet)
+            remove_packet(store, packet)
+            callback(packet)
 
     def packet_in_service(self) -> Packet:
         """

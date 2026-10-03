@@ -5,7 +5,7 @@ useful in the implementation of more sophisticated queueing disciplines,
 such as Weighted Fair Queueing and Virtual Clock.
 """
 
-from heapq import heappop, heappush
+from heapq import heapify, heappop, heappush
 
 from simpy.core import BoundClass
 from simpy.resources import base
@@ -24,7 +24,11 @@ class TaggedStorePut(base.Put):
 
 
 class TaggedStoreGet(base.Get):
-    """Get an item from the store or wait until one is available."""
+    """Get the smallest tag, or a requested object by identity; wait if absent."""
+
+    def __init__(self, resource, item=None):
+        self.item = item
+        super().__init__(resource)
 
 
 class TaggedStore(base.BaseResource):
@@ -33,6 +37,9 @@ class TaggedStore(base.BaseResource):
     Put items are ``(tag, contents)`` pairs. Get returns only the contents,
     selecting the lowest tag first and retaining put order among equal tags.
     Contents need not be comparable: the insertion counter breaks heap ties.
+    ``get(item)`` instead removes that exact object, for downstream release of
+    retained packets that may have been reordered by a different scheduler.
+    ``get()`` (or ``get(None)``) retains the usual smallest-tag selection.
 
     The `env` parameter is an instance of the `simpy.core.Environment` class.
 
@@ -74,5 +81,17 @@ class TaggedStore(base.BaseResource):
     # When we return an item from the tagged store we do not need to
     # return the tag, only the content of the item.
     def _do_get(self, event):
-        if self.items:
+        if event.item is None and self.items:
             event.succeed(heappop(self.items)[2])
+        elif event.item is not None:
+            for index, entry in enumerate(self.items):
+                if entry[2] is event.item:
+                    self.items.pop(index)
+                    # An arbitrary removal must restore the heap, retaining
+                    # every other packet's original tag and admission counter.
+                    heapify(self.items)
+                    event.succeed(entry[2])
+                    break
+            # A missing identity does not reserve other queued objects: later
+            # ordinary or identity-specific gets may still consume those.
+            return True
