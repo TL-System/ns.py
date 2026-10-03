@@ -90,3 +90,10 @@ three named subprocesses, headless environment, timeout, and failure output.
 README and AGENTS instructions now describe the declared test dependency and
 `uv lock --upgrade`; the absent `upgrade_packages.py` instruction is removed.
 No mechanical configuration/documentation tests were added.
+
+## Acceptance
+
+Candidate `e57d1200cfcf8edb3f9052fba4c24dcc619bb02b` passed independent
+6.1-sol/xhigh task review and Astra/medium phase review with no substantive
+findings. Integrated-tree pytest (42 passed), smoke examples, and build passed
+before publication.
