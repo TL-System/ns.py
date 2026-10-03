@@ -2,36 +2,54 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [main]
   workflow_dispatch:
-  
+
+permissions:
+  contents: read
+
 jobs:
-
-  build:
-
+  test_and_build:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v5
-    
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      with:
-        version: "latest"
+      - uses: actions/checkout@v7
 
-    - name: Set up Python
-      id: setup-python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.13"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.12.22"
 
-    - name: Sync dependencies
-      run: uv sync --python 3.13
+      - name: Install Python
+        run: uv python install
 
-    - name: Running the examples
-      run: |
-        cd examples
-        find . -name '*.py' -exec uv run python {} \;
+      - name: Sync dependencies
+        run: uv sync --locked
+
+      - name: Run regression tests
+        run: uv run --locked pytest -q
+
+      - name: Run finite headless examples
+        run: uv run --locked python scripts/smoke_examples.py
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Install and import the wheel in isolation
+        run: |
+          uv venv --python 3.14 "$RUNNER_TEMP/ns-wheel"
+          uv pip install --python "$RUNNER_TEMP/ns-wheel/bin/python" dist/*.whl
+          "$RUNNER_TEMP/ns-wheel/bin/python" -I - <<'PY'
+          import importlib
+          import importlib.metadata
+          import pkgutil
+          import ns
+
+          modules = list(pkgutil.walk_packages(ns.__path__, ns.__name__ + "."))
+          for module in modules:
+              importlib.import_module(module.name)
+          assert ns.__version__ == importlib.metadata.version("ns.py")
+          print(f"Imported ns.py {ns.__version__} and {len(modules)} submodules")
+          PY

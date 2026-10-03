@@ -12,20 +12,28 @@ pip install ns.py
 
 ### Local development with uv
 
+The development target is Python 3.14. Python 3.14.1 is excluded to match
+NetworkX's supported interpreter versions.
+
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it's not already on your machine.
-2. Sync the project and provision a Python 3.13 virtual environment:
+2. Sync the project and provision a Python 3.14 virtual environment:
 
    ```shell
-   uv sync
+   uv sync --locked
    ```
 
 3. Run commands through `uv run` so they pick up the synced environment. For example:
 
    ```shell
-   uv run examples/basic.py
+   uv run --locked python examples/basic.py
    ```
 
-`uv sync` installs `ns.py` in editable mode along with its dependencies, so subsequent `uv run …` invocations (tests, builds, examples) share the exact same interpreter and packages.
+`uv sync --locked` installs `ns.py` in editable mode along with its runtime
+dependencies and pytest. Use `uv run --locked` for tests and examples to keep
+the environment aligned with the checked-in lockfile. Use `uv lock --upgrade`
+when refreshing packages, then review the lockfile and re-run the checks below.
+`uv build` builds the wheel and source distribution in an isolated build
+environment.
 
 ## Current network components
 
@@ -294,5 +302,16 @@ Most often, the mapping between flow IDs and per-flow parameters, such as weight
 A few dozen tests have been included in the project. To run them, use the command:
 
 ```bash
-uv run --with pytest python -m pytest -q
+uv run pytest -q
 ```
+
+CI also runs the finite basic, TCP, and FatTree scenarios with Matplotlib's
+headless `Agg` backend and a 90-second timeout per process:
+
+```shell
+uv run --locked python scripts/smoke_examples.py
+uv build
+```
+
+Real-traffic proxy and server examples need their local client/server setup
+described above and are run separately.
