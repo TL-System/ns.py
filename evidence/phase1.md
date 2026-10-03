@@ -121,3 +121,8 @@ Candidate `e57d1200cfcf8edb3f9052fba4c24dcc619bb02b` passed independent
 6.1-sol/xhigh task review and Astra/medium phase review with no substantive
 findings. Integrated-tree pytest (42 passed), smoke examples, and build passed
 before publication.
+
+The corrected candidate `5500fe0aa0dfaf1bff2b365e1c696eb2999b8fd9` passed
+fresh task and phase reviews. Hosted CI run
+[37137493644](https://github.com/TL-System/ns.py/actions/runs/37137493644)
+passed all checks on that exact revision. Phase 1 is accepted.
