@@ -1,4 +1,4 @@
-"""Replay the pinned Days CPU FIFO case; normal pytest needs no Rust checkout."""
+"""Replay pinned Days CPU fixtures; normal pytest needs no Rust checkout."""
 
 from __future__ import annotations
 
@@ -18,8 +18,12 @@ HERE = Path(__file__).resolve().parent
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-root", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=HERE / "days_fifo.json")
+    parser.add_argument("--case", choices=("fifo", "schedulers"), default="fifo")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+    helper = f"days_{args.case}"
+    package = f"nspy-days-{args.case}"
+    destination = args.output or HERE / f"{helper}.json"
     days_root = args.days_root.expanduser().resolve()
     revision = subprocess.check_output(
         ["git", "-C", str(days_root), "rev-parse", "HEAD"], text=True
@@ -36,18 +40,18 @@ def main() -> None:
     # A temporary path-dependency manifest keeps build output out of both source
     # trees. The checked-in helper lock pins its transitive dependencies. Only
     # our small helper is copied, never Days sources.
-    with tempfile.TemporaryDirectory(prefix="nspy-days-fifo-") as directory:
+    with tempfile.TemporaryDirectory(prefix=f"{package}-") as directory:
         scratch = Path(directory)
         executor_path = json.dumps(str(days_root / "executor"))
         (scratch / "Cargo.toml").write_text(
-            '[package]\nname = "nspy-days-fifo"\nversion = "0.1.0"\n'
-            'edition = "2021"\n\n[[bin]]\nname = "nspy-days-fifo"\n'
-            'path = "days_fifo.rs"\n\n[dependencies]\n'
+            f'[package]\nname = "{package}"\nversion = "0.1.0"\n'
+            f'edition = "2021"\n\n[[bin]]\nname = "{package}"\n'
+            f'path = "{helper}.rs"\n\n[dependencies]\n'
             f"days-executor = {{ path = {executor_path} }}\n",
             encoding="utf-8",
         )
-        shutil.copyfile(HERE / "days_fifo.rs", scratch / "days_fifo.rs")
-        shutil.copyfile(HERE / "days_fifo.Cargo.lock", scratch / "Cargo.lock")
+        shutil.copyfile(HERE / f"{helper}.rs", scratch / f"{helper}.rs")
+        shutil.copyfile(HERE / f"{helper}.Cargo.lock", scratch / "Cargo.lock")
         output = subprocess.check_output(
             [
                 "cargo",
@@ -64,19 +68,20 @@ def main() -> None:
     fixture = json.loads(output)
     fixture["reference"]["regeneration_command"] = (
         "uv run --locked python tests/reference/regenerate_days_fifo.py "
-        "--days-root /path/to/days"
+        + (f"--case {args.case} " if args.case != "fifo" else "")
+        + "--days-root /path/to/days"
     )
     fixture["reference"]["helper_lock_sha256"] = hashlib.sha256(
-        (HERE / "days_fifo.Cargo.lock").read_bytes()
+        (HERE / f"{helper}.Cargo.lock").read_bytes()
     ).hexdigest()
     fixture["reference"]["helper_source_sha256"] = hashlib.sha256(
-        (HERE / "days_fifo.rs").read_bytes()
+        (HERE / f"{helper}.rs").read_bytes()
     ).hexdigest()
     fixture["reference"]["rustc"] = subprocess.check_output(
         ["rustc", "--version"], text=True
     ).strip()
-    args.output.write_text(json.dumps(fixture, indent=2) + "\n", encoding="utf-8")
-    print(f"Recorded actual Days CPU FIFO observations in {args.output}")
+    destination.write_text(json.dumps(fixture, indent=2) + "\n", encoding="utf-8")
+    print(f"Recorded actual Days CPU {args.case} observations in {destination}")
 
 
 if __name__ == "__main__":
