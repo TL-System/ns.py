@@ -19,8 +19,9 @@ class Port:
     element_id: int
         the element id of this port.
     qlimit: integer (or None)
-        a queue limit in bytes or packets (including the packet in service), beyond
-        which all packets will be dropped.
+        a capacity in bytes or packets, including local service and packets retained
+        for downstream backpressure. An exact fit is accepted; None is unlimited
+        and zero provides zero capacity.
     limit_bytes: bool
         if True, the queue limit will be based on bytes; if False, the queue limit
         will be based on packets.
@@ -50,7 +51,12 @@ class Port:
         self.packets_dropped = 0
         self.qlimit = qlimit
         self.limit_bytes = limit_bytes
-        self.byte_size = 0  # the current size of the queue in bytes
+        # All resident bytes: queued, in local service, or retained downstream.
+        # Admission uses this total; monitors may subtract busy_packet_size to
+        # show only queued/retained bytes. Release each admitted packet once.
+        self.byte_size = 0
+        # Includes normal departures and zero-buffer downstream releases.
+        self._packets_removed = 0
         self.element_id = element_id
 
         self.zero_downstream_buffer = zero_downstream_buffer
@@ -65,17 +71,20 @@ class Port:
 
     def update(self, packet):
         """
-        The packet has just been retrieved from this element's own buffer by a downstream
-        node that has no buffers.
+        Release accounting after the downstream node removes a retained packet.
+
+        The zero-buffer handoff calls this once per packet, after removing it from
+        upstream_store. Local serialization has already completed at that point.
         """
-        # There is nothing that needs to be done, just print a debug message
+        self.byte_size -= packet.size
+        self._packets_removed += 1
         if self.debug:
             print(
                 f"Port: Retrieved Packet {packet.packet_id} from flow {packet.flow_id}."
             )
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for FIFO work, then serialize it; rate zero adds no service delay."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_store.get()
@@ -86,58 +95,55 @@ class Port:
             self.busy_packet_size = packet.size
 
             if self.rate > 0:
+                # Packet sizes are bytes; multiplying by 8 converts to link bits.
                 yield self.env.timeout(packet.size * 8.0 / self.rate)
-                self.byte_size -= packet.size
+
+            # Service has ended even if out.put() synchronously injects new work.
+            self.busy = 0
+            self.busy_packet_size = 0
 
             if self.zero_downstream_buffer:
+                # The shared store still owns this packet until downstream removes
+                # it and calls update(), possibly synchronously inside out.put().
                 self.out.put(
                     packet, upstream_update=self.update, upstream_store=self.store
                 )
             else:
+                self.byte_size -= packet.size
+                self._packets_removed += 1
                 self.out.put(packet)
-
-            self.busy = 0
-            self.busy_packet_size = 0
 
     def put(self, packet):
         """Sends a packet to this element."""
         self.packets_received += 1
 
-        if self.zero_downstream_buffer:
-            # If the downstream node has no buffer, packets will be removed
-            # from this buffer by the downstream node, and the byte size of the
-            # buffer should be recomputed
-            self.byte_size = sum(packet.size for packet in self.store.items)
-
         byte_count = self.byte_size + packet.size
+        # A pending Store.get() can remove an arrival before run() resumes and
+        # marks it busy. Count accepted arrivals minus releases rather than store
+        # items, so a same-time burst cannot slip through that handoff. This count
+        # includes the arriving packet because packets_received was just updated.
+        packet_count = (
+            self.packets_received - self.packets_dropped - self._packets_removed
+        )
 
         if self.element_id is not None:
             packet.perhop_time[self.element_id] = self.env.now
 
-        if self.qlimit is None:
-            self.byte_size = byte_count
-            if self.zero_downstream_buffer:
-                self.downstream_store.put(packet)
-            return self.store.put(packet)
-
-        if self.limit_bytes and byte_count >= self.qlimit:
+        exceeds_limit = self.qlimit is not None and (
+            byte_count > self.qlimit if self.limit_bytes else packet_count > self.qlimit
+        )
+        if exceeds_limit:
             self.packets_dropped += 1
             if self.debug:
                 print(
                     f"Packet dropped: flow id = {packet.flow_id} and packet id = {packet.packet_id}"
-                )
-        elif not self.limit_bytes and len(self.store.items) >= self.qlimit - 1:
-            self.packets_dropped += 1
-            if self.debug:
-                print(
-                    f"Packet dropped: flow id = {packet.flow_id}, packet id = {packet.packet_id}"
                 )
         else:
             # If the packet has not been dropped, record the queue length at this port
             if self.debug:
                 print(f"Queue length at port: {len(self.store.items)} packets.")
 
-            self.byte_size = byte_count
+            self.byte_size += packet.size
 
             if self.zero_downstream_buffer:
                 self.downstream_store.put(packet)

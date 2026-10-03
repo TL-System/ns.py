@@ -4,9 +4,11 @@ A monitor for a Port.
 
 
 class PortMonitor:
-    """Looks at the number of items in the Port, in service + in the queue,
-    and records that info in the sizes[] list. The monitor looks at the port
-    at time intervals given by the distribution dist.
+    """Samples queued packets/bytes and optionally the port's local service.
+
+    Packets retained for a zero-buffer downstream element count as queued here
+    until its release callback, even while that element serves them. The monitor
+    looks at the port at time intervals given by the distribution dist.
 
     Parameters
     ----------
@@ -29,16 +31,22 @@ class PortMonitor:
         self.pkt_in_service_included = pkt_in_service_included
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait one sampling interval before each instantaneous occupancy reading."""
         while True:
             yield self.env.timeout(self.dist())
 
-            if self.pkt_in_service_included:
-                total_byte = self.port.byte_size + self.port.busy_packet_size
-                total = len(self.port.store.items) + self.port.busy
-            else:
-                total_byte = self.port.byte_size
-                total = len(self.port.store.items)
+            total_byte = self.port.byte_size
+            # Store.get() can hand off a packet before its process resumes; a
+            # conservation count also covers that brief transition and packets
+            # retained for downstream backpressure, without counting any twice.
+            total = (
+                self.port.packets_received
+                - self.port.packets_dropped
+                - self.port._packets_removed
+            )
+            if not self.pkt_in_service_included:
+                total_byte -= self.port.busy_packet_size
+                total -= self.port.busy
 
             self.sizes.append(total)
             self.sizes_byte.append(total_byte)
