@@ -17,16 +17,17 @@ class SPServer:
     env: simpy.Environment
         The simulation environment.
     rate: float
-        The bit rate of the port.
+        The positive bit rate of the port.
     priorities: list or dict
         This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
         or class_id, if class-based static priority scheduling is activated using the
         `flow_classes' parameter below --- as its index to look for the flow (or class)'s
         corresponding priority. If it is a dictionary, it contains (flow_id or class_id
-        -> priority) pairs for each possible flow_id or class_id.
+        -> priority) pairs for each possible flow_id or class_id. Larger numbers
+        have higher priority; classes with equal priority share one FIFO.
     flow_classes: function
         This is a function that matches a packet's flow_ids to class_ids, used to implement
-        class-based Deficit Round Robin. The default is a lambda function that uses a packet's
+        class-based Static Priority. The default is a lambda function that uses a packet's
         flow_id as its class_id, which is equivalent to flow-based Static Priority.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
@@ -76,6 +77,9 @@ class SPServer:
 
         self.current_packet = None
 
+        # Counters describe packets waiting for local service, keyed by class.
+        # A priority bucket may contain several distinct classes and flow IDs.
+        self.flow_queue_count = dd(lambda: 0)
         self.byte_sizes = dd(lambda: 0)
 
         self.packets_received = 0
@@ -91,21 +95,16 @@ class SPServer:
         self.action = env.process(self.run())
 
     def update_stats(self, packet):
-        """
-        The packet has been sent (or authorized to be sent if this scheduler has a zero-buffer
-        configuration), we need to update the internal statistics related to this event.
-        """
+        """Remove a selected packet from the waiting counters at service start."""
         self.prio_queue_count[packet.prio[self.element_id]] -= 1
-
-        if self.flow_classes(packet) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(packet)] -= packet.size
-        else:
-            raise ValueError("Error: the packet is from an unrecorded flow.")
+        class_id = self.flow_classes(packet)
+        self.flow_queue_count[class_id] -= 1
+        self.byte_sizes[class_id] -= packet.size
 
         if self.debug:
             print(
-                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet)} "
+                f"Started packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {class_id} "
                 f"of priority {packet.prio[self.element_id]}"
             )
 
@@ -115,13 +114,18 @@ class SPServer:
         node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
         configuration.
         """
-        # With no local buffers, this element needs to pull the packet from upstream
-        if self.zero_buffer:
-            # For each packet, remove it from its own upstream's store
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+        if self.zero_buffer and packet in self.upstream_stores:
+            store = self.upstream_stores.pop(packet)
+            callback = self.upstream_updates.pop(packet)
+            # SP can select a packet behind another priority in a shared FIFO.
+            # Move only that packet to the head before using Store.get(), which
+            # preserves the remaining FIFO order and wakes pending puts normally.
+            # Minimal upstream adapters without .items retain the legacy get API.
+            if hasattr(store, "items"):
+                index = next(i for i, item in enumerate(store.items) if item is packet)
+                store.items.insert(0, store.items.pop(index))
+            store.get()
+            callback(packet)
 
     def packet_in_service(self) -> Packet:
         """
@@ -132,7 +136,8 @@ class SPServer:
 
     def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in bytes.
+        Returns waiting bytes for a flow class, excluding the packet in service
+        and packets retained only for downstream ownership.
         Used by a ServerMonitor.
         """
         if queue_id in self.byte_sizes:
@@ -142,73 +147,76 @@ class SPServer:
 
     def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in the
-        number of packets. Used by a ServerMonitor.
+        Returns the number of packets waiting for a flow class's local service.
+        This uses the same class IDs as byte_size(), not priority bucket IDs.
         """
-        if queue_id in self.stores:
-            return len(self.stores[queue_id].items)
-
-        return 0
+        return self.flow_queue_count.get(queue_id, 0)
 
     def all_flows(self) -> list:
         """
-        Returns a list containing all the flow IDs.
+        Returns the observed class IDs (flow IDs with the default mapping).
         """
-        return self.byte_sizes.keys()
+        return list(self.byte_sizes)
 
     def total_packets(self) -> int:
         """
-        Returns the total number of packets currently in the queues.
+        Returns the total number of packets waiting for local service.
         """
         return sum(self.prio_queue_count.values())
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for work, choose the highest priority, and serialize one packet.
+
+        Service is nonpreemptive. A zero-time selection wait lets already
+        scheduled arrivals at a completion time join the next decision; it does
+        not impose global event phases on arbitrary chains of user processes.
+        """
         while True:
+            while self.total_packets() == 0:
+                yield self.packets_available.get()
+
+            # Reconsider priority at every service start, after same-time arrivals.
+            yield self.env.timeout(0)
             for prio in self.priorities_list:
                 if self.prio_queue_count[prio] > 0:
                     if self.zero_downstream_buffer:
-                        ds_store = self.downstream_stores[prio]
-                        packet = yield ds_store.get()
-                        packet.prio[self.element_id] = prio
+                        store = self.downstream_stores[prio]
+                    else:
+                        store = self.stores[prio]
+                    packet = yield store.get()
+                    packet.prio[self.element_id] = prio
 
-                        self.current_packet = packet
-                        yield self.env.timeout(packet.size * 8.0 / self.rate)
+                    self.current_packet = packet
+                    self.update_stats(packet)
+                    # Packet sizes are bytes; multiplying by 8 converts to bits.
+                    yield self.env.timeout(packet.size * 8.0 / self.rate)
 
-                        self.update_stats(packet)
+                    # A synchronous out.put() should observe completed service.
+                    self.current_packet = None
+                    if self.zero_downstream_buffer:
                         self.out.put(
                             packet,
                             upstream_update=self.update,
                             upstream_store=self.stores[prio],
                         )
-                        self.current_packet = None
                     else:
-                        store = self.stores[prio]
-                        packet = yield store.get()
-                        packet.prio[self.element_id] = prio
-
-                        self.current_packet = packet
-                        yield self.env.timeout(packet.size * 8.0 / self.rate)
-
-                        self.update_stats(packet)
                         self.update(packet)
                         self.out.put(packet)
-                        self.current_packet = None
-
                     break
-
-            if self.total_packets() == 0:
-                yield self.packets_available.get()
 
     def put(self, packet, upstream_update=None, upstream_store=None):
         """Sends a packet to this element."""
+        class_id = self.flow_classes(packet)
+        prio = self.prio[class_id]
         self.packets_received += 1
-        self.byte_sizes[self.flow_classes(packet)] += packet.size
+        self.flow_queue_count[class_id] += 1
+        self.byte_sizes[class_id] += packet.size
 
-        if self.total_packets() == 0:
+        # A single wakeup is enough even if the sole waiting packet repeatedly
+        # enters service before another arrives. Do not accumulate idle tokens.
+        if self.total_packets() == 0 and not self.packets_available.items:
             self.packets_available.put(True)
 
-        prio = self.prio[self.flow_classes(packet)]
         self.prio_queue_count[prio] += 1
 
         if self.debug:
@@ -217,7 +225,7 @@ class SPServer:
                     self.env.now,
                     packet.packet_id,
                     packet.flow_id,
-                    self.flow_classes(packet),
+                    class_id,
                 )
             )
 
