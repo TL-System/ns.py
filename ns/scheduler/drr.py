@@ -106,7 +106,9 @@ class DRRServer:
         self.active_queue = deque()
         # The class whose visit is in progress is separate from the waiting
         # active list. Arrivals must not insert a still-backlogged visit twice.
-        self.current_queue = None
+        # None is a valid dictionary class key, so idle needs a unique sentinel.
+        self._no_current_queue = object()
+        self.current_queue = self._no_current_queue
 
         # One FIFO queue for each flow_id or class_id
         self.stores = {}
@@ -157,7 +159,7 @@ class DRRServer:
         # A packet arriving while this last packet serializes starts a new visit.
         if self.flow_queue_count[queue_id] == 0:
             self.deficit[queue_id] = 0.0
-            self.current_queue = None
+            self.current_queue = self._no_current_queue
 
         if self.debug:
             print(
@@ -286,7 +288,7 @@ class DRRServer:
                         self.update(packet)
                         self.out.put(packet)
 
-                    if self.current_queue is None:
+                    if self.current_queue is self._no_current_queue:
                         # That selection emptied the queue. Arrivals during its
                         # service have already reactivated it at the list tail.
                         break
@@ -295,7 +297,7 @@ class DRRServer:
                     self.head_of_line[queue_id] = packet
                     break
 
-            self.current_queue = None
+            self.current_queue = self._no_current_queue
             if self.flow_queue_count.get(queue_id, 0) > 0:
                 self._activate_flow(queue_id)
             else:

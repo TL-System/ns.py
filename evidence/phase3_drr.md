@@ -95,7 +95,7 @@ visit, mapped-class debug failure, service counted as waiting, and invalid
 configuration handling. A later test for an already scheduled time-zero arrival
 failed against the initial repair, then passed after the visit-boundary yield.
 
-The final independent suite was also run against the accepted baseline module,
+The initial candidate's independent suite was also run against the baseline module,
 without changing working-tree files. It produced **23 failed, 4 passed**. The
 baseline-module command is reproducible from the accepted revision:
 
@@ -118,7 +118,7 @@ PY
 
 | Exact command | Observation |
 | --- | --- |
-| `uv run --locked pytest -q tests/scheduler/test_drr.py tests/scheduler/test_servers.py -k drr` | 32 passed, 8 deselected in 0.03 s. |
+| `uv run --locked pytest -q tests/scheduler/test_drr.py tests/scheduler/test_servers.py -k drr` | Initially 32 passed; after the review correction, 34 passed, 8 deselected in 0.03 s. |
 | `uv run --locked python examples/two_level_drr.py` | Exit 0; six flows each delivered three packets. |
 | `git diff --check` | Passed. |
 
@@ -126,9 +126,17 @@ The finite example ran with its checked-in settings and stop of 100 seconds.
 The coordinator runs the final whole-tree regression gate after the other
 scheduler tasks are integrated.
 
+Review of `37e6a14` found that the idle-visit value `None` collided with a valid
+dictionary class key. Two new regressions first failed: a sole packet mapped to
+`None` remained queued forever, and a backlogged `None` class received no visits.
+A unique per-server sentinel now distinguishes idle from every supplied class
+key; the mapped class departs at 1 second and the mixed-class case preserves
+ordinary deficit carry/order. `uv run --locked pytest -q tests/scheduler/test_drr.py
+-k none` produced 2 failures before repair; the full DRR command above is green.
+
 ## Source growth
 
-Production counts compare only `ns/scheduler/drr.py` with `cf9488c` using Phase
+Initial candidate counts compare only `ns/scheduler/drr.py` with `cf9488c` using Phase
 0's AST/token categories: explanatory lines are nonblank docstrings and
 comment-only lines; code-bearing lines are all other nonblank lines, including
 delimiters. The added current-visit field repairs activation timing without
@@ -141,3 +149,7 @@ introducing a scheduling framework.
 | Explanatory | 70 | 83 | +13 |
 | Blank | 59 | 56 | -3 |
 | Inline comments (overlap code-bearing) | 0 | 0 | 0 |
+
+The sentinel correction adds one code-bearing and one explanatory line beyond
+these initial candidate counts. Shared-buffer composition edits are recorded by
+their separate task and the phase's final aggregate count.

@@ -292,3 +292,29 @@ def test_zero_buffer_accepts_direct_packets_without_upstream_hooks():
     server.put(item)
     env.run()
     assert_departures(server, [item], [1])
+
+
+def test_none_is_a_valid_mapped_class_id():
+    env = simpy.Environment()
+    server = DRRServer(env, 12000, {None: 1}, flow_classes=lambda p: None)
+    server.out = CaptureSink(env)
+    item = packet(0, 10)
+    server.put(item)
+    env.run()
+
+    assert_departures(server, [item], [1])
+
+
+def test_none_class_keeps_normal_deficit_visits_while_backlogged():
+    env = simpy.Environment()
+    server = DRRServer(env, 12000, {None: 1, "other": 1})
+    server.out = CaptureSink(env)
+    a = [packet(i, None, 1000) for i in range(3)]
+    b = [packet(i + 3, "other") for i in range(2)]
+    for item in [*a, *b]:
+        server.put(item)
+    env.run()
+
+    # None is a class key, so its 500-byte residual carries to a 2000-byte visit.
+    assert_departures(server, [a[0], b[0], a[1], a[2], b[1]],
+                      [2 / 3, 5 / 3, 7 / 3, 3, 4])
