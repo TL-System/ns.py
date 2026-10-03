@@ -30,20 +30,22 @@ class TaggedStoreGet(base.Get):
 class TaggedStore(base.BaseResource):
     """Models the production and consumption of concrete Python objects.
 
-    Items put into the store can be of any type.  By default, they are put and
-    retrieved from the store in a first-in first-out order.
+    Put items are ``(tag, contents)`` pairs. Get returns only the contents,
+    selecting the lowest tag first and retaining put order among equal tags.
+    Contents need not be comparable: the insertion counter breaks heap ties.
 
     The `env` parameter is an instance of the `simpy.core.Environment` class.
 
     The `capacity` parameter defines the size of the Store and must be a positive
     number (> 0). By default, a Store is of unlimited size. A `ValueError` exception
-    is raised if the value is negative.
+    is raised if capacity is nonpositive or NaN. A full store leaves puts pending
+    in SimPy's FIFO put queue until a get frees capacity.
     """
 
     def __init__(self, env, capacity=float("inf")):
         super().__init__(env, capacity=float("inf"))
 
-        if capacity <= 0:
+        if not capacity > 0:
             raise ValueError('"capacity" must be > 0.')
 
         self._capacity = capacity
@@ -64,8 +66,8 @@ class TaggedStore(base.BaseResource):
     # We assume the item is a tuple: (tag, packet). The tag is used to
     # sort the packet in the heap.
     def _do_put(self, event):
-        self.event_count += 1  # Needed this to break heap ties
         if len(self.items) < self._capacity:
+            self.event_count += 1  # Count admissions, not retries of pending puts.
             heappush(self.items, [event.item[0], self.event_count, event.item[1]])
             event.succeed()
 
