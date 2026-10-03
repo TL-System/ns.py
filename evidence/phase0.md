@@ -74,6 +74,7 @@ architecture or add its extra protocols.
 
 ## Acceptance record
 
-Documentation and baseline gathering are complete. Task review, phase review,
-accepted commit, and publication are recorded by the orchestrator after review;
-this initial record does not claim those gates have passed.
+Accepted candidate `25aa1ffd08b68db71df69fd6b5d828beda151ed5`: independent
+6.1-sol/xhigh task review and Astra/medium phase gate both passed with no
+critical, high, or medium findings. No implementation changes were integrated.
+The orchestrator re-ran the 42-test baseline on the accepted tree before pushing.
