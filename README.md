@@ -297,7 +297,7 @@ CI also runs the finite basic, TCP, FatTree, and composed-network scenarios with
 headless `Agg` backend and a 90-second timeout per process:
 
 ```shell
-uv run --locked python scripts/smoke_examples.py
+uv run --locked python scripts/run_examples.py
 uv build
 ```
 
