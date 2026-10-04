@@ -58,6 +58,10 @@ flow stops it. Timeout retransmits only that oldest range and doubles the RTO.
 Three duplicate ACKs enter fast recovery and retransmit the first hole. A partial
 recovery ACK retransmits the next hole while retaining the recovery frontier;
 the connection exits recovery when the ACK covers the bytes outstanding at entry.
+Partial-recovery retransmissions yield one zero-time SimPy turn so immediate
+ACK paths cannot grow the Python call stack with every missing segment. Before
+forwarding, the sender checks that the requested range is still missing and has
+not been superseded by another attempt.
 
 Both senders conservatively apply Karn's rule: only an ACK for exactly one
 complete, never-retransmitted, never-partially-ACKed outstanding segment supplies
