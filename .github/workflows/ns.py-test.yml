@@ -35,7 +35,7 @@ jobs:
         run: uv run --locked pytest -q
 
       - name: Run finite headless examples
-        run: uv run --locked python scripts/smoke_examples.py
+        run: uv run --locked python scripts/run_examples.py
 
       - name: Build distributions
         run: uv build
