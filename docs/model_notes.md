@@ -140,8 +140,11 @@ credit. Single-rate tokens gate departures unless optional peak serialization
 is enabled, when they gate serialization starts. Completed-packet windows can
 then bunch and require a packetization allowance. Oversized packets wait for
 the deficit and leave zero credit, relaxing the ordinary burst envelope for
-that packet. Two-rate shaper colors describe head eligibility before a wait;
-only green consumes committed credit. They differ from arrival metering:
+that packet. Two-rate shaper colors describe head eligibility before a wait.
+With PIR configured, only green consumes committed credit; yellow/red preserve
+it. Without PIR, CIR gates all traffic: green consumes available committed
+tokens, while yellow waits for its deficit and consumes the resulting credit,
+leaving the committed bucket empty. These colors differ from arrival metering:
 color-blind `TrTCM` colors immediately, preserves flow ID, and neither waits nor
 drops. The [shaper evidence](../evidence/phase6_queues_shapers.md) states envelopes
 and color rules precisely.

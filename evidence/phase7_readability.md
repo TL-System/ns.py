@@ -206,3 +206,17 @@ example. The independent composition task records its teaching example and
 mixed-size hierarchy, congestion, FatTree, and TCP-loss observations in
 [composition evidence](phase7_composition.md). These are reported integration
 observations rather than new algorithm repairs by this documentation task.
+
+## Review correction: CIR-only committed credit
+
+Fresh documentation review and the Phase 7 gate of `913a85d` found that the model
+notes' “only green consumes committed credit” statement omitted its configured-
+PIR condition. The notes now distinguish that branch from CIR-only shaping:
+without PIR, green consumes available committed tokens and yellow waits for its
+deficit, consumes that credit, and leaves the bucket empty. The correction agrees
+with the existing runtime docstring, CIR-only `run()` branch, and
+[Phase 6 shaper evidence](phase6_queues_shapers.md). Inspection also confirmed the
+existing mixed-size/idle-refill and rate/burst-envelope tests select CIR-only
+two-rate shaping, while the peak-wait test checks yellow/red credit preservation
+with PIR configured. `git diff --check` passes. This is a prose correction only;
+no runtime change, new tests, or additional test execution is required.
