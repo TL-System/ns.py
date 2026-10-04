@@ -1,8 +1,9 @@
-# Phase 3 progress and pending WFQ decision
+# Phase 3 acceptance
 
-The independent portion at `d96f2c97cb2fb7230cb9430c2c1e25d84c850700`
-has passed task reviews and an Astra/medium interim integration review. This is
-not full Phase 3 acceptance and does not authorize starting Phase 4.
+The complete phase is accepted at `917501e8e43dd2d013c8f6b0302c0f6cb9562e29`.
+After the user selected the Days WFQ recurrence, fresh implementation, reference,
+and final phase reviews (all gpt-6.1-sol/high under the latest user instruction)
+passed with no substantive findings. Earlier independent-task reviews are below.
 
 ## Reviewed tasks
 
@@ -30,23 +31,18 @@ fully released retained storage). The helper `ns/utils/retained_store.py` is the
 only new runtime module; it centralizes exact-object release for existing
 composition callbacks, rather than adding a scheduling framework.
 
-## Required decision
+## Resolved WFQ model and final validation
 
-Current Days WFQ uses queued plus in-service packets to decide which classes
-advance virtual time. Textbook WFQ uses a fluid GPS reference; these models can
-choose different packets even with exact arithmetic. The actual CPU
-counterexample is recorded in the reference evidence. The orchestrator requested
-user direction between textbook WFQ (recommended for educational correctness)
-and matching Days with an explicitly documented approximation. No answer has
-been assumed.
+The user explicitly selected current Days WFQ. Queued and in-service physical
+packets determine its active weights; this is documented as a packet-active
+approximation rather than ideal fluid GPS. Implementation and actual CPU
+comparisons were accepted at `917501e8e43dd2d013c8f6b0302c0f6cb9562e29`;
+see [WFQ evidence](phase3_wfq.md) and [reference evidence](phase3_reference.md).
+The previously pending regressions are now committed and passing.
 
-The WFQ implementer preserved `tests/scheduler/test_wfq.py` as uncommitted work in
-progress: its initial 12 failed / 2 passed result captures first-tag, idle,
-fairness, telemetry, and input defects. Those intentionally red tests were not
-weakened or silently marked passing. The kernel remains unchanged; only its
-shared-buffer callback plumbing was repaired with the other schedulers.
-
-After the user chooses, resume the original WFQ implementer, add the appropriate
-Python/Days comparisons, obtain fresh task review, run the complete suite with
-no WFQ exclusion, and complete the final Astra phase gate. Phases 4 through 7
-remain unstarted. Preserve this paused work during cleanup.
+Final checks: `uv run --locked pytest -q` (245 passed, no exclusions),
+`uv run --locked python scripts/smoke_examples.py` (all three passed),
+`uv build` (wheel and sdist passed). The WFQ examples delivered 52 and 18 packets,
+respectively, with waiting/service/retained state drained. All task and phase
+gates passed before publication. The user also authorized the coordinator to
+merge PRs after the complete work has passed its gates.
