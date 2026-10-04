@@ -55,7 +55,7 @@ worker is used.
 
 ```sh
 uv run --locked pytest -q tests/packet/test_proxy_io.py tests/packet/test_sink.py
-# 23 passed in 0.13s (19 proxy cases and 4 PacketSink cases)
+# 26 passed in 0.24s (22 proxy cases and 4 PacketSink cases)
 
 git diff --check -- ns/packet/proxy_generator.py ns/packet/proxy_sink.py examples/real_traffic/proxy.py docs/proxies.md tests/packet/test_proxy_io.py
 # Exit 0
@@ -63,6 +63,21 @@ git diff --check -- ns/packet/proxy_generator.py ns/packet/proxy_sink.py example
 
 Phase integration, exact candidate-commit review, full tests, example smoke
 checks and package validation remain the orchestrator's gate.
+
+## Review correction
+
+Fresh review of candidate `a16a48a` identified one P2: after real TCP EOF removed
+its socket, a later request still traveling through the simulation could create
+a new connection under the same old flow ID. Before this repair, three bounded
+loopback cases reproduced an unexpected second server connection after server
+EOF, a received close marker, or an injected send timeout on a real connection.
+
+TCP closure now retains the lifetime-unique ID until explicit proxy shutdown.
+Both scheduling and sink delivery reject retired IDs; closing also continues to
+cancel already queued sends. UDP does not retire IDs. All three no-reconnection
+observations now pass, including the original `first` payload, EOF observation,
+and absence of a second server connection after `late`. Statistics still describe
+simulated arrivals, including a later payload whose real delivery is discarded.
 
 ## Limits and readability
 
@@ -83,14 +98,14 @@ count or complexity.
 
 | Owned production | Accepted physical/code-bearing/explanatory/blank | Candidate physical/code-bearing/explanatory/blank |
 | --- | --- | --- |
-| `proxy_generator.py` | 230 / 166 / 28 / 36 | 235 / 176 / 31 / 28 |
+| `proxy_generator.py` | 230 / 166 / 28 / 36 | 241 / 180 / 33 / 28 |
 | `proxy_sink.py` | 268 / 185 / 39 / 44 | 91 / 65 / 13 / 13 |
 | `examples/real_traffic/proxy.py` | 55 / 40 / 5 / 10 | 61 / 44 / 6 / 11 |
-| Total | 553 / 391 / 72 / 90 | 387 / 285 / 50 / 52 |
+| Total | 553 / 391 / 72 / 90 | 393 / 289 / 52 / 52 |
 
-Net production change: **-166 physical, -106 code-bearing, -22 explanatory,
--38 blank lines**. The 379-line test module has 326 code-bearing, 7 explanatory,
-and 46 blank lines. Shared polling removes duplicated socket/statistics loops;
+Net production change: **-160 physical, -102 code-bearing, -20 explanatory,
+-38 blank lines**. The 420-line test module has 363 code-bearing, 8 explanatory,
+and 49 blank lines. Shared polling removes duplicated socket/statistics loops;
 comments explain bytes, monotonic seconds, cancellation, EOF, timeout uncertainty,
 and insertion order. No asynchronous server framework or new execution engine
 was introduced.

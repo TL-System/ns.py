@@ -64,7 +64,7 @@ class ProxySink(_ProxyIO, PacketSink):
 
     def send_to_app(self, packet):
         """Send all TCP bytes, or one UDP datagram, when its deadline is due."""
-        if self.closed:
+        if self.closed or packet.flow_id in self._retired_flows:
             return
         if self.protocol == "tcp" and packet.payload is None:
             self._close_flow(packet.flow_id)

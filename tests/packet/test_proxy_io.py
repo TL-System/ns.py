@@ -377,3 +377,44 @@ def test_tcp_failed_write_terminates_flow_without_replaying_prefix(proxy_type):
         left.close()
         right.close()
         cleanup(proxy)
+
+
+@pytest.mark.parametrize("close_path", ["server_eof", "close_marker", "send_error"])
+def test_tcp_retired_flow_does_not_open_a_second_server_connection(
+    close_path, monkeypatch,
+):
+    env = simpy.Environment()
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+        server.bind(("127.0.0.1", 0))
+        server.listen()
+        server.settimeout(1)
+        if close_path == "send_error":
+            class FailedSend(socket.socket):
+                def sendall(self, payload):
+                    if payload == b"fail":
+                        raise socket.timeout("Injected write failure")
+                    return super().sendall(payload)
+
+            monkeypatch.setattr(socket, "socket", FailedSend)
+        sink = ProxySink(env, "sink", server.getsockname())
+        collector = Collector()
+        sink.out = collector
+        try:
+            sink.put(Packet(0, 5, 1, flow_id=7, payload=b"first"))
+            with server.accept()[0] as connection:
+                connection.settimeout(1)
+                assert connection.recv(100) == b"first"
+                if close_path == "close_marker":
+                    sink.put(Packet(env.now, 0, 2, flow_id=7, payload=None))
+                    assert connection.recv(100) == b""
+                elif close_path == "send_error":
+                    sink.put(Packet(env.now, 4, 2, flow_id=7, payload=b"fail"))
+                    assert connection.recv(100) == b""
+            if close_path == "server_eof":
+                drive(env, lambda: any(p.payload is None for p in collector.packets))
+                assert [(p.flow_id, p.payload) for p in collector.packets] == [(7, None)]
+            # A request already in the simulated path can arrive after real EOF.
+            sink.put(Packet(env.now, 4, 3, flow_id=7, payload=b"late"))
+            assert not select([server], [], [], 0.03)[0], "Closed TCP flow reopened"
+        finally:
+            cleanup(sink)

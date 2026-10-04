@@ -30,6 +30,7 @@ class _ProxyIO:
         self._init_simtime = env.now
         self.flow_ids = {}
         self.sockets = {}
+        self._retired_flows = set()
         self.closed = False
         self._pending = []
         self._send_id = 0
@@ -50,11 +51,15 @@ class _ProxyIO:
         self.out.put(packet)
 
     def _close_flow(self, flow_id):
+        # TCP IDs are lifetime-unique. Remember EOF/error closure even after
+        # removing the socket: requests can still be traveling through SimPy.
+        if self.protocol == "tcp":
+            self._retired_flows.add(flow_id)
         sock = self.sockets.pop(flow_id, None)
         if sock is not None:
             self.flow_ids.pop(sock, None)
             sock.close()
-        # A disconnected flow cannot deliver stale queued data or reopen itself.
+        # Cancel queued sends belonging to the disconnected flow.
         self._pending = [entry for entry in self._pending
                          if entry[2].flow_id != flow_id]
         heapq.heapify(self._pending)
@@ -74,7 +79,7 @@ class _ProxyIO:
                 self._disconnect(sock)
 
     def _schedule(self, packet):
-        if self.closed:
+        if self.closed or packet.flow_id in self._retired_flows:
             return
         # Proxy packets carry absolute monotonic wall seconds, so the two ends
         # need not have been constructed at exactly the same wall-clock instant.
@@ -134,6 +139,7 @@ class _ProxyIO:
             sock.close()
         self.sockets.clear()
         self.flow_ids.clear()
+        self._retired_flows.clear()
 
 
 class ProxyPacketGenerator(_ProxyIO):

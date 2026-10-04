@@ -30,7 +30,10 @@ UDP has no EOF signal and this adapter does not add inactivity expiry.
 from sink application-byte/packet statistics. An empty UDP payload `b""` is a
 valid datagram, is forwarded, and counts as a zero-byte data packet. TCP half-close
 is not supported: client EOF closes its return path even if the server still has
-responses in flight. A server EOF is also forwarded as a close marker. Simulator
+responses in flight. A server EOF is also forwarded as a close marker. Closed TCP IDs are retained
+until proxy shutdown: later packets still in the simulated path cannot reopen
+the flow after EOF, a close marker, or a socket error. UDP IDs are not retired.
+Simulator
 loss or reordering of TCP chunks is not repaired by an internal retransmission
 protocol; use the modeled TCP generator/receiver to study those algorithms.
 
@@ -64,7 +67,7 @@ system hostname resolution itself is outside that bound. For bounded local runs,
 use a numeric loopback destination and an explicitly configured local server.
 
 `close()` is idempotent: it immediately closes owned descriptors, clears UDP
-associations, and cancels all queued sends. Later `put()` calls do nothing. The
+associations and retired TCP IDs, and cancels all queued sends. Later `put()` calls do nothing. The
 SimPy polling process terminates at its next scheduled wakeup; no background
 threads or timer callbacks exist. Stopping `env.run()` alone does not close
 sockets, which is why the example uses `finally`. Socket resources grow with
@@ -72,7 +75,8 @@ active flows; this adapter adds no admission limits or server framework.
 
 `ProxySink` reuses `PacketSink` for simulated arrivals, waiting times, byte counts,
 and independent per-hop snapshots. These statistics describe arrival at the
-simulated sink, including payloads whose eventual real send fails; they are not
+simulated sink, including payloads whose real delivery fails or is discarded after TCP closure;
+they are not
 proof of remote application consumption. Current Days CPU has no real-socket
 counterpart, so proxy validation uses bounded local sockets and independent
 invariants rather than a claimed cross-simulator match.
