@@ -274,15 +274,16 @@ class TCPPacketGenerator:
 
         if sequence == self.last_ack:
             self.dupack += 1
-            self._before_control()
             if self.recovery_high_sequence is None and self.dupack == 3:
                 # Recovery covers the bytes outstanding at entry. Later duplicate
                 # ACKs may send fresh bytes but never move this exit frontier.
                 self.recovery_high_sequence = self.next_seq
+                self._before_control()
                 self.congestion_control.consecutive_dupacks_received()
                 self._restart_timer()
                 self._retransmit(self.segment_state[sequence])
             elif self.recovery_high_sequence is not None:
+                self._before_control()
                 self.congestion_control.more_dupacks_received()
                 self._wake_sender()
             return
@@ -341,7 +342,15 @@ class TCPPacketGenerator:
                 # The exit ACK does not also grow the congestion window.
         else:
             rtt = self.smoothed_rtt if sample is None else sample
-            self.congestion_control.ack_received(rtt, self.env.now)
+            # Built-in loss controllers need the exact frontier advance, even
+            # for short or cumulative ACKs. The bridge carries only a fresh
+            # Karn sample (None if ambiguous); old custom callbacks keep their
+            # two-argument interface and historical estimator-value fallback.
+            hook = getattr(self.congestion_control, "ack_received_bytes", None)
+            if hook is None:
+                self.congestion_control.ack_received(rtt, self.env.now)
+            else:
+                hook(sequence - previous_ack, sample, self.env.now)
         if self.debug:
             print(
                 f"TCP {self.element_id} ACK={self.last_ack}, "

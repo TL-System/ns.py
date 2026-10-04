@@ -3,8 +3,10 @@ import pytest
 simpy = pytest.importorskip("simpy")
 
 from ns.flow.flow import Flow
+from ns.flow.cc import TCPReno
 from ns.packet.packet import Packet
 from ns.packet.tcp_generator import TCPPacketGenerator
+from ns.packet.tcp_sink import TCPSink
 
 
 class CaptureSink:
@@ -150,3 +152,119 @@ def test_tcp_sender_ignores_dupacks_after_completion():
     assert len(sink.packets) == 2
     assert sender.dupack == 0
     assert sender.timers == {}
+
+
+def test_reno_short_final_ack_grows_only_by_delivered_bytes():
+    env = simpy.Environment()
+    cc = TCPReno(mss=300, cwnd=300)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=701), cc)
+    receiver = TCPSink(env)
+    sender.out = receiver
+    receiver.out = sender
+    env.run(until=0.1)
+    # The synchronous receiver ACKs 300, 300, and 101 bytes: all are
+    # slow-start credit, including the exact tail rather than a third MSS.
+    assert cc.cwnd == 1001
+    assert sender.last_ack == receiver.bytes_delivered == 701
+    assert sender.bytes_in_flight == 0
+    assert sender.segment_state == {}
+    assert sender.timer.stopped
+
+
+def test_reno_cumulative_ack_bridge_carries_bytes_and_no_fabricated_rtt():
+    class RecordingReno(TCPReno):
+        def ack_received_bytes(self, acknowledged_bytes, rtt, current_time):
+            observations.append((acknowledged_bytes, rtt, self.flight_size))
+            super().ack_received_bytes(acknowledged_bytes, rtt, current_time)
+
+    observations = []
+    env = simpy.Environment()
+    cc = RecordingReno(mss=1000, cwnd=3000, ssthresh=3000)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=3000), cc)
+    captured = CaptureSink(env)
+    receiver = TCPSink(env)
+    sender.out = captured
+    receiver.out = sender
+    env.run(until=0.1)
+    # Two out-of-order segments produce two duplicate ACKs; filling the gap
+    # then ACKs three segments together, so Karn supplies no fresh RTT sample.
+    for index in (1, 2, 0):
+        receiver.put(captured.packets[index])
+    assert observations == [(3000, None, 3000)]
+    assert cc.cwnd == 4000
+    assert sender.last_ack == receiver.bytes_delivered == 3000
+    assert sender.segment_state == {}
+    assert sender.timer.stopped
+
+
+def test_reno_ack_bridge_preserves_measured_zero_rtt():
+    class RecordingReno(TCPReno):
+        def ack_received_bytes(self, acknowledged_bytes, rtt, current_time):
+            observations.append((acknowledged_bytes, rtt))
+            super().ack_received_bytes(acknowledged_bytes, rtt, current_time)
+
+    observations = []
+    env = simpy.Environment()
+    cc = RecordingReno(mss=300, cwnd=300)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=123), cc)
+    receiver = TCPSink(env)
+    sender.out = receiver
+    receiver.out = sender
+    env.run(until=0.1)
+    assert observations == [(123, 0)]
+    assert sender._rtt_initialized
+
+
+@pytest.mark.parametrize("loss", ["timeout", "duplicate_acks"])
+def test_reno_transport_loss_halves_flight_instead_of_larger_window(loss):
+    env = simpy.Environment()
+    cc = TCPReno(mss=1000, cwnd=30000)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=10000), cc)
+    captured = CaptureSink(env)
+    sender.out = captured
+    env.run(until=0.1)
+    assert sender.bytes_in_flight == 10000
+    if loss == "timeout":
+        env.run(until=1.01)
+    else:
+        for _ in range(3):
+            sender.put(make_ack(0))
+    assert cc.ssthresh == 5000
+    assert cc.cwnd == (1000 if loss == "timeout" else 8000)
+    assert captured.packets[-1].packet_id == 0
+    assert len(captured.packets) == 11
+
+
+def test_reno_recovery_ack_transitions_have_no_extra_window_growth():
+    env = simpy.Environment()
+    cc = TCPReno(mss=1000, cwnd=30000)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=10000), cc)
+    captured = CaptureSink(env)
+    sender.out = captured
+    env.run(until=0.1)
+    for _ in range(4):
+        sender.put(make_ack(0))
+    assert cc.cwnd == 9000
+    sender.put(make_ack(2000))
+    assert cc.cwnd == 6000  # partial ACK: threshold plus one replacement segment
+    env.run(until=0.11)
+    assert captured.packets[-1].packet_id == 2000
+    sender.put(make_ack(10000))
+    assert cc.cwnd == 5000  # exit ACK deflates without ordinary ACK growth
+    assert sender.last_ack == 10000
+    assert sender.segment_state == {}
+    assert sender.timer.stopped
+
+
+def test_first_two_duplicate_acks_do_not_leave_unused_controller_context():
+    env = simpy.Environment()
+    cc = TCPReno(mss=1000, cwnd=30000)
+    sender = TCPPacketGenerator(env, Flow(1, "src", "dst", size=10000), cc)
+    sender.out = CaptureSink(env)
+    env.run(until=0.1)
+    for _ in range(2):
+        sender.put(make_ack(0))
+    # These ACKs do not call a control action. A later direct controller call
+    # must therefore use its documented window fallback, not unused flight.
+    cc.timer_expired()
+    assert cc.ssthresh == 15000
