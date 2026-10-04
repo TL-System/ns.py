@@ -138,15 +138,15 @@ These are a size/readability proxy rather than executable-statement counts.
 | Owned production | Accepted | Candidate | Change |
 | --- | ---: | ---: | ---: |
 | Physical lines | 565 | 522 | -43 |
-| Code-bearing lines | 424 | 408 | -16 |
-| Explanatory lines | 68 | 76 | +8 |
+| Code-bearing lines | 424 | 407 | -17 |
+| Explanatory lines | 68 | 77 | +9 |
 | Blank lines | 73 | 38 | -35 |
 | Inline comments (overlap code) | 5 | 3 | -2 |
 
-The BBR sender alone changes from 444 to 400 physical lines, 335 to 319
-code-bearing lines, and 48 to 55 explanatory lines. Sampler code-bearing lines
+The BBR sender alone changes from 444 to 400 physical lines, 335 to 318
+code-bearing lines, and 48 to 56 explanatory lines. Sampler code-bearing lines
 remain 89, with one additional explanatory line. The two sender test files total
-556 physical lines, 455 code-bearing, two explanatory and 99 blank, versus the
+587 physical lines, 481 code-bearing, two explanatory and 104 blank, versus the
 previous single file's 361/297/2/62. The implementation retains recognizable
 SimPy `run()`, `put()` and timer callbacks; no execution or configuration
 framework is introduced.
@@ -202,3 +202,40 @@ pending attempt superseded by timeout. `git diff --check` passes.
 Compared with the reviewed candidate, this repair adds nine code-bearing lines,
 four explanatory lines and one blank line to production. The table above records
 the complete resulting source totals against the accepted pre-phase revision.
+
+## Phase gate fix: an eligible zero RTT still learns the timer
+
+The Phase 4 gate on `4a621f171e297d0425564b13f25ff3733936f81a` found that
+an eligible synchronous ACK with zero elapsed RTT was excluded from RTO
+estimation. With passive MSS/cwnd 100, a 200-byte flow and initial RTT estimate
+2 seconds, the first segment's immediate ACK left the initial four-second timer
+estimate in place. Losing the second segment therefore retransmitted at four
+seconds instead of the learned one-second RTO floor.
+
+The eligible RTT branch now calls `_update_rto(0)` as it does for any other
+unambiguous observation. Eligibility remains unchanged, so partial, cumulative
+and retransmission ACKs still do not teach RTT. The separate positive interval
+guard for delivery-rate division remains intact.
+
+```sh
+uv run --locked python - <<'PY'
+import importlib
+import subprocess
+import pytest
+module = importlib.import_module('ns.packet.bbr_generator')
+source = subprocess.check_output([
+    'git', 'show', '4a621f1:ns/packet/bbr_generator.py',
+], text=True)
+exec(compile(source, '4a621f1/bbr_generator.py', 'exec'), module.__dict__)
+raise SystemExit(pytest.main([
+    '-q', '--tb=no', 'tests/packet/test_bbr_transport.py', '-k', 'zero_rtt_ack',
+]))
+PY
+```
+
+Observed red: **1 failed, 36 deselected**. On the fixed sender the full focused
+command above produces **50 passed**. The regression observes attempts
+`[(0, 0), (0, 100), (1, 100)]`, successful delivery of all 200 bytes, zero flight,
+no timer and no additional retransmissions through five seconds. The correction
+replaces one code-bearing guard line with an explanatory comment, preserving
+physical size; the production table above includes it. `git diff --check` passes.

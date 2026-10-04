@@ -389,3 +389,34 @@ def test_timeout_supersedes_a_pending_partial_recovery_attempt():
         0, 512, 1024, 1536, 0, 512,
     ]
     assert sender.segment_state[512].retransmit_count == 1
+
+
+def test_zero_rtt_ack_learns_rto_floor_before_next_segment_loss():
+    env = simpy.Environment()
+    flow = Flow(7, "src", "dst", size=200)
+    sender = BBRPacketGenerator(
+        env, flow, DummyCC(cwnd=100, mss=100), rtt_estimate=2, debug=False,
+    )
+    receiver = TCPSink(env, debug=False)
+    receiver.out = sender
+    attempts = []
+
+    class LoseSecondSegmentOnce:
+        def put(self, packet):
+            attempts.append((env.now, packet.packet_id))
+            if packet.packet_id == 100 and len(attempts) == 2:
+                return
+            receiver.put(packet)
+
+    sender.out = LoseSecondSegmentOnce()
+    env.run(until=0.99)
+    assert attempts == [(0, 0), (0, 100)]
+    assert sender.rtt_estimate == 0
+    assert sender.rto == 1
+    env.run(until=1.01)
+    assert attempts == [(0, 0), (0, 100), (1, 100)]
+    assert sender.last_ack == receiver.next_seq_expected == 200
+    assert sender.packet_in_flight == 0
+    assert sender.timer is None
+    env.run(until=5)
+    assert len(attempts) == 3

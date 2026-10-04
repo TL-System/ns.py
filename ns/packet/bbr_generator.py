@@ -330,8 +330,8 @@ class BBRPacketGenerator:
         if (oldest.seq == self.last_ack and frontier == oldest.seq + oldest.size
                 and oldest.retransmit_count == 0 and not oldest.partial_acked):
             sample = self.env.now - oldest.first_tx_time
-            if sample > 0:
-                self._update_rto(sample)
+            # A synchronous ACK has a valid zero RTT; the RTO floor still applies.
+            self._update_rto(sample)
         for packet_id in sorted(list(self.segment_state)):
             state = self.segment_state[packet_id]
             acknowledged = min(state.size, max(0, frontier - state.seq))
