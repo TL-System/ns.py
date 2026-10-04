@@ -16,7 +16,7 @@ class SegmentState:
     """One unacknowledged byte range; packet attempts never own this state.
 
     Transport timestamps belong here. Delivery-rate metadata records the flight
-    at the original send and is copied into attempts for BBR's separate sampler.
+    at the latest attempt and is copied into attempts for BBR's separate sampler.
     A partial ACK shortens this range without changing its original send time.
     """
 
@@ -109,6 +109,7 @@ class BBRPacketGenerator:
             dst=self.flow.dst, flow_id=self.flow.fid,
             tx_in_flight=state.tx_in_flight,
         )
+        packet.sent_time = state.last_tx_time
         packet.first_sent_time = state.first_sent_time
         packet.delivered_time = state.delivered_time
         packet.delivered = state.delivered
@@ -139,14 +140,10 @@ class BBRPacketGenerator:
             tx_in_flight=self.packet_in_flight + packet_size,
         )
         packet = self._build_packet(state)
-        self.congestion_control.rs.send_packet(
-            packet, self.congestion_control.C, self.packet_in_flight, self.env.now,
+        self._check_application_limited(
+            self.next_seq + packet_size, self.packet_in_flight + packet_size,
         )
-        state.first_sent_time = packet.first_sent_time
-        state.delivered_time = packet.delivered_time
-        state.delivered = packet.delivered
-        state.lost = packet.lost
-        state.is_app_limited = packet.is_app_limited
+        self._record_sampling(state, packet, self.packet_in_flight)
         self.segment_state[state.seq] = state
         self.sent_packets[state.seq] = packet
         # A zero-delay downstream receiver may call put(ACK) inside out.put().
@@ -162,9 +159,7 @@ class BBRPacketGenerator:
             )
         if self.timer is None:
             self._restart_oldest_timer()
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight,
-        )
+        self._check_application_limited(self.next_seq, self.packet_in_flight)
         if self.debug:
             print(f"BBR sends {state.seq}+{state.size} at {self.env.now:.4f}")
         self.out.put(packet)
@@ -177,8 +172,28 @@ class BBRPacketGenerator:
         state.last_tx_time = self.env.now
         state.tx_in_flight = self.packet_in_flight
         packet = self._build_packet(state)
+        self._record_sampling(state, packet, self.packet_in_flight)
         self.sent_packets[packet_id] = packet
         return packet
+
+    def _record_sampling(self, state, packet, flight):
+        """Every attempt snapshots current delivery; latency keeps first_tx_time."""
+        self.congestion_control.rs.send_packet(
+            packet, self.congestion_control.C, flight, self.env.now,
+        )
+        state.first_sent_time = packet.first_sent_time
+        state.delivered_time = packet.delivered_time
+        state.delivered = packet.delivered
+        state.lost = packet.lost
+        state.is_app_limited = packet.is_app_limited
+
+    def _check_application_limited(self, next_seq, flight):
+        connection = self.congestion_control.C
+        connection.is_cwnd_limited = flight >= math.floor(self.congestion_control.cwnd)
+        # An unlimited bulk source always has more bytes, even though we stage
+        # one MSS at a time. A finite tail or waiting app write can limit supply.
+        if self.flow.typ != AppType.BULK_TRANSFER or self.flow.size is not None:
+            connection.check_if_application_limited(next_seq, self.mss, flight)
 
     def _schedule_application_arrival(self):
         interval = (
@@ -214,9 +229,7 @@ class BBRPacketGenerator:
                     break
                 self._schedule_application_arrival()
         self.congestion_control.C.write_seq = self.send_buffer
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight,
-        )
+        self._check_application_limited(self.next_seq, self.packet_in_flight)
 
     def run(self):
         """Wait for app writes, pacing, or ACK space; recheck every deadline."""
@@ -299,6 +312,7 @@ class BBRPacketGenerator:
                 or not self.sent_packets):
             return
         rs = self.congestion_control.rs
+        rs.begin_ack()
         rs.newly_acked = frontier - self.last_ack
         if frontier == self.last_ack:
             self.dupack += 1
@@ -324,7 +338,7 @@ class BBRPacketGenerator:
             return
 
         oldest = self.segment_state[min(self.segment_state)]
-        sample = 0
+        sample = None
         # Without timestamps/SACK, sample exactly one complete unretransmitted
         # segment. Cumulative/partial ACKs and retransmissions are ambiguous.
         if (oldest.seq == self.last_ack and frontier == oldest.seq + oldest.size
@@ -353,17 +367,19 @@ class BBRPacketGenerator:
         self.packet_in_flight -= rs.newly_acked
         self.last_ack = self.max_ack = frontier
         self.dupack = 0
-        # Instantaneous synchronous ACKs have no interval to divide by. Full
-        # estimator validity and retransmit sampling are audited in Phase 5.
-        if max(rs.ack_elapsed, rs.send_elapsed) > 0:
-            rs.update_sample_group(
-                self.congestion_control.C, sample if sample > 0 else -1,
-            )
-        rs.full_lost = 0
+        # Always finalize the group: synchronous ACKs are valid delivery credit
+        # but have no usable rate interval. Never reuse a previous ACK's rate.
+        rs.rtt = sample if sample is not None else -1
+        min_rtt = getattr(self.congestion_control, "min_rtt", -1)
+        rs.update_sample_group(
+            self.congestion_control.C, min_rtt if math.isfinite(min_rtt) else -1,
+        )
         # BBR controls the actual remaining flight after this ACK. Classic TCP
         # instead passes pre-ACK flight for its loss-window controller contract.
         self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
-        self.congestion_control.ack_received(sample, self.env.now)
+        self.congestion_control.ack_received(
+            sample if sample is not None else 0, self.env.now,
+        )
         self._restart_oldest_timer()
         if self.recovery_high_sequence is not None:
             if frontier >= self.recovery_high_sequence:

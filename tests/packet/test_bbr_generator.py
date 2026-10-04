@@ -149,7 +149,8 @@ def test_bbr_sender_keeps_rate_timestamps_but_rejects_retransmitted_rtt():
 
     clean = run_scenario(False)
     retransmitted = run_scenario(True)
-    assert retransmitted[1:] == clean[1:] == (0, 4, 512)
+    assert clean[1:] == (0, 4, 512)
+    assert retransmitted[1:] == (4, 4, 512)
     assert clean[0] == (4, 5)
     assert retransmitted[0] == (0, 5)
 
