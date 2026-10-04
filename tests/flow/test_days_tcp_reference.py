@@ -178,6 +178,15 @@ def test_controller_replays_actual_cpu_feedback(name):
     replay(CASES[name])
 
 
+def test_timeout_fixture_records_its_one_packet_waiting_room():
+    case = CASES["reno_bottleneck_timeout"]
+    assert case["input"]["waiting_capacity_packets"] == 1
+    assert case["input"]["total_bytes"] == 6 * case["input"]["mss_bytes"] + 123
+    assert case["output"]["dropped_packets"] == 2
+    assert sum(t["input"]["kind"] == "timeout"
+               for t in case["output"]["transitions"]) == 2
+
+
 class Recorder:
     """Observe link-local decisions without imposing a global trace order."""
 

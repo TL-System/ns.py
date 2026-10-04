@@ -161,17 +161,36 @@ git -C /Users/bli/Playground/days status --short
 ```
 
 Actual CPU replay produced seven cases and passed complete secondary Scalar
-equality. The combined reference suites passed **30 tests**; the TCP suite
-passed **17 tests** including meaningful transition/identity/timing sensitivity
+equality. The combined reference suites passed **31 tests**; the TCP suite
+passed **18 tests** including meaningful transition/identity/timing sensitivity
 and the recovery RTT counterexample. Formatting passed and the Days tracked
 source remained clean. A second locked TCP regeneration to a temporary output
 matched the checked-in JSON exactly, including provenance; its temporary output
 and Cargo build were removed.
 
 Production growth is zero executable and zero explanatory lines. The retained
-Rust helper is 352 lines, Python consumer 275 lines, lock 120 lines, and JSON
+Rust helper is 357 lines, Python consumer 284 lines, lock 120 lines, and JSON
 observations 8832 lines. The helper is one explicit two-host image builder,
 a small bottleneck extension, and JSON emission; it is not a new simulator
 execution engine or comparison framework. The wrapper changes one argument
 choice line. This reference evidence complements the separate Reno, CUBIC,
 and BBR implementation evidence and does not constitute Phase 5 approval.
+
+
+## Review correction: timeout input provenance
+
+Review of candidate `80294c7` found that the actual timeout CPU image had one
+waiting slot, while its emitted input metadata claimed four. The recorded
+observations were genuine, but that input declaration was incorrect. A focused
+regression first failed with `assert 4 == 1` on the retained fixture.
+
+The helper now reads waiting capacity directly from the configured
+`SimulationImage` switch queue and source rate from the configured link before
+emitting input metadata. It no longer repeats either configuration condition.
+Actual two-worker Full CPU regeneration corrected timeout capacity to one and
+updated the helper source hash; all seven observation outputs stayed identical.
+The focused regression requires the one-slot declaration and the scenario's
+two actual drops and two actual timeout transitions. The complete TCP/reference
+suites passed 18/31 tests. Rust formatting and whitespace checks passed, and
+Days stayed clean. A second locked regeneration exactly matched the corrected
+fixture, including its provenance.

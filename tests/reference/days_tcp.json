@@ -7,7 +7,7 @@
     "scalar_equal": true,
     "regeneration_command": "uv run --locked python tests/reference/regenerate_days_fifo.py --case tcp --days-root /path/to/days",
     "helper_lock_sha256": "427d9746ac16cf3edf711730f44750178511162ec063ab4bdcc8d3fd83834208",
-    "helper_source_sha256": "d859c7b209aae650d2783cc0e5ef367090b5d59c72d2b97714ca3a3cbbb39a11",
+    "helper_source_sha256": "07810889cefeee201eaa37a1fd55006b4d892ef052584abf835290b5717ec415",
     "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
   },
   "cases": [
@@ -6091,7 +6091,7 @@
         "stop_time_ns": 4000000000,
         "bottleneck_loss": true,
         "source_rate_bps": 64000000000,
-        "waiting_capacity_packets": 4,
+        "waiting_capacity_packets": 1,
         "seed": 1
       },
       "output": {
