@@ -1,66 +1,31 @@
-"""
-Implements a port with an output buffer, given an output rate and a buffer size (in either bytes
-or the number of packets). This implementation uses the Random Early Detection (RED) mechanism to
-drop packets.
+"""Random Early Detection over the port's resident packet/byte occupancy."""
 
-This element can set the rate of the output port and an upper limit for the average queue size
-(in bytes or the number of packets), and it keeps track of the number packets received and dropped.
-
-Reference:
-
-QoS: Congestion Avoidance Configuration Guide, Cisco IOS XE 17
-
-https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/qos_conavd/configuration/xe-17/qos-conavd-xe-17-book/qos-conavd-xe-16-8-book_chapter_01.html
-"""
-
+import math
 import random
 
 from ns.port.port import Port
 
 
 class REDPort(Port):
-    """Models an output port on a switch with a given rate and buffer size (in either bytes
-    or the number of packets), using the Early Random Detection (RED) mechanism to drop packets.
+    """A FIFO port with arrival-sampled RED and ordinary hard capacity admission.
 
-    Parameters
-    ----------
-    env: simpy.Environment
-        the simulation environment.
-    rate: float
-        the bit rate of the port.
-    element_id: int
-        the element id of this port.
-    qlimit: integer (or None)
-        The upper limit for the average queue length, beyond which all packets will
-        be dropped. The queue length can be measured in bytes or packets, and includes
-        the packet in service.
-    max_threshold: integer
-        The maximum (average) queue length threshold, beyond which packets will be
-        dropped at the maximum probability.
-    min_threshold: integer
-        The minimum (average) queue length threshold to start dropping packets. This
-        threshold should be set high enough to maximize the link utilization. If the
-        minimum threshold is too low, packets may be dropped unnecessarily, and the
-        transmission link will not be fully used.
-    max_probability: float
-        The maximum probability (which is equivalent to 1 / mark probability denominator)
-        is the fraction of packets dropped when the average queue length is at the
-        maximum threshold, which is 'max_threshold'. The rate of packet drop increases
-        linearly as the average queue length increases, until the average queue length
-        reaches the maximum threshold, 'max_threshold'. All packets will be dropped when
-        'qlimit' is exceeded.
-    weight_factor: float
-        The exponential weight factor 'n' for computing the average queue size.
-        average = (old_average * (1-1/2^n)) + (current_queue_size * 1/2^n)
-    limit_bytes: bool
-        if True, the queue length limits will be based on bytes; if False, the queue
-        length limits will be based on packets.
-    zero_downstream_buffer: bool
-        if True, assume that the downstream element does not have any buffers,
-        and backpressure is in effect so that all waiting packets queue up in this
-        element's buffer.
-    debug: bool
-        If True, prints more verbose debug information.
+    ``rate`` is bits/second (zero means unlimited); ``qlimit`` is a resident
+    byte/packet capacity, including service and downstream retention. None is
+    unlimited, zero admits nothing, and an exact fit is accepted, as in Port.
+
+    On every arrival, including capacity drops, sample occupancy *before* the
+    arriving packet and update the EWMA with alpha = 2**(-weight_factor).
+    At/below min_threshold no packet is dropped; in the open threshold interval
+    drop with linearly increasing probability, and at/above max_threshold drop
+    unconditionally. max_probability is the probability approached from below.
+    Thresholds use the same byte/packet unit as qlimit.
+
+    The simplified model updates only on arrivals: elapsed idle time itself does
+    not decay the average. This matches current Days' arrival recurrence, but
+    Days samples waiting slots and uses a deterministic counter. Here we retain
+    Port's resident accounting and independent random draws, with no RED count
+    correction or ECN marking. Tests inject explicit draws instead of equating
+    random seeds across simulators.
     """
 
     def __init__(
@@ -77,13 +42,22 @@ class REDPort(Port):
         zero_downstream_buffer: bool = False,
         debug: bool = False,
     ):
+        if (
+            not all(math.isfinite(value) for value in (
+                rate, min_threshold, max_threshold, max_probability, weight_factor
+            ))
+            or rate < 0
+            or not 0 <= min_threshold < max_threshold
+            or not 0 <= max_probability <= 1
+            or weight_factor < 0
+            or qlimit is not None and (not math.isfinite(qlimit) or qlimit < 0)
+        ):
+            raise ValueError(
+                "Invalid RED rate, thresholds, probability, weight or capacity"
+            )
         super().__init__(
-            env,
-            rate,
-            element_id=element_id,
-            qlimit=qlimit,
-            limit_bytes=limit_bytes,
-            zero_downstream_buffer=zero_downstream_buffer,
+            env, rate, element_id=element_id, qlimit=qlimit,
+            limit_bytes=limit_bytes, zero_downstream_buffer=zero_downstream_buffer,
             debug=debug,
         )
         self.max_probability = max_probability
@@ -93,72 +67,36 @@ class REDPort(Port):
         self.average_queue_size = 0
 
     def put(self, packet):
-        """Sends a packet to this element."""
-        self.packets_received += 1
-
-        if self.zero_downstream_buffer:
-            # If the downstream node has no buffer, packets will be removed
-            # from this buffer by the downstream node, and the byte size of the
-            # buffer should be recomputed
-            self.byte_size = sum(packet.size for packet in self.store.items)
-
-        # current queue size is observed upon enqueueing the new packet
-        if self.limit_bytes:
-            current_queue_size = self.byte_size + packet.size
-        else:
-            current_queue_size = len(self.store.items) + 1
-
-        alpha = 2**-self.weight_factor
-        self.average_queue_size = (
-            self.average_queue_size * (1 - alpha) + current_queue_size * alpha
+        """Sample residents, then decide admission exactly once for this arrival."""
+        resident_packets = (
+            self.packets_received - self.packets_dropped - self._packets_removed
         )
+        sample = self.byte_size if self.limit_bytes else resident_packets
+        alpha = 2**-self.weight_factor
+        self.average_queue_size = (1 - alpha) * self.average_queue_size + alpha * sample
 
-        if current_queue_size > self.qlimit:
-            self.packets_dropped += 1
-            if self.debug:
-                print(
-                    f"The current queue length {current_queue_size} "
-                    f"exceeds the upper limit {self.qlimit}."
-                )
-        elif self.average_queue_size >= self.max_threshold:
-            rand = random.uniform(0, 1)
-            if rand <= self.max_probability:
-                self.packets_dropped += 1
-                if self.debug:
-                    print(
-                        f"The average queue length ({self.average_queue_size}) "
-                        f"exceeds the maximum threshold ({self.qlimit}), ",
-                        f"packet dropped with probability {self.max_probability}",
-                    )
-            else:
-                self.byte_size += packet.size
-                if self.zero_downstream_buffer:
-                    self.downstream_store.put(packet)
-                return self.store.put(packet)
-        elif self.average_queue_size >= self.min_threshold:
-            prob = (
-                (self.average_queue_size - self.min_threshold)
+        # Hard capacity comes first, so overflow never consumes a random draw.
+        # Delegate admission/accounting to Port rather than maintaining a second
+        # implementation that forgets service or retained downstream ownership.
+        post_depth = sample + (packet.size if self.limit_bytes else 1)
+        if self.qlimit is not None and post_depth > self.qlimit:
+            return super().put(packet)
+
+        average = self.average_queue_size
+        drop = average >= self.max_threshold
+        if self.min_threshold < average < self.max_threshold:
+            probability = self.max_probability * (
+                (average - self.min_threshold)
                 / (self.max_threshold - self.min_threshold)
-                * self.max_probability
             )
-            rand = random.uniform(0, 1)
-            if rand <= prob:
-                self.packets_dropped += 1
-                if self.debug:
-                    print(
-                        f"The average queue length {self.average_queue_size} "
-                        f"exceeds the minimum threshold {self.min_threshold}, "
-                        f"packet dropped with probability {prob}."
-                    )
-            else:
-                self.byte_size += packet.size
-                if self.zero_downstream_buffer:
-                    self.downstream_store.put(packet)
-                return self.store.put(packet)
-        else:
-            self.byte_size += packet.size
-
-            if self.zero_downstream_buffer:
-                self.downstream_store.put(packet)
-
-            return self.store.put(packet)
+            # Strict comparison gives probability zero no drops, even for draw 0.
+            drop = random.uniform(0, 1) < probability
+        if drop:
+            self.packets_received += 1
+            self.packets_dropped += 1
+            if self.element_id is not None:
+                packet.perhop_time[self.element_id] = self.env.now
+            if self.debug:
+                print(f"RED dropped packet {packet.packet_id}: average {average}")
+            return None
+        return super().put(packet)

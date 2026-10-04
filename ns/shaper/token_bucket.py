@@ -2,24 +2,34 @@
 Implements a token bucket shaper.
 """
 
+import math
+
 import simpy
+
+from ns.utils.retained_store import remove_packet
 
 
 class TokenBucketShaper:
-    """The token bucket size should be greater than the size of the largest packet that
-    can occur on input. If this is not the case we always accumulate enough tokens to let
-    the current packet pass based on the average rate. This may not be the behavior you desire.
+    """Shape FIFO packets with an initially full byte token bucket.
+
+    Positive finite rates are bits/second and capacities are positive finite
+    bytes. For packets no larger than the bucket, departures obey the rate/burst
+    envelope. An oversized packet borrows its deficit by waiting at the average
+    rate, then leaves zero credit; this compatibility policy allows large packets
+    through but cannot enforce the ordinary burst envelope for that packet.
+    Optional peak serialization adds a packet-size/peak delay after token use;
+    tokens accrue during that service delay too. Bucket credit is capped on idle.
 
     Parameters
     ----------
     env: simpy.Environment
         The simulation environment.
     rate: int
-        The token arrival rate in bits.
+        The positive token arrival rate in bits/second.
     bucket_size: int
         The token bucket size in bytes.
     peak: int (or None for an infinite peak sending rate)
-        The peak sending rate in bits of the buffer (quickest time two packets could be sent).
+        The positive peak sending rate in bits/second, or None for no service delay.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -42,6 +52,14 @@ class TokenBucketShaper:
         zero_downstream_buffer=False,
         debug=False,
     ):
+        if (
+            not math.isfinite(rate) or rate <= 0
+            or not math.isfinite(bucket_size) or bucket_size <= 0
+            or peak is not None and (not math.isfinite(peak) or peak <= 0)
+        ):
+            raise ValueError(
+                "Require positive finite rate, bucket size and optional peak"
+            )
         self.store = simpy.Store(env)
         self.env = env
         self.rate = rate
@@ -59,78 +77,69 @@ class TokenBucketShaper:
             self.downstream_stores = simpy.Store(env)
 
         self.current_bucket = bucket_size  # Current size of the bucket in bytes
-        self.update_time = 0.0  # Last time the bucket was updated
+        self.update_time = env.now  # A bucket starts full when constructed.
         self.debug = debug
         self.busy = 0  # Used to track if a packet is currently being sent
         self.action = env.process(self.run())
 
     def update(self, packet):
+        """Release upstream ownership after local or downstream completion.
+
+        A downstream zero-buffer consumer calls this after removing the packet
+        from our retained store; otherwise run() releases at local completion.
+        Direct input without upstream ownership needs no callback.
         """
-        The packet has just been retrieved from this element's own buffer by a downstream
-        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
-        configuration.
-        """
-        # With no local buffers, this element needs to pull the packet from upstream
-        if self.zero_buffer:
-            # For each packet, remove it from its own upstream's store
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+        if self.zero_buffer and packet in self.upstream_stores:
+            # Downstream may reorder packets. Release this exact object and clear
+            # hooks first, so callbacks can safely reenter or repeat the release.
+            store = self.upstream_stores.pop(packet)
+            callback = self.upstream_updates.pop(packet)
+            remove_packet(store, packet)
+            callback(packet)
 
         if self.debug:
             print(f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for FIFO work, missing byte tokens, and optional peak service."""
         while True:
             if self.zero_downstream_buffer:
                 packet = yield self.downstream_stores.get()
             else:
                 packet = yield self.store.get()
 
+            self.busy = 1
             now = self.env.now
 
-            # Add tokens to the bucket based on the current time
+            # Convert bits/second to byte tokens; include idle and peak service.
             self.current_bucket = min(
                 self.bucket_size,
                 self.current_bucket + self.rate * (now - self.update_time) / 8.0,
             )
             self.update_time = now
 
-            # Check if there are a sufficient number of tokens to allow the packet
-            # to be sent; if not, we will then wait to accumulate enough tokens to
-            # allow this packet to be sent regardless of the bucket size.
-            if (
-                packet.size > self.current_bucket
-            ):  # needs to wait for the bucket to fill
+            # Wait for the deficit even if size exceeds capacity: oversized
+            # packets may borrow credit, but depart with an empty bucket.
+            if packet.size > self.current_bucket:
                 yield self.env.timeout(
                     (packet.size - self.current_bucket) * 8.0 / self.rate
                 )
                 self.current_bucket = 0.0
-                self.update_time = self.env.now
             else:
                 self.current_bucket -= packet.size
-                self.update_time = self.env.now
+            self.update_time = self.env.now
 
-            # Sending the packet now
-            if self.peak is None:  # infinite peak rate
-                if self.zero_downstream_buffer:
-                    self.out.put(
-                        packet, upstream_update=self.update, upstream_store=self.store
-                    )
-                else:
-                    self.update(packet)
-                    self.out.put(packet)
-            else:
+            if self.peak is not None:
+                # Serialize byte-sized packets on the optional bits/s peak link.
                 yield self.env.timeout(packet.size * 8.0 / self.peak)
-                if self.zero_downstream_buffer:
-                    self.out.put(
-                        packet, upstream_update=self.update, upstream_store=self.store
-                    )
-                else:
-                    self.update(packet)
-                    self.out.put(packet)
+            self.busy = 0
+            if self.zero_downstream_buffer:
+                self.out.put(
+                    packet, upstream_update=self.update, upstream_store=self.store
+                )
+            else:
+                self.update(packet)
+                self.out.put(packet)
 
             self.packets_sent += 1
             if self.debug:
