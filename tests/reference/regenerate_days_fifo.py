@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--days-root", type=Path, required=True)
-    parser.add_argument("--case", choices=("fifo", "schedulers"), default="fifo")
+    parser.add_argument("--case", choices=("fifo", "schedulers", "tcp"), default="fifo")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     helper = f"days_{args.case}"

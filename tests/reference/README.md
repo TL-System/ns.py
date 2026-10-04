@@ -1,4 +1,4 @@
-# Current Days CPU FIFO fixture
+# Current Days CPU reference fixtures
 
 Ordinary Python tests read `days_fifo.json`; Rust and a Days checkout are only
 needed to regenerate it. This is one hand-built FIFO case, not a simulator
@@ -40,3 +40,52 @@ is not compared across unrelated links.
 The reference revision, replay command, compiler version, helper source and
 dependency-lock hashes, explicit input, and actual CPU output are recorded in
 the JSON. See `evidence/phase2_reference.md` for executed commands and results.
+
+## Current Days CPU scheduler fixtures
+
+The same wrapper regenerates the recorded SP, DRR, and WFQ cases with
+`--case schedulers`. Run `uv run --locked pytest -q tests/scheduler/test_days_schedulers.py` to consume them without Rust.
+`evidence/phase3_reference.md` records the scheduler inputs, matching decisions,
+and preserved DRR activation-order difference.
+
+## Current Days CPU TCP fixtures
+
+`days_tcp.rs` builds seven small Reno/CUBIC TCP flows, runs the actual public CPU
+observation API with two workers and Full observations, and records packet
+headers, departures, delivery/drop/feedback records, and controller before/after
+transitions. Complete Scalar-result equality is a secondary check. The same
+wrapper, pinned revision checks, temporary build, retained lock, and provenance
+hashes apply:
+
+```sh
+uv run --locked python tests/reference/regenerate_days_fifo.py \
+  --case tcp --days-root /path/to/days
+uv run --locked pytest -q tests/flow/test_days_tcp_reference.py
+```
+
+The direct-host cases use MSS 512 bytes, 40-byte immediate ACKs, 8 Gbit/s in
+both directions, 100 ns propagation per direction, a 6267-byte transfer with a
+123-byte tail, and the controllers' Days initial windows: Reno 1024 bytes and
+CUBIC 512 bytes. Two cases explicitly lower the initial threshold to 2048 bytes
+to reach congestion avoidance in a small flow. Python compares all four cases'
+exact data sequence/size decisions, cumulative ACKs/counts, and link-local
+departure/delivery times. Integer-nanosecond serialization permits a one-
+femtosecond floating-point tolerance. Global ordering across links is irrelevant.
+
+Three CPU bottleneck cases generate real queue drops and retransmissions.
+Reno/CUBIC fast recovery use initial windows of 4096 bytes, a 64 Gbit/s source,
+and an 8 Gbit/s FIFO bottleneck with four waiting slots; a smaller Reno transfer
+with its ordinary 1024-byte window and one waiting slot produces timeouts.
+These cases supply actual CPU feedback to Python controller hooks; they are
+controller comparisons, not claims of identical end-to-end loss timing.
+
+Reno windows, thresholds, avoidance credit, and recovery decisions compare
+exactly. CUBIC compares floating segment windows with Days nanosegments and
+bounds RTT EWMA flooring by less than 8 ns. The observed short no-loss avoidance
+curve permits an analytic window bound below 5.12 bytes; recovery window changes
+have only lattice/float error. No identity or recovery decision tolerance applies.
+A separate counterexample test intentionally omits fresh recovery RTT samples,
+as Python transport does under conservative Karn handling, and requires the
+CUBIC state comparison to fail. The explicit CPU sample replay does not erase
+that transport difference. See `evidence/phase5_reference.md` for exact cases,
+rounding derivation, limitations, sensitivity checks, and executed commands.
