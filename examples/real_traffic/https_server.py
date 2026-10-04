@@ -14,7 +14,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     httpd = HTTPServer(("localhost", int(args.listen_port)), SimpleHTTPRequestHandler)
-    ssl_context = ssl.SSLContext()
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     # If set to True, only the hostname that matches the certificate will be accepted
     ssl_context.check_hostname = False
     ssl_context.load_cert_chain(certfile=args.cert_file)

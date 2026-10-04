@@ -5,8 +5,13 @@ useful in the implementation of more sophisticated queueing disciplines,
 such as Weighted Fair Queueing and Virtual Clock.
 """
 
-from heapq import heapify, heappop, heappush
+from __future__ import annotations
 
+from collections.abc import Callable
+from heapq import heapify, heappop, heappush
+from typing import Any, Protocol, cast
+
+import simpy
 from simpy.core import BoundClass
 from simpy.resources import base
 
@@ -17,7 +22,7 @@ class TaggedStorePut(base.Put):
     to sort the content in the TaggedStore.
     """
 
-    def __init__(self, resource, item):
+    def __init__(self, resource: TaggedStore, item: tuple[float, object]) -> None:
         # The item to be put into the store.
         self.item = item
         super().__init__(resource)
@@ -26,12 +31,16 @@ class TaggedStorePut(base.Put):
 class TaggedStoreGet(base.Get):
     """Get the smallest tag, or a requested object by identity; wait if absent."""
 
-    def __init__(self, resource, item=None):
+    def __init__(self, resource: TaggedStore, item: object | None = None) -> None:
         self.item = item
         super().__init__(resource)
 
 
-class TaggedStore(base.BaseResource):
+class _BoundGet(Protocol):
+    def __call__(self, item: object | None = None) -> TaggedStoreGet: ...
+
+
+class TaggedStore(base.BaseResource[TaggedStorePut, TaggedStoreGet]):
     """Models the production and consumption of concrete Python objects.
 
     Put items are ``(tag, contents)`` pairs. Get returns only the contents,
@@ -49,30 +58,32 @@ class TaggedStore(base.BaseResource):
     in SimPy's FIFO put queue until a get frees capacity.
     """
 
-    def __init__(self, env, capacity=float("inf")):
+    def __init__(self, env: simpy.Environment, capacity: float = float("inf")) -> None:
         super().__init__(env, capacity=float("inf"))
 
         if not capacity > 0:
             raise ValueError('"capacity" must be > 0.')
 
         self._capacity = capacity
-        self.items = []  # Heap entries are [tag, insertion counter, contents].
+        self.items: list[list[Any]] = []  # Tag, tie-break counter, and opaque item.
         self.event_count = 0  # Used to break ties with python heap implementation
 
     @property
-    def capacity(self):
+    def capacity(self) -> float:
         """The maximum capacity of the tagged store."""
         return self._capacity
 
-    put = BoundClass(TaggedStorePut)
+    # SimPy binds these descriptors to the store instance. State their bound
+    # signatures so callers see normal event-producing methods.
+    put = cast(Callable[[tuple[float, object]], TaggedStorePut], BoundClass(TaggedStorePut))
     """Create a new `StorePut` event."""
 
-    get = BoundClass(TaggedStoreGet)
+    get = cast(_BoundGet, BoundClass(TaggedStoreGet))
     """Create a new `StoreGet` event."""
 
     # We assume the item is a tuple: (tag, packet). The tag is used to
     # sort the packet in the heap.
-    def _do_put(self, event):
+    def _do_put(self, event: TaggedStorePut) -> None:
         if len(self.items) < self._capacity:
             self.event_count += 1  # Count admissions, not retries of pending puts.
             heappush(self.items, [event.item[0], self.event_count, event.item[1]])
@@ -80,7 +91,7 @@ class TaggedStore(base.BaseResource):
 
     # When we return an item from the tagged store we do not need to
     # return the tag, only the content of the item.
-    def _do_get(self, event):
+    def _do_get(self, event: TaggedStoreGet) -> bool | None:
         if event.item is None and self.items:
             event.succeed(heappop(self.items)[2])
         elif event.item is not None:

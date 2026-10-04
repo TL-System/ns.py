@@ -35,7 +35,7 @@ class TCPCubic(LossBasedCongestionControl):
         beta: float = 0.7,
         cubic_constant: float = 0.4,
         debug: bool = False,
-    ):
+    ) -> None:
         super().__init__(mss, cwnd, ssthresh, debug)
         if not 0 < beta < 1:
             raise ValueError("beta must be a retained fraction between zero and one")
@@ -61,7 +61,7 @@ class TCPCubic(LossBasedCongestionControl):
         rtt: float | None = 0,
         current_time: float = 0,
         acknowledged_bytes: int | None = None,
-    ):
+    ) -> None:
         """Consume one advancing ACK; an omitted byte count means one MSS.
 
         None means Karn's rule supplied no fresh RTT sample. A measured zero
@@ -91,7 +91,14 @@ class TCPCubic(LossBasedCongestionControl):
         else:
             self.cubic_update(current_time)
 
-    def cubic_update(self, current_time: float):
+    def _congestion_avoidance_ack(
+        self, rtt: float | None, current_time: float, acknowledged_bytes: int,
+    ) -> None:
+        """Satisfy the loss-based hook used by the shared controller interface."""
+        _ = (rtt, acknowledged_bytes)
+        self.cubic_update(current_time)
+
+    def cubic_update(self, current_time: float) -> None:
         """Apply the Days cubic/friendly rule once per advancing ACK."""
         if self.epoch_start is None:
             self.epoch_start = current_time
@@ -126,7 +133,7 @@ class TCPCubic(LossBasedCongestionControl):
             window = self.W_max + self.cubic_c * (elapsed - self.K) ** 3
         return min(max(window, 1.0), self.max_window_segments)
 
-    def consecutive_dupacks_received(self, packet=None):
+    def consecutive_dupacks_received(self, packet: object | None = None) -> None:
         """Enter recovery using actual flight for reduction, cwnd for maxima."""
         current = self.cwnd_in_segments()
         if self.fast_convergence and current < self.W_last_max:
@@ -144,13 +151,15 @@ class TCPCubic(LossBasedCongestionControl):
         self._in_slow_start = False
         self.flight_size = None
 
-    def more_dupacks_received(self, packet=None):
+    def more_dupacks_received(self, packet: object | None = None) -> None:
         """An extra recovery ACK permits one more segment of window."""
         if self._in_fast_recovery:
             self.cwnd = min(self.cwnd + self.mss, self.max_window_segments * self.mss)
         self.flight_size = None
 
-    def partial_ack_received(self, acknowledged_bytes: int, current_time: float):
+    def partial_ack_received(
+        self, acknowledged_bytes: int, current_time: float
+    ) -> None:
         """Hold CUBIC's recovery window while transport retransmits the next hole.
 
         Phase 4's conservative recovery hook supplies no RTT measurement; SRTT
@@ -158,14 +167,14 @@ class TCPCubic(LossBasedCongestionControl):
         """
         self.flight_size = None
 
-    def dupack_over(self):
+    def dupack_over(self) -> None:
         """Deflate to threshold without moving the loss-time epoch."""
         self.cwnd = min(self.ssthresh, self.max_window_segments * self.mss)
         self._in_fast_recovery = False
         self._in_slow_start = False
         self.flight_size = None
 
-    def timer_expired(self, packet=None):
+    def timer_expired(self, packet: object | None = None) -> None:
         """Restart slow start and erase the old curve; retain the RTT estimate."""
         flight = self.cwnd if self.flight_size is None else self.flight_size
         self.ssthresh = min(

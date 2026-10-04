@@ -15,12 +15,15 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=234856
 """
 
 from collections import defaultdict as dd
-from collections.abc import Callable
+from collections.abc import Callable, Generator, Hashable
 from math import isfinite
+from typing import Any
+
+import simpy
 
 from ns.packet.packet import Packet
-from ns.utils.retained_store import remove_packet
 from ns.utils import taggedstore
+from ns.utils.retained_store import remove_packet
 
 
 class WFQServer:
@@ -65,12 +68,12 @@ class WFQServer:
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         rate: float,
-        weights,
-        flow_classes: Callable = lambda p: p.flow_id,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
+        weights: Any,
+        flow_classes: Callable[[Packet], Hashable] = lambda p: p.flow_id,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
         debug: bool = False,
     ) -> None:
         if not isfinite(rate) or rate <= 0:
@@ -101,13 +104,13 @@ class WFQServer:
 
         self.active_set = set()
         self.vtime = 0.0
-        self.out = None
+        self.out: Any = None
         self.packets_received = 0
         self.packets_dropped = 0
         self.debug = debug
 
         self.current_packet = None
-        self.byte_sizes = dd(lambda: 0)
+        self.byte_sizes: dd[Hashable, float] = dd(lambda: 0)
 
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -122,13 +125,13 @@ class WFQServer:
         self._wakeup = env.event()
         self.action = env.process(self.run())
 
-    def _advance_virtual_time(self):
+    def _advance_virtual_time(self) -> None:
         """Advance using classes active during the elapsed physical interval."""
         weight_sum = sum(self.weights[class_id] for class_id in self.active_set)
         self.vtime += (self.env.now - self.last_update) / weight_sum
         self.last_update = self.env.now
 
-    def update_stats(self, packet):
+    def update_stats(self, packet: Packet) -> None:
         """Finish local service, then retire the class if no active packets remain.
 
         Advance V before removing the in-service packet's weight. A packet held
@@ -151,7 +154,7 @@ class WFQServer:
                 f"belonging to class {class_id} at time {now}."
             )
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """
         The packet has just been retrieved from this element's own buffer by a downstream
         node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
@@ -171,7 +174,7 @@ class WFQServer:
         """
         return self.current_packet
 
-    def byte_size(self, queue_id) -> int:
+    def byte_size(self, queue_id: Hashable) -> float:
         """
         Returns bytes waiting for local service in a flow class.
         Service and downstream-retained ownership are excluded.
@@ -179,7 +182,7 @@ class WFQServer:
         """
         return self.byte_sizes.get(queue_id, 0)
 
-    def size(self, queue_id) -> int:
+    def size(self, queue_id: Hashable) -> int:
         """
         Returns packets waiting for local service in a flow class.
         Used by a ServerMonitor; service is reported separately.
@@ -190,13 +193,13 @@ class WFQServer:
         """Return the total number of packets waiting for local service."""
         return sum(self.flow_queue_count.values())
 
-    def all_flows(self) -> list:
+    def all_flows(self) -> list[Hashable]:
         """
         Returns observed class IDs (flow IDs with the default mapping).
         """
         return list(self.byte_sizes.keys())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for work, choose the smallest tag, and serialize one packet.
 
         Service is nonpreemptive. A zero-time selection wait includes arrivals
@@ -231,7 +234,11 @@ class WFQServer:
                 self.update(packet)
                 self.out.put(packet)
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Assign a weighted finish tag and admit a packet to its flow class."""
         class_id = self.flow_classes(packet)
         # A missing class must fail before changing counters or virtual history.

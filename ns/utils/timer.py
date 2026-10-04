@@ -1,6 +1,8 @@
 """A restartable, one-shot callback timer using simulation seconds."""
 
 import math
+from collections.abc import Callable, Generator
+from typing import Any
 
 import simpy
 
@@ -23,7 +25,13 @@ class Timer:
         to rearm this timer; otherwise expiration ends the process.
     """
 
-    def __init__(self, env, timer_id, timeout_callback, rto):
+    def __init__(
+        self,
+        env: simpy.Environment,
+        timer_id: int,
+        timeout_callback: Callable[[int], None],
+        rto: float,
+    ) -> None:
         if not math.isfinite(rto) or rto < 0:
             raise ValueError("rto must be finite and nonnegative.")
         self.env = env
@@ -35,7 +43,7 @@ class Timer:
         self.stopped = False
         self.action = env.process(self.run())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for the deadline, or wake early on restart/cancellation."""
         while not self.stopped:
             try:
@@ -52,14 +60,14 @@ class Timer:
             self.stopped = True
             self.timeout_callback(self.timer_id)
 
-    def stop(self):
+    def stop(self) -> None:
         """Cancel the callback and wake a waiting process so it can finish."""
         self.stopped = True
         self.timer_expiry = self.env.now
         if self.action.is_alive and self.env.active_process is not self.action:
             self.action.interrupt()
 
-    def restart(self, revised_rto, start_time=None):
+    def restart(self, revised_rto: float, start_time: float | None = None) -> None:
         """Rearm relative to now, or to an explicit start time in seconds."""
         if not math.isfinite(revised_rto) or revised_rto < 0:
             raise ValueError("rto must be finite and nonnegative.")

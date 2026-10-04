@@ -2,7 +2,13 @@
 A monitor for a Port.
 """
 
+from collections.abc import Callable, Generator
 from math import isfinite
+from typing import Any
+
+import simpy
+
+from ns.port.port import Port
 
 
 class PortMonitor:
@@ -23,7 +29,10 @@ class PortMonitor:
         in simulation seconds
     """
 
-    def __init__(self, env, port, dist, pkt_in_service_included=False):
+    def __init__(
+        self, env: simpy.Environment, port: Port, dist: Callable[[], float],
+        pkt_in_service_included: bool = False,
+    ) -> None:
         self.port = port
         self.env = env
         self.dist = dist
@@ -32,7 +41,7 @@ class PortMonitor:
         self.action = env.process(self.run())
         self.pkt_in_service_included = pkt_in_service_included
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait one sampling interval before each instantaneous occupancy reading."""
         while True:
             interval = self.dist()

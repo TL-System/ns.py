@@ -5,6 +5,7 @@ from a YAML configuration file (which is easier to work on than JSON).
 import argparse
 import os
 from collections import namedtuple
+from typing import Any, ClassVar, Self
 
 import yaml
 
@@ -18,8 +19,10 @@ class Config:
     """
 
     _instance = None
+    params: ClassVar[Any]
+    args: ClassVar[argparse.Namespace]
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         if cls._instance is None:
             parser = argparse.ArgumentParser()
             parser.add_argument(
@@ -55,7 +58,7 @@ class Config:
         return cls._instance
 
     @staticmethod
-    def namedtuple_from_dict(obj):
+    def namedtuple_from_dict(obj: Any) -> Any:
         """Expose valid mapping keys as attributes; retain other mappings as dicts."""
         if isinstance(obj, dict):
             values = {
@@ -69,7 +72,7 @@ class Config:
                 return values
             try:
                 fields = sorted(values)
-                namedtuple_type = namedtuple("Config", fields)
+                namedtuple_type = namedtuple("Config", fields)  # ty: ignore[mismatched-type-name]
                 return namedtuple_type(*(values[field] for field in fields))
             except (TypeError, ValueError):
                 return values

@@ -1,8 +1,9 @@
-from random import random
 import math
+from collections.abc import Iterator
+from random import random
 
 
-def paretovariate_generator(xmin=1e-3, alpha=2.0):
+def paretovariate_generator(xmin: float = 1e-3, alpha: float = 2.0) -> float:
     """
     Pareto distribution.
     Parameters
@@ -31,13 +32,13 @@ def paretovariate_generator(xmin=1e-3, alpha=2.0):
 
 
 def pareto_onoff_generator(
-    on_min=0.5 / 3,
-    on_alpha=1.5,
-    off_min=0.5 / 3,
-    off_alpha=1.5,
-    on_rate=2e5,
-    pktsize=1000,
-):
+    on_min: float = 0.5 / 3,
+    on_alpha: float = 1.5,
+    off_min: float = 0.5 / 3,
+    off_alpha: float = 1.5,
+    on_rate: float = 2e5,
+    pktsize: float = 1000,
+) -> Iterator[float]:
     """
     Pareto on/off traffic generator.
 

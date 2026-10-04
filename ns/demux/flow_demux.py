@@ -2,6 +2,11 @@
 A demultiplexing element that splits packet streams by flow_id.
 """
 
+from collections.abc import Sequence
+from typing import Any
+
+from ns.packet.packet import Packet
+
 
 class FlowDemux:
     """
@@ -11,13 +16,15 @@ class FlowDemux:
     ``packets_dropped`` counts packets with no connected output or default.
     """
 
-    def __init__(self, outs=None, default=None):
+    def __init__(
+        self, outs: Sequence[Any] | None = None, default: Any = None
+    ) -> None:
         self.outs = outs if outs is not None else []
         self.default = default
         self.packets_received = 0
         self.packets_dropped = 0
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         self.packets_received += 1
         flow_id = packet.flow_id

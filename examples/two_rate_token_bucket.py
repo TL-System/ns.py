@@ -4,12 +4,12 @@ An example that shows how a two-rate three-color traffic shaper can be used.
 This example also shows a method of plotting packet arrival and exit times.
 """
 
-import simpy
 import matplotlib.pyplot as plt
+import simpy
 
-from ns.shaper.two_rate_token_bucket import TwoRateTokenBucketShaper
 from ns.packet.dist_generator import DistPacketGenerator
 from ns.packet.sink import PacketSink
+from ns.shaper.two_rate_token_bucket import TwoRateTokenBucketShaper
 
 
 def packet_arrival():
@@ -67,8 +67,8 @@ axis.vlines(
 
 axis.set_title("Arrival times")
 axis.set_xlabel("time")
-axis.set_ylim([0, 1.5])
-axis.set_xlim([0, max(ps.arrivals["flow_1"]) + 10])
+axis.set_ylim((0, 1.5))
+axis.set_xlim((0, max(ps.arrivals["flow_1"]) + 10))
 axis.legend()
 fig.savefig("two_rate_token_bucket.png")
 plt.show()

@@ -4,9 +4,12 @@ the arriving packets to each downstream element.
 """
 
 import copy
+from typing import Any
+
+from ns.packet.packet import Packet
 
 
-def _copy_packet(packet):
+def _copy_packet(packet: Packet) -> Packet:
     """Copy path-owned metadata while keeping opaque application payload shared."""
     duplicate = copy.copy(packet)
     duplicate.prio = copy.deepcopy(packet.prio)
@@ -21,7 +24,7 @@ class Splitter:
         self.out1 = None
         self.out2 = None
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         # Snapshot before calling any downstream put(): it can synchronously
         # update priorities, per-hop times, or other scalar packet attributes.
@@ -36,17 +39,17 @@ class Splitter:
 class NWaySplitter:
     """An N-way splitter with *N* downstream elements."""
 
-    def __init__(self, N) -> None:
+    def __init__(self, N: int) -> None:
         if isinstance(N, int):
             if N > 1:
-                self.outs = [None] * N
+                self.outs: list[Any] = [None] * N
                 self.N = N
             else:
                 raise ValueError("N should be larger than 1.")
         else:
             raise TypeError("N should be an integer larger than 1.")
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         # Every branch starts with the arrival's metadata, even if the first
         # branch mutates its packet inside put(). Disconnected branches are unused.

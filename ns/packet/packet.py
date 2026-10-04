@@ -2,6 +2,9 @@
 A very simple class that represents a packet.
 """
 
+from collections.abc import Hashable
+from typing import Any
+
 
 class Packet:
     """
@@ -34,22 +37,23 @@ class Packet:
 
     def __init__(
         self,
-        time,
-        size,
-        packet_id,
-        realtime=0,
-        last_ack_time=0,
-        delivered=-1,
-        src="source",
-        dst="destination",
-        flow_id=0,
-        payload=None,
-        tx_in_flight=-1,
-    ):
+        time: float,
+        size: float,
+        packet_id: int,
+        realtime: float = 0,
+        last_ack_time: float = 0,
+        delivered: int = -1,
+        src: Hashable = "source",
+        dst: Hashable = "destination",
+        flow_id: Hashable = 0,
+        payload: Any = None,
+        tx_in_flight: int = -1,
+    ) -> None:
         self.time = time
-        self.delivered_time = last_ack_time
-        self.first_sent_time = 0
-        # Delivery sampling attaches sent_time to each attempt when it is sent.
+        self.delivered_time: float | None = last_ack_time
+        self.first_sent_time: float = 0
+        # Delivery sampling replaces this with the latest attempt's send time.
+        self.sent_time: float | None = None
         self.size = size
         self.packet_id = packet_id
         self.realtime = realtime
@@ -60,6 +64,7 @@ class Packet:
         self.lost = 0
         self.self_lost = False
         self.tx_in_flight = tx_in_flight
+        self.delivered: float
         if delivered == -1:
             self.delivered = packet_id
         else:
@@ -72,8 +77,8 @@ class Packet:
         # Latest wire-entry time, retained as diagnostic metadata for compatibility.
         # Wire keeps its actual propagation clock locally so sharing this packet
         # across two paths cannot overwrite either path's timing state.
-        self.current_time = 0
+        self.current_time: float = 0
         self.perhop_time = {}  # per-port arrival times in simulation seconds
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"id: {self.packet_id}, src: {self.src}, time: {self.time}, size: {self.size}"

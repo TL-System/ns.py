@@ -6,8 +6,12 @@ the network.
 """
 
 import random
+from collections.abc import Callable, Generator
+from typing import Any
 
 import simpy
+
+from ns.packet.packet import Packet
 
 
 class Wire:
@@ -28,18 +32,25 @@ class Wire:
         returns the loss rate.
     """
 
-    def __init__(self, env, delay_dist, loss_dist=None, wire_id=0, debug=False):
+    def __init__(
+        self,
+        env: simpy.Environment,
+        delay_dist: Callable[[], float],
+        loss_dist: Callable[..., float] | None = None,
+        wire_id: int | str = 0,
+        debug: bool = False,
+    ) -> None:
         self.store = simpy.Store(env)
         self.delay_dist = delay_dist
         self.loss_dist = loss_dist
         self.env = env
         self.wire_id = wire_id
-        self.out = None
+        self.out: Any = None
         self.packets_rec = 0
         self.debug = debug
         self.action = env.process(self.run())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for packets and their entry-relative propagation deadlines in FIFO."""
         while True:
             packet, entry_time = yield self.store.get()
@@ -72,7 +83,7 @@ class Wire:
                         f"{self.env.now:.3f}: {packet}"
                     )
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> simpy.Event:
         """Sends a packet to this element."""
         self.packets_rec += 1
         if self.debug:

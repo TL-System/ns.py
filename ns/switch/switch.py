@@ -2,14 +2,18 @@
 Packet switches with bounded FIFO or SP/DRR/WFQ/Virtual Clock egress queues.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
+from typing import Any
 
-from ns.port.port import Port
+import simpy
+
 from ns.demux.fib_demux import FIBDemux
-from ns.scheduler.wfq import WFQServer
+from ns.packet.packet import Packet
+from ns.port.port import Port
 from ns.scheduler.drr import DRRServer
-from ns.scheduler.virtual_clock import VirtualClockServer
 from ns.scheduler.sp import SPServer
+from ns.scheduler.virtual_clock import VirtualClockServer
+from ns.scheduler.wfq import WFQServer
 
 
 class SimplePacketSwitch:
@@ -34,7 +38,7 @@ class SimplePacketSwitch:
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         nports: int,
         port_rate: float,
         buffer_size: int,
@@ -56,7 +60,7 @@ class SimplePacketSwitch:
             )
         self.demux = FIBDemux(fib=None, outs=self.ports, default=None)
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         self.demux.put(packet)
 
@@ -97,13 +101,13 @@ class FairPacketSwitch:
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         nports: int,
         port_rate: float,
         buffer_size: int,
-        weights,
+        weights: Any,
         server: str,
-        flow_classes: Callable = lambda p: p.flow_id,
+        flow_classes: Callable[[Packet], Hashable] = lambda p: p.flow_id,
         element_id: str = "",
         debug: bool = False,
     ) -> None:
@@ -171,6 +175,6 @@ class FairPacketSwitch:
 
         self.demux = FIBDemux(fib=None, outs=self.egress_ports, default=None)
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         self.demux.put(packet)

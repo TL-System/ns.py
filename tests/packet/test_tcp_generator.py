@@ -2,8 +2,8 @@ import pytest
 
 simpy = pytest.importorskip("simpy")
 
-from ns.flow.flow import Flow
 from ns.flow.cc import TCPReno
+from ns.flow.flow import Flow
 from ns.packet.packet import Packet
 from ns.packet.tcp_generator import TCPPacketGenerator
 from ns.packet.tcp_sink import TCPSink
@@ -168,6 +168,7 @@ def test_reno_short_final_ack_grows_only_by_delivered_bytes():
     assert sender.last_ack == receiver.bytes_delivered == 701
     assert sender.bytes_in_flight == 0
     assert sender.segment_state == {}
+    assert sender.timer is not None
     assert sender.timer.stopped
 
 
@@ -194,6 +195,7 @@ def test_reno_cumulative_ack_bridge_carries_bytes_and_no_fabricated_rtt():
     assert cc.cwnd == 4000
     assert sender.last_ack == receiver.bytes_delivered == 3000
     assert sender.segment_state == {}
+    assert sender.timer is not None
     assert sender.timer.stopped
 
 
@@ -253,6 +255,7 @@ def test_reno_recovery_ack_transitions_have_no_extra_window_growth():
     assert cc.cwnd == 5000  # exit ACK deflates without ordinary ACK growth
     assert sender.last_ack == 10000
     assert sender.segment_state == {}
+    assert sender.timer is not None
     assert sender.timer.stopped
 
 

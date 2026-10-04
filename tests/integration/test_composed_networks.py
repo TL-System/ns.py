@@ -66,7 +66,7 @@ def test_retained_hierarchy_and_shaper_release_only_the_selected_object():
         update(packet)
         releases.append((env.now, packet, list(buffer.store.items), buffer.byte_size))
 
-    buffer.update = release
+    setattr(buffer, "update", release)
     for packet in admitted:
         buffer.put(packet)
     env.run(until=.3)
@@ -189,6 +189,7 @@ def test_reno_recovers_bottleneck_drops_after_token_wait_and_drains_short_tail()
     assert receiver.bytes_delivered == sender.last_ack == sender.next_seq == 1001
     assert sender.bytes_in_flight == 0
     assert not sender.segment_state and not sender.sent_packets and not sender.timers
+    assert sender.timer is not None
     assert sender.timer.stopped and not sender.action.is_alive
     assert bottleneck.packets_received == 6
     assert bottleneck._packets_removed == data_wire.packets_rec == 4

@@ -2,6 +2,9 @@
 
 import socket
 
+import simpy
+
+from ns.packet.packet import Packet
 from ns.packet.proxy_generator import _ProxyIO
 from ns.packet.sink import PacketSink
 
@@ -15,10 +18,11 @@ class ProxySink(_ProxyIO, PacketSink):
     for wall-clock timing, UDP receive limits, and TCP EOF constraints.
     """
 
-    def __init__(self, env, element_id: str, destination, packet_size: int = 40960,
+    def __init__(self, env: simpy.Environment, element_id: str,
+                 destination: tuple[str, int], packet_size: int = 40960,
                  protocol: str = "tcp", rec_arrivals: bool = False,
                  absolute_arrivals: bool = False, rec_waits: bool = False,
-                 rec_flow_ids: bool = False, debug: bool = False):
+                 rec_flow_ids: bool = False, debug: bool = False) -> None:
         PacketSink.__init__(self, env, rec_arrivals, absolute_arrivals, rec_waits,
                             rec_flow_ids, debug)
         self._init_io(env, element_id, packet_size, protocol, debug)
@@ -27,13 +31,13 @@ class ProxySink(_ProxyIO, PacketSink):
         self.action = env.process(self.run())
 
     @property
-    def responses_sent(self):
+    def responses_sent(self) -> int:
         return self._packet_id
 
-    def _inputs(self):
+    def _inputs(self) -> list[socket.socket]:
         return list(self.sockets.values())
 
-    def on_tcp_accept(self, packet):
+    def on_tcp_accept(self, packet: Packet) -> None:
         """Open a bounded server connection (also used for connected UDP)."""
         kind = socket.SOCK_STREAM if self.protocol == "tcp" else socket.SOCK_DGRAM
         sock = socket.socket(socket.AF_INET, kind)
@@ -46,11 +50,11 @@ class ProxySink(_ProxyIO, PacketSink):
         self.flow_ids[sock] = packet.flow_id
         self.sockets[packet.flow_id] = sock
 
-    def on_tcp_close(self, sock):
+    def on_tcp_close(self, sock: socket.socket) -> None:
         """Close a server flow and return its TCP EOF marker to the client."""
         self._disconnect(sock)
 
-    def _receive(self, sock):
+    def _receive(self, sock: socket.socket) -> None:
         try:
             limit = self.packet_size if self.protocol == "tcp" else self.udp_receive_size
             data = sock.recv(limit)
@@ -62,7 +66,7 @@ class ProxySink(_ProxyIO, PacketSink):
         else:
             self._emit(self.flow_ids[sock], data)
 
-    def send_to_app(self, packet):
+    def send_to_app(self, packet: Packet) -> None:
         """Send all TCP bytes, or one UDP datagram, when its deadline is due."""
         if self.closed or packet.flow_id in self._retired_flows:
             return
@@ -82,7 +86,7 @@ class ProxySink(_ProxyIO, PacketSink):
             # rather than silently claiming success or replaying duplicate bytes.
             self._disconnect(sock)
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Record data arrival once and schedule real delivery in wall seconds."""
         if self.closed:
             return

@@ -24,6 +24,7 @@ class DropFirstTransmission:
             self.dropped = True
             return
 
+        assert self.out is not None
         self.out.put(packet)
 
 

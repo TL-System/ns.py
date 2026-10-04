@@ -1,12 +1,16 @@
 """Stationary Markov chains and batch Markovian interarrival samples."""
 
+from collections.abc import Iterator, Sequence
+from typing import Any, cast
+
 import numpy as np
 from numpy.random import rand
+from numpy.typing import ArrayLike, NDArray
 
 PRECISION_VALUE = 1e-5
 
 
-def _square_matrix(matrix):
+def _square_matrix(matrix: ArrayLike) -> NDArray[np.float64]:
     """Use floating-point arithmetic and reject undefined transition tables."""
     matrix = np.asarray(matrix, dtype=float)
     if (
@@ -19,7 +23,7 @@ def _square_matrix(matrix):
     return matrix
 
 
-def solve_CTMC(Q):
+def solve_CTMC(Q: ArrayLike) -> NDArray[np.float64]:
     """Return row vector pi satisfying pi Q = 0 and sum(pi) = 1.
 
     Q has nonnegative off-diagonal rates and zero row sums. Accepted row-sum
@@ -51,7 +55,7 @@ def solve_CTMC(Q):
     return stationary / stationary.sum()
 
 
-def solve_DTMC(P):
+def solve_DTMC(P: ArrayLike) -> NDArray[np.float64]:
     """Return stationary probabilities, normalizing accepted row-sum rounding."""
     P = _square_matrix(P)
     if np.any(P < 0) or np.any(abs(P.sum(axis=1) - 1) > PRECISION_VALUE):
@@ -60,12 +64,15 @@ def solve_DTMC(P):
     return solve_CTMC(P - np.eye(P.shape[0]))
 
 
-def sum_matrix_list(mat_list):
+def sum_matrix_list(mat_list: Sequence[ArrayLike]) -> NDArray[np.float64]:
     """Sum transition-rate matrices without mutating the caller's matrices."""
-    return np.sum(mat_list, axis=0)
+    # NumPy accepts a sequence of matrices here, though its stub omits that form.
+    return np.sum(cast(Any, mat_list), axis=0)
 
 
-def check_BMAP_representation(D_list, prec=PRECISION_VALUE):
+def check_BMAP_representation(
+    D_list: Sequence[ArrayLike], prec: float = PRECISION_VALUE,
+) -> bool:
     """Check rate signs, row balance, and eventual arrival from every phase.
 
     D0 describes transitions without arrivals; Dk describes a batch of k.
@@ -99,7 +106,9 @@ def check_BMAP_representation(D_list, prec=PRECISION_VALUE):
     return bool(np.all(can_arrive))
 
 
-def BMAP_generator(D_list, initial=None):
+def BMAP_generator(
+    D_list: Sequence[ArrayLike], initial: int | None = None,
+) -> Iterator[float | list[float]]:
     """Yield MAP intervals in seconds, or BMAP [interval, batch_size] pairs.
 
     Rates in D0...DN are per second. With no initial phase, start in the

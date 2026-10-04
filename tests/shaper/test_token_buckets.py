@@ -1,5 +1,7 @@
 """Rate/burst envelopes and identity when shapers share reordered buffers."""
 
+from typing import Any
+
 import pytest
 import simpy
 
@@ -148,7 +150,7 @@ def test_retained_shaper_releases_selected_identity_after_priority_reordering(tw
         original(item)
         releases.append((item, list(buffer.store.items), list(shaper.store.items)))
 
-    buffer.update = release
+    setattr(buffer, "update", release)
     buffer.put(packets[0])
     env.run(until=.01)  # First is already in downstream nonpreemptive service.
     for item in packets[1:]:
@@ -234,7 +236,7 @@ def test_oversized_peak_packet_waits_and_empty_peak_defers_next_packet():
     {"bucket_size": 0}, {"bucket_size": float("inf")}, {"peak": 0},
 ])
 def test_invalid_single_rate_settings(kwargs):
-    settings = dict(rate=800, bucket_size=100)
+    settings: dict[str, Any] = dict(rate=800, bucket_size=100)
     settings.update(kwargs)
     with pytest.raises(ValueError):
         TokenBucketShaper(simpy.Environment(), **settings)
@@ -246,7 +248,7 @@ def test_invalid_single_rate_settings(kwargs):
     {"pir": 800, "pbs": 0}, {"cir": float("inf")},
 ])
 def test_invalid_two_rate_settings(kwargs):
-    settings = dict(cir=800, cbs=100)
+    settings: dict[str, Any] = dict(cir=800, cbs=100)
     settings.update(kwargs)
     with pytest.raises(ValueError):
         TwoRateTokenBucketShaper(simpy.Environment(), **settings)

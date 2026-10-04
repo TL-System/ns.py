@@ -67,8 +67,8 @@ axis.vlines(
 
 axis.set_title("Arrival times")
 axis.set_xlabel("time")
-axis.set_ylim([0, 1.5])
-axis.set_xlim([0, max(ps.arrivals["flow_1"]) + 10])
+axis.set_ylim((0, 1.5))
+axis.set_xlim((0, max(ps.arrivals["flow_1"]) + 10))
 axis.legend()
 fig.savefig("token_bucket.png")
 plt.show()

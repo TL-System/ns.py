@@ -48,6 +48,7 @@ def main():
     assert receiver.bytes_delivered == sender.last_ack == flow.size
     assert sender.bytes_in_flight == bottleneck.byte_size == 0
     assert monitor.sizes[-1] == monitor.sizes_byte[-1] == 0
+    assert sender.timer is not None
     assert sender.timer.stopped
     print(f"Recovery: {receiver.bytes_delivered} bytes delivered and acknowledged; "
           f"bottleneck peak {max(monitor.sizes_byte)} bytes, final queue empty.")

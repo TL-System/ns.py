@@ -9,10 +9,12 @@ IEEE/ACM Trans. Networking, vol. 4, no. 3, June 1996.
 
 from collections import defaultdict as dd
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Generator, Hashable
 from math import isfinite
+from typing import Any
 
 import simpy
+
 from ns.packet.packet import Packet
 from ns.utils.retained_store import remove_packet
 
@@ -51,13 +53,13 @@ class DRRServer:
 
     def __init__(
         self,
-        env,
-        rate,
+        env: simpy.Environment,
+        rate: float,
         weights: list | dict,
-        flow_classes: Callable = lambda p: p.flow_id,
+        flow_classes: Callable[[Packet], Hashable] = lambda p: p.flow_id,
         mtu_bytes: int = 1500,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
         debug: bool = False,
     ) -> None:
         if not isfinite(rate) or rate <= 0:
@@ -115,13 +117,13 @@ class DRRServer:
         self.stores = {}
 
         self.current_packet = None
-        self.byte_sizes = dd(lambda: 0)
+        self.byte_sizes: dd[Hashable, float] = dd(lambda: 0)
 
         self.packets_available = simpy.Store(env)
         self.idle = True
 
         self.packets_received = 0
-        self.out = None
+        self.out: Any = None
 
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -134,7 +136,7 @@ class DRRServer:
         self.debug = debug
         self.action = env.process(self.run())
 
-    def _activate_flow(self, queue_id):
+    def _activate_flow(self, queue_id: Hashable) -> None:
         """Append a newly backlogged class after the waiting active classes."""
         if queue_id == self.current_queue or queue_id in self.active_set:
             return
@@ -149,7 +151,7 @@ class DRRServer:
             self.idle = False
             self.packets_available.put(True)
 
-    def update_stats(self, packet):
+    def update_stats(self, packet: Packet) -> None:
         """Charge selected bytes and remove them from waiting-queue accounting."""
         queue_id = self.flow_classes(packet)
         self.flow_queue_count[queue_id] -= 1
@@ -168,7 +170,7 @@ class DRRServer:
                 f"belonging to class {queue_id}, deficit {self.deficit[queue_id]}"
             )
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """
         Propagate the downstream's shared-buffer release to the upstream.
 
@@ -182,14 +184,14 @@ class DRRServer:
             remove_packet(store, packet)
             callback(packet)
 
-    def packet_in_service(self) -> Packet:
+    def packet_in_service(self) -> Packet | None:
         """
         Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
-    def byte_size(self, queue_id) -> int:
+    def byte_size(self, queue_id: Hashable) -> float:
         """
         Returns waiting bytes, excluding service and downstream-retained packets.
         Used by a ServerMonitor.
@@ -199,7 +201,7 @@ class DRRServer:
 
         return 0
 
-    def size(self, queue_id) -> int:
+    def size(self, queue_id: Hashable) -> int:
         """
         Returns waiting packets for a class, excluding the packet in service.
         Used by a ServerMonitor.
@@ -209,7 +211,7 @@ class DRRServer:
 
         return 0
 
-    def all_flows(self) -> list:
+    def all_flows(self) -> list[Hashable]:
         """
         Returns the observed class IDs (flow IDs with the default classifier).
         """
@@ -221,7 +223,7 @@ class DRRServer:
         """
         return sum(self.flow_queue_count.values())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for active classes, then serialize chosen packets without preemption.
 
         Logical deficit rounds take no simulation time. A zero-time visit wait
@@ -303,7 +305,11 @@ class DRRServer:
             else:
                 self.deficit[queue_id] = 0.0
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Sends a packet to this element."""
         flow_class = self.flow_classes(packet)
         if flow_class not in self.weight_lookup:

@@ -1,10 +1,13 @@
+from collections.abc import Callable, Hashable, Iterable, Mapping
 from random import sample
+from typing import Any
+
 import networkx as nx
 
 from ns.flow.flow import Flow
 
 
-def read_topo(fname):
+def read_topo(fname: str) -> nx.Graph | None:
     """Read a GraphML topology; unsupported suffixes print a message and return."""
     ftype = ".graphml"
     if fname.endswith(ftype):
@@ -14,15 +17,15 @@ def read_topo(fname):
 
 
 def generate_flows(
-    G,
-    hosts,
-    nflows,
-    size=None,
-    start_time=None,
-    finish_time=None,
-    arrival_dist=None,
-    size_dist=None,
-):
+    G: nx.Graph,
+    hosts: Iterable[Any],
+    nflows: int,
+    size: float | None = None,
+    start_time: float | None = None,
+    finish_time: float | None = None,
+    arrival_dist: Callable[[], float] | None = None,
+    size_dist: Callable[[], float] | None = None,
+) -> dict[int, Flow]:
     """Choose host pairs and one shortest path for each configured flow."""
     all_flows = dict()
     for flow_id in range(nflows):
@@ -41,12 +44,18 @@ def generate_flows(
     return all_flows
 
 
-def generate_fib(G, all_flows, tcp=False):
+def generate_fib(
+    G: nx.Graph, all_flows: Mapping[int, Flow], tcp: bool = False,
+) -> nx.Graph:
     """Map each path's next hop to a local port, optionally adding reverse ACKs."""
     if tcp:
         # TCPSink identifies ACKs as data flow ID + 10000. Those IDs must remain
         # disjoint from real data flows or later inserts silently change routes.
-        flow_ids = {flow.fid for flow in all_flows.values()}
+        flow_ids: set[int] = set()
+        for flow in all_flows.values():
+            if not isinstance(flow.fid, int):
+                raise ValueError("TCP ACK routing requires integer flow IDs.")
+            flow_ids.add(flow.fid)
         if any(fid + 10000 in flow_ids for fid in flow_ids):
             raise ValueError("TCP ACK flow IDs collide with data flow IDs.")
 
@@ -65,6 +74,8 @@ def generate_fib(G, all_flows, tcp=False):
 
     for f in all_flows:
         flow = all_flows[f]
+        if flow.path is None:
+            raise ValueError("Each routed flow requires a path.")
         path = list(zip(flow.path, flow.path[1:]))
         for seg in path:
             a, z = seg
@@ -73,6 +84,7 @@ def generate_fib(G, all_flows, tcp=False):
 
             # ACKs retrace the data path through each destination's local port.
             if tcp:
+                assert isinstance(flow.fid, int)  # Validated above for ACK IDs.
                 G.nodes[z]["flow_to_port"][flow.fid + 10000] = G.nodes[z][
                     "nexthop_to_port"
                 ][a]

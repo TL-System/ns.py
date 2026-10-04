@@ -1,11 +1,13 @@
 """A paced TCP sender with BBR control and sender-owned segment accounting."""
 
-from dataclasses import dataclass
 import math
+from collections.abc import Generator, Hashable
+from dataclasses import dataclass
+from typing import Any
 
 import simpy
 
-from ns.flow.flow import AppType
+from ns.flow.flow import AppType, Flow
 from ns.packet.packet import Packet
 from ns.packet.rate_sample import Connection, RateSample
 from ns.utils.timer import Timer
@@ -25,8 +27,8 @@ class SegmentState:
     first_tx_time: float
     last_tx_time: float
     first_sent_time: float = 0.0
-    delivered_time: float = 0.0
-    delivered: int = 0
+    delivered_time: float | None = 0.0
+    delivered: float = 0
     lost: int = 0
     is_app_limited: bool = False
     tx_in_flight: int = 0
@@ -44,12 +46,13 @@ class BBRPacketGenerator:
     """
 
     def __init__(
-        self, env, flow, cc, element_id=None, rtt_estimate=0.14,
-        granularity=0.001, debug=True,
-    ):
+        self, env: simpy.Environment, flow: Flow, cc: Any,
+        element_id: Hashable | None = None, rtt_estimate: float = 0.14,
+        granularity: float = 0.001, debug: bool = True,
+    ) -> None:
         self.element_id = element_id
         self.env = env
-        self.out = None
+        self.out: Any = None
         self.flow = flow
         self.debug = debug
         self.granularity = granularity
@@ -70,7 +73,7 @@ class BBRPacketGenerator:
         self.last_ack = 0
         self.max_ack = 0
         self.dupack = 0
-        self.recovery_high_sequence = None
+        self.recovery_high_sequence: int | None = None
         self.rtt_estimate = rtt_estimate
         self.est_deviation = 0
         self._rtt_initialized = False
@@ -78,15 +81,15 @@ class BBRPacketGenerator:
         # one to sixty seconds, with a default clock granularity of one ms.
         self.rto = min(60, max(1, rtt_estimate * 2))
         self.cwnd_available = simpy.Store(env, capacity=1)
-        self.sent_packets = {}
-        self.segment_state = {}
-        self.timer = None
+        self.sent_packets: dict[int, Packet] = {}
+        self.segment_state: dict[int, SegmentState] = {}
+        self.timer: Timer | None = None
         self.to_pkt_id = 0
 
-        self.last_arrival = max(env.now, flow.start_time or 0)
+        self.last_arrival: float = max(env.now, flow.start_time or 0)
         # App writes are byte-frontier updates, not individual wire packets.
         # Keep each pending arrival draw until its scheduled time is reached.
-        self._next_application_time = None
+        self._next_application_time: float | None = None
         self.send_buffer = (
             int(flow.size or 0) if flow.typ == AppType.BULK_TRANSFER else 0
         )
@@ -94,7 +97,9 @@ class BBRPacketGenerator:
         self.action = env.process(self.run())
 
     @staticmethod
-    def _byte_count(value, allow_zero=False, round_down=False):
+    def _byte_count(
+        value: float, allow_zero: bool = False, round_down: bool = False
+    ) -> int:
         """TCP byte positions are integral, unlike generic queue packet sizes."""
         if (isinstance(value, bool) or not isinstance(value, (int, float))
                 or not math.isfinite(value) or (not round_down and int(value) != value)
@@ -102,7 +107,7 @@ class BBRPacketGenerator:
             raise ValueError("TCP byte counts must be integral and positive")
         return int(value)
 
-    def _build_packet(self, state):
+    def _build_packet(self, state: SegmentState) -> Packet:
         """Create an attempt, preserving the original latency timestamp."""
         packet = Packet(
             state.first_tx_time, state.size, state.seq, src=self.flow.src,
@@ -118,7 +123,7 @@ class BBRPacketGenerator:
         packet.self_lost = state.self_lost
         return packet
 
-    def _restart_oldest_timer(self):
+    def _restart_oldest_timer(self) -> None:
         """RFC 6298: one timer, rearmed from now when the ACK advances."""
         if not self.segment_state:
             if self.timer is not None:
@@ -132,7 +137,7 @@ class BBRPacketGenerator:
         else:
             self.timer.restart(self.rto)
 
-    def _send_new_packet(self, packet_size):
+    def _send_new_packet(self, packet_size: int) -> Packet:
         """Register every byte and the timer before synchronous forwarding."""
         packet_size = self._byte_count(packet_size)
         state = SegmentState(
@@ -165,7 +170,7 @@ class BBRPacketGenerator:
         self.out.put(packet)
         return packet
 
-    def _retransmit_packet(self, packet_id):
+    def _retransmit_packet(self, packet_id: int) -> Packet:
         """Replace only the packet attempt; outstanding bytes do not increase."""
         state = self.segment_state[packet_id]
         state.retransmit_count += 1
@@ -176,7 +181,9 @@ class BBRPacketGenerator:
         self.sent_packets[packet_id] = packet
         return packet
 
-    def _record_sampling(self, state, packet, flight):
+    def _record_sampling(
+        self, state: SegmentState, packet: Packet, flight: int
+    ) -> None:
         """Every attempt snapshots current delivery; latency keeps first_tx_time."""
         self.congestion_control.rs.send_packet(
             packet, self.congestion_control.C, flight, self.env.now,
@@ -187,15 +194,16 @@ class BBRPacketGenerator:
         state.lost = packet.lost
         state.is_app_limited = packet.is_app_limited
 
-    def _check_application_limited(self, next_seq, flight):
+    def _check_application_limited(self, next_seq: int, flight: int) -> None:
         connection = self.congestion_control.C
+        assert connection is not None  # Attached in the sender constructor.
         connection.is_cwnd_limited = flight >= math.floor(self.congestion_control.cwnd)
         # An unlimited bulk source always has more bytes, even though we stage
         # one MSS at a time. A finite tail or waiting app write can limit supply.
         if self.flow.typ != AppType.BULK_TRANSFER or self.flow.size is not None:
             connection.check_if_application_limited(next_seq, self.mss, flight)
 
-    def _schedule_application_arrival(self):
+    def _schedule_application_arrival(self) -> None:
         interval = (
             self.flow.arrival_dist() if self.flow.arrival_dist else self.granularity
         )
@@ -203,7 +211,7 @@ class BBRPacketGenerator:
             raise ValueError("application intervals must be finite and positive")
         self._next_application_time = self.last_arrival + interval
 
-    def update_next_seq(self):
+    def update_next_seq(self) -> None:
         """Accept scheduled application writes once, never by redrawing on ACKs."""
         if self.flow.typ == AppType.BULK_TRANSFER:
             if self.flow.size is None and self.send_buffer <= self.next_seq:
@@ -211,6 +219,7 @@ class BBRPacketGenerator:
         else:
             if self._next_application_time is None:
                 self._schedule_application_arrival()
+            assert self._next_application_time is not None
             while (self._next_application_time <= self.env.now
                    and (self.flow.finish_time is None
                         or self._next_application_time < self.flow.finish_time)
@@ -224,6 +233,7 @@ class BBRPacketGenerator:
                 if self.flow.size is not None:
                     size = min(size, int(self.flow.size) - self.send_buffer)
                 self.send_buffer += size
+                assert self._next_application_time is not None
                 self.last_arrival = self._next_application_time
                 if self.flow.size is not None and self.send_buffer >= self.flow.size:
                     break
@@ -231,7 +241,7 @@ class BBRPacketGenerator:
         self.congestion_control.C.write_seq = self.send_buffer
         self._check_application_limited(self.next_seq, self.packet_in_flight)
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for app writes, pacing, or ACK space; recheck every deadline."""
         if self.flow.start_time is not None and self.flow.start_time > self.env.now:
             yield self.env.timeout(self.flow.start_time - self.env.now)
@@ -242,6 +252,7 @@ class BBRPacketGenerator:
             self.update_next_seq()
             if self.next_seq >= self.send_buffer:
                 wake = self._next_application_time
+                assert wake is not None  # Streaming scheduled its next arrival.
                 if deadline is not None:
                     wake = min(wake, deadline)
                 yield self.env.timeout(max(0, wake - self.env.now))
@@ -269,7 +280,7 @@ class BBRPacketGenerator:
                         # ACK wakeup after the new-data deadline has passed.
                         ready.cancel()
 
-    def timeout_callback(self, packet_id=0):
+    def timeout_callback(self, packet_id: int = 0) -> None:
         """Declare the oldest attempt lost, back off and rearm before sending."""
         if not self.sent_packets:
             self._restart_oldest_timer()
@@ -290,7 +301,7 @@ class BBRPacketGenerator:
         self._restart_oldest_timer()
         self.out.put(packet)
 
-    def _update_rto(self, sample):
+    def _update_rto(self, sample: float) -> None:
         """RFC 6298 deviation uses the previous SRTT and an absolute error."""
         if not self._rtt_initialized:
             self.rtt_estimate = sample
@@ -303,7 +314,7 @@ class BBRPacketGenerator:
         self.rto = min(60, max(1, self.rtt_estimate
                               + max(4 * self.est_deviation, self.granularity)))
 
-    def put(self, ack):
+    def put(self, ack: Packet) -> None:
         """Consume valid cumulative ACK bytes; ignore stale or unrelated ACKs."""
         frontier = ack.ack
         if (ack.flow_id != self.flow.fid + 10000
@@ -395,7 +406,9 @@ class BBRPacketGenerator:
         self.congestion_control.C.is_cwnd_limited = False
         self._wake_sender()
 
-    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+    def _retransmit_after_ack(
+        self, state: SegmentState, sequence: int, retransmit_count: int
+    ) -> Generator[simpy.Event, Any, None]:
         """Yield one turn so synchronous recovery ACKs cannot recurse forever."""
         yield self.env.timeout(0)
         # Another ACK or timeout may retire, trim or retransmit this range before
@@ -410,7 +423,7 @@ class BBRPacketGenerator:
             self._restart_oldest_timer()
             self.out.put(packet)
 
-    def _wake_sender(self):
+    def _wake_sender(self) -> None:
         """Coalesce ACK wakeups rather than retaining one token per packet."""
         if not self.cwnd_available.items:
             self.cwnd_available.put(True)

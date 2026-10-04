@@ -111,6 +111,7 @@ def test_generated_flows_choose_explicit_endpoint_pair_and_shortest_path(monkeyp
     assert (flow.src, flow.dst, flow.size, flow.start_time) == (
         min(hosts), max(hosts), 140, 2
     )
+    assert flow.path is not None
     assert (flow.path[0], flow.path[-1]) == (flow.src, flow.dst)
     assert len(flow.path) - 1 == 6
     assert all(graph.has_edge(a, b) for a, b in zip(flow.path, flow.path[1:]))
@@ -120,6 +121,7 @@ def test_graphml_roundtrip_uses_current_networkx_api(tmp_path):
     path = tmp_path / "topology.graphml"
     nx.write_graphml(build(2), path)
     graph = read_topo(str(path))
+    assert graph is not None
     assert (graph.number_of_nodes(), graph.number_of_edges()) == (7, 6)
     assert graph.nodes["0"]["layer"] == "core"
 

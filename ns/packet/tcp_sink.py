@@ -3,8 +3,12 @@ Implements a TCPSink, designed to send ack packets back to the
 TCPPacketGenerator.
 """
 
-from ns.packet.sink import PacketSink
+from typing import Any
+
+import simpy
+
 from ns.packet.packet import Packet
+from ns.packet.sink import PacketSink
 
 
 class TCPSink(PacketSink):
@@ -19,29 +23,29 @@ class TCPSink(PacketSink):
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         rec_arrivals: bool = True,
         absolute_arrivals: bool = True,
         rec_waits: bool = True,
         rec_flow_ids: bool = True,
         debug: bool = False,
         element_id: int = 0,
-    ):
+    ) -> None:
         super().__init__(
             env, rec_arrivals, absolute_arrivals, rec_waits, rec_flow_ids, debug
         )
         self.recv_buffer = []
         # RCV.NXT is the first missing byte, also the application-delivery frontier.
         self.next_seq_expected = 0
-        self.out = None
+        self.out: Any = None
         self.ele_id = element_id
 
     @property
-    def bytes_delivered(self):
+    def bytes_delivered(self) -> int:
         """Unique in-order application bytes; buffered data beyond a gap waits."""
         return self.next_seq_expected
 
-    def packet_arrived(self, packet):
+    def packet_arrived(self, packet: Packet) -> None:
         """Merge this byte interval with sorted overlapping or adjacent ranges."""
 
         self.recv_buffer.append([packet.packet_id, packet.packet_id + packet.size])
@@ -56,7 +60,7 @@ class TCPSink(PacketSink):
                 merged_stats.append([start, end])
         self.recv_buffer = merged_stats
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         super().put(packet)
 
@@ -72,6 +76,7 @@ class TCPSink(PacketSink):
 
         # a TCP sink needs to send ack packets back to the TCP packet generator
         assert self.out is not None
+        assert isinstance(packet.flow_id, int)  # TCP flow IDs are numeric.
 
         acknowledgment = Packet(
             # Echo the original latency timestamp for compatibility. RTT/RTO

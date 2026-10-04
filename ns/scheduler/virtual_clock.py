@@ -9,12 +9,15 @@ May 1991, section 3.1 (the expanded version of the SIGCOMM 1990 paper).
 """
 
 from collections import defaultdict as dd
-from collections.abc import Callable
+from collections.abc import Callable, Generator, Hashable
 from math import isfinite
+from typing import Any
+
+import simpy
 
 from ns.packet.packet import Packet
-from ns.utils.retained_store import remove_packet
 from ns.utils import taggedstore
+from ns.utils.retained_store import remove_packet
 
 
 class VirtualClockServer:
@@ -53,14 +56,14 @@ class VirtualClockServer:
 
     def __init__(
         self,
-        env,
-        rate,
-        vticks,
-        flow_classes: Callable = lambda p: p.flow_id,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
+        env: simpy.Environment,
+        rate: float,
+        vticks: Any,
+        flow_classes: Callable[[Packet], Hashable] = lambda p: p.flow_id,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
         debug: bool = False,
-    ):
+    ) -> None:
         self.env = env
         self.rate = rate
         self.vticks = vticks
@@ -85,13 +88,13 @@ class VirtualClockServer:
             self.v_clocks[queue_id] = 0.0
             self.flow_queue_count[queue_id] = 0
 
-        self.out = None
+        self.out: Any = None
         self.packets_received = 0
         self.packets_dropped = 0
         self.debug = debug
 
         self.current_packet = None
-        self.byte_sizes = dd(lambda: 0)
+        self.byte_sizes: dd[Hashable, float] = dd(lambda: 0)
 
         self.upstream_updates = {}
         self.upstream_stores = {}
@@ -105,7 +108,7 @@ class VirtualClockServer:
         self._wakeup = env.event()
         self.action = env.process(self.run())
 
-    def update_stats(self, packet):
+    def update_stats(self, packet: Packet) -> None:
         """Remove a packet from waiting telemetry when local service starts.
 
         The packet in service is reported separately by packet_in_service().
@@ -121,7 +124,7 @@ class VirtualClockServer:
                 f"belonging to class {class_id} at time {self.env.now}"
             )
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """
         The packet has just been retrieved from this element's own buffer by a downstream
         node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
@@ -134,34 +137,34 @@ class VirtualClockServer:
             remove_packet(store, packet)
             callback(packet)
 
-    def packet_in_service(self) -> Packet:
+    def packet_in_service(self) -> Packet | None:
         """
         Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
-    def byte_size(self, queue_id) -> int:
+    def byte_size(self, queue_id: Hashable) -> float:
         """
         Returns bytes waiting for local service in a flow class.
         Used by a ServerMonitor.
         """
         return self.byte_sizes.get(queue_id, 0)
 
-    def size(self, queue_id) -> int:
+    def size(self, queue_id: Hashable) -> int:
         """
         Returns packets waiting for local service in a flow class.
         Used by a ServerMonitor; the packet in service is counted separately.
         """
         return self.flow_queue_count.get(queue_id, 0)
 
-    def all_flows(self) -> list:
+    def all_flows(self) -> list[Hashable]:
         """
         Returns observed class IDs (flow IDs with the default mapping).
         """
         return list(self.byte_sizes)
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for work, select the smallest tag, then serialize one packet.
 
         Service is nonpreemptive. A zero-time wait before each selection lets
@@ -194,7 +197,11 @@ class VirtualClockServer:
                 self.update(packet)
                 self.out.put(packet)
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Stamp an arrival in seconds and enqueue it for local service."""
         class_id = self.flow_classes(packet)
         # Resolve the configured class before changing any admission accounting.

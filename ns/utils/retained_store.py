@@ -1,9 +1,14 @@
 """Release packet ownership after a downstream scheduler has reordered service."""
 
+from typing import Any
+
+import simpy
+
+from ns.packet.packet import Packet
 from ns.utils.taggedstore import TaggedStore
 
 
-def remove_packet(store, packet):
+def remove_packet(store: Any, packet: Packet) -> simpy.Event:
     """Remove the exact retained packet while preserving pending-put wakeups.
 
     Ownership stores do not have pending service gets: a separate downstream

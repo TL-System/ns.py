@@ -223,6 +223,7 @@ def test_delayed_data_precedes_eof_and_explicit_close_cancels_work(
     proxy_type, monkeypatch,
 ):
     from types import SimpleNamespace
+
     import ns.packet.proxy_generator as proxy_module
 
     clock = [100.0]
@@ -298,7 +299,7 @@ def test_udp_preserves_datagram_larger_than_tcp_receive_limit(proxy_type):
         collector = Collector()
         proxy.out = collector
         try:
-            if proxy_type is ProxyPacketGenerator:
+            if isinstance(proxy, ProxyPacketGenerator):
                 peer.sendto(b"whole datagram", proxy.sock.getsockname())
             else:
                 proxy.put(Packet(0, 1, 1, flow_id=7, payload=b"x"))
@@ -390,10 +391,10 @@ def test_tcp_retired_flow_does_not_open_a_second_server_connection(
         server.settimeout(1)
         if close_path == "send_error":
             class FailedSend(socket.socket):
-                def sendall(self, payload):
-                    if payload == b"fail":
+                def sendall(self, data, flags=0):
+                    if data == b"fail":
                         raise socket.timeout("Injected write failure")
-                    return super().sendall(payload)
+                    return super().sendall(data, flags)
 
             monkeypatch.setattr(socket, "socket", FailedSend)
         sink = ProxySink(env, "sink", server.getsockname())

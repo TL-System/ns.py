@@ -29,6 +29,7 @@ def test_flow_demux_unknown_ids_use_default_or_drop(flow_id, fallback):
     assert demux.packets_received == 1
     assert demux.packets_dropped == (0 if fallback else 1)
     if fallback:
+        assert default is not None
         assert default.packets == [packet]
 
 
@@ -54,6 +55,7 @@ def test_fib_demux_missing_or_invalid_route_is_accounted(route, fallback):
     assert all(not out.packets for out in outs)
     assert demux.packets_dropped == (0 if fallback else 1)
     if fallback:
+        assert default is not None
         assert default.packets == [packet]
 
 
