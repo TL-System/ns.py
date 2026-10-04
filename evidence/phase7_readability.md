@@ -201,7 +201,7 @@ The coordinator also reported bounded headless runs of `bbr.py`, `drr_jumbo.py`,
 `fair_packet_switch.py`, `mm1.py`, `overloaded_switch.py`, `static_priority.py`,
 `virtual_clock.py`, `wfq.py`, `drr.py`, `two_level_drr.py`, `two_level_wfq.py`, and
 `two_level_sp.py`: all exit 0. These used a locked uv Python subprocess harness,
-`MPLBACKEND=Agg`, temporary working directories, and a 90-second timeout per
+`MPLBACKEND=Agg`, the repository working directory, and a 90-second timeout per
 example. The independent composition task records its teaching example and
 mixed-size hierarchy, congestion, FatTree, and TCP-loss observations in
 [composition evidence](phase7_composition.md). These are reported integration
