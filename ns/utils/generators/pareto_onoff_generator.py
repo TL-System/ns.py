@@ -71,7 +71,8 @@ def pareto_onoff_generator(
     if any(not math.isfinite(value) or value <= 0 for value in parameters):
         raise ValueError("on/off parameters must be finite and positive.")
     # Convert packet bytes to bits before dividing by the bit/second rate.
-    interval = pktsize * 8 / on_rate
+    packet_bits = pktsize * 8
+    interval = packet_bits / on_rate
     if not math.isfinite(interval) or interval <= 0:
         raise ValueError("packet interval must be finite and positive.")
 
@@ -81,10 +82,10 @@ def pareto_onoff_generator(
         off_duration = paretovariate_generator(off_min, off_alpha)
         # The gap includes the previous on period's unsent tail (initially zero).
         yield off_duration + tail
-        # Compare positions from the integer index: repeated addition of a
-        # decimal interval can drift below the endpoint and add a packet there.
+        # Compare packet bits against the on-period bit budget. Dividing by the
+        # rate first can round an endpoint below finish and admit an extra packet.
         packet_index = 1
-        while packet_index * interval < on_duration:
+        while packet_index * packet_bits < on_duration * on_rate:
             yield interval
             packet_index += 1
-        tail = on_duration - (packet_index - 1) * interval
+        tail = on_duration - (packet_index - 1) * packet_bits / on_rate

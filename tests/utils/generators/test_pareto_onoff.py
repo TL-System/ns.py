@@ -34,6 +34,20 @@ def test_decimal_spacing_excludes_on_period_endpoint_without_accumulated_drift(
     assert [next(process) for _ in range(11)] == pytest.approx([1, *[0.1] * 9, 1.1])
 
 
+def test_fractional_spacing_does_not_round_on_endpoint_into_an_extra_packet(
+    monkeypatch,
+):
+    monkeypatch.setattr(pareto, "random", lambda: 0)
+    process = pareto.pareto_onoff_generator(
+        on_min=1, off_min=1, on_rate=392000, pktsize=1000,
+    )
+    # Exactly 49 packets fit: offsets 0 through 48/49, excluding offset 49/49.
+    spacing = 8000 / 392000
+    assert [next(process) for _ in range(50)] == pytest.approx(
+        [1, *[spacing] * 48, 1 + spacing],
+    )
+
+
 @pytest.mark.parametrize("parameters", [
     {"on_min": 0}, {"off_alpha": -1}, {"on_rate": 0},
     {"pktsize": -1}, {"on_alpha": float("nan")}, {"off_min": float("inf")},

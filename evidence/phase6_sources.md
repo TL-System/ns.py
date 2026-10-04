@@ -113,9 +113,11 @@ On/off draws describe seconds, not packet counts. With 1000-byte packets at
 duration 4 emits at 4, 5, 6; the remaining 0.5 seconds of on time plus a
 3-second off period puts the next burst at 9.5. An exact one-second on period
 with 0.5-second spacing contains packets at its beginning and midpoint, with
-the endpoint excluded. Burst positions use an integer packet index times the
-spacing, so repeated addition of decimal intervals cannot drift just below the
-endpoint and create an extra packet. No general epsilon changes the boundary.
+the endpoint excluded. Eligibility compares the integer packet index times
+packet bits against the on-period duration times bit/second rate, before any
+division into seconds. The last packet's offset is derived from its index and
+then divided by the rate. Rounded spacing therefore cannot move an endpoint
+inside the burst, and no general epsilon changes the boundary.
 Even a short on period emits its first packet at the
 on-period start; this is an explicit packetization convention, not a continuous
 fluid-rate envelope. The iterator starts with an off interval. When plugged
@@ -163,7 +165,7 @@ Flow redraws/strict boundaries, invalid matrices/initial phases, and on-duration
 unit errors. Later ownership and clock-precision tests each failed before their
 corresponding repair. Final test files were also replayed against all five
 accepted Phase 5 modules **in memory**, without changing the shared working
-tree: **53 failed, 16 passed** after the review regressions below. Reproduce
+tree: **54 failed, 16 passed** after the review regressions below. Reproduce
 that comparison with:
 
 ```sh
@@ -197,7 +199,7 @@ MPLBACKEND=Agg uv run --locked python examples/bursty_traffic_generation.py
 git diff --check
 ```
 
-Result: **91 passed**, including **69 focused source/Flow/generator cases**.
+Result: **92 passed**, including **70 focused source/Flow/generator cases**.
 Both examples passed; the bursty plot emitted only the expected headless Agg
 warning. Python is 3.14.8. Pytest emitted pre-existing cleanup warnings about
 unrelated temporary read-only model directories; no task resources were removed
@@ -232,6 +234,18 @@ balances the raw generator. Tests also check nonnegative stationary mass and
 the chosen phase's first holding interval. A separate rounded two-state DTMC
 checks its normalized transition balance and unchanged input matrix.
 
+## Second review repair
+
+Review of `1ce3721` passed the Markov-chain repairs but found another Pareto
+endpoint: `49 * (8000 / 392000)` rounds below one second. A new deterministic
+regression uses `random()=0`, one-second on/off minima, 1000-byte packets and
+392000 bits/second. It failed before repair: the fiftieth yielded wait was
+another `8000/392000` rather than the next burst's `1 + 8000/392000` gap.
+The repair compares `index * packet_bits < on_seconds * rate_bps` before
+division, admitting exactly 49 packets. The final 92-case regression command
+passed, including both decimal and fractional endpoint cases. This adds one
+code-bearing production line; the Markov-chain implementation is unchanged.
+
 ## Production size and readability
 
 Counts compare the five owned production files with accepted Phase 5. Nonblank
@@ -245,10 +259,10 @@ the code-bearing category. This is a source-size proxy, not statement complexity
 | Dist | 97 / 54 / 30 / 13 | 124 / 71 / 39 / 14 |
 | Trace | 75 / 61 / 1 / 13 | 93 / 71 / 9 / 13 |
 | MAP/BMAP | 131 / 76 / 29 / 26 | 150 / 97 / 35 / 18 |
-| Pareto on/off | 67 / 25 / 33 / 9 | 90 / 33 / 47 / 10 |
-| Total | 422 / 255 / 95 / 72 | 538 / 330 / 142 / 66 |
+| Pareto on/off | 67 / 25 / 33 / 9 | 91 / 34 / 47 / 10 |
+| Total | 422 / 255 / 95 / 72 | 539 / 331 / 142 / 66 |
 
-Net production growth: **75 code-bearing**, **47 explanatory**, **116 physical**
+Net production growth: **76 code-bearing**, **47 explanatory**, **117 physical**
 lines, with six fewer blank lines. The two streaming state fields represent the
 pending arrival and cumulative bytes; no parallel application object was added.
 Matrix input checks are shared by one small square-matrix helper. The sampler
