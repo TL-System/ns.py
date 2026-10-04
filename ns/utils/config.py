@@ -63,6 +63,10 @@ class Config:
             }
             # YAML allows numeric keys and names such as 'link-rate'. Preserve
             # those keys rather than renaming them or coercing them to strings.
+            # namedtuple stringifies its field names, so even numeric infinity
+            # and NaN could otherwise become valid-looking attribute names.
+            if any(not isinstance(key, str) for key in values):
+                return values
             try:
                 fields = sorted(values)
                 namedtuple_type = namedtuple("Config", fields)

@@ -39,7 +39,9 @@ or scheduler implementation was edited by this task.
   `ValueError`. Valid keys remain sorted namedtuple fields; invalid or mixed-type
   keys preserve the original mapping and recursively converted values. The
   existing environment override (`config_file`), CLI options, and successful
-  singleton lifecycle remain intact.
+  singleton lifecycle remain intact. Namedtuple conversion is attempted only
+  when every key is a string, because Python otherwise stringifies numeric
+  infinity/NaN keys into apparently valid attribute names.
 - `generate_fib(tcp=True)` keeps the existing ACK ID rule, `data ID + 10000`,
   and rejects actual data/ACK ID collisions before mutating the graph. Previously
   flows 0 and 10000 could silently overwrite each other's forwarding entries.
@@ -147,10 +149,10 @@ Commands and observations:
 
 ```sh
 uv run --locked pytest -q tests/demux tests/utils/test_splitter.py tests/utils/test_config.py tests/topos tests/port/test_port_monitor.py tests/scheduler/test_server_monitor.py
-# 67 passed
+# 67 passed before review fix; the two new YAML cases bring this suite to 69
 
 uv run --locked pytest -q tests/demux tests/utils/test_splitter.py tests/utils/test_config.py tests/topos tests/port/test_port.py tests/port/test_port_monitor.py tests/packet/test_sink.py tests/scheduler/test_server_monitor.py tests/scheduler/test_composition.py tests/scheduler/test_servers.py tests/scheduler/test_sp.py tests/scheduler/test_virtual_clock.py
-# 172 passed
+# 174 passed after the YAML key review fix (172 before it)
 
 MPLBACKEND=Agg uv run --locked python examples/fattree.py
 # Exit 0
@@ -158,10 +160,20 @@ MPLBACKEND=Agg uv run --locked python examples/fattree.py
 
 Pytest emitted eight warnings while trying to clean unrelated, pre-existing
 temporary test directories. They do not concern simulator results, and this
-task did not remove those resources. A final readability simplification removed
-four conditional-layout lines from YAML conversion; its nine configuration
-tests passed again. Task-owned diffs pass `git diff --check`. Full phase validation
+task did not remove those resources. Task-owned diffs pass `git diff --check`.
+Full phase validation
 and exact candidate-commit review remain the orchestrator's integration gate.
+
+Fresh review of candidate `6b5245b` found that sorting/constructing namedtuple
+fields alone does not reject every numeric YAML key: `.inf` and `.nan` are loaded
+as floats, then coerced by namedtuple to valid-looking `inf` and `nan` fields.
+Two actual YAML load tests reproduced this loss of key type before the fix
+(both failed with a namedtuple where a mapping was required). An explicit
+all-string-key check now retains these mappings while still recursively
+converting their nested values. The NaN test looks up the retained key object
+instead of relying on NaN equality. All eleven configuration tests and all 174
+relevant regression tests pass after the correction. No other reviewed behavior
+changed.
 
 ## Size and readability
 
@@ -170,11 +182,11 @@ other nonblank lines are code-bearing, including delimiter lines. Inline comment
 remain code-bearing. This is a readable source-size proxy, not an executable
 statement count. Across the eleven audited production modules, accepted Phase 5
 has 786 physical / 431 code-bearing / 230 explanatory / 125 blank lines; the
-candidate has 860 / 480 / 254 / 126. Net growth is **74 physical, 49 code-bearing,
-24 explanatory, and 1 blank line**. The unchanged switch/sink modules contribute
+candidate has 864 / 482 / 256 / 126. Net growth is **78 physical, 51 code-bearing,
+26 explanatory, and 1 blank line**. The unchanged switch/sink modules contribute
 no growth; FatTree's documentation correction removes two explanatory lines.
-The six new test files total 469 physical / 379 code-bearing / 15 explanatory /
-75 blank lines.
+The six new test files total 487 physical / 393 code-bearing / 17 explanatory /
+77 blank lines.
 
 The changes add no routing/configuration framework or replacement execution
 engine. They retain direct `put()`/`out` composition and small SimPy monitor

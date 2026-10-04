@@ -1,5 +1,6 @@
 """YAML conversion and singleton loading preserve user data and retryability."""
 
+import math
 import sys
 
 import pytest
@@ -63,3 +64,20 @@ def test_conversion_retains_non_attribute_keys_and_nested_values():
     assert converted["valid"][0].child == 3
     assert converted["bad-key"].rate == 800
     assert Config.namedtuple_from_dict({"class": 1}) == {"class": 1}
+
+
+@pytest.mark.parametrize("yaml_key", [".inf", ".nan"])
+def test_yaml_numeric_keys_remain_numeric_mappings(
+    yaml_key, tmp_path, monkeypatch
+):
+    path = tmp_path / "config.yml"
+    path.write_text(f"params: {{{yaml_key}: {{rate: 800}}}}")
+    monkeypatch.setattr(sys, "argv", ["scenario", "-c", str(path)])
+    params = Config().params
+    assert isinstance(params, dict)
+    key = next(iter(params))
+    assert isinstance(key, float)
+    assert (math.isinf(key) if yaml_key == ".inf" else math.isnan(key))
+    # NaN is unequal to itself. Look up the retained key object, and verify that
+    # nested values still convert to attributes inside the preserved mapping.
+    assert params[key].rate == 800
