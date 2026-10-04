@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ns.py"
-version = "0.4.5"
+version = "0.5.0"
 description = "ns.py: a pythonic discrete-event network simulator"
 readme = "README.md"
 # Match NetworkX's exclusion of the affected CPython 3.14.1 patch release.
