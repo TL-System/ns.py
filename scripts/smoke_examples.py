@@ -1,4 +1,4 @@
-"""Run the finite basic, TCP, and FatTree examples without a display."""
+"""Run finite basic, TCP, FatTree, and composed-network examples headlessly."""
 
 import os
 from pathlib import Path
@@ -10,7 +10,7 @@ from time import perf_counter
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     environment = {**os.environ, "MPLBACKEND": "Agg"}
-    for name in ("basic.py", "tcp.py", "fattree.py"):
+    for name in ("basic.py", "tcp.py", "fattree.py", "composed_network.py"):
         start = perf_counter()
         try:
             subprocess.run(
