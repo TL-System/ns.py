@@ -28,7 +28,8 @@ class PacketSink:
         consecutive arrivals is recorded per flow/source. The first interval
         starts at simulation time zero.
     rec_waits: bool
-        if True, the waiting times experienced by the packets are recorded
+        if True, record env.now - packet.time: end-to-end delay, including
+        serialization and propagation, rather than queue waiting time alone.
     rec_flow_ids: bool
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used

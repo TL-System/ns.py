@@ -26,8 +26,7 @@ class ServerMonitor:
             If True, monitor packets in service + in the queue;
             If False, only monitor packets in queue.
 
-        To be compatible with this monitor, the scheduling server will need to implement three
-        callback functions:
+        Compatible servers expose the following measurement methods:
 
         packet_in_service() -> Packet: returns the current packet being sent to the downstream node
 

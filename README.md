@@ -2,6 +2,13 @@
 
 This discrete-event network simulator is based on [`simpy`](https://simpy.readthedocs.io/en/latest/), which is a general-purpose discrete event simulation framework for Python. `ns.py` is designed to be flexible and reusable, and can be used to connect multiple networking components together easily, including packet generators, network links, switch elements, schedulers, traffic shapers, traffic monitors, and demultiplexing elements.
 
+Use it to study packet timing, scheduling, queue occupancy, and congestion
+control by connecting small components through `out` and `put(packet)`. The
+models deliberately omit some production protocol mechanisms; read the
+[model notes](docs/model_notes.md) before interpreting results as TCP, WFQ, RED,
+or BBR behavior. The [audit inventory](docs/modernization.md#component-inventory)
+links each module to its tests and reference evidence.
+
 ## Installation
 
 ### From PyPI
@@ -45,21 +52,23 @@ The network components that have already been implemented include:
 
 * `TracePacketGenerator`: generates packets according to a trace file, with each row in the trace file representing a packet.
 
-* `TCPPacketGenerator`: generates packets using TCP as the transport protocol.
+* `TCPPacketGenerator`: models a cumulative-ACK TCP byte stream with configurable congestion control.
   See [`docs/tcp_timing.md`](docs/tcp_timing.md) for the sender/receiver
-  timing contract used by the TCP rewrite.
+  segmentation, retransmission, application-deadline, and timing contract.
 
-* `ProxyPacketGenerator`: redirects real-world packets (with fixed packet sizes) into the simulation environment.
+* `BBRPacketGenerator`: models a paced TCP sender using the [educational BBR controller](docs/bbr.md).
+
+* `ProxyPacketGenerator`: forwards real TCP receive chunks or UDP datagrams into simulation packets whose sizes equal the received payload lengths.
 
 * `PacketSink`: receives packets and records delay statistics.
 
 * `TCPSink`: receives packets, records delay statistics, and produces acknowledgements back to a TCP sender.
 
-* `ProxySink`: redirects all received packets to a destination real-world TCP server.
+* `ProxySink`: forwards simulated payloads to a real TCP or UDP server and returns responses through the simulation; see [proxy timing and lifecycle](docs/proxies.md).
 
 * `Port`: an output port on a switch with a given rate and buffer size (in either bytes or the number of packets), using the simple tail-drop mechanism to drop packets.
 
-* `REDPort`: an output port on a switch with a given rate and buffer size (in either bytes or the number of packets), using the Early Random Detection (RED) mechanism to drop packets.
+* `REDPort`: an output port on a switch with a given rate and buffer size (in either bytes or the number of packets), using the Random Early Detection (RED) mechanism to drop packets.
 
 * `Wire`: a network wire (cable) with its propagation delay following a given distribution. There is no need to model the bandwidth of the wire, as that can be modeled by its upstream `Port` or scheduling server.
 
@@ -73,7 +82,7 @@ The network components that have already been implemented include:
 
 * `FlowDemux`: a demultiplexing element that splits packet streams by flow ID.
 
-* `FIBDemux`: a demultiplexing element that uses a Flow Information Base (FIB) to make packet forwarding decisions based on flow IDs.
+* `FIBDemux`: a demultiplexing element that uses a Forwarding Information Base (FIB) to make packet forwarding decisions based on flow IDs.
 
 * `TokenBucketShaper`: a token bucket shaper.
 
@@ -89,7 +98,7 @@ The network components that have already been implemented include:
 
 * `SimplePacketSwitch`: a packet switch with a FIFO bounded buffer on each of the outgoing ports.
 
-* `FairPacketSwitch`: a fair packet switch with a choice of a WFQ, DRR, Static Priority or Virtual Clock scheduler, as well as bounded buffers, on each of the outgoing ports. It also shows an example how a simple hash function can be used to map tuples of (flow_id, node_id, and port_id) to class IDs, and then use the parameter `flow_classes` to activate class-based scheduling rather than flow_based scheduling.
+* `FairPacketSwitch`: a fair packet switch with a choice of a WFQ, DRR, Static Priority or Virtual Clock scheduler, as well as bounded buffers, on each of the outgoing ports. It also shows an example how a simple hash function can be used to map tuples of (flow_id, node_id, and port_id) to class IDs, and then use the parameter `flow_classes` to activate class-based scheduling rather than flow-based scheduling.
 
 * `PortMonitor`: records the number of packets in a `Port`. The monitoring interval follows a given distribution.
 
@@ -119,7 +128,7 @@ The network components that have already been implemented include:
 
 * `wfq.py`: this example shows how to use the Weighted Fair Queueing (WFQ) scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `WFQServer`, and `ServerMonitor`.
 
-* `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `VirtualClockQServer`, and `ServerMonitor`.
+* `virtual_clock.py`: this example shows how to use the Virtual Clock scheduler, and how to use a server monitor to record performance statistics with a finer granularity using a sampling distribution. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter`, `VirtualClockServer`, and `ServerMonitor`.
 
 * `drr.py`: this example shows how to use the Deficit Round Robin (DRR) scheduler. It showcases `DistPacketGenerator`, `PacketSink`, `Splitter` and `DRRServer`.
 
@@ -138,6 +147,12 @@ Similar to the emulation mode in the ns-3 simulator, `ns.py` supports an *emulat
 </p>
 
 `examples/real_traffic/proxy.py` has been provided as an example that shows how a real-world client and server can communicate using a simulated network environment as the proxy, and how `ProxyPacketGenerator` and `ProxySink` are to be used to achieve this objective.
+
+The adapters use a plain SimPy environment with cooperative socket polling.
+Call both proxies' `close()` methods in `finally` after a run; stopping the
+environment alone does not close sockets. TCP receives are stream chunks, not
+application messages, and simulated loss is not repaired by a proxy-internal TCP
+model. See [Local socket proxies](docs/proxies.md) for the supported behavior.
 
 ### Testing the emulation mode with simple TCP and UDP echo servers
 
@@ -171,7 +186,7 @@ To use an UDP proxy instead, first run the UDP echo server, which listens on por
 python examples/real_traffic/udp_echo_server.py 10000
 ```
 
-Then run the UDP `ns.py` proxy on port 10000, asking it to redirect all traffic to `localhost:10000`, where the UDP echo server is.
+Then run the UDP `ns.py` proxy on port 5000, asking it to redirect all traffic to `localhost:10000`, where the UDP echo server is.
 
 ```shell
 python examples/real_traffic/proxy.py 5000 localhost 10000 udp
@@ -210,102 +225,70 @@ curl -v https://localhost:5000 --insecure
 
 ## Writing new network components
 
-To design and implement new network components in this framework, you will first need to read the [10-minute SimPy tutorial](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html). It literally takes 10 minutes to read, but if that is still a bit too long, you can safely skip the section on *Process Interaction*, as this feature will rarely be used in this network simulation framework.
-
-In the *Basic Concepts* section of this tutorial, pay attention to three simple calls: `env.process()`, `env.run()`, and `yield env.timeout()`. These are heavily used in this network simulation framework.
-
-### Setting up a process
-
-The first is used in our component's constructor to add this component's `run()` method to the `SimPy` environment. For example, in `scheduler/drr.py`:
+Start with the [SimPy tutorial](https://simpy.readthedocs.io/en/latest/simpy_intro/index.html).
+Components that wait for packets or model elapsed time use generator functions
+as SimPy processes. A constructor typically registers its process:
 
 ```python
 self.action = env.process(self.run())
 ```
 
-Keep in mind that not all network components need to be run as a *SimPy* process (more discussions on processes later). While traffic shapers, packet generators, ports (buffers), port monitors, and packet schedulers definitely should be implemented as processes, a flow demultiplexer, a packet sink, a traffic marker, or a traffic splitter do not need to be modeled as processes. They just represent additional processing on packets inside a network.
+A process yields an event, such as `store.get()` or `env.timeout(delay)`, and
+resumes when that event completes. Other processes can then run at the same
+simulation time or advance the simulated clock. This concurrency uses simulated
+time; ordinary simulations need not wait for wall-clock time to pass.
 
-### Running a process
-
-The second call, `env.run()`, is used by our examples to run the environment after connecting all the network components together. For example, in `examples/drr.py`:
-
-```python
-env.run(until=100)
-```
-
-This call simply runs the environment for 100 seconds.
-
-### Scheduling an event
-
-The third call, `yield env.timeout()`, schedules an event to be fired sometime in the future. *SimPy* uses an ancient feature in Python that's not well known, *generator functions*, to implement what it called *processes*. The term *process* is a bit confusing, as it has nothing to do with processes in operating systems. In *SimPy*, each process is simply a sequence of timed events, and multiple processes occur concurrently in real-time. For example, a scheduler is a process in a network, and so is a traffic shaper. The traffic shaper runs concurrently with the scheduler, and both of these components run concurrently with other traffic shapers and schedulers in other switches throughout the network.
-
-In order to implement these processes in a network simulation, we almost always use the `yield env.timeout()` call. Here, `yield` uses the feature of generator functions to return an iterator, rather than a value. This is just a fancier way of saying that it *yields* the *process* in *SimPy*, allowing other processes to run for a short while, and it will be resumed at a later time specified by the timeout value. For example, for a Deficit Round Robin (DRR) scheduler to send a packet (in `scheduler/drr.py`), it simply calls:
+A FIFO serializer can express its timing directly:
 
 ```python
+packet = yield self.store.get()
 yield self.env.timeout(packet.size * 8.0 / self.rate)
-```
-
-which implies that the scheduler *process* will resume its execution after the transmission time of the packet elapses. A side note: in our network components implemented so far, we assume that the `rate` (or *bandwidth*) of a link is measured in bits per second, while everything else is measured in bytes. As a result, we will need a little bit of a unit conversion here.
-
-What a coincidence: the `yield` keyword in Python in generator functions is the same as the `yield()` system call in an operating system kernel! This makes the code much more readable: whenever a process in *SimPy* needs to wait for a shared resource or a timeout, simply call `yield`, just like calling a system call in an operating system.
-
-**Watch out** for a potential pitfall: Make sure that you call `yield` at least once in *every* path of program execution. This is more important in an infinite loop in `run()`, which is very typical in our network components since the environment can be run for a finite amount of simulation time. For example, at the end of each iteration of the infinite loop in `scheduler/drr.py`, we call `yield`:
-
-```python
-yield self.packets_available.get()
-```
-
-This works just like a `sleep()` call on a binary semaphore in operating systems, and will make sure that other processes have a chance to run when there are no packets in the scheduler. This is, on the other hand, not a problem in our Weighted Fair Queueing (WFQ) scheduler (`scheduler/wfq.py`), since we call `yield self.store.get()` to retrieve the next packet for processing, and `self.store` is implemented as a sorted queue (`TaggedStore`). This process will not be resumed after `yield` if there are no packets in the scheduler.
-
-### Sharing resources
-
-The *Shared Resources* section of the 10-minute SimPy tutorial discussed a mechanism to request and release (either automatically or manually) a shared resource by using the `request()` and `release()` calls. In this network simulation framework, we will simplify this by directly calling:
-
-```python
-packet = yield store.get()
-```
-
-Here, `store` is an instance of `simpy.Store`, which is a simple first-in-first-out buffer containing shared resources in *SimPy*. We initialize one such buffer for each flow in `scheduler/drr.py`:
-
-```python
-if not flow_id in self.stores:
-    self.stores[flow_id] = simpy.Store(self.env)
-```
-
-### Sending packets out
-
-How do we send a packet to a downstream component in the network? All we need to do is to call the component's `put()` function. For example, in `scheduler/drr.py`, we run:
-
-```python
 self.out.put(packet)
 ```
 
-after a timeout expires. Here, `self.out` is initialized to `None`, and it is up to the `main()` program to set up. In `examples/drr.py`, we set the downstream component of our DRR scheduler to a packet sink:
+Packet sizes are bytes and link rates are bits/second, so the factor of eight
+converts bytes to bits. Most clocks use seconds. BBR pacing and `StackDelayer`
+use bytes/second instead; check each component's documented units.
+
+Each repeating process path must yield an event. An idle server should wait for
+work; repeatedly yielding zero-time events without eventual time progress can
+still stall a simulation. Schedulers may use a zero-time selection wait to admit
+already scheduled same-time arrivals, then perform nonpreemptive service. WFQ
+and Virtual Clock wake separately from selection so an idle heap `get()` cannot
+reserve a packet before other same-time arrivals are considered.
+
+Demultiplexers, splitters, sinks, and markers normally act synchronously inside
+`put()` and need no process of their own. A downstream `put()` may call back
+immediately, so register send/accounting state before forwarding. Connect an
+output before running the environment, for example:
 
 ```python
-drr_server.out = ps
+generator.out = port
+port.out = sink
+env.run(until=100)
 ```
 
-By connecting multiple components this way, a network can be established with packets flowing from packet generators to packet sinks, going through a variety of schedulers, traffic shapers, traffic splitters, and flow demultiplexers.
+Numeric `env.run(until=100)` observes events before time 100; ordinary events
+exactly at that boundary remain pending. Use a finite source and `env.run()` to
+drain a network with no forever-running monitor. See
+[`examples/composed_network.py`](examples/composed_network.py) for a finite
+composition and [model notes](docs/model_notes.md) for shared-buffer ownership.
 
-### Flow identifiers
-
-Flow IDs are assigned to packets when they are generated by a packet generator, which is (optionally) initialized with a specific flow ID. We use flow IDs extensively as indices of data structures, such as lists and dictionaries, throughout our framework. For example, in `scheduler/drr.py`, we use flow IDs as indices to look up our lists (or dictionaries, if strings are used for flow IDs) of deficit counters and quantum values:
-
-```python
-self.deficit[flow_id] += self.quantum[flow_id]
-```
-
-Most often, the mapping between flow IDs and per-flow parameters, such as weights in a Weighted Fair Queueing scheduler or priorities in a Static Priority scheduler, need to be stored in a dictionary, and then used to initialized these schedulers. An optional (but not recommended) style is to assign consecutive integers as flow IDs to the flows throughout the entire network, and then use simple lists of per-flow parameters to initialize the schedulers. In this case, flow IDs will be directly used as indices to look up these lists to find the parameter values.
+Flow IDs identify routes and statistics. Schedulers use `flow_classes(packet)`
+to map flows to scheduling classes without rewriting `packet.flow_id`. Lists
+index configured integer class IDs; dictionaries support named or sparse class
+IDs. Flows mapped to one class share its FIFO, priority, or finish-tag history,
+according to the chosen discipline.
 
 ## Running Tests
 
-A few dozen tests have been included in the project. To run them, use the command:
+Run the regression suite with:
 
 ```bash
 uv run pytest -q
 ```
 
-CI also runs the finite basic, TCP, and FatTree scenarios with Matplotlib's
+CI also runs the finite basic, TCP, FatTree, and composed-network scenarios with Matplotlib's
 headless `Agg` backend and a 90-second timeout per process:
 
 ```shell

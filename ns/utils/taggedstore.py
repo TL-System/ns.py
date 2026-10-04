@@ -56,7 +56,7 @@ class TaggedStore(base.BaseResource):
             raise ValueError('"capacity" must be > 0.')
 
         self._capacity = capacity
-        self.items = []  # we are keeping items sorted by their tags
+        self.items = []  # Heap entries are [tag, insertion counter, contents].
         self.event_count = 0  # Used to break ties with python heap implementation
 
     @property

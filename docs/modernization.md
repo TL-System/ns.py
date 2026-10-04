@@ -96,38 +96,60 @@ ordering boundary.
 ## Component inventory
 
 Paths below are relative to `ns/` and the pinned Days checkout respectively.
-“Shared” means a comparable behavior, not a one-to-one public component. All rows
-begin as pending audits; passing existing tests alone does not close them.
+“Shared” means a comparable behavior, not a one-to-one public component. Every
+row below is closed by observable tests and reference evidence, or explicit
+package inspection. Recorded acceptance is linked separately from task-local
+checks; the Phase 7 final integrated gate is recorded by the coordinator.
 
-| Python module(s) | Days reference or gap | Phase |
-| --- | --- | --- |
-| `packet/packet.py` | Shared `executor/src/model.rs`, `event.rs`, `image.rs` packet/identity records | 2 |
-| `packet/sink.py` | Shared `executor/src/scalar.rs` arrival observations; no matching statistics collector | 2, 6 |
-| `port/port.py` | `executor/src/scalar.rs` FIFO/admission/service; `model.rs`, `time.rs` | 2 |
-| `port/wire.py` | Shared link propagation in `executor/src/scalar.rs`, `time.rs`; legacy `flows/wire.rs` for historical API | 2 |
-| `utils/timer.py` | Shared TCP timer lifecycle in `executor/src/scalar.rs`; no generic callback timer | 2, 4 |
-| `utils/taggedstore.py` | No generic SimPy store counterpart; scheduler ordering in `executor/src/scalar.rs` | 2 |
-| `utils/delayer.py` | No direct counterpart for `Delayer`/`StackDelayer`; independent timing/ownership tests | 2 |
-| `scheduler/sp.py`, `drr.py`, `wfq.py` | `executor/src/model.rs`, `scalar.rs`; scheduler fixtures in `executor/tests/` | 3 |
-| `scheduler/virtual_clock.py` | No current CPU counterpart; `legacy/src/schedulers/vc.rs` plus algorithm reference | 3 |
-| `switch/switch.py` | Shared switch egress behavior in `executor/src/scalar.rs`; `src/topos/build.rs` | 3, 6 |
-| `packet/tcp_generator.py`, `tcp_sink.py` | `executor/src/scalar.rs` host TCP transitions, `tcp.rs`, `tcp_ledger.rs` | 4 |
-| `packet/bbr_generator.py` | Shared transport invariants above; no current CPU BBR sender | 4, 5 |
-| `flow/cc.py`, `cubic.py` | `executor/src/tcp.rs` Reno/CUBIC | 5 |
-| `flow/bbr.py`, `packet/rate_sample.py` | No current CPU BBR; historical `legacy/src/flows/bbr.rs` is secondary; independently establish variant | 5 |
-| `port/red_port.py` | `executor/src/model.rs` RED state and `scalar.rs` drop/mark decisions; signaling models differ | 6 |
-| `shaper/token_bucket.py`, `two_rate_token_bucket.py` | No direct current CPU token-bucket shaper; independent rate/burst invariants | 6 |
-| `utils/misc.py` | `TrTCM`: no direct current CPU marker; RFC 2698 | 6 |
-| `packet/dist_generator.py`, `trace_generator.py` | Shared generation/preloaded input in `executor/src/scalar.rs`, `image.rs`; `src/utils/testgen/trace.rs`; distributions differ | 6 |
-| `utils/generators/MAP_MSP_generator.py`, `pareto_onoff_generator.py` | No direct current CPU counterpart; validate mathematical inputs and generated timing | 6 |
-| `flow/flow.py` | Shared flow/application configuration in `executor/src/image.rs`, `src/scenario/compile.rs`; application models differ | 6 |
-| `demux/fib_demux.py`, `flow_demux.py`, `random_demux.py` | Shared routing in `src/topos/route.rs`, executor route records; no generic/random demux counterpart | 6 |
-| `utils/splitter.py` | No direct current CPU packet-copy splitter; verify identity and mutable metadata isolation | 6 |
-| `port/monitor.py`, `scheduler/monitor.py` | Shared observations in `executor/src/scalar.rs`; no matching sampling monitor | 3, 6 |
-| `topos/fattree.py`, `utils.py` | `src/topos/build.rs`, `config.rs`, `route.rs`; `src/scenario/compile.rs` | 6 |
-| `utils/config.py` | Shared configuration purpose in `src/topos/config.rs`; Python singleton/YAML semantics independent | 6 |
-| `packet/proxy_generator.py`, `proxy_sink.py` | No current CPU real-socket emulation counterpart; bounded local socket tests | 6 |
-| All 11 `__init__.py` files (root, demux, flow, packet, port, scheduler, shaper, switch, topos, utils, utils/generators) | Python package/export metadata; no algorithm counterpart | 1, 7 |
+| Python module(s) | Days reference or gap | Phase | Closed: tests or inspection evidence |
+| --- | --- | --- | --- |
+| `packet/packet.py` | Shared `executor/src/model.rs`, `event.rs`, `image.rs` packet/identity records | 2 | [Packet/port evidence](../evidence/phase2_ports.md); `tests/packet/test_packet.py`: size, identity, payload, timestamp ownership. |
+| `packet/sink.py` | Shared `executor/src/scalar.rs` arrival observations; no matching statistics collector | 2, 6 | [Phase 2](../evidence/phase2_ports.md), [Phase 6 inspection](../evidence/phase6_routing_utilities.md); `tests/packet/test_sink.py`: physical counts, delay and per-hop snapshots. |
+| `port/port.py` | `executor/src/scalar.rs` FIFO/admission/service; `model.rs`, `time.rs` | 2 | [Port evidence](../evidence/phase2_ports.md); `tests/port/test_port.py`, `test_days_fifo.py`: conservation, exact capacity, CPU FIFO timing. |
+| `port/wire.py` | Shared link propagation in `executor/src/scalar.rs`, `time.rs`; legacy `flows/wire.rs` for historical API | 2 | [Wire evidence](../evidence/phase2_ports.md); `tests/port/test_wire.py`: entry-relative overlapping delays, FIFO and loss. |
+| `utils/timer.py` | Shared TCP timer lifecycle in `executor/src/scalar.rs`; no generic callback timer | 2, 4 | [Utility evidence](../evidence/phase2_utilities.md), [transport acceptance](../evidence/phase4.md); `tests/utils/test_timer.py`: cancel, restart, one-shot lifetime. |
+| `utils/taggedstore.py` | No generic SimPy store counterpart; scheduler ordering in `executor/src/scalar.rs` | 2 | [Utility evidence](../evidence/phase2_utilities.md), [composition](../evidence/phase3_composition.md); `tests/utils/test_taggedstore.py`: stable ties, capacity, exact-object get. |
+| `utils/delayer.py` | No direct counterpart for `Delayer`/`StackDelayer`; independent timing/ownership tests | 2 | [Utility evidence](../evidence/phase2_utilities.md); `tests/utils/test_delayer.py`: FIFO deadlines, byte-rate serialization, packet ownership. |
+| `scheduler/sp.py`, `drr.py`, `wfq.py` | `executor/src/model.rs`, `scalar.rs`; scheduler fixtures in `executor/tests/` | 3 | [Scheduler acceptance](../evidence/phase3.md), [CPU references](../evidence/phase3_reference.md); `tests/scheduler/test_sp.py`, `test_drr.py`, `test_wfq.py`, `test_days_schedulers.py`: independent order/timing and explicit variant counterexamples. |
+| `scheduler/virtual_clock.py` | No current CPU counterpart; `legacy/src/schedulers/vc.rs` plus algorithm reference | 3 | [Virtual Clock evidence](../evidence/phase3_virtual_clock.md); `tests/scheduler/test_virtual_clock.py`: tag units, idle clocks, ties and nonpreemption. |
+| `switch/switch.py` | Shared switch egress behavior in `executor/src/scalar.rs`; `src/topos/build.rs` | 3, 6 | [Composition](../evidence/phase3_composition.md), [routing inspection](../evidence/phase6_routing_utilities.md); `tests/scheduler/test_composition.py`, `tests/topos/test_routing.py`: all disciplines, capacity and actual forwarding. |
+| `packet/tcp_generator.py`, `tcp_sink.py` | `executor/src/scalar.rs` host TCP transitions, `tcp.rs`, `tcp_ledger.rs` | 4 | [Transport acceptance](../evidence/phase4.md), [TCP timing](tcp_timing.md); `tests/packet/test_tcp_transport.py`, `test_tcp_sink.py`, `test_tcp_transport_integration.py`: byte ranges, recovery, timers, unique delivery. |
+| `packet/bbr_generator.py` | Shared transport invariants above; no current CPU BBR sender | 4, 5 | [Sender](../evidence/phase4_bbr_sender.md), [BBR](../evidence/phase5_bbr.md); `tests/packet/test_bbr_transport.py`: transport invariants, pacing, loss and synchronous ACKs. |
+| `flow/cc.py`, `cubic.py` | `executor/src/tcp.rs` Reno/CUBIC | 5 | [Reno](../evidence/phase5_reno.md), [CUBIC](../evidence/phase5_cubic.md), [actual CPU](../evidence/phase5_reference.md); `tests/flow/test_reno.py`, `test_cubic.py`, `test_days_tcp_reference.py`. |
+| `flow/bbr.py`, `packet/rate_sample.py` | No current CPU BBR; historical `legacy/src/flows/bbr.rs` is secondary; independently establish variant | 5 | [BBR evidence](../evidence/phase5_bbr.md), [model](bbr.md); `tests/packet/test_rate_sample.py`, `tests/flow/test_bbrv3.py`, `test_bbrv3_integration.py`: sampling, rounds, probes and recovery. |
+| `port/red_port.py` | `executor/src/model.rs` RED state and `scalar.rs` drop/mark decisions; signaling models differ | 6 | [RED evidence](../evidence/phase6_queues_shapers.md); `tests/port/test_red_port.py`: EWMA, thresholds, explicit random draws, capacity and retention. |
+| `shaper/token_bucket.py`, `two_rate_token_bucket.py` | No direct current CPU token-bucket shaper; independent rate/burst invariants | 6 | [Shaper evidence](../evidence/phase6_queues_shapers.md); `tests/shaper/test_token_buckets.py`: envelopes, refill, oversized borrowing, colors, peak completion and retained release. |
+| `utils/misc.py` | `TrTCM`: no direct current CPU marker; RFC 2698 | 6 | [Marker evidence](../evidence/phase6_queues_shapers.md); `tests/utils/test_trtcm.py`: independent color-blind transitions and byte/bit units. |
+| `packet/dist_generator.py`, `trace_generator.py` | Shared generation/preloaded input in `executor/src/scalar.rs`, `image.rs`; `src/utils/testgen/trace.rs`; distributions differ | 6 | [Source evidence](../evidence/phase6_sources.md); `tests/packet/test_dist_generator.py`, `test_trace_generator.py`: exact byte tails, deadlines, trace order and CPU input tape. |
+| `utils/generators/MAP_MSP_generator.py`, `pareto_onoff_generator.py` | No direct current CPU counterpart; validate mathematical inputs and generated timing | 6 | [Generator evidence](../evidence/phase6_sources.md); `tests/utils/generators/test_map_msp.py`, `test_pareto_onoff.py`: balance, stationary initialization, batch timing and bit-budget burst endpoint. |
+| `flow/flow.py` | Shared flow/application configuration in `executor/src/image.rs`, `src/scenario/compile.rs`; application models differ | 6 | [Flow evidence](../evidence/phase6_sources.md); `tests/flow/test_flow.py`: retained streaming arrivals, inclusive polls, exclusive finish and volume. |
+| `demux/fib_demux.py`, `flow_demux.py`, `random_demux.py` | Shared routing in `src/topos/route.rs`, executor route records; no generic/random demux counterpart | 6 | [Routing evidence](../evidence/phase6_routing_utilities.md); `tests/demux/test_demux.py`: terminal/default routes, exact local drops and relative random weights. |
+| `utils/splitter.py` | No direct current CPU packet-copy splitter; verify identity and mutable metadata isolation | 6 | [Splitter evidence](../evidence/phase6_routing_utilities.md); `tests/utils/test_splitter.py`: branch identity and mutable metadata isolation. |
+| `port/monitor.py`, `scheduler/monitor.py` | Shared observations in `executor/src/scalar.rs`; no matching sampling monitor | 3, 6 | [Monitor evidence](../evidence/phase6_routing_utilities.md); `tests/port/test_port_monitor.py`, `tests/scheduler/test_server_monitor.py`: resident versus waiting/service definitions and positive intervals. |
+| `topos/fattree.py`, `utils.py` | `src/topos/build.rs`, `config.rs`, `route.rs`; `src/scenario/compile.rs` | 6 | [Topology evidence](../evidence/phase6_routing_utilities.md); `tests/topos/test_routing.py`: independent node/link counts, shortest paths, reverse ACK routes and GraphML. |
+| `utils/config.py` | Shared configuration purpose in `src/topos/config.rs`; Python singleton/YAML semantics independent | 6 | [Config evidence](../evidence/phase6_routing_utilities.md); `tests/utils/test_config.py`: retryable singleton, YAML defaults and key-type preservation. |
+| `packet/proxy_generator.py`, `proxy_sink.py` | No current CPU real-socket emulation counterpart; bounded local socket tests | 6 | [Proxy evidence](../evidence/phase6_proxies.md), [limits](proxies.md); `tests/packet/test_proxy_io.py`: bounded local sockets, payload/flow identity, delayed delivery, EOF and explicit cleanup. |
+| `utils/retained_store.py` (added in Phase 3) | No generic current CPU ownership store | 3, 7 | [Composition evidence](../evidence/phase3_composition.md); `tests/scheduler/test_composition.py`, `tests/shaper/test_token_buckets.py`: exact identity, preserved FIFO/heap order, pending-put wakeups and callback chain. |
+| `__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: only `__version__ = "0.4.5"`; metadata agrees with `pyproject.toml`. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `demux/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `flow/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `packet/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `port/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `scheduler/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `shaper/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `switch/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `topos/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `utils/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+| `utils/generators/__init__.py` | Python package metadata; no algorithm counterpart | 1, 7 | Inspected: empty package marker; no eager imports or re-exports. [Import/API inspection](../evidence/phase7_readability.md); isolated wheel validation is a final phase gate. |
+
+Accepted phase evidence: [0](../evidence/phase0.md), [1](../evidence/phase1.md),
+[2](../evidence/phase2.md), [3](../evidence/phase3.md),
+[4](../evidence/phase4.md), [5](../evidence/phase5.md),
+[6](../evidence/phase6.md). Final model limits and behavior changes are summarized
+in [model notes](model_notes.md); [Phase 7 readability](../evidence/phase7_readability.md)
+records all production source counts, import inspection, and comment corrections.
+[Phase 7 composition](../evidence/phase7_composition.md) records the final teaching
+scenario and mixed-size, congestion, hierarchy, and loss integration checks.
 
 ## Execution and review
 

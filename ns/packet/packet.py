@@ -49,7 +49,7 @@ class Packet:
         self.time = time
         self.delivered_time = last_ack_time
         self.first_sent_time = 0
-        # self.sent_time = 0
+        # Delivery sampling attaches sent_time to each attempt when it is sent.
         self.size = size
         self.packet_id = packet_id
         self.realtime = realtime
@@ -66,7 +66,7 @@ class Packet:
             self.delivered = delivered
 
         self.is_app_limited = False
-        self.color = None  # Used by the two-rate tri-color token bucket shaper
+        self.color = None  # String color used by two-rate shaping and TrTCM.
         self.prio = {}  # used by the Static Priority scheduler
         self.ack = None  # used by TCPPacketGenerator and TCPSink
         # Latest wire-entry time, retained as diagnostic metadata for compatibility.
