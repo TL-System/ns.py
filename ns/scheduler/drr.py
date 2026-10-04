@@ -3,16 +3,18 @@ Implements a Deficit Round Robin (DRR) server.
 
 Reference:
 
-M. Shreedhar and G. Varghese, "Efficient Fair Queuing Using Deficit Round-Robin," IEEE/ACM
-Tran. Networking, vol. 4, no. 3, June 1996.
+M. Shreedhar and G. Varghese, "Efficient Fair Queuing Using Deficit Round-Robin,"
+IEEE/ACM Trans. Networking, vol. 4, no. 3, June 1996.
 """
 
 from collections import defaultdict as dd
 from collections import deque
 from collections.abc import Callable
+from math import isfinite
 
 import simpy
 from ns.packet.packet import Packet
+from ns.utils.retained_store import remove_packet
 
 
 class DRRServer:
@@ -22,19 +24,17 @@ class DRRServer:
     env: simpy.Environment
         The simulation environment.
     rate: float
-        The bit rate of the port.
+        The finite, positive bit rate of the port.
     weights: list or dict
-        This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
-        or class_id, if class-based fair queueing is activated using the `flow_classes' parameter
-        below --- as its index to look for the flow's corresponding weight. If it is a dictionary,
-        it contains (flow_id or class_id -> weight) pairs for each possible flow_id or class_id.
+        A list indexes finite, positive weights by class ID; a dictionary maps
+        class IDs to those weights. With the default classifier, IDs are flow IDs.
     flow_classes: function
-        This is a function that matches a packet's flow_ids to class_ids, used to implement
-        class-based Deficit Round Robin. The default is a lambda function that uses a packet's
-        flow_id as its class_id, which is equivalent to flow-based DRR.
+        Maps a packet to its class ID. The default uses packet.flow_id, giving
+        per-flow DRR. Flows mapped to one class share a FIFO and deficit counter.
     mtu_bytes: int
-        Maximum packet size (bytes) expected on any flow. Quanta are automatically
-        sized so that every class receives at least this many bytes per round.
+        Configured packet-size scale in bytes. The smallest-weight class receives
+        max(MIN_QUANTUM, mtu_bytes) bytes per visit; other quanta scale with weight.
+        Quanta stay fixed. Larger packets accumulate credit across visits.
     zero_buffer: bool
         Does this server have a zero-length buffer? This is useful when multiple
         basic elements need to be put together to construct a more complex element
@@ -53,13 +53,17 @@ class DRRServer:
         self,
         env,
         rate,
-        weights: list,
+        weights: list | dict,
         flow_classes: Callable = lambda p: p.flow_id,
         mtu_bytes: int = 1500,
         zero_buffer=False,
         zero_downstream_buffer=False,
         debug: bool = False,
     ) -> None:
+        if not isfinite(rate) or rate <= 0:
+            raise ValueError("rate must be finite and positive.")
+        if not isfinite(mtu_bytes) or mtu_bytes <= 0:
+            raise ValueError("mtu_bytes must be finite and positive.")
         self.env = env
         self.rate = rate
         self.weights = weights
@@ -79,17 +83,33 @@ class DRRServer:
             raise ValueError("Weights must be either a list or a dictionary.")
 
         for queue_id, weight in iterable:
+            if not isfinite(weight) or weight <= 0:
+                raise ValueError("Every weight must be finite and positive.")
             self.weight_lookup[queue_id] = weight
             self.deficit[queue_id] = 0.0
             self.flow_queue_count[queue_id] = 0
 
+        if not self.weight_lookup:
+            raise ValueError("At least one weight is required.")
         self.min_weight = min(self.weight_lookup.values())
         self.base_quantum = max(self.MIN_QUANTUM, mtu_bytes)
-        self._recompute_quanta()
+        # A quantum is byte credit per class visit, not a packet-size estimate.
+        # Observing a jumbo must not change the configured allocation to others.
+        for queue_id, weight in self.weight_lookup.items():
+            quantum = self.base_quantum * (weight / self.min_weight)
+            if not isfinite(quantum):
+                raise ValueError("weight ratios must produce finite quanta.")
+            self.quantum[queue_id] = quantum
 
+        # Hold an unaffordable head rather than putting it back behind its FIFO.
         self.head_of_line = {}
         self.active_set = set()
         self.active_queue = deque()
+        # The class whose visit is in progress is separate from the waiting
+        # active list. Arrivals must not insert a still-backlogged visit twice.
+        # None is a valid dictionary class key, so idle needs a unique sentinel.
+        self._no_current_queue = object()
+        self.current_queue = self._no_current_queue
 
         # One FIFO queue for each flow_id or class_id
         self.stores = {}
@@ -114,14 +134,9 @@ class DRRServer:
         self.debug = debug
         self.action = env.process(self.run())
 
-    def _recompute_quanta(self):
-        """Recalculate per-flow quanta when the base quantum changes."""
-        for queue_id, weight in self.weight_lookup.items():
-            self.quantum[queue_id] = self.base_quantum * weight / self.min_weight
-
     def _activate_flow(self, queue_id):
-        """Add a backlogged flow to the active queue."""
-        if queue_id in self.active_set:
+        """Append a newly backlogged class after the waiting active classes."""
+        if queue_id == self.current_queue or queue_id in self.active_set:
             return
 
         if self.flow_queue_count.get(queue_id, 0) == 0:
@@ -131,49 +146,41 @@ class DRRServer:
         self.active_queue.append(queue_id)
 
         if self.idle:
+            self.idle = False
             self.packets_available.put(True)
 
     def update_stats(self, packet):
-        """
-        The packet has been sent (or authorized to be sent if the downstream node has a zero-buffer
-        configuration), we need to update the internal statistics related to this event.
-        """
-        self.flow_queue_count[self.flow_classes(packet)] -= 1
+        """Charge selected bytes and remove them from waiting-queue accounting."""
+        queue_id = self.flow_classes(packet)
+        self.flow_queue_count[queue_id] -= 1
+        self.byte_sizes[queue_id] -= packet.size
+        self.deficit[queue_id] -= packet.size
 
-        self.deficit[self.flow_classes(packet)] -= packet.size
-
-        if self.flow_queue_count[self.flow_classes(packet)] == 0:
-            self.deficit[self.flow_classes(packet)] = 0.0
-
-        if self.debug:
-            print(
-                f"Deficit reduced to {self.deficit[packet.flow_id]} for flow {packet.flow_id}"
-            )
-
-        if self.flow_classes(packet) in self.byte_sizes:
-            self.byte_sizes[self.flow_classes(packet)] -= packet.size
-        else:
-            raise ValueError("Error: the packet to be sent has never been received.")
+        # DRR discards residual credit as soon as the waiting queue empties.
+        # A packet arriving while this last packet serializes starts a new visit.
+        if self.flow_queue_count[queue_id] == 0:
+            self.deficit[queue_id] = 0.0
+            self.current_queue = self._no_current_queue
 
         if self.debug:
             print(
-                f"Sent out packet {packet.packet_id} from flow {packet.flow_id} "
-                f"belonging to class {self.flow_classes(packet)}"
+                f"Selected packet {packet.packet_id} from flow {packet.flow_id} "
+                f"belonging to class {queue_id}, deficit {self.deficit[queue_id]}"
             )
 
     def update(self, packet):
         """
-        The packet has just been retrieved from this element's own buffer by a downstream
-        node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
-        configuration.
+        Propagate the downstream's shared-buffer release to the upstream.
+
+        Directly injected packets may have no upstream hooks even in zero-buffer
+        mode. A downstream calls this after removing our retained store reference.
         """
-        # With no local buffers, this element needs to pull the packet from upstream
-        if self.zero_buffer:
-            # For each packet, remove it from its own upstream's store
-            self.upstream_stores[packet].get()
-            del self.upstream_stores[packet]
-            self.upstream_updates[packet](packet)
-            del self.upstream_updates[packet]
+        if self.zero_buffer and packet in self.upstream_stores:
+            # Clear hooks before callbacks, which may synchronously revisit us.
+            store = self.upstream_stores.pop(packet)
+            callback = self.upstream_updates.pop(packet)
+            remove_packet(store, packet)
+            callback(packet)
 
     def packet_in_service(self) -> Packet:
         """
@@ -184,7 +191,7 @@ class DRRServer:
 
     def byte_size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in bytes.
+        Returns waiting bytes, excluding service and downstream-retained packets.
         Used by a ServerMonitor.
         """
         if queue_id in self.flow_queue_count:
@@ -194,8 +201,8 @@ class DRRServer:
 
     def size(self, queue_id) -> int:
         """
-        Returns the size of the queue for a particular queue_id, in the
-        number of packets. Used by a ServerMonitor.
+        Returns waiting packets for a class, excluding the packet in service.
+        Used by a ServerMonitor.
         """
         if queue_id in self.flow_queue_count:
             return self.flow_queue_count[queue_id]
@@ -204,18 +211,24 @@ class DRRServer:
 
     def all_flows(self) -> list:
         """
-        Returns a list containing all the flow IDs.
+        Returns the observed class IDs (flow IDs with the default classifier).
         """
-        return self.byte_sizes.keys()
+        return list(self.byte_sizes)
 
     def total_packets(self) -> int:
         """
-        Returns the total number of packets currently in the server.
+        Returns the total number of waiting packets across all classes.
         """
         return sum(self.flow_queue_count.values())
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for active classes, then serialize chosen packets without preemption.
+
+        Logical deficit rounds take no simulation time. A zero-time visit wait
+        lets already scheduled arrivals at this time join selection. Retrieval
+        and each packet's byte-to-bit serialization delay also yield. This local
+        wait does not impose global event phases on arbitrary user processes.
+        """
         while True:
             if not self.active_queue:
                 self.idle = True
@@ -223,6 +236,9 @@ class DRRServer:
                 self.idle = False
                 continue
 
+            # Let scheduled arrivals join before scanning another logical visit,
+            # including when a jumbo needs several visits with no service yet.
+            yield self.env.timeout(0)
             queue_id = self.active_queue.popleft()
             self.active_set.discard(queue_id)
 
@@ -231,6 +247,7 @@ class DRRServer:
                 self.deficit[queue_id] = 0.0
                 continue
 
+            self.current_queue = queue_id
             self.deficit[queue_id] += self.quantum[queue_id]
             if self.debug:
                 print(
@@ -253,27 +270,34 @@ class DRRServer:
                 assert queue_id == self.flow_classes(packet)
 
                 if packet.size <= self.deficit[queue_id]:
+                    # Selection spends byte credit now. Transmission itself is
+                    # non-preemptive even if another class becomes eligible.
+                    self.update_stats(packet)
                     self.current_packet = packet
+                    # Sizes are bytes; 8 * bytes / bits-per-second is seconds.
                     yield self.env.timeout(packet.size * 8.0 / self.rate)
+                    self.current_packet = None
 
                     if self.zero_downstream_buffer:
-                        self.update_stats(packet)
                         self.out.put(
                             packet,
                             upstream_update=self.update,
                             upstream_store=self.stores[queue_id],
                         )
                     else:
-                        self.update_stats(packet)
                         self.update(packet)
                         self.out.put(packet)
 
-                    self.current_packet = None
+                    if self.current_queue is self._no_current_queue:
+                        # That selection emptied the queue. Arrivals during its
+                        # service have already reactivated it at the list tail.
+                        break
                 else:
                     assert queue_id not in self.head_of_line
                     self.head_of_line[queue_id] = packet
                     break
 
+            self.current_queue = self._no_current_queue
             if self.flow_queue_count.get(queue_id, 0) > 0:
                 self._activate_flow(queue_id)
             else:
@@ -281,13 +305,11 @@ class DRRServer:
 
     def put(self, packet, upstream_update=None, upstream_store=None):
         """Sends a packet to this element."""
-        self.packets_received += 1
         flow_class = self.flow_classes(packet)
+        if flow_class not in self.weight_lookup:
+            raise ValueError(f"No weight configured for class {flow_class!r}.")
+        self.packets_received += 1
         self.byte_sizes[flow_class] += packet.size
-
-        if packet.size > self.base_quantum:
-            self.base_quantum = packet.size
-            self._recompute_quanta()
 
         if self.debug:
             print(

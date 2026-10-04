@@ -6,6 +6,14 @@ the arriving packets to each downstream element.
 import copy
 
 
+def _copy_packet(packet):
+    """Copy path-owned metadata while keeping opaque application payload shared."""
+    duplicate = copy.copy(packet)
+    duplicate.prio = copy.deepcopy(packet.prio)
+    duplicate.perhop_time = copy.deepcopy(packet.perhop_time)
+    return duplicate
+
+
 class Splitter:
     """A simple two-way splitter with two downstream elements."""
 
@@ -15,11 +23,14 @@ class Splitter:
 
     def put(self, packet):
         """Sends a packet to this element."""
-        if self.out1:
+        # Snapshot before calling any downstream put(): it can synchronously
+        # update priorities, per-hop times, or other scalar packet attributes.
+        duplicate = _copy_packet(packet) if self.out2 is not None else None
+        if self.out1 is not None:
             self.out1.put(packet)
 
-        if self.out2:
-            self.out2.put(copy.copy(packet))
+        if self.out2 is not None:
+            self.out2.put(duplicate)
 
 
 class NWaySplitter:
@@ -37,8 +48,9 @@ class NWaySplitter:
 
     def put(self, packet):
         """Sends a packet to this element."""
-        self.outs[0].put(packet)
-
-        for i in range(self.N - 1):
-            packet_copy = copy.copy(packet)
-            self.outs[i + 1].put(packet_copy)
+        # Every branch starts with the arrival's metadata, even if the first
+        # branch mutates its packet inside put(). Disconnected branches are unused.
+        packets = [packet] + [_copy_packet(packet) for _ in range(self.N - 1)]
+        for out, branch_packet in zip(self.outs, packets):
+            if out is not None:
+                out.put(branch_packet)

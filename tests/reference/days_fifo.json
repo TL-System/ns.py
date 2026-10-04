@@ -1,0 +1,142 @@
+{
+  "reference": {
+    "revision": "9ff20eac16dcdf752510b05cbcf526684dc05146",
+    "backend": "cpu",
+    "workers": 2,
+    "observation_mode": "full",
+    "scalar_equal": true,
+    "regeneration_command": "uv run --locked python tests/reference/regenerate_days_fifo.py --days-root /path/to/days",
+    "helper_lock_sha256": "cd0dffb07537e495dc4a17a84ed5f65caf0d0116e1217f80f4ed5810f796175f",
+    "helper_source_sha256": "947cd7ffcab610d392a147a1d801f6b532056292caaa0c50258f9c8611c201c9",
+    "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"
+  },
+  "input": {
+    "rate_bps": 8000000000,
+    "propagation_ns": 100,
+    "stop_time_ns": 5225,
+    "queue_capacity_packets": 0,
+    "flow_id": 0,
+    "priority": 0,
+    "route": [
+      0,
+      1
+    ],
+    "arrival_node": 1,
+    "seed": 18,
+    "packets": [
+      {
+        "packet_id": 0,
+        "size_bytes": 1000,
+        "arrival_ns": 0
+      },
+      {
+        "packet_id": 3,
+        "size_bytes": 500,
+        "arrival_ns": 0
+      },
+      {
+        "packet_id": 6,
+        "size_bytes": 250,
+        "arrival_ns": 500
+      },
+      {
+        "packet_id": 9,
+        "size_bytes": 750,
+        "arrival_ns": 1750
+      },
+      {
+        "packet_id": 12,
+        "size_bytes": 125,
+        "arrival_ns": 5000
+      }
+    ]
+  },
+  "output": {
+    "departures": [
+      {
+        "packet_id": 0,
+        "time_ns": 1000
+      },
+      {
+        "packet_id": 3,
+        "time_ns": 1500
+      },
+      {
+        "packet_id": 6,
+        "time_ns": 1750
+      },
+      {
+        "packet_id": 9,
+        "time_ns": 2500
+      },
+      {
+        "packet_id": 12,
+        "time_ns": 5125
+      }
+    ],
+    "arrivals": [
+      {
+        "packet_id": 0,
+        "time_ns": 0,
+        "disposition": "admitted"
+      },
+      {
+        "packet_id": 3,
+        "time_ns": 0,
+        "disposition": "admitted"
+      },
+      {
+        "packet_id": 6,
+        "time_ns": 500,
+        "disposition": "admitted"
+      },
+      {
+        "packet_id": 0,
+        "time_ns": 1100,
+        "disposition": "delivered"
+      },
+      {
+        "packet_id": 3,
+        "time_ns": 1600,
+        "disposition": "delivered"
+      },
+      {
+        "packet_id": 9,
+        "time_ns": 1750,
+        "disposition": "admitted"
+      },
+      {
+        "packet_id": 6,
+        "time_ns": 1850,
+        "disposition": "delivered"
+      },
+      {
+        "packet_id": 9,
+        "time_ns": 2600,
+        "disposition": "delivered"
+      },
+      {
+        "packet_id": 12,
+        "time_ns": 5000,
+        "disposition": "admitted"
+      },
+      {
+        "packet_id": 12,
+        "time_ns": 5225,
+        "disposition": "delivered"
+      }
+    ],
+    "summary": {
+      "admitted_packets": 5,
+      "admitted_bytes": 2625,
+      "departed_packets": 5,
+      "departed_bytes": 2625,
+      "received_packets": 5,
+      "received_bytes": 2625,
+      "dropped_packets": 0,
+      "dropped_bytes": 0
+    },
+    "pending_events": 0,
+    "resident_packets": 0
+  }
+}

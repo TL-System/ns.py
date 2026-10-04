@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.32.4"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,8 @@ name = "ns.py"
 version = "0.4.5"
 description = "ns.py: a pythonic discrete-event network simulator"
 readme = "README.md"
-requires-python = ">=3.13"
+# Match NetworkX's exclusion of the affected CPython 3.14.1 patch release.
+requires-python = ">=3.14,!=3.14.1"
 license = { file = "LICENSE" }
 authors = [
   { name = "TL-System" }
@@ -24,18 +25,22 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: Education",
   "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-  "simpy",
-  "networkx",
-  "pyyaml",
-  "matplotlib"
+  "simpy>=4.1.2",
+  "networkx>=3.7",
+  "numpy>=2.5.3",
+  "pyyaml>=6.0.3",
+  "matplotlib>=3.11.2"
 ]
+
+[dependency-groups]
+dev = ["pytest>=9.1.1"]
 
 [project.urls]
 Homepage = "https://github.com/TL-System/ns.py"

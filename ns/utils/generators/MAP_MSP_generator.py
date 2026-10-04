@@ -1,131 +1,150 @@
+"""Stationary Markov chains and batch Markovian interarrival samples."""
+
 import numpy as np
 from numpy.random import rand
 
 PRECISION_VALUE = 1e-5
 
 
+def _square_matrix(matrix):
+    """Use floating-point arithmetic and reject undefined transition tables."""
+    matrix = np.asarray(matrix, dtype=float)
+    if (
+        matrix.ndim != 2
+        or matrix.shape[0] == 0
+        or matrix.shape[0] != matrix.shape[1]
+        or not np.all(np.isfinite(matrix))
+    ):
+        raise ValueError("transition matrix must be finite, nonempty and square.")
+    return matrix
+
+
 def solve_CTMC(Q):
+    """Return row vector pi satisfying pi Q = 0 and sum(pi) = 1.
+
+    Q has nonnegative off-diagonal rates and zero row sums. Accepted row-sum
+    rounding is repaired in the diagonal, preserving off-diagonal rates.
+    A nonunique distribution needs a caller-chosen initial phase instead.
     """
-    Solve stationary distribution vector x for a CTMC with generator matrix Q
-    balance equation: x * Q = 0
-
-    Parameters
-    ----------
-    Q: generator matrix of a CTMC, row sum == 0
-
-    Return
-    -------
-    x.T: 1-D row vector, stationary distribution vector
-    """
-
-    if np.any(abs(np.sum(Q, 1) - 0.0) > PRECISION_VALUE):
-        raise ValueError("Invalid CTMC Q matrix: Row sum not equal to 0")
+    Q = _square_matrix(Q)
+    off_diagonal = Q - np.diag(np.diag(Q))
+    if (
+        np.any(off_diagonal < 0)
+        or np.any(np.diag(Q) > 0)
+        or np.any(abs(Q.sum(axis=1)) > PRECISION_VALUE)
+    ):
+        raise ValueError("invalid CTMC rates or nonzero row sum.")
+    Q = off_diagonal - np.diag(off_diagonal.sum(axis=1))
+    # Replace one redundant balance equation with the normalization equation.
     A = Q.copy()
-    A[:, 0] = np.ones(A.shape[0])
-    b = np.zeros((A.shape[0], 1))
-    b[0] = 1.0
-    x = np.linalg.solve(A.T, b)
-
-    return x.T
+    A[:, 0] = 1
+    b = np.zeros((Q.shape[0], 1))
+    b[0] = 1
+    try:
+        stationary = np.linalg.solve(A.T, b).T
+    except np.linalg.LinAlgError as error:
+        raise ValueError("stationary distribution is not unique.") from error
+    if np.min(stationary) < -PRECISION_VALUE:
+        raise ValueError("stationary solve produced invalid probabilities.")
+    # A transient phase's zero mass can round slightly negative in the solve.
+    stationary = np.maximum(stationary, 0)
+    return stationary / stationary.sum()
 
 
 def solve_DTMC(P):
-    P = np.asarray(P)
-    if np.any(np.sum(P, 1) - 1.0 > PRECISION_VALUE):
-        raise ValueError("Invalid DTMC P matrix: Row sum not equal to 1")
+    """Return stationary probabilities, normalizing accepted row-sum rounding."""
+    P = _square_matrix(P)
+    if np.any(P < 0) or np.any(abs(P.sum(axis=1) - 1) > PRECISION_VALUE):
+        raise ValueError("invalid DTMC probabilities or row sum.")
+    P = P / P.sum(axis=1, keepdims=True)
     return solve_CTMC(P - np.eye(P.shape[0]))
 
 
 def sum_matrix_list(mat_list):
-    sum_mat = np.zeros(mat_list[0].shape)
-    for mat in mat_list:
-        sum_mat += mat
-    return sum_mat
+    """Sum transition-rate matrices without mutating the caller's matrices."""
+    return np.sum(mat_list, axis=0)
 
 
 def check_BMAP_representation(D_list, prec=PRECISION_VALUE):
-    if len(D_list) == 2:
-        print("Input: MAP representation")
-    elif len(D_list) > 2:
-        print("Input: BMAP representation")
-    else:
-        print("neither MAP or BMAP representation")
+    """Check rate signs, row balance, and eventual arrival from every phase.
+
+    D0 describes transitions without arrivals; Dk describes a batch of k.
+    D0 must be transient, so a closed silent class cannot trap the sampler.
+    These conditions follow BuTools' CheckMAPRepresentation/check.py.
+    """
+    if len(D_list) < 2:
         return False
-
-    D0 = D_list[0]
-    for Dk in D_list[1:]:
-        if D0.shape != Dk.shape:
-            print("D0 and Dk have different shapes")
-            return False
-    for Dk in D_list[1:]:
-        if np.min(Dk) < -prec:
-            print("Dk has negative entry")
-            return False
-
-    if np.any(np.abs(np.sum(sum_matrix_list(D_list), 1)) > prec):
-        print("row sum is not zero")
+    try:
+        matrices = [_square_matrix(matrix) for matrix in D_list]
+    except ValueError:
         return False
-
-    return True
+    D0 = matrices[0]
+    if any(matrix.shape != D0.shape for matrix in matrices[1:]):
+        return False
+    if np.any(np.diag(D0) >= 0):
+        return False
+    if np.any(D0 - np.diag(np.diag(D0)) < 0):
+        return False
+    if any(np.any(matrix < 0) for matrix in matrices[1:]):
+        return False
+    if np.any(abs(sum_matrix_list(matrices).sum(axis=1)) > prec):
+        return False
+    # Every phase must reach an arrival along silent transitions. This finite
+    # graph check detects closed silent classes without a near-zero eigenvalue
+    # being mistaken for a strictly negative one due to floating-point rounding.
+    silent = D0 - np.diag(np.diag(D0))
+    can_arrive = np.any(np.hstack(matrices[1:]) > 0, axis=1)
+    for _ in range(D0.shape[0]):
+        can_arrive |= np.any((silent > 0) & can_arrive[None, :], axis=1)
+    return bool(np.all(can_arrive))
 
 
 def BMAP_generator(D_list, initial=None):
+    """Yield MAP intervals in seconds, or BMAP [interval, batch_size] pairs.
+
+    Rates in D0...DN are per second. With no initial phase, start in the
+    stationary distribution of the sampled phase process at a time origin.
+    This first interval is therefore a stationary-time residual; subsequent
+    intervals start at arrivals. It is not an arrival-stationary initial sample.
+    Each step waits an exponential phase holding time and selects a silent
+    transition or a batch. See BuTools' SamplesFromMMAP in map/misc.py.
     """
-    Generates random samples from a batch Markovian
-    arrival process.
-
-    Parameters
-    ----------
-    D_list: list of matrices of shape(M,M), length(N)
-        The D0...DN matrices of the BMAP
-    num_samples: integer
-        The number of samples to generate.
-
-    Yield:
-    -------
-    x : one sample.
-        if BMAP: list consisting of two values: the inter-arrival time and the type of the
-        arrival.
-        if MAP: float, inter-arrival time
-    """
-
     if not check_BMAP_representation(D_list):
-        raise ValueError("Samples From BMAP: Input is not a valid BMAP representation!")
-
-    M = D_list[0].shape[0]
-
+        raise ValueError("input is not a valid BMAP representation.")
+    matrices = [np.asarray(matrix, dtype=float) for matrix in D_list]
+    M = matrices[0].shape[0]
+    sojourn = -1 / np.diag(matrices[0])
+    silent = matrices[0] - np.diag(np.diag(matrices[0]))
+    # Columns are [silent next phases, batch-1 phases, batch-2 phases, ...].
+    probabilities = np.hstack([silent, *matrices[1:]]) * sojourn[:, None]
+    # Normalize rounding allowed by the row-balance tolerance; end exactly at 1.
+    probabilities /= probabilities.sum(axis=1, keepdims=True)
     if initial is None:
-        # draw initial state according to the stationary distribution
-        stat_distr_vec = solve_CTMC(sum_matrix_list(D_list))
-        cumm_initial = np.cumsum(stat_distr_vec)
-        r = rand()
-        state = 0
-        while cumm_initial[state] <= r:
-            state += 1
+        # Sum silent/marked choices for each destination and multiply by the
+        # holding rate. Self-events consume time but do not change the phase;
+        # remove them before balancing the phase generator's diagonal. This
+        # matches the normalized sampler even when input rows need rounding.
+        generator = probabilities.reshape(M, -1, M).sum(axis=1) / sojourn[:, None]
+        np.fill_diagonal(generator, 0)
+        np.fill_diagonal(generator, -generator.sum(axis=1))
+        cumulative = np.cumsum(solve_CTMC(generator))
+        cumulative[-1] = 1
+        state = int(np.searchsorted(cumulative, rand(), side="right"))
     else:
+        if not isinstance(initial, (int, np.integer)) or not 0 <= initial < M:
+            raise ValueError("initial state must index a BMAP phase.")
         state = initial
 
-    # auxilary variables
-    sojourn = -1.0 / np.diag(D_list[0])
-    nextpr = np.diag(sojourn) @ D_list[0]
-    nextpr = nextpr - np.diag(np.diag(nextpr))
-    for Dk in D_list[1:]:
-        nextpr = np.hstack((nextpr, np.diag(sojourn) @ Dk))
-    nextpr = np.cumsum(nextpr, 1)
-
+    cumulative = np.cumsum(probabilities, axis=1)
+    cumulative[:, -1] = 1
     while True:
-        iat = 0
-
-        # play state transitions
+        interval = 0
         while state < M:
-            iat -= np.log(rand()) * sojourn[state]
-            r = rand()
-            nstate = 0
-            while nextpr[state, nstate] <= r:
-                nstate += 1
-            state = nstate
-        state = nstate % M
-        if len(D_list) > 2:
-            yield [iat, nstate // M]
-        else:
-            yield iat
+            # rand() can return zero. Clip that endpoint before taking log so
+            # an otherwise finite exponential holding time cannot become inf.
+            draw = max(rand(), np.nextafter(0.0, 1.0))
+            interval -= np.log(draw) * sojourn[state]
+            state = int(np.searchsorted(cumulative[state], rand(), side="right"))
+        batch = state // M
+        state %= M
+        yield [interval, batch] if len(matrices) > 2 else interval

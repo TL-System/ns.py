@@ -5,6 +5,7 @@ from ns.flow.flow import Flow
 
 
 def read_topo(fname):
+    """Read a GraphML topology; unsupported suffixes print a message and return."""
     ftype = ".graphml"
     if fname.endswith(ftype):
         return nx.read_graphml(fname)
@@ -22,6 +23,7 @@ def generate_flows(
     arrival_dist=None,
     size_dist=None,
 ):
+    """Choose host pairs and one shortest path for each configured flow."""
     all_flows = dict()
     for flow_id in range(nflows):
         src, dst = sample(sorted(hosts), 2)
@@ -35,13 +37,19 @@ def generate_flows(
             arrival_dist=arrival_dist,
             size_dist=size_dist,
         )
-        # all_flows[flow_id].path = sample(
-        #    list(nx.all_simple_paths(G, src, dst, cutoff=nx.diameter(G))), 1
         all_flows[flow_id].path = sample(list(nx.all_shortest_paths(G, src, dst)), 1)[0]
     return all_flows
 
 
 def generate_fib(G, all_flows, tcp=False):
+    """Map each path's next hop to a local port, optionally adding reverse ACKs."""
+    if tcp:
+        # TCPSink identifies ACKs as data flow ID + 10000. Those IDs must remain
+        # disjoint from real data flows or later inserts silently change routes.
+        flow_ids = {flow.fid for flow in all_flows.values()}
+        if any(fid + 10000 in flow_ids for fid in flow_ids):
+            raise ValueError("TCP ACK flow IDs collide with data flow IDs.")
+
     for n in G.nodes():
         node = G.nodes[n]
 
@@ -63,7 +71,7 @@ def generate_fib(G, all_flows, tcp=False):
             G.nodes[a]["flow_to_port"][flow.fid] = G.nodes[a]["nexthop_to_port"][z]
             G.nodes[a]["flow_to_nexthop"][flow.fid] = z
 
-            # generates reverse fib for TCPSink sending Ack to TCPSource
+            # ACKs retrace the data path through each destination's local port.
             if tcp:
                 G.nodes[z]["flow_to_port"][flow.fid + 10000] = G.nodes[z][
                     "nexthop_to_port"

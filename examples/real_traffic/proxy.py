@@ -1,6 +1,8 @@
 """
-A basic example that connects two packet generators to a network wire with
-a propagation delay distribution, and then to a packet sink.
+Relay a locally configured client/server through two 0.1-second wires.
+
+Start the destination server and client separately; close sockets even when the
+simulation is interrupted. This example uses a plain SimPy Environment.
 """
 
 import argparse
@@ -52,4 +54,8 @@ if __name__ == "__main__":
     server.out = wire2_upstream
     wire2_upstream.out = client
 
-    env.run(until=1000)
+    try:
+        env.run(until=1000)
+    finally:
+        client.close()
+        server.close()

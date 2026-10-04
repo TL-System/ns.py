@@ -1,8 +1,8 @@
 """
 Illustrates DRR behavior when one flow injects jumbo frames while another
-continues to send MTU-sized packets. The server inflates its quantum so jumbo
-packets still depart, but printing the per-packet timestamps shows both flows
-sharing the link.
+continues to send MTU-sized packets. Fixed byte quanta let jumbo packets accumulate
+credit across visits, while MTU packets progress in the intervening visits.
+Per-packet timestamps show both flows sharing the link.
 """
 
 import simpy

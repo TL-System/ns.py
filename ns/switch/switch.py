@@ -1,5 +1,5 @@
 """
-Implements a packet switch with FIFO or WFQ/DRR/Virtual Clock bounded buffers for outgoing ports.
+Packet switches with bounded FIFO or SP/DRR/WFQ/Virtual Clock egress queues.
 """
 
 from collections.abc import Callable
@@ -24,7 +24,8 @@ class SimplePacketSwitch:
     port_rate: float
         the bit rate of the port.
     buffer_size: int
-        the size of an outgoing port' bounded buffer, in packets.
+        Resident packet capacity per port, including the packet in service.
+        None is unlimited; zero admits nothing; an exact fit is accepted.
     element_id: str
         The (optional) element ID of this component.
     debug: bool
@@ -61,8 +62,10 @@ class SimplePacketSwitch:
 
 
 class FairPacketSwitch:
-    """Implements a fair packet switch with a choice of a WFQ, DRR, or Virtual Clock
-    scheduler, as well as bounded buffers, on each of the outgoing ports.
+    """Compose a bounded port with an SP, DRR, WFQ, or Virtual Clock scheduler.
+
+    The rate-zero port admits and retains packets; its zero-buffer scheduler
+    chooses service order and releases each exact object after serialization.
 
     Parameters
     ----------
@@ -73,7 +76,8 @@ class FairPacketSwitch:
     port_rate: float
         the bit rate of each outgoing port.
     buffer_size: int
-        the size of an outgoing port' bounded buffer, in packets.
+        Resident packet capacity per port, including scheduler service and any
+        downstream retention. None is unlimited; zero admits nothing.
     weights: list or dict
         This can be either a list or a dictionary. If it is a list, it uses the flow_id ---
         or class_id, if class-based fair queueing is activated using the `flow_classes'
@@ -81,9 +85,8 @@ class FairPacketSwitch:
         weight (or priority for Static Priority scheduling). If it is a dictionary, it
         contains (flow_id or class_id -> weight) pairs for each possible flow_id or class_id.
     flow_classes: function
-        This is a function that matches a packet's flow_ids to class_ids, used to implement
-        class-based Deficit Round Robin. The default is a lambda function that uses a packet's
-        flow_id as its class_id, which is equivalent to flow-based scheduling.
+        Maps each packet to a scheduler class, without changing its routing
+        flow_id. The default uses packet.flow_id for per-flow scheduling.
     server: str (possible values: 'WFQ', 'DRR', 'SP', or 'VirtualClock')
         The type of the scheduling discipline used for each outgoing port.
     element_id: str

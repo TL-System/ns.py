@@ -1,9 +1,12 @@
-"""
-Implements a packet generator that simulates the TCP protocol, including support
-for various congestion control mechanisms.
+"""A byte-sequenced TCP sender with cumulative ACKs and loss recovery.
+
+Congestion control chooses a byte window; this transport owns segmentation,
+logical outstanding data, RTT sampling, and one retransmission timer. It models
+neither TCP timestamps nor SACK, so ambiguous ACKs cannot supply RTT samples.
 """
 
 from dataclasses import dataclass
+import math
 
 import simpy
 
@@ -13,347 +16,344 @@ from ns.utils.timer import Timer
 
 @dataclass
 class SegmentState:
+    """An unacknowledged byte range, independent of any physical send attempt."""
+
     seq: int
     size: int
     first_tx_time: float
     last_tx_time: float
     retransmit_count: int = 0
-    timer: Timer = None
+    # A partial ACK makes timing ambiguous even if the suffix was never resent.
+    rtt_eligible: bool = True
 
 
 class TCPPacketGenerator:
-    """Generates packets with a simulated TCP protocol.
+    """Generate TCP data from a Flow and a congestion-control byte window.
 
-    Parameters
-    ----------
-    env: simpy.Environment
-        The simulation environment.
-    flow: Flow
-        The flow that serves as the source (eventually, this should be a list).
-    element_id: str
-        The ID for this element.
-    rec_flow: bool
-        Are we recording the statistics of packets generated?
+    ``start_time`` and ``finish_time`` are absolute simulation seconds. The
+    finish boundary excludes new data, while already transmitted data continues
+    to be acknowledged or retransmitted. An omitted finish time is unbounded.
+    The maximum data segment size follows ``cc.mss`` (512 for older controllers
+    without that attribute). Public sequence/window fields are measured in bytes.
     """
 
     def __init__(self, env, flow, cc, element_id=None, debug=False):
-        self.element_id = element_id
         self.env = env
-        self.out = None
         self.flow = flow
         self.congestion_control = cc
+        self.element_id = element_id
+        self.debug = debug
+        self.out = None
+        self.mss = getattr(cc, "mss", 512)
+        if isinstance(self.mss, bool) or not isinstance(self.mss, int) or self.mss <= 0:
+            raise ValueError("TCP MSS must be a positive integer byte count.")
+        if flow.size is not None and (
+            isinstance(flow.size, bool) or not isinstance(flow.size, int)
+            or flow.size < 0
+        ):
+            raise ValueError("TCP flow size must be a nonnegative integer byte count.")
 
-        self.mss = 512  # maximum segment size, in bytes
-        self.last_arrival = 0  # the time when data last arrived from the flow
-
-        # the next sequence number to be sent, in bytes
-        self.next_seq = 0
-        # the maximum sequence number in the in-transit data buffer
-        self.send_buffer = 0
-        # the sequence number of the segment that is last acknowledged
-        self.last_ack = 0
-        # the count of duplicate acknolwedgments
+        self.last_arrival = env.now
+        self.next_seq = 0       # SND.NXT: next new byte to transmit
+        self.send_buffer = 0    # application byte frontier (sent or waiting)
+        self.last_ack = 0       # SND.UNA: oldest unacknowledged byte
         self.dupack = 0
-        # deviation of the RTT
+        self.recovery_high_sequence = None
         self.rtt_var = 0.0
-        # smoothed RTT
         self.smoothed_rtt = 0.0
-        # the retransmission timeout
         self.rto = 1.0
-        # the most recent RTT sample that was accepted as unambiguous
         self.last_rtt_sample = 0.0
-        # whether or not space in the congestion window is available
+        # Zero-delay compositions can measure RTT=0; zero is not a sentinel.
+        self._rtt_initialized = False
         self.cwnd_available = simpy.Store(env)
 
-        # Timers are keyed by the logical segment start sequence number.
-        # Follow-on rewrite steps keep retransmission state in sender-owned
-        # segment metadata rather than in mutable Packet objects.
-        self.timers = {}
-        # In-flight data is currently keyed by segment start sequence number.
-        # ACK cleanup must eventually use segment-end semantics
-        # (seq + size <= ack), and each retransmission attempt must emit a
-        # fresh Packet while preserving the original Packet.time.
-        self.sent_packets = {}
         self.segment_state = {}
-
+        # Retain the latest physical attempt for inspection; logical state above
+        # is authoritative and is never reconstructed from mutable packets.
+        self.sent_packets = {}
+        self.timer = None
+        # Compatibility view: at most one entry, keyed by the oldest byte range.
+        self.timers = {}
         self.action = env.process(self.run())
-        self.debug = debug
 
-    def _get_segment_state(self, packet_id):
-        """Return sender-owned logical state for a segment, creating it lazily."""
-        state = self.segment_state.get(packet_id)
-        if state is not None:
-            return state
-
-        packet = self.sent_packets[packet_id]
-        state = SegmentState(
-            seq=packet.packet_id,
-            size=packet.size,
-            first_tx_time=packet.time,
-            last_tx_time=packet.time,
-            timer=self.timers.get(packet_id),
-        )
-        self.segment_state[packet_id] = state
-        return state
+    @property
+    def bytes_in_flight(self):
+        """Unique sent bytes not yet covered by the cumulative ACK."""
+        return self.next_seq - self.last_ack
 
     def _build_packet(self, state):
-        """Create a fresh packet attempt from sender-owned segment state."""
+        """Emit fresh attempt metadata, retaining the original latency clock."""
         return Packet(
             state.first_tx_time,
             state.size,
             state.seq,
             src=self.flow.src,
+            dst=self.flow.dst,
             flow_id=self.flow.fid,
         )
+
+    def _restart_timer(self):
+        """Arm one deadline from now for the oldest outstanding byte range."""
+        self.timers.clear()
+        if not self.segment_state:
+            if self.timer is not None:
+                self.timer.stop()
+            return
+
+        oldest = min(self.segment_state)
+        if self.timer is None:
+            self.timer = Timer(self.env, oldest, self.timeout_callback, self.rto)
+        else:
+            self.timer.timer_id = oldest
+            self.timer.restart(self.rto)
+        self.timers[oldest] = self.timer
 
     def _send_new_packet(self, packet_size):
-        """Send a fresh data packet and register sender-owned state for it."""
-        packet = Packet(
-            self.env.now,
-            packet_size,
-            self.next_seq,
-            src=self.flow.src,
-            flow_id=self.flow.fid,
-        )
-
-        self.sent_packets[packet.packet_id] = packet
-        self.segment_state[packet.packet_id] = SegmentState(
-            seq=packet.packet_id,
-            size=packet.size,
-            first_tx_time=packet.time,
-            last_tx_time=packet.time,
-        )
-
+        """Register the whole send transition before synchronous downstream put."""
+        state = SegmentState(self.next_seq, packet_size, self.env.now, self.env.now)
+        packet = self._build_packet(state)
+        self.segment_state[state.seq] = state
+        self.sent_packets[state.seq] = packet
+        self.next_seq += packet_size
+        # Later new segments share the oldest segment's deadline (RFC 6298 §5).
+        if not self.timers:
+            self._restart_timer()
         if self.debug:
             print(
-                f"TCPPacketGenerator {self.element_id} sent packet {packet.packet_id} "
-                f"with size {packet.size}, flow_id {packet.flow_id} at "
-                f"time {self.env.now:.4f}."
+                f"TCP {self.element_id} sends seq={state.seq}, "
+                f"bytes={state.size} at {self.env.now:.4f}."
             )
-
         self.out.put(packet)
-
-        self.next_seq += packet.size
-        timer = Timer(
-            self.env,
-            timer_id=packet.packet_id,
-            timeout_callback=self.timeout_callback,
-            rto=self.rto,
-        )
-        self.timers[packet.packet_id] = timer
-        self.segment_state[packet.packet_id].timer = timer
-
-        if self.debug:
-            print(
-                f"TCPPacketGenerator {self.element_id} is setting a timer "
-                f"for packet {packet.packet_id} with an RTO of {self.rto:.4f}."
-            )
-
         return packet
 
-    def run(self):
-        """The generator function used in simulations."""
-        if self.flow.start_time:
-            yield self.env.timeout(self.flow.start_time)
+    def _retransmit(self, state):
+        """Record an attempt before forwarding, even if forwarding ACKs inline."""
+        state.retransmit_count += 1
+        state.last_tx_time = self.env.now
+        packet = self._build_packet(state)
+        self.sent_packets[state.seq] = packet
+        if self.debug:
+            print(
+                f"TCP {self.element_id} retransmits seq={state.seq}, "
+                f"bytes={state.size} at {self.env.now:.4f}."
+            )
+        self.out.put(packet)
 
-        while self.env.now < self.flow.finish_time:
+    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+        """Yield one turn so synchronous partial ACKs cannot recurse unboundedly."""
+        yield self.env.timeout(0)
+        # Feedback may retire/trim the range, or another attempt may supersede
+        # this recovery request before its turn. Only a still-missing hole sends.
+        if (
+            self.segment_state.get(sequence) is state
+            and self.last_ack == sequence
+            and self.recovery_high_sequence is not None
+            and state.retransmit_count == retransmit_count
+        ):
+            self._retransmit(state)
+
+    def _wake_sender(self):
+        """Coalesce window notifications; the run loop rechecks byte credit."""
+        if not self.cwnd_available.items:
+            self.cwnd_available.put(True)
+
+    def _before_control(self):
+        """Supply pre-feedback flight size to controllers that accept context."""
+        hook = getattr(self.congestion_control, "set_before_control", None)
+        if hook is not None:
+            hook(self.env.now, self.bytes_in_flight)
+
+    def run(self):
+        """Wait for application data or ACK credit, bounded by new-data finish."""
+        start = self.flow.start_time
+        finish = self.flow.finish_time
+        if start is not None and start > self.env.now:
+            # A start beyond finish cannot create new application data.
+            wake = start if finish is None else min(start, finish)
+            yield self.env.timeout(max(0, wake - self.env.now))
+        self.last_arrival = self.env.now
+
+        while finish is None or self.env.now < finish:
             if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
 
-            while self.next_seq >= self.send_buffer:
-                # retrieving more packets from the (application-layer) flow
+            if self.next_seq >= self.send_buffer:
                 if self.flow.arrival_dist is not None:
-                    # if the flow has an arrival distribution, wait for the next arrival
-                    wait_time = self.flow.arrival_dist() - (
-                        self.env.now - self.last_arrival
-                    )
-                    if wait_time > 0:
-                        yield self.env.timeout(wait_time)
-                    self.last_arrival = self.env.now
+                    interval = self.flow.arrival_dist()
+                    if not math.isfinite(interval) or interval < 0:
+                        raise ValueError("TCP application intervals must be nonnegative.")
+                    # Preserve the application's arrival clock while blocked on
+                    # a window; past arrivals can be consumed without extra delay.
+                    arrival = self.last_arrival + interval
+                    if finish is not None and arrival >= finish:
+                        yield self.env.timeout(finish - self.env.now)
+                        return
+                    yield self.env.timeout(max(0, arrival - self.env.now))
+                    self.last_arrival = arrival
+                    if finish is not None and self.env.now >= finish:
+                        return
 
-                packet_size = 0
-                if self.flow.size_dist is not None:
-                    packet_size = self.flow.size_dist()
-                else:
-                    if self.flow.size is not None:
-                        packet_size = min(self.mss, self.flow.size - self.next_seq)
-                    else:
-                        packet_size = self.mss
-                self.send_buffer += packet_size
+                amount = (
+                    self.mss if self.flow.size_dist is None
+                    else self.flow.size_dist()
+                )
+                if not math.isfinite(amount) or amount < 1:
+                    # Zero-byte, zero-time application bursts would otherwise
+                    # make a non-yielding loop. Sources supply at least one byte.
+                    raise ValueError("TCP application bursts must contain a byte.")
+                # Application distributions may be continuous; TCP transmits
+                # whole bytes, rounding each burst down rather than inventing data.
+                amount = int(amount)
+                if self.flow.size is not None:
+                    amount = min(amount, self.flow.size - self.send_buffer)
+                self.send_buffer += amount
 
-            # The sender can transmit any positive byte count up to the smaller
-            # of the buffered data and the available congestion window.
-            send_limit = min(self.send_buffer, self.last_ack + self.congestion_control.cwnd)
-            available_bytes = send_limit - self.next_seq
-            if available_bytes > 0:
-                packet_size = min(self.mss, available_bytes)
-                self._send_new_packet(packet_size)
+            # All quantities here are bytes. Fractional controller credit is
+            # retained in cwnd but cannot become a fractional sequence or packet.
+            credit = max(
+                0, math.floor(self.congestion_control.cwnd) - self.bytes_in_flight
+            )
+            amount = min(self.mss, self.send_buffer - self.next_seq, credit)
+            if amount > 0:
+                self._send_new_packet(amount)
             else:
-                # No further space in the congestion window to transmit packets
-                # at this time, waiting for acknowledgements
-                yield self.cwnd_available.get()
+                notification = self.cwnd_available.get()
+                if finish is None:
+                    yield notification
+                else:
+                    yield notification | self.env.timeout(finish - self.env.now)
+                    # Remove a parked Store.get if the deadline won the race.
+                    if not notification.triggered:
+                        notification.cancel()
 
     def timeout_callback(self, packet_id=0):
-        """To be called when a timer expired for a packet with 'packet_id'."""
-        if self.debug:
-            print(
-                f"TCPPacketGenerator {self.element_id}'s Timer expired for packet "
-                f"{packet_id} at time {self.env.now:.4f}."
-            )
-
+        """Retransmit only the oldest outstanding range and double the RTO."""
+        if not self.segment_state or packet_id not in self.timers:
+            return
+        state = self.segment_state[packet_id]
+        self._before_control()
         self.congestion_control.timer_expired()
+        self.dupack = 0
+        self.recovery_high_sequence = None
+        # Backoff belongs to the connection, including its next new-data timer.
+        # Match Days's 60-second maximum (permitted by RFC 6298 §2.5).
+        self.rto = min(60.0, self.rto * 2)
+        self._restart_timer()
+        self._retransmit(state)
 
-        # retransmitting the segment
-        state = self._get_segment_state(packet_id)
-        state.retransmit_count += 1
-        state.last_tx_time = self.env.now
-        resent_pkt = self._build_packet(state)
-        self.sent_packets[packet_id] = resent_pkt
-        self.out.put(resent_pkt)
-
-        if self.debug:
-            print(
-                f"TCPPacketGenerator {self.element_id} is resending packet {resent_pkt.packet_id} "
-                f"with flow_id {resent_pkt.flow_id} at time {self.env.now:.4f}."
+    def _update_rtt(self, sample):
+        """RFC 6298 estimator: update variance using the previous SRTT."""
+        if not self._rtt_initialized:
+            self.smoothed_rtt = sample
+            self.rtt_var = sample / 2
+            self._rtt_initialized = True
+        else:
+            self.rtt_var = 0.75 * self.rtt_var + 0.25 * abs(
+                self.smoothed_rtt - sample
             )
-
-        # starting a new timer for this segment and doubling the retransmission timeout
-        revised_rto = self.timers[packet_id].rto * 2
-        state.timer = self.timers[packet_id]
-        state.timer.restart(revised_rto)
+            self.smoothed_rtt = 0.875 * self.smoothed_rtt + 0.125 * sample
+        # Days uses a 1 ms estimator granularity. This lower bound on variation
+        # does not quantize the simulator clock or floating-point RTT samples.
+        self.rto = min(
+            60.0, max(1.0, self.smoothed_rtt + max(0.001, 4 * self.rtt_var))
+        )
+        self.last_rtt_sample = sample
 
     def put(self, ack):
-        """On receiving an acknowledgment packet."""
-        assert ack.flow_id >= 10000  # the received packet must be an ack
-        previous_ack = self.last_ack
-        previous_segment = self.segment_state.get(previous_ack)
-
-        if ack.ack == self.last_ack:
-            self.dupack += 1
-        else:
-            # fast recovery in RFC 2001 and TCP Reno
-            if self.dupack > 0:
-                self.congestion_control.dupack_over()
-                self.dupack = 0
-
-        if self.dupack >= 3:
-            if self.dupack == 3:
-                self.congestion_control.consecutive_dupacks_received()
-
-            state = self.segment_state.get(ack.ack)
-            if state is None and ack.ack in self.sent_packets:
-                state = self._get_segment_state(ack.ack)
-            if state is None:
-                return
-            state.retransmit_count += 1
-            state.last_tx_time = self.env.now
-            resent_pkt = self._build_packet(state)
-            self.sent_packets[ack.ack] = resent_pkt
-            if self.debug:
-                print(
-                    f"TCPPacketGenerator {self.element_id} is resending packet "
-                    f"{resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} at time "
-                    f"{self.env.now:.4f}."
-                )
-
-            self.out.put(resent_pkt)
-
-            if self.dupack > 3:
-                self.congestion_control.more_dupacks_received()
-
-                if self.last_ack + self.congestion_control.cwnd >= ack.ack:
-                    send_limit = min(
-                        self.send_buffer,
-                        self.last_ack + self.congestion_control.cwnd,
-                    )
-                    available_bytes = send_limit - self.next_seq
-                    if available_bytes > 0:
-                        self._send_new_packet(min(self.mss, available_bytes))
-
+        """Accept only this flow's cumulative ACKs within transmitted bytes."""
+        sequence = ack.ack
+        if (
+            ack.flow_id != self.flow.fid + 10000
+            or not isinstance(sequence, int)
+            or isinstance(sequence, bool)
+            or sequence < self.last_ack
+            or sequence > self.next_seq
+            or not self.segment_state
+        ):
             return
 
-        if self.dupack == 0:
-            # Only accept RTT samples for exactly one un-retransmitted segment.
-            eligible_rtt_sample = False
-            sample_rtt = 0.0
-            if (
-                ack.ack > previous_ack
-                and previous_segment is not None
-                and ack.ack == previous_ack + previous_segment.size
-                and previous_segment.retransmit_count == 0
-            ):
-                eligible_rtt_sample = True
-                sample_rtt = self.env.now - previous_segment.first_tx_time
+        if sequence == self.last_ack:
+            self.dupack += 1
+            if self.recovery_high_sequence is None and self.dupack == 3:
+                # Recovery covers the bytes outstanding at entry. Later duplicate
+                # ACKs may send fresh bytes but never move this exit frontier.
+                self.recovery_high_sequence = self.next_seq
+                self._before_control()
+                self.congestion_control.consecutive_dupacks_received()
+                self._restart_timer()
+                self._retransmit(self.segment_state[sequence])
+            elif self.recovery_high_sequence is not None:
+                self._before_control()
+                self.congestion_control.more_dupacks_received()
+                self._wake_sender()
+            return
 
-            # Authoritative sources for RTO calculation
+        previous_ack = self.last_ack
+        first = self.segment_state[previous_ack]
+        # Without timestamps, only an ACK for exactly one complete, never-resent
+        # segment has an unambiguous sample. Do not trust echoed packet.time.
+        sample = None
+        if (
+            sequence == previous_ack + first.size
+            and first.retransmit_count == 0
+            and first.rtt_eligible
+        ):
+            sample = self.env.now - first.first_tx_time
+            self._update_rtt(sample)
+        self._before_control()
+        self.last_ack = sequence
+        self.dupack = 0
 
-            # RFC 6298: Computing TCP's Retransmission Timer
+        # Retire complete ranges; trim a partially ACKed range to its outstanding
+        # suffix. Physical attempts already downstream remain untouched.
+        for seq, state in list(self.segment_state.items()):
+            end = seq + state.size
+            if end <= sequence:
+                del self.segment_state[seq]
+                del self.sent_packets[seq]
+            elif seq < sequence:
+                del self.segment_state[seq]
+                attempt = self.sent_packets.pop(seq)
+                state.seq = sequence
+                state.size = end - sequence
+                state.rtt_eligible = False
+                self.segment_state[sequence] = state
+                # The last physical attempt may also contain ACKed prefix bytes;
+                # retain it for inspection without mutating downstream ownership.
+                self.sent_packets[sequence] = attempt
 
-            # This RFC specifically focuses on the RTO algorithm and updates the
-            # way RTO is calculated. It obsoletes the RTO calculation described
-            # in RFC 2988. The updated algorithm is commonly referred to as the
-            # "Karn/Partridge Algorithm."
-
-            alpha = 0.125
-            beta = 0.25
-
-            if eligible_rtt_sample:
-                # calculates the deviation (RTTVAR) of the RTT to account for
-                # variations in the network
-                if self.rtt_var == 0.0:
-                    self.rtt_var = sample_rtt / 2.0
-                else:
-                    deviation = self.smoothed_rtt - sample_rtt
-                    self.rtt_var = (1.0 - beta) * self.rtt_var + beta * abs(
-                        deviation
-                    )
-
-                # computes a smoothed round-trip time (SRTT)
-                if self.smoothed_rtt == 0.0:
-                    self.smoothed_rtt = sample_rtt
-                else:
-                    self.smoothed_rtt = (
-                        1.0 - alpha
-                    ) * self.smoothed_rtt + alpha * sample_rtt
-                self.rto = max(1.0, self.smoothed_rtt + 4.0 * self.rtt_var)
-                self.last_rtt_sample = sample_rtt
-
-            self.last_ack = ack.ack
-            if eligible_rtt_sample:
-                rtt_for_cc = sample_rtt
+        self._restart_timer()
+        if self.recovery_high_sequence is not None:
+            if sequence < self.recovery_high_sequence:
+                # A NewReno partial ACK signals another hole: stay in recovery
+                # and retransmit it without repeating the fast-loss reduction.
+                hook = getattr(self.congestion_control, "partial_ack_received", None)
+                if hook is not None:
+                    hook(sequence - previous_ack, self.env.now)
+                state = self.segment_state[sequence]
+                # Keep ACK processing synchronous, but let its forwarding stack
+                # unwind before the next hole can synchronously produce an ACK.
+                self.env.process(
+                    self._retransmit_after_ack(state, sequence, state.retransmit_count)
+                )
             else:
-                rtt_for_cc = self.smoothed_rtt
-                if rtt_for_cc == 0.0:
-                    rtt_for_cc = self.last_rtt_sample
-            self.congestion_control.ack_received(rtt_for_cc, self.env.now)
-
-            if self.debug:
-                print(
-                    f"TCPPacketGenerator {self.element_id} received ack till sequence number "
-                    f"{ack.ack} at time {self.env.now:.4f}."
-                )
-                print(
-                    f"TCPPacketGenerator {self.element_id} congestion window size = "
-                    f"{self.congestion_control.cwnd:.1f}, last ack = {self.last_ack}."
-                )
-
-            # this acknowledgment should acknowledge all the intermediate
-            # segments sent between the lost packet and the receipt of the
-            # first duplicate ACK, if any
-            acked_packets = []
-            for packet_id, state in self.segment_state.items():
-                if packet_id + state.size <= ack.ack:
-                    acked_packets.append(packet_id)
-
-            for packet_id in sorted(acked_packets):
-                if self.debug:
-                    print(
-                        f"TCPPacketGenerator {self.element_id} stopped timer "
-                        f"{packet_id} at time {self.env.now:.4f}."
-                    )
-                self.segment_state[packet_id].timer.stop()
-                del self.timers[packet_id]
-                del self.sent_packets[packet_id]
-                del self.segment_state[packet_id]
-
-            self.cwnd_available.put(True)
+                self.recovery_high_sequence = None
+                self.congestion_control.dupack_over()
+                # The exit ACK does not also grow the congestion window.
+        else:
+            rtt = self.smoothed_rtt if sample is None else sample
+            # Built-in loss controllers need the exact frontier advance, even
+            # for short or cumulative ACKs. The bridge carries only a fresh
+            # Karn sample (None if ambiguous); old custom callbacks keep their
+            # two-argument interface and historical estimator-value fallback.
+            hook = getattr(self.congestion_control, "ack_received_bytes", None)
+            if hook is None:
+                self.congestion_control.ack_received(rtt, self.env.now)
+            else:
+                hook(sequence - previous_ack, sample, self.env.now)
+        if self.debug:
+            print(
+                f"TCP {self.element_id} ACK={self.last_ack}, "
+                f"cwnd={self.congestion_control.cwnd:.1f} at {self.env.now:.4f}."
+            )
+        self._wake_sender()

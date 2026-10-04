@@ -114,7 +114,9 @@ def test_drr_large_packet_served_without_starvation():
     enqueue(env, server, make_packet(1, flow_id=1, size=1500))
 
     env.run(until=0.01)
-    assert [entry["packet"].flow_id for entry in sink.observed] == [0, 1]
+    # A 3000-byte packet needs two fixed 1500-byte visits, so class 1
+    # progresses during its first visit before the jumbo becomes eligible.
+    assert [entry["packet"].flow_id for entry in sink.observed] == [1, 0]
 
 
 def test_drr_zero_downstream_buffer_provides_upstream_hooks():
@@ -137,7 +139,7 @@ def test_drr_zero_downstream_buffer_provides_upstream_hooks():
     assert server.byte_size(0) == 0
 
 
-def test_drr_updates_quanta_for_large_packets():
+def test_drr_keeps_configured_quanta_for_large_packets():
     env = simpy.Environment()
     server = DRRServer(env, rate=1e9, weights=[1, 2])
     sink = CaptureSink(env)
@@ -147,9 +149,10 @@ def test_drr_updates_quanta_for_large_packets():
     enqueue(env, server, make_packet(1, flow_id=1, size=1500))
 
     env.run(until=0.02)
-    assert server.base_quantum >= 4096
-    assert server.quantum[0] >= 4096
-    assert server.quantum[1] == pytest.approx(server.quantum[0] * 2)
+    # Packet observations do not change the configured byte allocation.
+    assert server.base_quantum == 1500
+    assert server.quantum == {0: 1500, 1: 3000}
+    assert [entry["packet"].flow_id for entry in sink.observed] == [1, 0]
 
 
 def test_drr_active_queue_tracks_backlogged_flows():

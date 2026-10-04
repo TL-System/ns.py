@@ -1,5 +1,5 @@
 from random import random
-import numpy as np
+import math
 
 
 def paretovariate_generator(xmin=1e-3, alpha=2.0):
@@ -21,6 +21,11 @@ def paretovariate_generator(xmin=1e-3, alpha=2.0):
     mean = alpha * xmin / (alpha - 1), if alpha > 1
     """
 
+    if not math.isfinite(xmin) or xmin <= 0:
+        raise ValueError("Pareto xmin must be finite and positive.")
+    if not math.isfinite(alpha) or alpha <= 0:
+        raise ValueError("Pareto alpha must be finite and positive.")
+    # Invert F(x) = 1 - (xmin / x)**alpha with a uniform draw in [0, 1).
     u = 1.0 - random()
     return xmin / u ** (1.0 / alpha)
 
@@ -34,9 +39,15 @@ def pareto_onoff_generator(
     pktsize=1000,
 ):
     """
-    Pareto on/off traffic generator
-    Packets are sent at fixed rate during on periods, and no packets are sent during off periods.
-    Both on and off periods are taken from a Pareto distribution with constant size packets.
+    Pareto on/off traffic generator.
+
+    On/off durations are seconds, independently drawn from Pareto distributions.
+    Each burst emits its first packet at the start of the on period, then packets
+    spaced by ``8 * pktsize / on_rate`` strictly before the on period ends. This
+    packetizes a constant-rate source; even a short on period emits one packet.
+    The source starts off. Combine this interarrival iterator with a packet
+    source that consumes intervals; DistPacketGenerator itself emits at start
+    before consuming its first interval.
     Parameters
     ----------------
     on_min:   positive real
@@ -47,21 +58,34 @@ def pareto_onoff_generator(
             scale parameter, support [off_min, +inf)
     off_alpha:  positive real
             shape parameter
+    on_rate: positive real
+            on-period rate in bits/second
+    pktsize: positive real
+            constant packet size in bytes
 
     Yields
     ----------------
     current_iat: current interarrival time (sec)
     """
-    interval = pktsize * 8 / on_rate
-    remain_pkts = 0
+    parameters = (on_min, on_alpha, off_min, off_alpha, on_rate, pktsize)
+    if any(not math.isfinite(value) or value <= 0 for value in parameters):
+        raise ValueError("on/off parameters must be finite and positive.")
+    # Convert packet bytes to bits before dividing by the bit/second rate.
+    packet_bits = pktsize * 8
+    interval = packet_bits / on_rate
+    if not math.isfinite(interval) or interval <= 0:
+        raise ValueError("packet interval must be finite and positive.")
 
+    tail = 0
     while True:
-        if remain_pkts == 0:
-            next_burstlen = np.ceil(paretovariate_generator(on_min, on_alpha) + 0.5)
-            remain_pkts = next_burstlen
-            next_idle_time = paretovariate_generator(off_min, off_alpha)
-            current_iat = next_idle_time
-        else:
-            remain_pkts -= 1
-            current_iat = interval
-        yield current_iat
+        on_duration = paretovariate_generator(on_min, on_alpha)
+        off_duration = paretovariate_generator(off_min, off_alpha)
+        # The gap includes the previous on period's unsent tail (initially zero).
+        yield off_duration + tail
+        # Compare packet bits against the on-period bit budget. Dividing by the
+        # rate first can round an endpoint below finish and admit an extra packet.
+        packet_index = 1
+        while packet_index * packet_bits < on_duration * on_rate:
+            yield interval
+            packet_index += 1
+        tail = on_duration - (packet_index - 1) * packet_bits / on_rate

@@ -9,9 +9,8 @@ class Packet:
     through a queue at an output port.
 
     Key fields include: generation time, size, flow_id, packet id, source, and
-    destination. We do not model upper layer protocols, i.e., packets don't
-    contain a payload. The size (in bytes) field is used to determine its
-    transmission time.
+    destination. The optional payload is opaque to link elements: the size
+    (in bytes) field determines transmission time, irrespective of that payload.
 
     We use a float to represent the size of the packet in bytes so that we can
     compare to ideal M/M/1 queues.
@@ -50,7 +49,7 @@ class Packet:
         self.time = time
         self.delivered_time = last_ack_time
         self.first_sent_time = 0
-        # self.sent_time = 0
+        # Delivery sampling attaches sent_time to each attempt when it is sent.
         self.size = size
         self.packet_id = packet_id
         self.realtime = realtime
@@ -67,11 +66,14 @@ class Packet:
             self.delivered = delivered
 
         self.is_app_limited = False
-        self.color = None  # Used by the two-rate tri-color token bucket shaper
+        self.color = None  # String color used by two-rate shaping and TrTCM.
         self.prio = {}  # used by the Static Priority scheduler
         self.ack = None  # used by TCPPacketGenerator and TCPSink
-        self.current_time = 0  # used by the Wire element
-        self.perhop_time = {}  # used by Port to record per-hop arrival times
+        # Latest wire-entry time, retained as diagnostic metadata for compatibility.
+        # Wire keeps its actual propagation clock locally so sharing this packet
+        # across two paths cannot overwrite either path's timing state.
+        self.current_time = 0
+        self.perhop_time = {}  # per-port arrival times in simulation seconds
 
     def __repr__(self):
         return f"id: {self.packet_id}, src: {self.src}, time: {self.time}, size: {self.size}"

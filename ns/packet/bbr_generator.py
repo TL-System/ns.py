@@ -1,13 +1,11 @@
-"""
-Implements a packet generator that simulates the TCP protocol, including support for
-various congestion control mechanisms.
-"""
+"""A paced TCP sender with BBR control and sender-owned segment accounting."""
 
-import copy
 from dataclasses import dataclass
+import math
 
 import simpy
 
+from ns.flow.flow import AppType
 from ns.packet.packet import Packet
 from ns.packet.rate_sample import Connection, RateSample
 from ns.utils.timer import Timer
@@ -15,6 +13,13 @@ from ns.utils.timer import Timer
 
 @dataclass
 class SegmentState:
+    """One unacknowledged byte range; packet attempts never own this state.
+
+    Transport timestamps belong here. Delivery-rate metadata records the flight
+    at the latest attempt and is copied into attempts for BBR's separate sampler.
+    A partial ACK shortens this range without changing its original send time.
+    """
+
     seq: int
     size: int
     first_tx_time: float
@@ -26,419 +31,386 @@ class SegmentState:
     is_app_limited: bool = False
     tx_in_flight: int = 0
     retransmit_count: int = 0
+    self_lost: bool = False
+    partial_acked: bool = False
 
 
 class BBRPacketGenerator:
-    """Generates packets with a simulated TCP protocol.
+    """Send application bytes with a congestion window and BBR pacing.
 
-    Parameters
-    ----------
-    env: simpy.Environment
-        The simulation environment.
-    flow: Flow
-        The flow that serves as the source (eventually, this should be a list).
-    element_id: str
-        The ID for this element.
-    rec_flow: bool
-        Are we recording the statistics of packets generated?
-    rate_sample: RateSample
+    Sizes, sequences and windows count bytes; BBR's pacing rate is bytes/second.
+    ``finish_time`` is an exclusive deadline for new data. Already emitted bytes
+    remain reliable after that deadline; ``None`` imposes no deadline.
     """
 
     def __init__(
-        self,
-        env,
-        flow,
-        cc,
-        element_id=None,
-        rtt_estimate=0.14,
-        granularity=0.01,
-        debug=True,
+        self, env, flow, cc, element_id=None, rtt_estimate=0.14,
+        granularity=0.001, debug=True,
     ):
         self.element_id = element_id
         self.env = env
         self.out = None
         self.flow = flow
+        self.debug = debug
         self.granularity = granularity
         self.congestion_control = cc
-        self.congestion_control.rs = RateSample()
-        self.congestion_control.C = Connection()
+        cc.rs = RateSample()
+        cc.C = Connection()
+        self.mss = self._byte_count(getattr(cc, "mss", 512))
+        if flow.size is not None:
+            self._byte_count(flow.size, allow_zero=True)
+        if not math.isfinite(rtt_estimate) or rtt_estimate <= 0:
+            raise ValueError("rtt_estimate must be finite and positive")
+        if not math.isfinite(granularity) or granularity <= 0:
+            raise ValueError("granularity must be finite and positive")
         self.packet_in_flight = 0
-
-        self.mss = 512  # maximum segment size, in bytes
-        self.last_arrival = 0  # the time when data last arrived from the flow
-
-        # the next sequence number to be sent, in bytes
+        # Flight counts unique unacknowledged bytes, including a partial suffix.
+        # Retransmitting the same bytes never adds a second copy to this count.
         self.next_seq = 0
-        # the maximum sequence number in the in-transit data buffer
-        self.send_buffer = self.flow.init_send_buffer()
-        # the sequence number of the segment that is last acknowledged
         self.last_ack = 0
-        # the maximum sequence number of the segment that is acknowledged
         self.max_ack = 0
-        # the count of duplicate acknolwedgments
         self.dupack = 0
-        # the RTT estimate
+        self.recovery_high_sequence = None
         self.rtt_estimate = rtt_estimate
-        # the retransmission timeout
-        self.rto = self.rtt_estimate * 2
-        # an estimate of the RTT deviation
         self.est_deviation = 0
-        # whether or not space in the congestion window is available
-        self.cwnd_available = simpy.Store(env)
-
-        # In-flight data is keyed by logical segment start sequence number.
-        # The transport rewrite keeps retransmission timing and delivery-rate
-        # metadata in sender-owned state and preserves Packet.time as the
-        # original first-transmit timestamp seen by sinks.
+        self._rtt_initialized = False
+        # Align the initial timer, learned timer floor and backoff cap with Days:
+        # one to sixty seconds, with a default clock granularity of one ms.
+        self.rto = min(60, max(1, rtt_estimate * 2))
+        self.cwnd_available = simpy.Store(env, capacity=1)
         self.sent_packets = {}
         self.segment_state = {}
-
         self.timer = None
         self.to_pkt_id = 0
 
+        self.last_arrival = max(env.now, flow.start_time or 0)
+        # App writes are byte-frontier updates, not individual wire packets.
+        # Keep each pending arrival draw until its scheduled time is reached.
+        self._next_application_time = None
+        self.send_buffer = (
+            int(flow.size or 0) if flow.typ == AppType.BULK_TRANSFER else 0
+        )
+        cc.C.write_seq = self.send_buffer
         self.action = env.process(self.run())
-        self.debug = debug
+
+    @staticmethod
+    def _byte_count(value, allow_zero=False, round_down=False):
+        """TCP byte positions are integral, unlike generic queue packet sizes."""
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or not math.isfinite(value) or (not round_down and int(value) != value)
+                or value < (0 if allow_zero else 1)):
+            raise ValueError("TCP byte counts must be integral and positive")
+        return int(value)
 
     def _build_packet(self, state):
-        """Create a fresh packet attempt from sender-owned segment state."""
+        """Create an attempt, preserving the original latency timestamp."""
         packet = Packet(
-            state.first_tx_time,
-            state.size,
-            state.seq,
-            src=self.flow.src,
-            flow_id=self.flow.fid,
+            state.first_tx_time, state.size, state.seq, src=self.flow.src,
+            dst=self.flow.dst, flow_id=self.flow.fid,
             tx_in_flight=state.tx_in_flight,
         )
+        packet.sent_time = state.last_tx_time
         packet.first_sent_time = state.first_sent_time
         packet.delivered_time = state.delivered_time
         packet.delivered = state.delivered
         packet.lost = state.lost
         packet.is_app_limited = state.is_app_limited
+        packet.self_lost = state.self_lost
         return packet
 
-    def _get_segment_state(self, packet_id):
-        """Return sender-owned state for an outstanding BBR segment."""
-        state = self.segment_state.get(packet_id)
-        if state is not None:
-            return state
-
-        packet = self.sent_packets[packet_id]
-        state = SegmentState(
-            seq=packet.packet_id,
-            size=packet.size,
-            first_tx_time=packet.time,
-            last_tx_time=packet.time,
-            first_sent_time=packet.first_sent_time,
-            delivered_time=packet.delivered_time,
-            delivered=packet.delivered,
-            lost=packet.lost,
-            is_app_limited=packet.is_app_limited,
-            tx_in_flight=packet.tx_in_flight,
-        )
-        self.segment_state[packet_id] = state
-        return state
-
-    def _send_new_packet(self, packet_size):
-        """Send a new BBR data packet and register its sender-owned state."""
-        packet = Packet(
-            self.env.now,
-            packet_size,
-            self.next_seq,
-            src=self.flow.src,
-            flow_id=self.flow.fid,
-            tx_in_flight=self.packet_in_flight,
-        )
-        self.congestion_control.rs.send_packet(
-            packet,
-            self.congestion_control.C,
-            self.max_ack - self.next_seq,
-            self.env.now,
-        )
-        self.congestion_control.next_departure_time = self.env.now
-        if self.congestion_control.pacing_rate > 0:
-            self.congestion_control.next_departure_time += (
-                packet.size / self.congestion_control.pacing_rate
-            )
-
-        self.sent_packets[packet.packet_id] = packet
-        self.segment_state[packet.packet_id] = SegmentState(
-            seq=packet.packet_id,
-            size=packet.size,
-            first_tx_time=packet.time,
-            last_tx_time=self.env.now,
-            first_sent_time=packet.first_sent_time,
-            delivered_time=packet.delivered_time,
-            delivered=packet.delivered,
-            lost=packet.lost,
-            is_app_limited=packet.is_app_limited,
-            tx_in_flight=packet.tx_in_flight,
-        )
-        self.packet_in_flight += packet.size
-        if self.debug:
-            print(
-                f"Send packet {packet.packet_id} with size {packet.size}, "
-                f"flow_id {packet.flow_id} at time {self.env.now:.4f}, "
-                f"and the packet delivered time is {packet.delivered_time:.4f}."
-            )
-        self.out.put(packet)
-
-        self.next_seq += packet.size
-
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight
-        )
-
-        if self.timer is None:
-            self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
-            self.to_pkt_id = packet.packet_id
-
-        if self.debug:
-            print(
-                f"Setting a timer for packet {packet.packet_id} with an RTO"
-                f" of {self.rto:.4f}."
-            )
-
-    def _retransmit_packet(self, packet_id):
-        """Emit a fresh retransmission attempt for an outstanding segment."""
-        state = self._get_segment_state(packet_id)
-        state.retransmit_count += 1
-        state.last_tx_time = self.env.now
-        state.tx_in_flight = self.packet_in_flight
-        resent_pkt = self._build_packet(state)
-        self.sent_packets[packet_id] = resent_pkt
-        return resent_pkt
-
     def _restart_oldest_timer(self):
-        """Point the retransmission timer at the oldest outstanding segment."""
+        """RFC 6298: one timer, rearmed from now when the ACK advances."""
         if not self.segment_state:
             if self.timer is not None:
                 self.timer.stop()
-                self.timer = None
+            self.timer = None
             self.to_pkt_id = 0
             return
-
-        oldest_packet_id = min(self.segment_state)
-        self.to_pkt_id = oldest_packet_id
+        self.to_pkt_id = min(self.segment_state)
         if self.timer is None:
             self.timer = Timer(self.env, 0, self.timeout_callback, self.rto)
-        self.timer.restart(self.rto, self.segment_state[oldest_packet_id].last_tx_time)
+        else:
+            self.timer.restart(self.rto)
+
+    def _send_new_packet(self, packet_size):
+        """Register every byte and the timer before synchronous forwarding."""
+        packet_size = self._byte_count(packet_size)
+        state = SegmentState(
+            self.next_seq, packet_size, self.env.now, self.env.now,
+            tx_in_flight=self.packet_in_flight + packet_size,
+        )
+        packet = self._build_packet(state)
+        self._check_application_limited(
+            self.next_seq + packet_size, self.packet_in_flight + packet_size,
+        )
+        self._record_sampling(state, packet, self.packet_in_flight)
+        self.segment_state[state.seq] = state
+        self.sent_packets[state.seq] = packet
+        # A zero-delay downstream receiver may call put(ACK) inside out.put().
+        # All sender accounting must already describe this emitted segment.
+        self.next_seq += packet_size
+        self.packet_in_flight += packet_size
+        # Controller pacing uses bytes/s; link ports separately convert bytes
+        # to bits when dividing by their bits/s line rates.
+        self.congestion_control.next_departure_time = self.env.now
+        if self.congestion_control.pacing_rate > 0:
+            self.congestion_control.next_departure_time += (
+                packet_size / self.congestion_control.pacing_rate
+            )
+        if self.timer is None:
+            self._restart_oldest_timer()
+        self._check_application_limited(self.next_seq, self.packet_in_flight)
+        if self.debug:
+            print(f"BBR sends {state.seq}+{state.size} at {self.env.now:.4f}")
+        self.out.put(packet)
+        return packet
+
+    def _retransmit_packet(self, packet_id):
+        """Replace only the packet attempt; outstanding bytes do not increase."""
+        state = self.segment_state[packet_id]
+        state.retransmit_count += 1
+        state.last_tx_time = self.env.now
+        state.tx_in_flight = self.packet_in_flight
+        packet = self._build_packet(state)
+        self._record_sampling(state, packet, self.packet_in_flight)
+        self.sent_packets[packet_id] = packet
+        return packet
+
+    def _record_sampling(self, state, packet, flight):
+        """Every attempt snapshots current delivery; latency keeps first_tx_time."""
+        self.congestion_control.rs.send_packet(
+            packet, self.congestion_control.C, flight, self.env.now,
+        )
+        state.first_sent_time = packet.first_sent_time
+        state.delivered_time = packet.delivered_time
+        state.delivered = packet.delivered
+        state.lost = packet.lost
+        state.is_app_limited = packet.is_app_limited
+
+    def _check_application_limited(self, next_seq, flight):
+        connection = self.congestion_control.C
+        connection.is_cwnd_limited = flight >= math.floor(self.congestion_control.cwnd)
+        # An unlimited bulk source always has more bytes, even though we stage
+        # one MSS at a time. A finite tail or waiting app write can limit supply.
+        if self.flow.typ != AppType.BULK_TRANSFER or self.flow.size is not None:
+            connection.check_if_application_limited(next_seq, self.mss, flight)
+
+    def _schedule_application_arrival(self):
+        interval = (
+            self.flow.arrival_dist() if self.flow.arrival_dist else self.granularity
+        )
+        if not math.isfinite(interval) or interval <= 0:
+            raise ValueError("application intervals must be finite and positive")
+        self._next_application_time = self.last_arrival + interval
 
     def update_next_seq(self):
-        self.send_buffer += self.flow.next_send_buffer(self.env.now)
-        self.congestion_control.C.write_seq = self.send_buffer + 1
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight
-        )
+        """Accept scheduled application writes once, never by redrawing on ACKs."""
+        if self.flow.typ == AppType.BULK_TRANSFER:
+            if self.flow.size is None and self.send_buffer <= self.next_seq:
+                self.send_buffer += self.mss
+        else:
+            if self._next_application_time is None:
+                self._schedule_application_arrival()
+            while (self._next_application_time <= self.env.now
+                   and (self.flow.finish_time is None
+                        or self._next_application_time < self.flow.finish_time)
+                   and (self.flow.size is None or self.send_buffer < self.flow.size)):
+                # Continuous size distributions are quantized once per write;
+                # segmentation afterward never creates fractional TCP bytes.
+                size = self._byte_count(
+                    self.flow.size_dist() if self.flow.size_dist else self.mss,
+                    round_down=True,
+                )
+                if self.flow.size is not None:
+                    size = min(size, int(self.flow.size) - self.send_buffer)
+                self.send_buffer += size
+                self.last_arrival = self._next_application_time
+                if self.flow.size is not None and self.send_buffer >= self.flow.size:
+                    break
+                self._schedule_application_arrival()
+        self.congestion_control.C.write_seq = self.send_buffer
+        self._check_application_limited(self.next_seq, self.packet_in_flight)
 
     def run(self):
-        # FIle download, video, game
-        """The generator function used in simulations."""
-        if self.flow.start_time:
-            yield self.env.timeout(self.flow.start_time)
-
-        while self.env.now < self.flow.finish_time:
+        """Wait for app writes, pacing, or ACK space; recheck every deadline."""
+        if self.flow.start_time is not None and self.flow.start_time > self.env.now:
+            yield self.env.timeout(self.flow.start_time - self.env.now)
+        deadline = self.flow.finish_time
+        while deadline is None or self.env.now < deadline:
             if self.flow.size is not None and self.next_seq >= self.flow.size:
                 return
-
-            while self.next_seq >= self.send_buffer:
-                # retrieving more packets from the (application-layer) flow
-                if self.flow.arrival_dist is not None:
-                    # if the flow has an arrival distribution, wait for the next arrival
-                    wait_time = self.flow.arrival_dist() - (
-                        self.env.now - self.last_arrival
-                    )
-                    if wait_time > 0:
-                        yield self.env.timeout(wait_time)
-
             self.update_next_seq()
-            # the sender can transmit up to the size of the congestion window
-            if self.env.now - self.congestion_control.next_departure_time < 0:
-                yield self.env.timeout(
-                    self.congestion_control.next_departure_time - self.env.now
-                )
-            send_limit = min(self.send_buffer, self.last_ack + self.congestion_control.cwnd)
-            available_bytes = send_limit - self.next_seq
-            if available_bytes <= 0:
-                self.congestion_control.C.is_cwnd_limited = True
-                yield self.cwnd_available.get()
+            if self.next_seq >= self.send_buffer:
+                wake = self._next_application_time
+                if deadline is not None:
+                    wake = min(wake, deadline)
+                yield self.env.timeout(max(0, wake - self.env.now))
+                continue
+            departure = self.congestion_control.next_departure_time
+            if departure > self.env.now:
+                if deadline is not None:
+                    departure = min(departure, deadline)
+                yield self.env.timeout(departure - self.env.now)
+                continue
+            # A fractional cwnd allows only its whole-byte prefix on the wire.
+            available = math.floor(self.congestion_control.cwnd) - self.packet_in_flight
+            self.congestion_control.C.is_cwnd_limited = available <= 0
+            if available > 0:
+                self._send_new_packet(min(self.mss, available,
+                                          self.send_buffer - self.next_seq))
             else:
-                self._send_new_packet(min(self.mss, available_bytes))
+                ready = self.cwnd_available.get()
+                if deadline is None:
+                    yield ready
+                else:
+                    yield ready | self.env.timeout(deadline - self.env.now)
+                    if not ready.triggered:
+                        # Leaving an abandoned Store.get would steal a later
+                        # ACK wakeup after the new-data deadline has passed.
+                        ready.cancel()
 
     def timeout_callback(self, packet_id=0):
-        """To be called when a timer expired for a packet with 'packet_id'."""
-        self.update_next_seq()
-        if not self.segment_state:
-            if not self.sent_packets:
-                return
-        packet_id = self.to_pkt_id or min(self.sent_packets)
-        state = self._get_segment_state(packet_id)
-        if self.debug:
-            print(
-                f"Timer expired for packet {packet_id} {self.flow.fid} "
-                f"at time {self.env.now:.4f}."
-            )
-
+        """Declare the oldest attempt lost, back off and rearm before sending."""
+        if not self.sent_packets:
+            self._restart_oldest_timer()
+            return
+        packet_id = min(self.sent_packets)
+        state = self.segment_state[packet_id]
         self.congestion_control.C.lost += state.size
-
+        self.dupack = 0
+        if self.recovery_high_sequence is not None:
+            self.congestion_control.dupack_over()
+        self.recovery_high_sequence = None
         self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
-        self.congestion_control.timer_expired(self.sent_packets[packet_id])
+        # The controller receives its own metadata object, never a queued attempt.
+        self.congestion_control.timer_expired(self._build_packet(state))
+        packet = self._retransmit_packet(packet_id)
+        self.rto = min(60, self.rto * 2)
+        # Rearm before forwarding: an immediate ACK can safely cancel it.
+        self._restart_oldest_timer()
+        self.out.put(packet)
 
-        # retransmitting the segment
-        resent_pkt = self._retransmit_packet(packet_id)
-        self.out.put(resent_pkt)
-        self.rto *= 2
-        if self.rto > 60:
-            self.rto = 60
-        if self.debug:
-            print(
-                f"to Resending packet {resent_pkt.packet_id} with flow_id {resent_pkt.flow_id} "
-                f"at time {self.env.now:.4f} with a timeout time {self.env.now + self.rto:4f}."
-            )
-
-        # starting a new timer for this segment and doubling the retransmission timeout
-        self.timer.restart(self.rto, self.segment_state[packet_id].last_tx_time)
-        self.to_pkt_id = packet_id
-
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight
-        )
+    def _update_rto(self, sample):
+        """RFC 6298 deviation uses the previous SRTT and an absolute error."""
+        if not self._rtt_initialized:
+            self.rtt_estimate = sample
+            self.est_deviation = sample / 2
+            self._rtt_initialized = True
+        else:
+            self.est_deviation = (3 * self.est_deviation
+                                  + abs(self.rtt_estimate - sample)) / 4
+            self.rtt_estimate = (7 * self.rtt_estimate + sample) / 8
+        self.rto = min(60, max(1, self.rtt_estimate
+                              + max(4 * self.est_deviation, self.granularity)))
 
     def put(self, ack):
-        """On receiving an acknowledgment packet."""
-        self.update_next_seq()
-        self.congestion_control.C.check_if_application_limited(
-            self.next_seq, self.mss, self.packet_in_flight
-        )
-
-        # ACK RTT follows the acknowledged segment's transport timestamp.
-        # first_sent_time remains the flight-level marker for RateSample only.
-        sample_rtt = self.env.now - ack.time
-        self.congestion_control.rs.newly_acked = ack.ack - self.last_ack
-
-        if ack.ack == self.last_ack:
-            temp_pkt = copy.copy(ack)
-            temp_pkt.size = self.mss
-
-            self.congestion_control.rs.updaterate_sample(
-                temp_pkt, self.congestion_control.C, self.env.now
-            )
-            self.congestion_control.rs.update_sample_group(
-                self.congestion_control.C, sample_rtt
-            )
-            if ack.ack < self.next_seq:
-                self.dupack += 1
-        else:
-            # fast recovery in RFC 2001 and TCP Reno
-            self.congestion_control.dupack_over()
-            self.dupack = 0
-
-        # RFC 6298 Update on rto
-        if self.max_ack == 0:
-            self.rtt_estimate = sample_rtt
-            self.est_deviation = sample_rtt / 2
-            self.rto = min(
-                self.rtt_estimate + max(4 * self.est_deviation, self.granularity), 60
-            )
-            self.rto = max(self.rto, 1)
-        else:
-            sample_err = self.rtt_estimate - sample_rtt
-            self.est_deviation = (3 * self.est_deviation + sample_err) / 4
-            self.rtt_estimate = (7 * self.rtt_estimate + sample_rtt) / 8
-            self.rto = min(
-                self.rtt_estimate + max(4 * self.est_deviation, self.granularity), 60
-            )
-            self.rto = max(self.rto, 1)
-
-        self.max_ack = max(self.max_ack, ack.ack)
-
-        if self.dupack == 2:
-            self.congestion_control.C.lost += self._get_segment_state(ack.ack).size
-
+        """Consume valid cumulative ACK bytes; ignore stale or unrelated ACKs."""
+        frontier = ack.ack
+        if (ack.flow_id != self.flow.fid + 10000
+                or isinstance(frontier, bool) or not isinstance(frontier, int)
+                or frontier < self.last_ack or frontier > self.next_seq
+                or not self.sent_packets):
+            return
+        rs = self.congestion_control.rs
+        rs.begin_ack()
+        rs.newly_acked = frontier - self.last_ack
+        if frontier == self.last_ack:
+            self.dupack += 1
             self.congestion_control.set_before_control(
-                self.env.now, self.packet_in_flight
+                self.env.now, self.packet_in_flight,
             )
-            self.congestion_control.consecutive_dupacks_received(
-                self.sent_packets[ack.ack]
-            )
-            self.congestion_control.ack_received(sample_rtt, self.env.now)
-
-            resent_pkt = self._retransmit_packet(ack.ack)
-
-            if self.debug:
-                print(
-                    f"dup Resending packet {resent_pkt.packet_id} with flow_id "
-                    f"{resent_pkt.flow_id} at time {self.env.now:.4f}."
+            if self.dupack == 3 and self.recovery_high_sequence is None:
+                # Three duplicate ACKs identify one loss episode. Additional
+                # duplicates do not retransmit the same missing range again.
+                self.recovery_high_sequence = self.next_seq
+                state = self.segment_state[min(self.segment_state)]
+                self.congestion_control.C.lost += state.size
+                self.congestion_control.consecutive_dupacks_received(
+                    self._build_packet(state),
                 )
-            self.out.put(resent_pkt)
-
-        elif self.dupack > 2:
-            self.congestion_control.set_before_control(
-                self.env.now, self.packet_in_flight
-            )
-            self.congestion_control.ack_received(sample_rtt, self.env.now)
-            self.congestion_control.more_dupacks_received(self.sent_packets[ack.ack])
-
-        elif self.dupack == 0:
-            self.congestion_control.set_before_control(
-                self.env.now, self.packet_in_flight
-            )
-
-            acked_packet_ids = []
-            for packet_id in sorted(self.sent_packets):
-                state = self._get_segment_state(packet_id)
-                if packet_id + state.size <= ack.ack:
-                    acked_packet_ids.append(packet_id)
-
-            bbr_update = bool(acked_packet_ids)
-            for packet_id in sorted(acked_packet_ids):
-                packet = self.sent_packets[packet_id]
-                if packet.delivered_time:
-                    self.packet_in_flight -= packet.size
-                self.congestion_control.rs.updaterate_sample(
-                    packet, self.congestion_control.C, self.env.now
-                )
-
-            self.congestion_control.rs.update_sample_group(
-                self.congestion_control.C, sample_rtt
-            )
-
-            self.congestion_control.rs.full_lost = 0
-            last_packet_lost = -self.mss * 2
-
-            for id, packet in self.sent_packets.items():
-                if packet.self_lost:
-                    if id - last_packet_lost > self.mss:
-                        self.congestion_control.rs.full_lost += 1
-                    last_packet_lost = id
-
-            if ack.ack > self.max_ack:
-                self.max_ack = ack.ack
-
-            self.last_ack = ack.ack
-
-            if self.debug:
-                print(
-                    f"Ack received till sequence number {ack.ack} at time "
-                    f"{self.env.now:.4f}."
-                )
-                print(
-                    f"Congestion window size = {self.congestion_control.cwnd:.1f}, "
-                    f"last ack = {self.last_ack}."
-                )
-
-            if bbr_update:
-                self.congestion_control.ack_received(sample_rtt, self.env.now)
-
-            for packet_id in sorted(acked_packet_ids):
-                del self.sent_packets[packet_id]
-                del self.segment_state[packet_id]
-
-            if self.max_ack == self.next_seq and self.timer is not None:
-                self.timer.stop()
-                del self.timer
-                self.timer = None
-            elif acked_packet_ids:
+                packet = self._retransmit_packet(state.seq)
                 self._restart_oldest_timer()
+                self.out.put(packet)
+            elif self.dupack > 3:
+                state = self.segment_state[min(self.segment_state)]
+                self.congestion_control.more_dupacks_received(self._build_packet(state))
+            self._wake_sender()
+            return
 
-            self.congestion_control.C.is_cwnd_limited = False
+        oldest = self.segment_state[min(self.segment_state)]
+        sample = None
+        # Without timestamps/SACK, sample exactly one complete unretransmitted
+        # segment. Cumulative/partial ACKs and retransmissions are ambiguous.
+        if (oldest.seq == self.last_ack and frontier == oldest.seq + oldest.size
+                and oldest.retransmit_count == 0 and not oldest.partial_acked):
+            sample = self.env.now - oldest.first_tx_time
+            # A synchronous ACK has a valid zero RTT; the RTO floor still applies.
+            self._update_rto(sample)
+        for packet_id in sorted(list(self.segment_state)):
+            state = self.segment_state[packet_id]
+            acknowledged = min(state.size, max(0, frontier - state.seq))
+            if not acknowledged:
+                break
+            # A local copy keeps sampling's consumed marker off emitted packets.
+            packet = self._build_packet(state)
+            packet.size = acknowledged
+            rs.updaterate_sample(packet, self.congestion_control.C, self.env.now)
+            del self.sent_packets[packet_id]
+            del self.segment_state[packet_id]
+            if acknowledged < state.size:
+                state.seq += acknowledged
+                state.size -= acknowledged
+                # A suffix no longer represents one complete RTT observation.
+                state.partial_acked = True
+                self.segment_state[state.seq] = state
+                self.sent_packets[state.seq] = self._build_packet(state)
+        self.packet_in_flight -= rs.newly_acked
+        self.last_ack = self.max_ack = frontier
+        self.dupack = 0
+        # Always finalize the group: synchronous ACKs are valid delivery credit
+        # but have no usable rate interval. Never reuse a previous ACK's rate.
+        rs.rtt = sample if sample is not None else -1
+        min_rtt = getattr(self.congestion_control, "min_rtt", -1)
+        rs.update_sample_group(
+            self.congestion_control.C, min_rtt if math.isfinite(min_rtt) else -1,
+        )
+        # BBR controls the actual remaining flight after this ACK. Classic TCP
+        # instead passes pre-ACK flight for its loss-window controller contract.
+        self.congestion_control.set_before_control(self.env.now, self.packet_in_flight)
+        self.congestion_control.ack_received(
+            sample if sample is not None else 0, self.env.now,
+        )
+        self._restart_oldest_timer()
+        if self.recovery_high_sequence is not None:
+            if frontier >= self.recovery_high_sequence:
+                self.recovery_high_sequence = None
+                self.congestion_control.dupack_over()
+            elif self.segment_state:
+                # A partial recovery ACK exposes the next hole. Keep the same
+                # recovery frontier until all bytes of that flight are covered.
+                state = self.segment_state[min(self.segment_state)]
+                self.env.process(self._retransmit_after_ack(
+                    state, state.seq, state.retransmit_count,
+                ))
+        self.congestion_control.C.is_cwnd_limited = False
+        self._wake_sender()
+
+    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+        """Yield one turn so synchronous recovery ACKs cannot recurse forever."""
+        yield self.env.timeout(0)
+        # Another ACK or timeout may retire, trim or retransmit this range before
+        # its turn. Record an attempt only when it still needs to go on the wire.
+        if (self.segment_state.get(sequence) is state
+                and self.last_ack == sequence
+                and self.recovery_high_sequence is not None
+                and state.retransmit_count == retransmit_count):
+            self.congestion_control.C.lost += state.size
+            packet = self._retransmit_packet(sequence)
+            # All attempt metadata and timer state precede synchronous ACKs.
+            self._restart_oldest_timer()
+            self.out.put(packet)
+
+    def _wake_sender(self):
+        """Coalesce ACK wakeups rather than retaining one token per packet."""
+        if not self.cwnd_available.items:
             self.cwnd_available.put(True)

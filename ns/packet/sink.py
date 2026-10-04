@@ -21,12 +21,15 @@ class PacketSink:
     env: simpy.Environment
         the simulation environment
     rec_arrivals: bool
-        if True, arrivals will be recorded
+        if True, keep arrival samples. Packet/byte counters and first/last arrival
+        times are maintained even when sample recording is disabled.
     absolute_arrivals: bool
         if True absolute arrival times will be recorded, otherwise the time between
-        consecutive arrivals is recorded.
+        consecutive arrivals is recorded per flow/source. The first interval
+        starts at simulation time zero.
     rec_waits: bool
-        if True, the waiting times experienced by the packets are recorded
+        if True, record env.now - packet.time: end-to-end delay, including
+        serialization and propagation, rather than queue waiting time alone.
     rec_flow_ids: bool
         if True, the flow IDs that the packets are used as the index for recording;
         otherwise, the 'src' field in the packets are used
@@ -56,7 +59,6 @@ class PacketSink:
         self.packet_sizes = dd(list)
         self.packet_times = dd(list)
         self.perhop_times = dd(list)
-        self.arrivals = dd(list)
 
         self.first_arrival = dd(lambda: 0)
         self.last_arrival = dd(lambda: 0)
@@ -76,17 +78,20 @@ class PacketSink:
             self.waits[rec_index].append(self.env.now - packet.time)
             self.packet_sizes[rec_index].append(packet.size)
             self.packet_times[rec_index].append(packet.time)
-            self.perhop_times[rec_index].append(packet.perhop_time)
+            # Keep arrival observations stable if this packet later traverses
+            # another port or is retransmitted with new per-hop metadata.
+            self.perhop_times[rec_index].append(packet.perhop_time.copy())
 
         if self.rec_arrivals:
             self.arrivals[rec_index].append(now)
-            if len(self.arrivals[rec_index]) == 1:
-                self.first_arrival[rec_index] = now
-
             if not self.absolute_arrivals:
                 self.arrivals[rec_index][-1] = now - self.last_arrival[rec_index]
 
-            self.last_arrival[rec_index] = now
+        # A count, rather than a zero timestamp sentinel, also handles a first
+        # arrival at t=0. Update last_arrival after computing inter-arrival time.
+        if self.packets_received[rec_index] == 0:
+            self.first_arrival[rec_index] = now
+        self.last_arrival[rec_index] = now
 
         if self.debug:
             print(
@@ -98,10 +103,13 @@ class PacketSink:
                 time_elapsed = self.env.now - (
                     self.packet_times[rec_index][-10] + self.waits[rec_index][-10]
                 )
-                print(
-                    f"Average throughput (last 10 packets): "
-                    f"{(float(bytes_received) / time_elapsed):.2f} bytes/second."
-                )
+                # Ten simultaneous arrivals have no elapsed measurement window.
+                # Do not turn optional debug output into a division-by-zero error.
+                if time_elapsed > 0:
+                    print(
+                        f"Average throughput (last 10 packets): "
+                        f"{(float(bytes_received) / time_elapsed):.2f} bytes/second."
+                    )
 
         self.packets_received[rec_index] += 1
         self.bytes_received[rec_index] += packet.size

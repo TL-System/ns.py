@@ -1,7 +1,9 @@
 class FIBDemux:
     """
     The constructor takes a list of downstream elements for the
-    corresponding output ports as its input.
+    corresponding output ports as its input. Terminal deliveries in ``ends``
+    take precedence over routes. Unknown routes, invalid port indexes, and
+    disconnected outputs use ``default``; otherwise they count as a drop.
 
     Parameters
     ----------
@@ -9,8 +11,8 @@ class FIBDemux:
         forwarding information base. Key: flow id, Value: output port
     outs: list
         list of downstream elements corresponding to the output ports
-    ends: list
-        list of downstream elements corresponding to the output ports
+    ends: dict
+        terminal downstream elements keyed by flow ID
     default:
         default downstream element
     """
@@ -18,14 +20,12 @@ class FIBDemux:
     def __init__(
         self, fib: dict = None, outs: list = None, ends: dict = None, default=None
     ) -> None:
-        self.outs = outs
+        self.outs = outs if outs is not None else []
         self.default = default
         self.packets_received = 0
-        self.fib = fib
-        if ends:
-            self.ends = ends
-        else:
-            self.ends = dict()
+        self.packets_dropped = 0
+        self.fib = fib if fib is not None else {}
+        self.ends = ends if ends is not None else {}
 
     def put(self, packet):
         """Sends a packet to this element."""
@@ -33,11 +33,19 @@ class FIBDemux:
         flow_id = packet.flow_id
 
         if flow_id in self.ends:
-            self.ends[flow_id].put(packet)
+            out = self.ends[flow_id]
         else:
-            try:
-                self.outs[self.fib[packet.flow_id]].put(packet)
-            except (KeyError, IndexError, ValueError) as exc:
-                print("FIB Demux Error: " + str(exc))
-                if self.default:
-                    self.default.put(packet)
+            port = self.fib.get(flow_id)
+            out = (
+                self.outs[port]
+                if isinstance(port, int) and 0 <= port < len(self.outs)
+                else None
+            )
+        if out is None:
+            out = self.default
+        if out is None:
+            self.packets_dropped += 1
+        else:
+            # Only routing failures use the default. An exception raised by a
+            # downstream element must propagate, without sending the packet twice.
+            out.put(packet)

@@ -1,143 +1,179 @@
-"""
-TCP CUBIC congestion control (RFC 8312) as used in Linux since v2.6.19.
+"""Educational CUBIC matching the pinned Days CPU controller's equations.
 
-Reference: Sangtae Ha, Injong Rhee, Lisong Xu. "CUBIC: A New TCP-Friendly
-High-Speed TCP Variant," ACM SIGOPS OSR, 42(5):64–74, 2008.
+Windows exposed to the transport are bytes; cubic curves use MSS-sized segments
+and seconds. This is the Days model, not Linux CUBIC or full RFC 9438: it uses
+segment-count slow start, a signed ACK step, and a simple elapsed-time friendly
+estimate. See evidence/phase5_cubic.md for the reference and model differences.
 """
 
 from __future__ import annotations
+
+import math
 
 from ns.flow.cc import LossBasedCongestionControl
 
 
 class TCPCubic(LossBasedCongestionControl):
-    """
-    TCP CUBIC congestion control with RFC 8312 compliant window update rules.
+    """Cubic growth with fast convergence and a TCP-friendly estimate.
 
-    Parameters
-    ----------
-    mss: int
-        The maximum segment size (bytes).
-    cwnd: int
-        The initial congestion window (bytes).
-    ssthresh: int
-        Initial slow-start threshold (bytes).
-    beta: float
-        Multiplicative decrease factor (default 0.2 per RFC 8312 §4.6).
-    cubic_constant: float
-        C in the cubic function W(t) = C(t-K)^3 + W_max (default 0.4).
-    debug: bool
-        If True, prints more verbose debug information.
+    ``mss``, ``cwnd``, and ``ssthresh`` are bytes. ``beta`` is the fraction
+    **retained** after loss (default 0.7); ``cubic_constant`` is C (default 0.4).
+    Earlier ns.py versions misleadingly called beta=0.2 RFC-compliant and used
+    it as the fraction removed. Explicit beta arguments now have CUBIC's usual
+    retained-fraction meaning. Constructor argument positions stay unchanged.
     """
+
+    # Days bounds its fixed-point state here; keep the same segment ceiling
+    # without importing its integer arithmetic into the educational model.
+    max_window_segments = 2_000_000
 
     def __init__(
         self,
         mss: int = 512,
         cwnd: int = 512,
         ssthresh: int = 65535,
-        beta: float = 0.2,
+        beta: float = 0.7,
         cubic_constant: float = 0.4,
         debug: bool = False,
     ):
         super().__init__(mss, cwnd, ssthresh, debug)
+        if not 0 < beta < 1:
+            raise ValueError("beta must be a retained fraction between zero and one")
+        if not math.isfinite(cubic_constant) or cubic_constant <= 0:
+            raise ValueError("cubic_constant must be finite and positive")
         self.beta = beta
-        self.beta_timeout = beta  # RFC 8312 uses the same decrease on RTO.
         self.cubic_c = cubic_constant
-
-        # Internal state is tracked in packets (segments) to mirror RFC notation.
-        self.W_last_max: float = 0.0
-        self.epoch_start = 0.0
-        self.origin_point = 0.0
-        self.d_min: float = 0.0
-        self.W_tcp = self.cwnd_in_segments()
-        self.K = 0.0
-        self.ack_cnt = 0.0
-        self.tcp_friendliness = True
         self.fast_convergence = True
-        self.cwnd_cnt = 0.0
-        self.cnt = float("inf")
+        self.tcp_friendliness = True
 
-    def __repr__(self):
-        return f"cwnd: {self.cwnd}, ssthresh: {self.ssthresh}"
+        # W_last_max is the last observed loss window; W_max is the possibly
+        # smaller curve origin chosen by fast convergence. Both are segments.
+        self.W_last_max = 0.0
+        self.W_max = 0.0
+        self.K = 0.0
+        self.epoch_start: float | None = None  # zero is a valid simulation time
+        self.srtt = 0.0
+        self._in_slow_start = cwnd < ssthresh
+        self._in_fast_recovery = False
 
-    def ack_received(self, rtt: float = 0, current_time: float = 0):
-        """Record the minimum RTT and defer to LossBased's slow start logic."""
-        if rtt > 0:
-            self.d_min = rtt if self.d_min == 0 else min(self.d_min, rtt)
-        super().ack_received(rtt, current_time)
+    def ack_received(
+        self,
+        rtt: float | None = 0,
+        current_time: float = 0,
+        acknowledged_bytes: int | None = None,
+    ):
+        """Consume one advancing ACK; an omitted byte count means one MSS.
 
-    def _congestion_avoidance_ack(self, rtt: float, current_time: float):
-        # Without an RTT sample we fall back to Reno-style additive increase.
-        if self.d_min <= 0:
-            self.cwnd += (self.mss * self.mss) / self.cwnd
+        None means Karn's rule supplied no fresh RTT sample. A measured zero
+        RTT is valid; the controller floors it at 1 ns, as Days does. This
+        numerical guard does not quantize the floating-point simulator clock.
+        """
+        self.flight_size = None
+        if rtt is not None:
+            sample = max(rtt, 1e-9)
+            self.srtt = sample if self.srtt == 0 else (7 * self.srtt + sample) / 8
+        acknowledged = self.mss if acknowledged_bytes is None else acknowledged_bytes
+        if acknowledged <= 0 or self._in_fast_recovery:
             return
-
-        self.cubic_update(current_time)
-        ack_threshold = max(1.0, self.cnt)
-        self.cwnd_cnt += 1
-        if self.cwnd_cnt >= ack_threshold:
-            self.cwnd += self.mss
-            self.cwnd_cnt = 0
+        if self._in_slow_start:
+            # Days counts a short segment as one, and a cumulative ACK as the
+            # ceiling of ACKed bytes/MSS; this differs from Reno byte counting.
+            segments = (acknowledged + self.mss - 1) // self.mss
+            self.cwnd = min(
+                self.cwnd + segments * self.mss, self.max_window_segments * self.mss
+            )
+            if self.cwnd >= self.ssthresh:
+                self._in_slow_start = False
+                self.epoch_start = current_time
+                if self.W_max == 0:
+                    self.W_max = self.cwnd_in_segments()
+                    self.K = 0.0
+        else:
+            self.cubic_update(current_time)
 
     def cubic_update(self, current_time: float):
-        """Update the cubic window target (RFC 8312 §4.1)."""
-        cwnd_packets = self.cwnd_in_segments()
-        self.ack_cnt += 1
-
-        if self.epoch_start <= 0:
+        """Apply the Days cubic/friendly rule once per advancing ACK."""
+        if self.epoch_start is None:
             self.epoch_start = current_time
-            self.ack_cnt = 1
-            if cwnd_packets < self.W_last_max:
-                self.K = ((self.W_last_max - cwnd_packets) / self.cubic_c) ** (
-                    1.0 / 3.0
-                )
-                self.origin_point = self.W_last_max
+            if self.W_max == 0:
+                self.W_max = self.cwnd_in_segments()
+                self.K = 0.0  # a first no-loss epoch starts at its current window
             else:
-                self.K = 0.0
-                self.W_last_max = cwnd_packets
-                self.origin_point = cwnd_packets
-            self.W_tcp = cwnd_packets
-
-        t = current_time + self.d_min - self.epoch_start
-        target = self.origin_point + self.cubic_c * (t - self.K) ** 3
-        if target > cwnd_packets:
-            self.cnt = cwnd_packets / max(target - cwnd_packets, 1e-6)
+                self.K = math.cbrt(self.W_max * (1 - self.beta) / self.cubic_c)
+        elapsed = max(0.0, current_time - self.epoch_start)
+        rtt = max(self.srtt, 1e-9)
+        friendly = self.beta * self.W_max
+        friendly += 3 * (1 - self.beta) / (1 + self.beta) * elapsed / rtt
+        # Bound both curves before choosing a region, as Days does. If both
+        # saturate they are equal, so the signed cubic ACK step still applies.
+        friendly = min(max(friendly, 1.0), self.max_window_segments)
+        if self.tcp_friendliness and self._cubic_window(elapsed) < friendly:
+            window = friendly
         else:
-            self.cnt = 100.0 * max(1.0, cwnd_packets)
+            window = self.cwnd_in_segments()
+            target = self._cubic_window(elapsed + rtt)
+            # In segments: delta=(target-window)/window. Unlike an ACK counter,
+            # this preserves fractional credit and can move down toward target.
+            window += (target - window) / max(window, 1.0)
+        self.cwnd = min(max(window, 1.0), self.max_window_segments) * self.mss
 
-        if self.tcp_friendliness:
-            self.cubic_tcp_friendliness(cwnd_packets)
-
-    def cubic_tcp_friendliness(self, cwnd_packets: float):
-        """TCP-friendly mode keeps pace with Reno while probing above W_max."""
-        if cwnd_packets <= 0:
-            return
-        self.W_tcp += 3 * self.beta / (2 - self.beta) * (self.ack_cnt / cwnd_packets)
-        self.ack_cnt = 0
-        if self.W_tcp > cwnd_packets:
-            max_cnt = cwnd_packets / max(self.W_tcp - cwnd_packets, 1e-6)
-            self.cnt = min(self.cnt, max_cnt)
-
-    def _reset_epoch(self):
-        """Drop epoch-specific state so the next ACK starts a fresh cubic phase."""
-        self.epoch_start = 0.0
-        self.K = 0.0
-        self.ack_cnt = 0.0
-        self.cnt = float("inf")
-        self.cwnd_cnt = 0.0
-        self.W_tcp = self.cwnd_in_segments()
-
-    def _after_fast_loss(self, prev_cwnd: float, packet=None):
-        """RFC 8312 §4.6 fast convergence bookkeeping."""
-        cwnd_packets = prev_cwnd / self.mss
-        if self.fast_convergence and cwnd_packets < self.W_last_max:
-            self.W_last_max = cwnd_packets * (1 + self.beta) / 2.0
+    def _cubic_window(self, elapsed: float) -> float:
+        # K^3=Wmax*(1-beta)/C makes W(0)=beta*Wmax after loss. Express that
+        # boundary directly so cube-root rounding cannot change region choice.
+        if elapsed == 0 and self.K > 0:
+            window = self.beta * self.W_max
         else:
-            self.W_last_max = cwnd_packets
-        self._reset_epoch()
+            window = self.W_max + self.cubic_c * (elapsed - self.K) ** 3
+        return min(max(window, 1.0), self.max_window_segments)
 
-    def _after_timeout(self, prev_cwnd: float, packet=None):
-        """Timeouts force a new epoch but keep the most recent W_max."""
-        del packet
-        self.W_last_max = prev_cwnd / self.mss
-        self._reset_epoch()
+    def consecutive_dupacks_received(self, packet=None):
+        """Enter recovery using actual flight for reduction, cwnd for maxima."""
+        current = self.cwnd_in_segments()
+        if self.fast_convergence and current < self.W_last_max:
+            self.W_max = current * (1 + self.beta) / 2
+        else:
+            self.W_max = current
+        self.W_last_max = current
+        flight = self.cwnd if self.flight_size is None else self.flight_size
+        reduced = max(self.mss, self.beta * flight)
+        self.ssthresh = max(2 * self.mss, reduced)
+        self.cwnd = min(reduced, self.max_window_segments * self.mss)
+        self.epoch_start = self.current_time
+        self.K = math.cbrt(self.W_max * (1 - self.beta) / self.cubic_c)
+        self._in_fast_recovery = True
+        self._in_slow_start = False
+        self.flight_size = None
+
+    def more_dupacks_received(self, packet=None):
+        """An extra recovery ACK permits one more segment of window."""
+        if self._in_fast_recovery:
+            self.cwnd = min(self.cwnd + self.mss, self.max_window_segments * self.mss)
+        self.flight_size = None
+
+    def partial_ack_received(self, acknowledged_bytes: int, current_time: float):
+        """Hold CUBIC's recovery window while transport retransmits the next hole.
+
+        Phase 4's conservative recovery hook supplies no RTT measurement; SRTT
+        stays unchanged here and on recovery exit, unlike Days echoed samples.
+        """
+        self.flight_size = None
+
+    def dupack_over(self):
+        """Deflate to threshold without moving the loss-time epoch."""
+        self.cwnd = min(self.ssthresh, self.max_window_segments * self.mss)
+        self._in_fast_recovery = False
+        self._in_slow_start = False
+        self.flight_size = None
+
+    def timer_expired(self, packet=None):
+        """Restart slow start and erase the old curve; retain the RTT estimate."""
+        flight = self.cwnd if self.flight_size is None else self.flight_size
+        self.ssthresh = min(
+            max(2 * self.mss, self.beta * flight), self.max_window_segments * self.mss
+        )
+        self.cwnd = self.mss
+        self.W_max = self.W_last_max = self.K = 0.0
+        self.epoch_start = None
+        self._in_slow_start = True
+        self._in_fast_recovery = False
+        self.flight_size = None

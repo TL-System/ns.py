@@ -20,7 +20,9 @@ class Wire:
         the simulation environment.
     delay_dist: function
         a no-parameter function that returns the successive propagation
-        delays on this wire.
+        delays on this wire, in seconds. Delays overlap rather than serialize.
+        This wire preserves arrival order: a later packet with a shorter delay
+        waits for its predecessor instead of overtaking it.
     loss_dist: function
         a function that takes one optional parameter, which is the packet ID, and
         returns the loss rate.
@@ -38,21 +40,24 @@ class Wire:
         self.action = env.process(self.run())
 
     def run(self):
-        """The generator function used in simulations."""
+        """Wait for packets and their entry-relative propagation deadlines in FIFO."""
         while True:
-            packet = yield self.store.get()
+            packet, entry_time = yield self.store.get()
 
             if self.loss_dist is None or random.uniform(0, 1) >= self.loss_dist(
                 packet_id=packet.packet_id
             ):
-                # The amount of time for this packet to stay in my store
-                queued_time = self.env.now - packet.current_time
+                # Propagation starts at this wire's entry, even while another
+                # packet waits ahead. Keep that timestamp with the queue entry:
+                # a shared packet can concurrently enter a different wire.
+                queued_time = self.env.now - entry_time
                 delay = self.delay_dist()
 
                 # If queued time for this packet is greater than its propagation delay,
                 # it implies that the previous packet had experienced a longer delay.
-                # Since out-of-order delivery is not supported in simulation, deliver
-                # to the next component immediately.
+                # This wire's FIFO convention disallows overtaking, so deliver
+                # to the next component immediately. A fixed-delay Days link
+                # also preserves order, but Days has no delay-distribution wire.
                 if queued_time < delay:
                     yield self.env.timeout(delay - queued_time)
 
@@ -74,4 +79,4 @@ class Wire:
             print(f"Entered wire #{self.wire_id} at {self.env.now}: {packet}")
 
         packet.current_time = self.env.now
-        return self.store.put(packet)
+        return self.store.put((packet, self.env.now))

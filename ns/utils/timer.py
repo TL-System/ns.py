@@ -1,7 +1,8 @@
-"""
-Implements a simple timer that expires after a timeout value. When it expires,
-it runs a provided callback function.
-"""
+"""A restartable, one-shot callback timer using simulation seconds."""
+
+import math
+
+import simpy
 
 
 class Timer:
@@ -17,11 +18,14 @@ class Timer:
         callback function is called.
     timeout_callback:
         The callback function that runs when the timer expires.
-    timeout: float
-        The timeout value.
+    rto: float
+        A finite, nonnegative timeout in seconds. A callback may call ``restart()``
+        to rearm this timer; otherwise expiration ends the process.
     """
 
     def __init__(self, env, timer_id, timeout_callback, rto):
+        if not math.isfinite(rto) or rto < 0:
+            raise ValueError("rto must be finite and nonnegative.")
         self.env = env
         self.timer_id = timer_id
         self.timeout_callback = timeout_callback
@@ -32,28 +36,44 @@ class Timer:
         self.action = env.process(self.run())
 
     def run(self):
-        """The generator function used in simulations."""
-        while True:
-            if self.env.now < self.timer_expiry:
-                yield self.env.timeout(self.timer_expiry - self.env.now)
+        """Wait for the deadline, or wake early on restart/cancellation."""
+        while not self.stopped:
+            try:
+                # Past deadlines expire on a new SimPy turn at the current time;
+                # even a zero timeout yields before invoking user code.
+                yield self.env.timeout(max(0, self.timer_expiry - self.env.now))
+            except simpy.Interrupt:
+                # A restart may move the deadline in either direction. Re-read
+                # it rather than allowing the previous wait to fire a callback.
+                continue
 
-            if not self.stopped:
-                self.timeout_callback(self.timer_id)
-            else:
-                return
+            # Disarm before invoking the callback. Only an explicit restart
+            # rearms it, so a one-shot callback cannot loop at the same time.
+            self.stopped = True
+            self.timeout_callback(self.timer_id)
 
     def stop(self):
-        """Stopping the timer."""
+        """Cancel the callback and wake a waiting process so it can finish."""
         self.stopped = True
         self.timer_expiry = self.env.now
+        if self.action.is_alive and self.env.active_process is not self.action:
+            self.action.interrupt()
 
-    def restart(self, revised_rto, start_time=0):
-        """Restarting the timer with a new rto value."""
+    def restart(self, revised_rto, start_time=None):
+        """Rearm relative to now, or to an explicit start time in seconds."""
+        if not math.isfinite(revised_rto) or revised_rto < 0:
+            raise ValueError("rto must be finite and nonnegative.")
+        if start_time is not None and not math.isfinite(start_time):
+            raise ValueError("start_time must be finite.")
         self.rto = revised_rto
-
-        if start_time == 0:
-            self.timer_started = self.env.now
-        else:
-            self.timer_started = start_time
-
+        # None means omitted; zero is a valid original transmission timestamp.
+        self.timer_started = self.env.now if start_time is None else start_time
         self.timer_expiry = self.timer_started + revised_rto
+        self.stopped = False
+        if self.action.is_alive:
+            # TCP callbacks restart their own timer. A SimPy process cannot
+            # interrupt itself; after the callback it will wait again normally.
+            if self.env.active_process is not self.action:
+                self.action.interrupt()
+        else:
+            self.action = self.env.process(self.run())
