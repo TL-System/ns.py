@@ -87,9 +87,30 @@ clock is `15/4`; the new packet's tag is `15/4 + 10 = 55/4`, between class 2's
 tag 13 and class 3's tag 14. GPS-based packet selection would choose packet 12
 at 23 ns, producing `(0,10)`, `(6,23)`, `(12,33)`, `(9,47)`, `(3,147)`.
 This is a decision change, not a numerical tolerance issue. The fixture preserves
-the actual CPU result. Python WFQ expectations remain pending the user's
-explicit recurrence choice; this task has not selected or changed production
-WFQ semantics.
+the actual CPU result. The user explicitly chose **match Days WFQ**. Python's
+consumer now requires both WFQ cases to match these recorded CPU decisions and
+times, including selecting packet 9 at 23 ns in the active-clock case. This
+comparison establishes the selected physical-packet active-weight recurrence; it does not
+claim equivalence to ideal GPS.
+
+In the selected recurrence, active weights cover waiting and in-service packets.
+The clock advances using the weights active during the elapsed interval before
+an admission or physical service completion changes that set. Every admission
+receives its finish increment, including the first packet of a busy period.
+The byte-work calculation above is equivalent to Python's seconds-based tag
+increment `8 * size_bytes / (rate_bps * weight)`, and clock increment
+`elapsed_seconds / active_weight_sum`. Tags share one scale; comparison does not
+inspect Python's internal clock or copy its tag calculations into the test.
+
+Before the implementation changed, the new focused CPU tests failed twice on
+baseline `cc0905e` because WFQ lacked `total_packets()` telemetry. An in-memory
+substitution of only that missing method allowed the unchanged baseline
+selection to be examined: the initial-tag case departed `(0,1000)`, `(3,1500)`,
+`(6,3000)`, `(9,6000)`, failing the recorded identity order and first departure
+time. The first idle admission had received no finish increment. The
+active-clock case already matched Days at baseline and serves as a regression
+guard for the user's recurrence choice, rather than a new failing reproducer.
+The in-memory telemetry substitution changed no source file or fixture.
 
 ## Executed validation
 
@@ -100,14 +121,20 @@ uv run --locked python tests/reference/regenerate_days_fifo.py \
   --case schedulers --days-root /Users/bli/Playground/days
 uv run --locked pytest -q tests/scheduler/test_days_schedulers.py \
   tests/port/test_days_fifo.py
+uv run --locked pytest -q tests/scheduler/test_days_schedulers.py \
+  -k 'shared_scheduler and wfq'
 rustfmt --edition 2021 --check tests/reference/days_schedulers.rs
 git -C /Users/bli/Playground/days status --short
 ```
 
 The scheduler replay produced all five cases with matching CPU/Scalar results.
-The targeted Python suites passed: **11 passed**. Rust formatting passed; the
-Days status output was empty. Each case conserves all supplied packet identities
-and byte counts, has no drops, and leaves no events or resident packets. Python
+The initial reference-only Python suites passed: **11 passed**. After adding the
+WFQ consumer and applying the scheduler repair, the same combined suites passed:
+**13 passed**. The focused WFQ CPU comparison passed: **2 passed, 9 deselected**.
+The existing recorded CPU fixture was reused without regeneration. Rust
+formatting passed during the original replay; the Days status output was empty.
+Each case conserves all supplied packet identities and byte counts, has no drops,
+and leaves no events or resident packets. Python
 also checks object identity, final waiting counters, the in-service packet,
 PacketSink packet/byte accounting, and exact input admissions.
 
@@ -124,7 +151,18 @@ raised `AssertionError`. Restoring the in-memory records passed. The checked-in
 fixture was never mutated. These checks establish harness sensitivity, not a
 pre-existing production bug.
 
-Production line growth is **zero code-bearing and zero explanatory lines**.
+After the WFQ repair, the same sensitivity check was executed for both WFQ
+cases. Python's actual departures were compared first to their unchanged CPU
+records, then to independent in-memory copies with the first two records swapped
+or with only the first departure increased by 1 ns. Both mutations raised
+`AssertionError` for both cases; the unchanged observations passed. The
+comparator still requires exact packet order and the original one-femtosecond
+tolerance. The finite drain still includes the final delivery at the inclusive
+Days stop time and asserts that Python's final time equals that cutoff; no
+unobserved later events are admitted by running to an arbitrary larger time.
+
+Reference-task production line growth is **zero code-bearing and zero
+explanatory lines**; the separate WFQ implementation task owns its source diff.
 Replay and comparison logic remain test-side; no Rust dependency is introduced
 into normal simulation or pytest execution. This evidence covers reference
 replay only; Phase 3 acceptance also requires the scheduler implementation,

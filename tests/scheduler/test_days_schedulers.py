@@ -12,6 +12,7 @@ from ns.packet.sink import PacketSink
 from ns.port.wire import Wire
 from ns.scheduler.drr import DRRServer
 from ns.scheduler.sp import SPServer
+from ns.scheduler.wfq import WFQServer
 
 
 REFERENCE = Path(__file__).resolve().parents[1] / "reference"
@@ -62,10 +63,12 @@ def run_python(case):
     config = inputs["scheduler"]
     if config["kind"] == "sp":
         server = SPServer(env, inputs["rate_bps"], config["priorities"])
-    else:
-        assert config["kind"] == "drr"
+    elif config["kind"] == "drr":
         server = DRRServer(env, inputs["rate_bps"], config["weights"])
         assert list(server.quantum.values()) == config["quanta_bytes"]
+    else:
+        assert config["kind"] == "wfq"
+        server = WFQServer(env, inputs["rate_bps"], config["weights"])
     wire = Wire(env, delay_dist=lambda: inputs["propagation_ns"] / NS_PER_SECOND)
     sink = IdentitySink(env)
     departures = DepartureRecorder(env, wire)
@@ -195,7 +198,17 @@ def test_days_cpu_observations_have_independent_expected_departures(name, expect
     assert delivered[-1]["time_ns"] == case["input"]["stop_time_ns"]
 
 
-@pytest.mark.parametrize("name", ["sp_boundaries_ties_idle", "drr_credit_carry_idle"])
+@pytest.mark.parametrize(
+    "name",
+    [
+        "sp_boundaries_ties_idle",
+        "drr_credit_carry_idle",
+        "wfq_tags_ties_idle",
+        # Days selects packet 9 after packet 6 departs at 23 ns; ideal GPS
+        # would select packet 12 then, changing the departure identity order.
+        "wfq_active_clock_difference",
+    ],
+)
 def test_shared_scheduler_decisions_and_times_match_days_cpu(name):
     case = CASES[name]
     departures, deliveries = run_python(case)

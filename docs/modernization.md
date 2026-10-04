@@ -84,6 +84,15 @@ virtual time, active weights, finish tags, and idle periods. SP must preserve
 within-class FIFO and non-preemption; Virtual Clock must establish tag units and
 idle-clock updates against its own algorithm reference.
 
+The user's Phase 3 decision is to match current Days WFQ: classes are active
+while they have queued or in-service physical packets, and their weights retire
+at local packet completion. This packet-active recurrence approximates fluid
+GPS and can choose a different next packet; the counterexample is preserved in
+the CPU reference evidence. Python uses second-based floating-point tags; Days
+uses rate-scaled exact rational tags. Their common scaling preserves mathematical
+ordering, subject to Python floating-point rounding and the documented event
+ordering boundary.
+
 ## Component inventory
 
 Paths below are relative to `ns/` and the pinned Days checkout respectively.
@@ -125,8 +134,9 @@ begin as pending audits; passing existing tests alone does not close them.
 Follow the [requested harness](https://baochun.org/2026-09-05/) with the user's
 explicit override to use internal Codex subagents instead of herdr. Use a fresh
 implementer and reviewer per task, concrete acceptance criteria, and no nested
-delegation. Writing uses Astra/high; coding and task review use 6.1-sol/xhigh;
-phase gates use Astra/medium. Reuse the implementer for fixes and a fresh reviewer
+delegation. The user's latest override requires every internal subagent,
+including implementers, task reviewers, and phase gates, to use gpt-6.1-sol/high.
+Reuse the implementer for fixes and a fresh reviewer
 for each review cycle. Resolve substantive findings without expanding scope or
 weakening tests. Skip mechanical tests for reversible documentation-only edits.
 
