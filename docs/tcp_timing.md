@@ -83,7 +83,8 @@ learn an RTT where ns.py's conservative sampling declines an ambiguous ACK.
 That is an intentional measurement difference, not a claim of matching RTT
 traces. Current Days CPU has no BBR controller; its TCP transport rules provide
 shared reference points, while BBR's pacing and delivery-rate model need their
-own tests. Congestion-control formula and BBR variant audits belong to Phase 5.
+own tests. The [educational BBR model](bbr.md) documents its delivery sampling,
+round tracking, pacing, probe timing, and deliberate production omissions.
 
 ## Application deadlines, pacing, and equal-time events
 

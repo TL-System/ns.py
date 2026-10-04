@@ -43,7 +43,9 @@ Red/green evidence:
 - Before the controller repair,
   `uv run --locked pytest -q tests/flow/test_reno.py` reported **16 failed,
   2 passed**. Failures include the old fractional growth, incorrect loss
-  thresholds, and partial recovery; explicit byte feedback was absent.
+  thresholds, and partial recovery; explicit byte feedback was absent. The fresh
+  reviewer replayed the final expanded suite against the baseline and observed
+  **17 failed, 2 passed** (one additional regression since that initial run).
 - After the controller repair, replaying the accepted Phase 4 sender module in
   memory against the new short-final, cumulative-feedback, zero-RTT bridge,
   and unused-context tests reported **4 failed, 10 deselected**. The receiver
