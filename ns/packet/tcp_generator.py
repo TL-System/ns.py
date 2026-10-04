@@ -139,6 +139,19 @@ class TCPPacketGenerator:
             )
         self.out.put(packet)
 
+    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+        """Yield one turn so synchronous partial ACKs cannot recurse unboundedly."""
+        yield self.env.timeout(0)
+        # Feedback may retire/trim the range, or another attempt may supersede
+        # this recovery request before its turn. Only a still-missing hole sends.
+        if (
+            self.segment_state.get(sequence) is state
+            and self.last_ack == sequence
+            and self.recovery_high_sequence is not None
+            and state.retransmit_count == retransmit_count
+        ):
+            self._retransmit(state)
+
     def _wake_sender(self):
         """Coalesce window notifications; the run loop rechecks byte credit."""
         if not self.cwnd_available.items:
@@ -316,7 +329,12 @@ class TCPPacketGenerator:
                 hook = getattr(self.congestion_control, "partial_ack_received", None)
                 if hook is not None:
                     hook(sequence - previous_ack, self.env.now)
-                self._retransmit(self.segment_state[sequence])
+                state = self.segment_state[sequence]
+                # Keep ACK processing synchronous, but let its forwarding stack
+                # unwind before the next hole can synchronously produce an ACK.
+                self.env.process(
+                    self._retransmit_after_ack(state, sequence, state.retransmit_count)
+                )
             else:
                 self.recovery_high_sequence = None
                 self.congestion_control.dupack_over()

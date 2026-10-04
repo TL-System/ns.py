@@ -3,9 +3,11 @@
 import pytest
 import simpy
 
+from ns.flow.cc import TCPReno
 from ns.flow.flow import Flow
 from ns.packet.packet import Packet
 from ns.packet.tcp_generator import TCPPacketGenerator
+from ns.packet.tcp_sink import TCPSink
 
 
 class TransportCC:
@@ -163,7 +165,9 @@ def test_partial_recovery_ack_retransmits_next_hole_without_exiting():
     for _ in range(3):
         sender.put(ack(0))
     sender.put(ack(512))
+    env.run(until=0.011)
     sender.put(ack(1024))
+    env.run(until=0.012)
     assert [p.packet_id for _, p in output.records] == [0, 512, 1024, 1536,
                                                       0, 512, 1024]
     assert [e[0] for e in sender.congestion_control.events] == ["fast", "partial", "partial"]
@@ -396,3 +400,87 @@ def test_learned_rto_also_obeys_sixty_second_ceiling():
     sender.put(ack(512))
     assert sender.smoothed_rtt == 25
     assert sender.rto == 60
+
+
+def test_synchronous_ack_chain_recovers_large_loss_burst_without_recursion():
+    env = simpy.Environment()
+    sender, output = sender_for(
+        env, 65536, cc=TCPReno(mss=128, cwnd=65536), finish_time=2
+    )
+    receiver = TCPSink(env)
+    receiver.out = sender
+    attempts = {}
+
+    class BurstLoss:
+        def put(self, packet):
+            output.put(packet)
+            attempts[packet.packet_id] = attempts.get(packet.packet_id, 0) + 1
+            # Only the last three original segments arrive. Their duplicate
+            # ACKs enter recovery; every recovered hole ACKs synchronously.
+            if packet.packet_id < 65152 and attempts[packet.packet_id] == 1:
+                return
+            receiver.put(packet)
+
+    sender.out = BurstLoss()
+    env.run(until=2)
+    assert sender.last_ack == sender.next_seq == receiver.bytes_delivered == 65536
+    assert attempts == {seq: (2 if seq < 65152 else 1)
+                        for seq in range(0, 65536, 128)}
+    assert sender.segment_state == sender.sent_packets == sender.timers == {}
+    assert sender.timer.stopped
+    assert not sender.timer.action.is_alive
+    env.run(until=4)
+    assert len(output.records) == 512 + 509
+
+
+def test_pending_partial_recovery_retransmission_skips_completed_data():
+    env = simpy.Environment()
+    sender, output = sender_for(env, 2048)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(512))
+    # Feedback completes the flow before the next SimPy turn can send its hole.
+    sender.put(ack(2048))
+    env.run(until=4)
+    assert [p.packet_id for _, p in output.records] == [0, 512, 1024, 1536, 0]
+    assert sender.segment_state == sender.timers == {}
+    assert not sender.timer.action.is_alive
+
+
+def test_pending_partial_recovery_retransmits_only_latest_trimmed_suffix():
+    env = simpy.Environment()
+    sender, output = sender_for(env, 1024)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(128))
+    sender.put(ack(256))
+    # The same logical state was trimmed twice before either deferred turn;
+    # only the request for the current missing frontier may be forwarded.
+    env.run(until=0.02)
+    assert [(p.packet_id, p.size) for _, p in output.records] == [
+        (0, 512), (512, 512), (0, 512), (256, 256)
+    ]
+    assert output.records[-1][1].time == 0
+    sender.put(ack(1024))
+    env.run(until=4)
+    assert len(output.records) == 4
+
+
+def test_timeout_supersedes_pending_partial_recovery_attempt():
+    env = simpy.Environment()
+    sender, output = sender_for(env, 2048)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(512))
+    # Exercise the public callback as a timeout notification before the pending
+    # request is forwarded. Its attempt owns recovery and replaces that request.
+    sender.timeout_callback(512)
+    env.run(until=0.02)
+    assert [p.packet_id for _, p in output.records] == [0, 512, 1024, 1536, 0, 512]
+    assert sender.segment_state[512].retransmit_count == 1
+    sender.put(ack(2048))
+    env.run(until=4)
+    assert len(output.records) == 6

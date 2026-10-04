@@ -45,8 +45,10 @@ A send registers the outstanding range, advances `next_seq`, and arms its timer
 before forwarding to `out.put()`. Retransmission updates attempt metadata and
 rearms the timer before forwarding. Thus an immediate synchronous ACK sees a
 complete transport transition and can cancel its timer, including an ACK during
-a timeout callback. Window notifications are coalesced and the sequential SimPy
-process always rechecks actual byte credit.
+a timeout callback. Partial-recovery retransmission forwards on the next
+zero-time SimPy turn to break synchronous ACK recursion; a request for a retired,
+trimmed, or superseded hole is skipped. Window notifications are coalesced and
+the sequential SimPy process always rechecks actual byte credit.
 
 ## ACKs and recovery
 
@@ -145,8 +147,8 @@ and completion feedback. The later 60-second backoff test failed before its
 repair; the Boolean ACK test also failed against the initial repair before
 explicit Boolean exclusion.
 
-The final new suite run against the accepted baseline module, without changing
-working-tree files, produced **31 failed, 2 passed**. The two passing cases are
+The initial 33-case suite run against the accepted baseline module, without
+changing working-tree files, produced **31 failed, 2 passed**. The two passing cases are
 the explicit SimPy insertion-order tie conventions. This red comparison can be
 replayed with:
 
@@ -163,7 +165,10 @@ baseline = subprocess.check_output(
 module = types.ModuleType('ns.packet.tcp_generator')
 sys.modules[module.__name__] = module
 exec(compile(baseline, '9659756/ns/packet/tcp_generator.py', 'exec'), module.__dict__)
-raise SystemExit(pytest.main(['-q', '--tb=no', 'tests/packet/test_tcp_transport.py']))
+raise SystemExit(pytest.main([
+    '-q', '--tb=no', 'tests/packet/test_tcp_transport.py', '-k',
+    'not (synchronous_ack_chain or pending_partial_recovery or timeout_supersedes_pending)'
+]))
 PY
 ```
 
@@ -177,7 +182,7 @@ assert original packets remain unmodified and outstanding suffix bytes survive.
 
 | Exact command | Observation |
 | --- | --- |
-| `uv run --locked pytest -q tests/packet/test_tcp_generator.py tests/packet/test_tcp_transport.py tests/flow/test_tcp_integration.py tests/flow/test_tcp_congestion.py --tb=short` | **46 passed**, including 33 new transport cases. |
+| `uv run --locked pytest -q tests/packet/test_tcp_generator.py tests/packet/test_tcp_transport.py tests/flow/test_tcp_integration.py tests/flow/test_tcp_congestion.py --tb=short` | **50 passed**, including 37 new transport cases after the review correction below. |
 | `MPLBACKEND=Agg uv run --locked python examples/tcp.py` | Exit 0 with checked-in parameters and observation cutoff 100 s; already emitted loss recovery can continue beyond this cutoff. |
 | `git diff --check` | Passed. |
 
@@ -194,10 +199,10 @@ rather than adding a general transport framework.
 
 | File/category | Before | After | Change |
 | --- | ---: | ---: | ---: |
-| `tcp_generator.py` physical | 359 | 332 | -27 |
-| Code-bearing | 246 | 244 | -2 |
-| Explanatory | 60 | 55 | -5 |
-| Blank | 53 | 33 | -20 |
+| `tcp_generator.py` physical | 359 | 350 | -9 |
+| Code-bearing | 246 | 256 | +10 |
+| Explanatory | 60 | 60 | 0 |
+| Blank | 53 | 34 | -19 |
 | Inline comments | 3 | 3 | 0 |
 | `cc.py` physical | 173 | 182 | +9 |
 | Code-bearing | 88 | 90 | +2 |
@@ -205,7 +210,64 @@ rather than adding a general transport framework.
 | Blank | 38 | 40 | +2 |
 | Inline comments | 1 | 1 | 0 |
 
-Combined production code-bearing and explanatory counts are unchanged; physical
-lines decrease by 18. The only shared-controller edit is the documented optional
-partial-ACK notification. Tests and evidence are reported separately from
-production growth.
+Combined production code-bearing lines increase by 12 and explanatory lines by
+5; physical lines are unchanged. The only shared-controller edit is the
+documented optional partial-ACK notification. Tests and evidence are reported
+separately from production growth.
+
+## Review correction: synchronous recovery chains
+
+Fresh review of candidate `e3d604d` found a P2 synchronous-composition failure.
+With MSS 128, initial window and flow size 65536, dropping the first attempt of
+every segment below sequence 65152 leaves 509 consecutive holes followed by
+three delivered segments. Their ACKs enter fast recovery. Direct
+`TCPSink.out = sender` then recursively nests each partial ACK, retransmission,
+receiver delivery, and next ACK until Python raises `RecursionError` partway
+through recovery. The new observable regression reproduced that failure before
+the repair.
+
+Only partial-recovery retransmission is now deferred through a small SimPy
+process with one `timeout(0)` yield. ACK processing, controller notification, and
+timer rearming remain synchronous; forwarding the next hole happens after the
+current call stack unwinds. Initial fast retransmit and timeout retransmit keep
+their existing synchronous behavior. The deferred request captures the logical
+state object, sequence, and retransmission count. Before forwarding it checks
+that this is still the same oldest missing range in active recovery and that
+another attempt has not superseded it. Actual attempt accounting still occurs
+before downstream `put()`. No unsent pending packet is registered as a physical
+attempt.
+
+The burst-loss case now delivers all 65536 application bytes, sends each lost
+segment exactly twice and each original surviving segment once, and leaves no
+outstanding data or live timer. Three companion regressions cover completion
+before the deferred turn, twice trimming the same state before its turn, and a
+timeout superseding the pending request. An existing partial-recovery test now
+advances one SimPy turn between feedback and its forwarding assertion.
+
+All four new review regressions fail when the candidate's sender module is
+loaded in memory, and pass with the repair. The red command is:
+
+```sh
+uv run --locked python - <<'PY'
+import subprocess
+import sys
+import types
+import pytest
+
+candidate = subprocess.check_output(
+    ['git', 'show', 'e3d604d:ns/packet/tcp_generator.py'], text=True
+)
+module = types.ModuleType('ns.packet.tcp_generator')
+sys.modules[module.__name__] = module
+exec(compile(candidate, 'e3d604d/ns/packet/tcp_generator.py', 'exec'), module.__dict__)
+raise SystemExit(pytest.main([
+    '-q', '--tb=no', 'tests/packet/test_tcp_transport.py', '-k',
+    'synchronous_ack_chain or pending_partial_recovery or timeout_supersedes_pending'
+]))
+PY
+```
+
+Observed **4 failed, 33 deselected** against `e3d604d`; the bounded sender and
+related-controller command above is **50 passed**. `git diff --check` passes.
+This correction adds 18 physical lines to the reviewed sender: 12 code-bearing,
+5 explanatory, and one blank. The table above includes those final counts.
