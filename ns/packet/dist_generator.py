@@ -7,6 +7,8 @@ DistPacketGenerator's `out` member variable is used to connect the generator to
 any network element with a `put()` member function.
 """
 
+import math
+
 from ns.packet.packet import Packet
 
 
@@ -21,14 +23,20 @@ class DistPacketGenerator:
         the ID of this element.
     arrival_dist: function
         A no-parameter function that returns the successive inter-arrival times
-        of the packets.
+        of the packets, in seconds. Values must be finite and nonnegative.
+        Zero allows simultaneous arrivals; unbounded traffic must eventually
+        advance simulation time.
     size_dist: function
         A no-parameter function that returns the successive sizes of the
-        packets.
+        packets in bytes. Values must be finite and nonnegative; zero-byte
+        packets consume packet IDs but do not spend the byte budget.
     initial_delay: number
         Starts generation after an initial delay. Defaults to 0.
     finish: number
-        Stops generation at the finish time. Defaults to infinite.
+        Absolute, exclusive stop time in seconds. Defaults to infinite.
+    size: number
+        Total byte budget. The last packet is shortened to the remaining bytes.
+        Defaults to unlimited; zero generates no packets.
     rec_flow: bool
         Are we recording the statistics of packets generated?
     """
@@ -53,6 +61,12 @@ class DistPacketGenerator:
         self.initial_delay = initial_delay
         self.finish = float("inf") if finish is None else finish
         self.size = float("inf") if size is None else size
+        if not math.isfinite(initial_delay) or initial_delay < 0:
+            raise ValueError("initial_delay must be finite and nonnegative.")
+        if math.isnan(self.finish) or self.finish < 0:
+            raise ValueError("finish must be nonnegative.")
+        if math.isnan(self.size) or self.size < 0:
+            raise ValueError("size must be a nonnegative byte budget.")
         self.out = None
         self.packets_sent = 0
         self.sent_size = 0
@@ -65,33 +79,46 @@ class DistPacketGenerator:
         self.debug = debug
 
     def run(self):
-        """The generator function used in simulations."""
-        yield self.env.timeout(self.initial_delay)
+        """Send at start, then wait between packets; never wait past finish."""
+        delay = min(self.initial_delay, max(0, self.finish - self.env.now))
+        yield self.env.timeout(delay)
 
         while self.env.now < self.finish and self.sent_size < self.size:
+            packet_size = self.size_dist()
+            if not math.isfinite(packet_size) or packet_size < 0:
+                raise ValueError("packet size must be finite and nonnegative.")
+            # Packet sizes and the application budget are both measured in bytes.
+            packet_size = min(packet_size, self.size - self.sent_size)
             packet = Packet(
                 self.env.now,
-                self.size_dist(),
+                packet_size,
                 self.packets_sent,
                 src=self.element_id,
                 flow_id=self.flow_id,
             )
 
-            self.out.put(packet)
-
+            # Register the emission before synchronous forwarding: downstream
+            # elements may change packet metadata, but cannot change our budget.
             self.packets_sent += 1
-            self.sent_size += packet.size
+            self.sent_size += packet_size
 
             if self.rec_flow:
                 self.time_rec.append(packet.time)
-                self.size_rec.append(packet.size)
+                self.size_rec.append(packet_size)
 
             if self.debug:
                 print(
-                    f"DistPacketGenerator {self.element_id} sent packet {packet.packet_id}"
-                    f" with size {packet.size}, "
+                    f"DistPacketGenerator {self.element_id} sent "
+                    f"packet {packet.packet_id} with size {packet.size}, "
                     f"flow_id {packet.flow_id} at time {self.env.now:.4f}."
                 )
 
-            # waits for the next transmission
-            yield self.env.timeout(self.arrival_dist())
+            self.out.put(packet)
+
+            # Completion must not consume a draw or leave a future source event.
+            if self.sent_size >= self.size:
+                return
+            interval = self.arrival_dist()
+            if not math.isfinite(interval) or interval < 0:
+                raise ValueError("arrival interval must be finite and nonnegative.")
+            yield self.env.timeout(min(interval, self.finish - self.env.now))
