@@ -3,6 +3,9 @@
 import math
 import random
 
+import simpy
+
+from ns.packet.packet import Packet
 from ns.port.port import Port
 
 
@@ -30,18 +33,18 @@ class REDPort(Port):
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         rate: float,
         max_threshold: int,
         min_threshold: int,
         max_probability: float,
         weight_factor: int = 9,
-        element_id: int = None,
-        qlimit: int = None,
+        element_id: int | str | None = None,
+        qlimit: int | None = None,
         limit_bytes: bool = False,
         zero_downstream_buffer: bool = False,
         debug: bool = False,
-    ):
+    ) -> None:
         if (
             not all(math.isfinite(value) for value in (
                 rate, min_threshold, max_threshold, max_probability, weight_factor
@@ -66,7 +69,7 @@ class REDPort(Port):
         self.weight_factor = weight_factor
         self.average_queue_size = 0
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> simpy.Event | None:
         """Sample residents, then decide admission exactly once for this arrival."""
         resident_packets = (
             self.packets_received - self.packets_dropped - self._packets_removed

@@ -11,6 +11,8 @@ from abc import abstractmethod
 from enum import Enum, auto
 from typing import Final
 
+from ns.packet.rate_sample import Connection, RateSample
+
 
 class LossEvent(Enum):
     """Enumerates the two canonical loss signals in TCP."""
@@ -42,24 +44,29 @@ class CongestionControl:
         cwnd: int = 512,
         ssthresh: int = 65535,
         debug: bool = False,
-    ):
+    ) -> None:
         self.mss = mss
         self.cwnd: float = cwnd
-        self.ssthresh = ssthresh
+        self.ssthresh: float = ssthresh
         self.debug = debug
-        self.next_departure_time = 0
-        self.pacing_rate = 0
-        self.rs = None
-        self.C = None
+        self.next_departure_time: float = 0
+        self.pacing_rate: float = 0
+        # Only BBR attaches delivery-rate state; Reno and CUBIC leave it absent.
+        self.rs: RateSample | None = None
+        self.C: Connection | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"cwnd: {self.cwnd}, ssthresh: {self.ssthresh}"
 
     @abstractmethod
-    def ack_received(self, rtt: float = 0, current_time: float = 0):
+    def ack_received(
+        self, rtt: float | None = 0, current_time: float = 0
+    ) -> None:
         """Actions to be taken when a new ack has been received."""
 
-    def ack_received_bytes(self, acknowledged_bytes, rtt, current_time):
+    def ack_received_bytes(
+        self, acknowledged_bytes: int, rtt: float | None, current_time: float
+    ) -> None:
         """Bridge byte feedback to controllers with the older two-argument API.
 
         ``rtt=None`` means no fresh transport sample; numeric zero is a valid
@@ -67,21 +74,21 @@ class CongestionControl:
         """
         self.ack_received(0 if rtt is None else rtt, current_time)
 
-    def timer_expired(self, packet=None):
+    def timer_expired(self, packet: object | None = None) -> None:
         """Actions to be taken when a timer expired."""
         raise NotImplementedError("timer_expired must be implemented by subclasses.")
 
-    def dupack_over(self):
+    def dupack_over(self) -> None:
         """Actions to be taken when a new ack is received after previous dupacks."""
         raise NotImplementedError("dupack_over must be implemented by subclasses.")
 
-    def consecutive_dupacks_received(self, packet=None):
+    def consecutive_dupacks_received(self, packet: object | None = None) -> None:
         """Actions to be taken when three consecutive dupacks are received."""
         raise NotImplementedError(
             "consecutive_dupacks_received must be implemented by subclasses."
         )
 
-    def more_dupacks_received(self, packet=None):
+    def more_dupacks_received(self, packet: object | None = None) -> None:
         """Actions to be taken when more than three consecutive dupacks are received."""
         raise NotImplementedError(
             "more_dupacks_received must be implemented by subclasses."
@@ -95,11 +102,15 @@ class CongestionControl:
         """The RFC 5681-compliant minimum slow-start threshold (2 MSS)."""
         return 2 * self.mss
 
-    def set_before_control(self, current_time, packet_in_flight: int = 0):
+    def set_before_control(
+        self, current_time: float, packet_in_flight: float = 0
+    ) -> None:
         """Optional hook for controllers that need context before feedback."""
         _ = (current_time, packet_in_flight)
 
-    def partial_ack_received(self, acknowledged_bytes: int, current_time: float):
+    def partial_ack_received(
+        self, acknowledged_bytes: int, current_time: float
+    ) -> None:
         """Notify a partial recovery ACK without exiting or normal ACK growth.
 
         The transport retransmits the next missing range and retains its recovery
@@ -121,27 +132,34 @@ class LossBasedCongestionControl(CongestionControl):
     beta: Final[float] = 0.5
     beta_timeout: Final[float] = 0.5
 
-    def __init__(self, mss=512, cwnd=512, ssthresh=65535, debug=False):
+    def __init__(
+        self, mss: int = 512, cwnd: int = 512,
+        ssthresh: int = 65535, debug: bool = False,
+    ) -> None:
         super().__init__(mss, cwnd, ssthresh, debug)
         # Context is supplied before each transport feedback event. None means
         # a direct controller call without flight information; zero is real.
-        self.flight_size = None
-        self.current_time = 0
-        self.ca_credit = 0  # acknowledged bytes toward Reno's next window increase
+        self.flight_size: float | None = None
+        self.current_time: float = 0
+        self.ca_credit: float = 0  # acknowledged bytes toward Reno's next window increase
 
-    def set_before_control(self, current_time, packet_in_flight: int = 0):
+    def set_before_control(
+        self, current_time: float, packet_in_flight: float = 0
+    ) -> None:
         """Record time in seconds and outstanding bytes before applying feedback."""
         self.current_time = current_time
         self.flight_size = packet_in_flight
 
-    def ack_received_bytes(self, acknowledged_bytes, rtt, current_time):
+    def ack_received_bytes(
+        self, acknowledged_bytes: int, rtt: float | None, current_time: float
+    ) -> None:
         """Use the transport's exact newly acknowledged byte count."""
         self.ack_received(rtt, current_time, acknowledged_bytes)
 
     def ack_received(
         self, rtt: float | None = 0, current_time: float = 0,
         acknowledged_bytes: int | None = None,
-    ):
+    ) -> None:
         """Grow on new ACKs; direct calls without a byte count acknowledge one MSS."""
         if acknowledged_bytes is None:
             acknowledged_bytes = self.mss
@@ -151,7 +169,7 @@ class LossBasedCongestionControl(CongestionControl):
         else:
             self._congestion_avoidance_ack(rtt, current_time, acknowledged_bytes)
 
-    def timer_expired(self, packet=None):
+    def timer_expired(self, packet: object | None = None) -> None:
         """RFC 5681 timeout handling."""
         prev_cwnd = self.cwnd
         flight = prev_cwnd if self.flight_size is None else self.flight_size
@@ -161,19 +179,21 @@ class LossBasedCongestionControl(CongestionControl):
         self.ca_credit = 0
         self._after_timeout(prev_cwnd, packet)
 
-    def dupack_over(self):
+    def dupack_over(self) -> None:
         """Exit fast recovery once the lost data is cumulatively acknowledged."""
         self.cwnd = self.ssthresh
         self.flight_size = None
         self.ca_credit = 0
         self._after_fast_recovery_exit()
 
-    def partial_ack_received(self, acknowledged_bytes: int, current_time: float):
+    def partial_ack_received(
+        self, acknowledged_bytes: int, current_time: float
+    ) -> None:
         """Keep one segment of NewReno headroom for the next missing range."""
         self.flight_size = None
         self.cwnd = self.ssthresh + self.mss
 
-    def consecutive_dupacks_received(self, packet=None):
+    def consecutive_dupacks_received(self, packet: object | None = None) -> None:
         """Standard fast retransmit / fast recovery entry."""
         prev_cwnd = self.cwnd
         flight = prev_cwnd if self.flight_size is None else self.flight_size
@@ -184,13 +204,13 @@ class LossBasedCongestionControl(CongestionControl):
         self.ca_credit = 0
         self._after_fast_loss(prev_cwnd, packet)
 
-    def more_dupacks_received(self, packet=None):
+    def more_dupacks_received(self, packet: object | None = None) -> None:
         """Additional dupacks add one MSS so we clock out a replacement segment."""
         self.cwnd += self.mss
         self.flight_size = None
         self._during_fast_recovery(packet)
 
-    def _slow_start_ack(self, acknowledged_bytes):
+    def _slow_start_ack(self, acknowledged_bytes: int) -> None:
         # RFC 5681 byte counting limits each ACK to one MSS. Days clamps the
         # threshold crossing rather than carrying its overshoot into avoidance.
         self.cwnd = min(self.ssthresh, self.cwnd + min(self.mss, acknowledged_bytes))
@@ -200,7 +220,7 @@ class LossBasedCongestionControl(CongestionControl):
     @abstractmethod
     def _congestion_avoidance_ack(
         self, rtt: float | None, current_time: float, acknowledged_bytes: int,
-    ):
+    ) -> None:
         """Algorithm-specific congestion avoidance (one cwnd increase per RTT)."""
 
     def _ssthresh_after_loss(self, flight_size: float, event: LossEvent) -> float:
@@ -208,18 +228,22 @@ class LossBasedCongestionControl(CongestionControl):
         target = flight_size * (1 - factor)
         return max(self.min_ssthresh(), target)
 
-    def _after_fast_loss(self, prev_cwnd: float, packet=None):
+    def _after_fast_loss(
+        self, prev_cwnd: float, packet: object | None = None
+    ) -> None:
         """Hook for algorithms that maintain extra state on fast loss."""
         _ = (prev_cwnd, packet)
 
-    def _during_fast_recovery(self, packet=None):
+    def _during_fast_recovery(self, packet: object | None = None) -> None:
         """Hook invoked for each extra dupack while in fast recovery."""
         _ = packet
 
-    def _after_fast_recovery_exit(self):
+    def _after_fast_recovery_exit(self) -> None:
         """Hook invoked when fast recovery completes."""
 
-    def _after_timeout(self, prev_cwnd: float, packet=None):
+    def _after_timeout(
+        self, prev_cwnd: float, packet: object | None = None
+    ) -> None:
         """Hook invoked after the timeout logic resets cwnd."""
         _ = (prev_cwnd, packet)
 
@@ -227,7 +251,9 @@ class LossBasedCongestionControl(CongestionControl):
 class TCPReno(LossBasedCongestionControl):
     """Reno with byte-counted avoidance and transport-managed NewReno recovery."""
 
-    def _congestion_avoidance_ack(self, rtt, current_time, acknowledged_bytes):
+    def _congestion_avoidance_ack(
+        self, rtt: float | None, current_time: float, acknowledged_bytes: int
+    ) -> None:
         """Add one MSS for each current window's worth of newly ACKed bytes."""
         del rtt, current_time
         self.ca_credit += acknowledged_bytes

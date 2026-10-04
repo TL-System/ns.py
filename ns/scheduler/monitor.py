@@ -3,7 +3,11 @@ Implements a performance monitor that records performance statistics for a sched
 """
 
 from collections import defaultdict as dd
+from collections.abc import Callable, Generator
 from math import isfinite
+from typing import Any
+
+import simpy
 
 
 class ServerMonitor:
@@ -40,7 +44,10 @@ class ServerMonitor:
         a server without this classifier uses packet.flow_id for compatibility.
     """
 
-    def __init__(self, env, server, dist, pkt_in_service_included=False) -> None:
+    def __init__(
+        self, env: simpy.Environment, server: Any, dist: Callable[[], float],
+        pkt_in_service_included: bool = False,
+    ) -> None:
         self.server = server
         self.env = env
         self.dist = dist
@@ -51,7 +58,7 @@ class ServerMonitor:
 
         self.action = env.process(self.run())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait one sampling interval, then observe waiting work and service."""
         while True:
             interval = self.dist()

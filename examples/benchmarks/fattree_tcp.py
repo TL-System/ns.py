@@ -58,6 +58,7 @@ weights = {c: 1 for c in range(n_classes_per_port)}
 
 
 def flow_to_classes(packet, n_id=0, fib=None):
+    assert fib is not None
     return (packet.flow_id + n_id + fib[packet.flow_id]) % n_classes_per_port
 
 

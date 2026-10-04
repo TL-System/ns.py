@@ -40,6 +40,7 @@ def test_bbr_end_to_end_reaches_probe_bw_at_known_bottleneck():
     sender, receiver, records = connect(env, flow, cc, bottleneck=100_000)
     env.run(until=15)
     assert receiver.bytes_delivered == flow.size
+    assert cc.C is not None and cc.rs is not None
     assert cc.C.delivered == flow.size
     assert cc.state == BBRState.PROBE_BW
     assert cc.filled_pipe
@@ -62,6 +63,7 @@ def test_sparse_application_writes_preserve_delivery_without_false_full_pipe():
     env.run(until=5)
     assert [time for time, _ in records] == pytest.approx([0.2, 0.4, 0.6, 0.8, 1])
     assert all(packet.is_app_limited for _, packet in records)
+    assert cc.C is not None and cc.rs is not None
     assert cc.C.delivered == receiver.bytes_delivered == 500
     assert cc.max_bw == pytest.approx(10_000)  # 100 bytes / 10 ms RTT.
     assert not cc.filled_pipe
@@ -79,7 +81,9 @@ def test_bbr_fast_loss_counts_unique_bytes_and_uses_attempt_clock():
     assert zero_attempts[1][0] < 1  # Fast retransmit, before the one-second RTO.
     assert all(packet.time == 0 for _, packet in zero_attempts)
     assert zero_attempts[1][1].sent_time == zero_attempts[1][0]
+    assert cc.C is not None and cc.rs is not None
     assert receiver.bytes_delivered == cc.C.delivered == 700
+    assert cc.C is not None and cc.rs is not None
     assert cc.C.lost == 100
     assert not cc.packet_conservation
     assert sender.packet_in_flight == 0
@@ -95,7 +99,9 @@ def test_synchronous_ack_has_delivery_credit_but_no_rate():
     receiver = TCPSink(env, debug=False)
     sender.out, receiver.out = receiver, sender
     env.run(until=5)
+    assert cc.C is not None and cc.rs is not None
     assert receiver.bytes_delivered == cc.C.delivered == 700
+    assert cc.C is not None and cc.rs is not None
     assert cc.max_bw == cc.rs.delivery_rate == 0
     assert cc.min_rtt == 0
     assert sender.timer is None

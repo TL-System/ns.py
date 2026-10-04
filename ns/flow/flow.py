@@ -1,9 +1,10 @@
 """A dataclass for keeping track of all the properties of a network flow."""
 
 import math
+from collections.abc import Callable, Hashable, Sequence
 from dataclasses import dataclass, field
-from collections.abc import Callable
 from enum import Enum, auto
+from typing import Any
 
 
 class AppType(Enum):
@@ -16,17 +17,18 @@ class AppType(Enum):
 class Flow:
     """A dataclass for keeping track of all the properties of a network flow."""
 
-    fid: int  # flow id
-    src: str  # source element
-    dst: str  # destination element
-    size: int = None  # flow size in bytes
-    start_time: float = None
-    finish_time: float = None
-    arrival_dist: Callable = None  # packet arrival distribution
-    size_dist: Callable = None  # packet size distribution
-    pkt_gen: object = None
-    pkt_sink: object = None
-    path: list = None
+    fid: int  # numeric flow ID; TCP ACKs use fid + 10000
+    src: Hashable  # source element
+    dst: Hashable  # destination element
+    size: float | None = None  # flow size in bytes
+    start_time: float | None = None
+    finish_time: float | None = None
+    arrival_dist: Callable[[], float] | None = None  # packet arrival distribution
+    size_dist: Callable[[], float] | None = None  # packet size distribution
+    # User-supplied components are joined through their duck-typed out/put links.
+    pkt_gen: Any = None
+    pkt_sink: Any = None
+    path: Sequence[Hashable] | None = None
     typ: AppType = AppType.BULK_TRANSFER
     last_arrival: float = 0
     _next_arrival: float | None = field(default=None, init=False, repr=False)
@@ -35,7 +37,7 @@ class Flow:
     def __repr__(self) -> str:
         return f"Flow {self.fid} on {self.path}"
 
-    def init_send_buffer(self):
+    def init_send_buffer(self) -> float | None:
         """Bulk data is ready immediately; streaming data arrives over time.
 
         ``None`` keeps the existing unlimited-bulk sentinel. Streaming helpers
@@ -46,7 +48,7 @@ class Flow:
         else:
             return 0
 
-    def next_send_buffer(self, current_time):
+    def next_send_buffer(self, current_time: float) -> float:
         """Return newly available streaming bytes through current_time.
 
         Retain the next arrival across polls, include arrivals exactly at the
@@ -55,6 +57,8 @@ class Flow:
         """
         if self.typ == AppType.BULK_TRANSFER:
             return 0
+        if self.arrival_dist is None or self.size_dist is None:
+            raise ValueError("streaming flows require arrival and size distributions")
         limit = math.inf if self.size is None else self.size
         finish = math.inf if self.finish_time is None else self.finish_time
         new_bytes = 0

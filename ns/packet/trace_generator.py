@@ -1,6 +1,11 @@
 """Replay a whitespace-delimited packet trace in file order."""
 
 import math
+from collections.abc import Generator, Hashable
+from os import PathLike
+from typing import Any
+
+import simpy
 
 from ns.packet.packet import Packet
 
@@ -15,15 +20,15 @@ class TracePacketGenerator:
 
     def __init__(
         self,
-        env,
-        element_id,
-        filename,
-        initial_delay=0,
-        finish=float("inf"),
-        flow_id=None,
-        rec_flow=False,
-        debug=False,
-    ):
+        env: simpy.Environment,
+        element_id: Hashable,
+        filename: str | PathLike[str],
+        initial_delay: float = 0,
+        finish: float = float("inf"),
+        flow_id: Hashable | None = None,
+        rec_flow: bool = False,
+        debug: bool = False,
+    ) -> None:
         self.element_id = element_id
         self.env = env
         self.filename = filename
@@ -33,7 +38,7 @@ class TracePacketGenerator:
             raise ValueError("initial_delay must be finite and nonnegative.")
         if math.isnan(finish) or finish < 0:
             raise ValueError("finish must be nonnegative.")
-        self.out = None
+        self.out: Any = None
         self.flow_id = flow_id
         self.packets_sent = 0
         self.action = env.process(self.run())
@@ -44,7 +49,7 @@ class TracePacketGenerator:
 
         self.debug = debug
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait to each trace timestamp, stopping at finish or end of file."""
         start = self.env.now + self.initial_delay
         delay = min(self.initial_delay, max(0, self.finish - self.env.now))

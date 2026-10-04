@@ -40,7 +40,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=9.1.1"]
+dev = [
+    "pytest>=9.1.1",
+    "ty==0.0.84",
+]
 
 [project.urls]
 Homepage = "https://github.com/TL-System/ns.py"

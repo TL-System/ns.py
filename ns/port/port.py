@@ -3,7 +3,12 @@ Implements a port with an output buffer, given an output rate and a buffer size 
 or the number of packets). This implementation uses the simple tail-drop mechanism to drop packets.
 """
 
+from collections.abc import Generator
+from typing import Any
+
 import simpy
+
+from ns.packet.packet import Packet
 
 
 class Port:
@@ -35,18 +40,18 @@ class Port:
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         rate: float,
-        qlimit: int = None,
+        qlimit: int | None = None,
         limit_bytes: bool = False,
         zero_downstream_buffer: bool = False,
-        element_id: int = None,
+        element_id: int | str | None = None,
         debug: bool = False,
-    ):
+    ) -> None:
         self.store = simpy.Store(env)
         self.rate = rate
         self.env = env
-        self.out = None
+        self.out: Any = None
         self.packets_received = 0
         self.packets_dropped = 0
         self.qlimit = qlimit
@@ -69,7 +74,7 @@ class Port:
 
         self.action = env.process(self.run())
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """
         Release accounting after the downstream node removes a retained packet.
 
@@ -83,7 +88,7 @@ class Port:
                 f"Port: Retrieved Packet {packet.packet_id} from flow {packet.flow_id}."
             )
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for FIFO work, then serialize it; rate zero adds no service delay."""
         while True:
             if self.zero_downstream_buffer:
@@ -113,7 +118,7 @@ class Port:
                 self._packets_removed += 1
                 self.out.put(packet)
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> simpy.Event | None:
         """Sends a packet to this element."""
         self.packets_received += 1
 

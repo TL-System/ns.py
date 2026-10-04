@@ -3,9 +3,12 @@ Implements a FIFO two-rate shaper with committed and peak token buckets.
 """
 
 import math
+from collections.abc import Callable, Generator
+from typing import Any
 
 import simpy
 
+from ns.packet.packet import Packet
 from ns.utils.retained_store import remove_packet
 
 
@@ -51,20 +54,20 @@ class TwoRateTokenBucketShaper:
 
     def __init__(
         self,
-        env,
-        cir,
-        cbs,
-        pir=None,
-        pbs=None,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
-        debug=False,
-    ):
+        env: simpy.Environment,
+        cir: float,
+        cbs: float,
+        pir: float | None = None,
+        pbs: float | None = None,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
+        debug: bool = False,
+    ) -> None:
         if (
             not math.isfinite(cir) or cir <= 0
             or not math.isfinite(cbs) or cbs <= 0
             or (pir is None) != (pbs is None)
-            or pir is not None and (
+            or pir is not None and pbs is not None and (
                 not math.isfinite(pir) or pir < cir
                 or not math.isfinite(pbs) or pbs <= 0
             )
@@ -74,7 +77,7 @@ class TwoRateTokenBucketShaper:
             )
         self.store = simpy.Store(env)
         self.env = env
-        self.out = None
+        self.out: Any = None
         self.cir = cir
         self.cbs = cbs
         self.pir = pir
@@ -96,7 +99,7 @@ class TwoRateTokenBucketShaper:
         self.busy = 0  # Used to track if a packet is currently being sent
         self.action = env.process(self.run())
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """Release upstream ownership after local or downstream completion.
 
         A downstream zero-buffer consumer calls this after removing the packet
@@ -110,7 +113,7 @@ class TwoRateTokenBucketShaper:
             remove_packet(store, packet)
             callback(packet)
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for FIFO work and missing gating tokens; colors precede waits."""
         while True:
             if self.zero_downstream_buffer:
@@ -127,6 +130,7 @@ class TwoRateTokenBucketShaper:
                 self.current_bucket_commit + self.cir * (now - self.update_time) / 8.0,
             )
             if self.pir is not None:
+                assert self.pbs is not None and self.current_bucket_peak is not None
                 self.current_bucket_peak = min(
                     self.pbs,
                     self.current_bucket_peak
@@ -187,7 +191,11 @@ class TwoRateTokenBucketShaper:
                     f"belonging to flow {packet.flow_id} with color {packet.color}."
                 )
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Sends a packet to this element."""
         self.packets_received += 1
         if (

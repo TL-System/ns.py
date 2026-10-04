@@ -72,7 +72,8 @@ def test_initial_state_must_index_a_phase(initial):
 def test_zero_uniform_endpoint_still_gives_finite_holding_time(monkeypatch):
     monkeypatch.setattr(map_generator, "rand", lambda: 0)
     process = map_generator.BMAP_generator([np.array([[-1]]), np.array([[1]])])
-    assert math.isfinite(next(process))
+    interval = next(process)
+    assert isinstance(interval, float) and math.isfinite(interval)
 
 
 def test_ctmc_rounding_rebalances_diagonals_without_negative_stationarity():

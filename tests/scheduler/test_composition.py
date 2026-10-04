@@ -13,7 +13,6 @@ from ns.scheduler.wfq import WFQServer
 from ns.switch.switch import FairPacketSwitch, SimplePacketSwitch
 from ns.utils.taggedstore import TaggedStore
 
-
 KINDS = ["SP", "DRR", "WFQ", "VirtualClock"]
 SERVER_TYPES = {
     "SP": SPServer,
@@ -95,7 +94,7 @@ def test_hierarchy_releases_selected_identity_through_different_class_maps(
         assert item not in upstream.upstream_stores
         assert item not in downstream.upstream_stores
 
-    buffer.update = release
+    setattr(buffer, "update", release)
     for item in [first, low, high]:
         buffer.put(item)
 

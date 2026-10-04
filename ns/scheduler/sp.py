@@ -4,9 +4,11 @@ Implements a Static Priority (SP) server.
 
 import uuid
 from collections import defaultdict as dd
-from collections.abc import Callable
+from collections.abc import Callable, Generator, Hashable
+from typing import Any
 
 import simpy
+
 from ns.packet.packet import Packet
 from ns.utils.retained_store import remove_packet
 
@@ -44,13 +46,13 @@ class SPServer:
 
     def __init__(
         self,
-        env,
-        rate,
-        priorities,
-        flow_classes: Callable = lambda p: p.flow_id,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
-        debug=False,
+        env: simpy.Environment,
+        rate: float,
+        priorities: Any,
+        flow_classes: Callable[[Packet], Hashable] = lambda p: p.flow_id,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
+        debug: bool = False,
     ) -> None:
         self.env = env
         self.rate = rate
@@ -81,10 +83,10 @@ class SPServer:
         # Counters describe packets waiting for local service, keyed by class.
         # A priority bucket may contain several distinct classes and flow IDs.
         self.flow_queue_count = dd(lambda: 0)
-        self.byte_sizes = dd(lambda: 0)
+        self.byte_sizes: dd[Hashable, float] = dd(lambda: 0)
 
         self.packets_received = 0
-        self.out = None
+        self.out: Any = None
         self.upstream_updates = {}
         self.upstream_stores = {}
         self.zero_buffer = zero_buffer
@@ -95,7 +97,7 @@ class SPServer:
         self.debug = debug
         self.action = env.process(self.run())
 
-    def update_stats(self, packet):
+    def update_stats(self, packet: Packet) -> None:
         """Remove a selected packet from the waiting counters at service start."""
         self.prio_queue_count[packet.prio[self.element_id]] -= 1
         class_id = self.flow_classes(packet)
@@ -109,7 +111,7 @@ class SPServer:
                 f"of priority {packet.prio[self.element_id]}"
             )
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """
         The packet has just been retrieved from this element's own buffer by a downstream
         node that has no buffers. Propagate to the upstream if this node also has a zero-buffer
@@ -121,14 +123,14 @@ class SPServer:
             remove_packet(store, packet)
             callback(packet)
 
-    def packet_in_service(self) -> Packet:
+    def packet_in_service(self) -> Packet | None:
         """
         Returns the packet that is currently being sent to the downstream element.
         Used by a ServerMonitor.
         """
         return self.current_packet
 
-    def byte_size(self, queue_id) -> int:
+    def byte_size(self, queue_id: Hashable) -> float:
         """
         Returns waiting bytes for a flow class, excluding the packet in service
         and packets retained only for downstream ownership.
@@ -139,14 +141,14 @@ class SPServer:
 
         return 0
 
-    def size(self, queue_id) -> int:
+    def size(self, queue_id: Hashable) -> int:
         """
         Returns the number of packets waiting for a flow class's local service.
         This uses the same class IDs as byte_size(), not priority bucket IDs.
         """
         return self.flow_queue_count.get(queue_id, 0)
 
-    def all_flows(self) -> list:
+    def all_flows(self) -> list[Hashable]:
         """
         Returns the observed class IDs (flow IDs with the default mapping).
         """
@@ -158,7 +160,7 @@ class SPServer:
         """
         return sum(self.prio_queue_count.values())
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for work, choose the highest priority, and serialize one packet.
 
         Service is nonpreemptive. A zero-time selection wait lets already
@@ -198,7 +200,11 @@ class SPServer:
                         self.out.put(packet)
                     break
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Sends a packet to this element."""
         class_id = self.flow_classes(packet)
         prio = self.prio[class_id]

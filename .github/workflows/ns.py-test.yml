@@ -28,6 +28,9 @@ jobs:
       - name: Sync dependencies
         run: uv sync --locked
 
+      - name: Check types
+        run: uv run --locked ty check
+
       - name: Run regression tests
         run: uv run --locked pytest -q
 

@@ -7,8 +7,11 @@ record inter-arrival times.
 """
 
 from collections import defaultdict as dd
+from collections.abc import Hashable
 
 import simpy
+
+from ns.packet.packet import Packet
 
 
 class PacketSink:
@@ -39,13 +42,13 @@ class PacketSink:
 
     def __init__(
         self,
-        env,
+        env: simpy.Environment,
         rec_arrivals: bool = True,
         absolute_arrivals: bool = True,
         rec_waits: bool = True,
         rec_flow_ids: bool = True,
         debug: bool = False,
-    ):
+    ) -> None:
         self.store = simpy.Store(env)
         self.env = env
         self.rec_waits = rec_waits
@@ -55,17 +58,17 @@ class PacketSink:
         self.waits = dd(list)
         self.arrivals = dd(list)
         self.packets_received = dd(lambda: 0)
-        self.bytes_received = dd(lambda: 0)
+        self.bytes_received: dd[Hashable, float] = dd(lambda: 0)
         self.packet_sizes = dd(list)
         self.packet_times = dd(list)
         self.perhop_times = dd(list)
 
-        self.first_arrival = dd(lambda: 0)
-        self.last_arrival = dd(lambda: 0)
+        self.first_arrival: dd[Hashable, float] = dd(lambda: 0)
+        self.last_arrival: dd[Hashable, float] = dd(lambda: 0)
 
         self.debug = debug
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         now = self.env.now
 

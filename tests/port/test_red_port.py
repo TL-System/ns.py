@@ -1,5 +1,7 @@
 """RED uses explicit draws; queue capacity is independent of early drops."""
 
+from typing import Any
+
 import pytest
 import simpy
 
@@ -18,7 +20,9 @@ class Sink:
 
 
 def port(env, **kwargs):
-    settings = dict(max_threshold=100, min_threshold=50, max_probability=0.5)
+    settings: dict[str, Any] = dict(
+        max_threshold=100, min_threshold=50, max_probability=0.5
+    )
     settings.update(kwargs)
     result = REDPort(env, settings.pop("rate", 800), **settings)
     result.out = Sink(env)

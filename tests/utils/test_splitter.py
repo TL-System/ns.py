@@ -28,7 +28,7 @@ def test_splitter_snapshots_all_branches_before_synchronous_forwarding(kind):
     packet.prio["path"] = ["before"]
     splitter = Splitter() if kind == "two" else NWaySplitter(3)
     branches = [Branch(str(i)) for i in range(2 if kind == "two" else 3)]
-    if kind == "two":
+    if isinstance(splitter, Splitter):
         splitter.out1, splitter.out2 = branches
     else:
         splitter.outs = branches

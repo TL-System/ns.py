@@ -1,8 +1,9 @@
 import networkx as nx
+
 # based on the FNSS datacenter topology implementation
 
 
-def build(k):
+def build(k: int) -> nx.Graph:
     """
     Return a fat tree datacenter topology, as described in [1]_
 

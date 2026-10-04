@@ -4,6 +4,11 @@ https://www.rfc-editor.org/rfc/rfc2698
 """
 
 import math
+from typing import Any
+
+import simpy
+
+from ns.packet.packet import Packet
 
 
 class TrTCM:
@@ -20,7 +25,10 @@ class TrTCM:
     for tokens and therefore has a different timing contract.
     """
 
-    def __init__(self, env, pir: int, pbs: int, cir, cbs):
+    def __init__(
+        self, env: simpy.Environment, pir: float, pbs: float,
+        cir: float, cbs: float,
+    ) -> None:
         if (
             not all(math.isfinite(value) for value in (pir, pbs, cir, cbs))
             or not 0 <= cir <= pir
@@ -29,7 +37,7 @@ class TrTCM:
         ):
             raise ValueError("Require finite PIR >= CIR >= 0 and positive PBS/CBS")
         self.env = env
-        self.out = None
+        self.out: Any = None
         self.pir = pir
         self.pbs = pbs
         self.cir = cir
@@ -38,7 +46,7 @@ class TrTCM:
         self.committed_bucket = cbs
         self.last_time = env.now
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Refill and color immediately; this element introduces no SimPy wait."""
         elapsed = self.env.now - self.last_time
         self.last_time = self.env.now

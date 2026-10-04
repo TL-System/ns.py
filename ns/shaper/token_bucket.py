@@ -3,9 +3,12 @@ Implements a token bucket shaper.
 """
 
 import math
+from collections.abc import Callable, Generator
+from typing import Any
 
 import simpy
 
+from ns.packet.packet import Packet
 from ns.utils.retained_store import remove_packet
 
 
@@ -48,14 +51,14 @@ class TokenBucketShaper:
 
     def __init__(
         self,
-        env,
-        rate,
-        bucket_size,
-        peak=None,
-        zero_buffer=False,
-        zero_downstream_buffer=False,
-        debug=False,
-    ):
+        env: simpy.Environment,
+        rate: float,
+        bucket_size: float,
+        peak: float | None = None,
+        zero_buffer: bool = False,
+        zero_downstream_buffer: bool = False,
+        debug: bool = False,
+    ) -> None:
         if (
             not math.isfinite(rate) or rate <= 0
             or not math.isfinite(bucket_size) or bucket_size <= 0
@@ -67,7 +70,7 @@ class TokenBucketShaper:
         self.store = simpy.Store(env)
         self.env = env
         self.rate = rate
-        self.out = None
+        self.out: Any = None
         self.packets_received = 0
         self.packets_sent = 0
         self.bucket_size = bucket_size
@@ -86,7 +89,7 @@ class TokenBucketShaper:
         self.busy = 0  # Used to track if a packet is currently being sent
         self.action = env.process(self.run())
 
-    def update(self, packet):
+    def update(self, packet: Packet) -> None:
         """Release upstream ownership after local or downstream completion.
 
         A downstream zero-buffer consumer calls this after removing the packet
@@ -104,7 +107,7 @@ class TokenBucketShaper:
         if self.debug:
             print(f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for FIFO work, missing byte tokens, and optional peak service."""
         while True:
             if self.zero_downstream_buffer:
@@ -149,7 +152,11 @@ class TokenBucketShaper:
             if self.debug:
                 print(f"Sent packet {packet.packet_id} from flow {packet.flow_id}.")
 
-    def put(self, packet, upstream_update=None, upstream_store=None):
+    def put(
+        self, packet: Packet,
+        upstream_update: Callable[[Packet], None] | None = None,
+        upstream_store: Any = None,
+    ) -> simpy.Event:
         """Sends a packet to this element."""
         self.packets_received += 1
         if (

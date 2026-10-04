@@ -36,9 +36,14 @@ NetworkX's supported interpreter versions.
    ```
 
 `uv sync --locked` installs `ns.py` in editable mode along with its runtime
-dependencies and pytest. Use `uv run --locked` for tests and examples to keep
-the environment aligned with the checked-in lockfile. Use `uv lock --upgrade`
-when refreshing packages, then review the lockfile and re-run the checks below.
+dependencies, pytest, and ty. Check the package, examples, scripts, and tests
+with `uv run --locked ty check`; CI runs the same command. Every simulator
+function has typed parameters and a return type. The `out.put(packet)` links
+and a few caller-supplied adapters remain dynamic so components can still be
+composed without a shared class hierarchy. Use `uv run --locked` for tests and
+examples to keep the environment aligned with the checked-in lockfile. Use
+`uv lock --upgrade` when refreshing packages, then review the lockfile and
+re-run the checks below.
 `uv build` builds the wheel and source distribution in an isolated build
 environment.
 

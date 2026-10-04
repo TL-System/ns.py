@@ -8,6 +8,10 @@ any network element with a `put()` member function.
 """
 
 import math
+from collections.abc import Callable, Generator, Hashable
+from typing import Any
+
+import simpy
 
 from ns.packet.packet import Packet
 
@@ -43,17 +47,17 @@ class DistPacketGenerator:
 
     def __init__(
         self,
-        env,
-        element_id,
-        arrival_dist,
-        size_dist,
-        initial_delay=0,
-        finish=None,
-        size=None,
-        flow_id=0,
-        rec_flow=False,
-        debug=False,
-    ):
+        env: simpy.Environment,
+        element_id: Hashable,
+        arrival_dist: Callable[[], float],
+        size_dist: Callable[[], float],
+        initial_delay: float = 0,
+        finish: float | None = None,
+        size: float | None = None,
+        flow_id: Hashable = 0,
+        rec_flow: bool = False,
+        debug: bool = False,
+    ) -> None:
         self.element_id = element_id
         self.env = env
         self.arrival_dist = arrival_dist
@@ -67,7 +71,7 @@ class DistPacketGenerator:
             raise ValueError("finish must be nonnegative.")
         if math.isnan(self.size) or self.size < 0:
             raise ValueError("size must be a nonnegative byte budget.")
-        self.out = None
+        self.out: Any = None
         self.packets_sent = 0
         self.sent_size = 0
         self.action = env.process(self.run())
@@ -78,7 +82,7 @@ class DistPacketGenerator:
         self.size_rec = []
         self.debug = debug
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Send at start, then wait between packets; never wait past finish."""
         delay = min(self.initial_delay, max(0, self.finish - self.env.now))
         yield self.env.timeout(delay)

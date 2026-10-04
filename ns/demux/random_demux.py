@@ -2,8 +2,14 @@
 A demultiplexing element that chooses the output port at random.
 """
 
+from collections.abc import Sequence
 from math import isfinite
 from random import choices
+from typing import Any
+
+import simpy
+
+from ns.packet.packet import Packet
 
 
 class RandomDemux:
@@ -20,7 +26,7 @@ class RandomDemux:
         at least one weight must be positive. They need not sum to one.
     """
 
-    def __init__(self, env, probs):
+    def __init__(self, env: simpy.Environment, probs: Sequence[float]) -> None:
         self.env = env
 
         self.probs = list(probs)
@@ -35,11 +41,11 @@ class RandomDemux:
                 "and have a positive total."
             )
         self.n_ports = len(self.probs)
-        self.outs = [None for __ in range(self.n_ports)]
+        self.outs: list[Any] = [None for __ in range(self.n_ports)]
         self.packets_received = 0
         self.packets_dropped = 0
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         self.packets_received += 1
         out = choices(self.outs, weights=self.probs)[0]

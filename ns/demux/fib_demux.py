@@ -1,3 +1,9 @@
+from collections.abc import Mapping, Sequence
+from typing import Any
+
+from ns.packet.packet import Packet
+
+
 class FIBDemux:
     """
     The constructor takes a list of downstream elements for the
@@ -18,7 +24,11 @@ class FIBDemux:
     """
 
     def __init__(
-        self, fib: dict = None, outs: list = None, ends: dict = None, default=None
+        self,
+        fib: Mapping[Any, int] | None = None,
+        outs: Sequence[Any] | None = None,
+        ends: Mapping[Any, Any] | None = None,
+        default: Any = None,
     ) -> None:
         self.outs = outs if outs is not None else []
         self.default = default
@@ -27,7 +37,7 @@ class FIBDemux:
         self.fib = fib if fib is not None else {}
         self.ends = ends if ends is not None else {}
 
-    def put(self, packet):
+    def put(self, packet: Packet) -> None:
         """Sends a packet to this element."""
         self.packets_received += 1
         flow_id = packet.flow_id

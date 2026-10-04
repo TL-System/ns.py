@@ -5,11 +5,14 @@ logical outstanding data, RTT sampling, and one retransmission timer. It models
 neither TCP timestamps nor SACK, so ambiguous ACKs cannot supply RTT samples.
 """
 
-from dataclasses import dataclass
 import math
+from collections.abc import Generator, Hashable
+from dataclasses import dataclass
+from typing import Any
 
 import simpy
 
+from ns.flow.flow import Flow
 from ns.packet.packet import Packet
 from ns.utils.timer import Timer
 
@@ -37,13 +40,16 @@ class TCPPacketGenerator:
     without that attribute). Public sequence/window fields are measured in bytes.
     """
 
-    def __init__(self, env, flow, cc, element_id=None, debug=False):
+    def __init__(
+        self, env: simpy.Environment, flow: Flow, cc: Any,
+        element_id: Hashable | None = None, debug: bool = False,
+    ) -> None:
         self.env = env
         self.flow = flow
         self.congestion_control = cc
         self.element_id = element_id
         self.debug = debug
-        self.out = None
+        self.out: Any = None
         self.mss = getattr(cc, "mss", 512)
         if isinstance(self.mss, bool) or not isinstance(self.mss, int) or self.mss <= 0:
             raise ValueError("TCP MSS must be a positive integer byte count.")
@@ -58,7 +64,7 @@ class TCPPacketGenerator:
         self.send_buffer = 0    # application byte frontier (sent or waiting)
         self.last_ack = 0       # SND.UNA: oldest unacknowledged byte
         self.dupack = 0
-        self.recovery_high_sequence = None
+        self.recovery_high_sequence: int | None = None
         self.rtt_var = 0.0
         self.smoothed_rtt = 0.0
         self.rto = 1.0
@@ -67,21 +73,21 @@ class TCPPacketGenerator:
         self._rtt_initialized = False
         self.cwnd_available = simpy.Store(env)
 
-        self.segment_state = {}
+        self.segment_state: dict[int, SegmentState] = {}
         # Retain the latest physical attempt for inspection; logical state above
         # is authoritative and is never reconstructed from mutable packets.
-        self.sent_packets = {}
-        self.timer = None
+        self.sent_packets: dict[int, Packet] = {}
+        self.timer: Timer | None = None
         # Compatibility view: at most one entry, keyed by the oldest byte range.
-        self.timers = {}
+        self.timers: dict[int, Timer] = {}
         self.action = env.process(self.run())
 
     @property
-    def bytes_in_flight(self):
+    def bytes_in_flight(self) -> int:
         """Unique sent bytes not yet covered by the cumulative ACK."""
         return self.next_seq - self.last_ack
 
-    def _build_packet(self, state):
+    def _build_packet(self, state: SegmentState) -> Packet:
         """Emit fresh attempt metadata, retaining the original latency clock."""
         return Packet(
             state.first_tx_time,
@@ -92,7 +98,7 @@ class TCPPacketGenerator:
             flow_id=self.flow.fid,
         )
 
-    def _restart_timer(self):
+    def _restart_timer(self) -> None:
         """Arm one deadline from now for the oldest outstanding byte range."""
         self.timers.clear()
         if not self.segment_state:
@@ -108,7 +114,7 @@ class TCPPacketGenerator:
             self.timer.restart(self.rto)
         self.timers[oldest] = self.timer
 
-    def _send_new_packet(self, packet_size):
+    def _send_new_packet(self, packet_size: int) -> Packet:
         """Register the whole send transition before synchronous downstream put."""
         state = SegmentState(self.next_seq, packet_size, self.env.now, self.env.now)
         packet = self._build_packet(state)
@@ -126,7 +132,7 @@ class TCPPacketGenerator:
         self.out.put(packet)
         return packet
 
-    def _retransmit(self, state):
+    def _retransmit(self, state: SegmentState) -> None:
         """Record an attempt before forwarding, even if forwarding ACKs inline."""
         state.retransmit_count += 1
         state.last_tx_time = self.env.now
@@ -139,7 +145,9 @@ class TCPPacketGenerator:
             )
         self.out.put(packet)
 
-    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+    def _retransmit_after_ack(
+        self, state: SegmentState, sequence: int, retransmit_count: int
+    ) -> Generator[simpy.Event, Any, None]:
         """Yield one turn so synchronous partial ACKs cannot recurse unboundedly."""
         yield self.env.timeout(0)
         # Feedback may retire/trim the range, or another attempt may supersede
@@ -152,18 +160,18 @@ class TCPPacketGenerator:
         ):
             self._retransmit(state)
 
-    def _wake_sender(self):
+    def _wake_sender(self) -> None:
         """Coalesce window notifications; the run loop rechecks byte credit."""
         if not self.cwnd_available.items:
             self.cwnd_available.put(True)
 
-    def _before_control(self):
+    def _before_control(self) -> None:
         """Supply pre-feedback flight size to controllers that accept context."""
         hook = getattr(self.congestion_control, "set_before_control", None)
         if hook is not None:
             hook(self.env.now, self.bytes_in_flight)
 
-    def run(self):
+    def run(self) -> Generator[simpy.Event, Any, None]:
         """Wait for application data or ACK credit, bounded by new-data finish."""
         start = self.flow.start_time
         finish = self.flow.finish_time
@@ -215,7 +223,7 @@ class TCPPacketGenerator:
             )
             amount = min(self.mss, self.send_buffer - self.next_seq, credit)
             if amount > 0:
-                self._send_new_packet(amount)
+                self._send_new_packet(int(amount))
             else:
                 notification = self.cwnd_available.get()
                 if finish is None:
@@ -226,7 +234,7 @@ class TCPPacketGenerator:
                     if not notification.triggered:
                         notification.cancel()
 
-    def timeout_callback(self, packet_id=0):
+    def timeout_callback(self, packet_id: int = 0) -> None:
         """Retransmit only the oldest outstanding range and double the RTO."""
         if not self.segment_state or packet_id not in self.timers:
             return
@@ -241,7 +249,7 @@ class TCPPacketGenerator:
         self._restart_timer()
         self._retransmit(state)
 
-    def _update_rtt(self, sample):
+    def _update_rtt(self, sample: float) -> None:
         """RFC 6298 estimator: update variance using the previous SRTT."""
         if not self._rtt_initialized:
             self.smoothed_rtt = sample
@@ -259,7 +267,7 @@ class TCPPacketGenerator:
         )
         self.last_rtt_sample = sample
 
-    def put(self, ack):
+    def put(self, ack: Packet) -> None:
         """Accept only this flow's cumulative ACKs within transmitted bytes."""
         sequence = ack.ack
         if (

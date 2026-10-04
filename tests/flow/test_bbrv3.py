@@ -15,11 +15,12 @@ def pump_ack(
     bbr: BBR,
     *,
     delivery_rate: float,
-    newly_acked: int = None,
+    newly_acked: int | None = None,
     rtt: float = 0.05,
     now: float = 0.0,
 ):
     newly_acked = newly_acked or bbr.mss
+    assert bbr.rs is not None and bbr.C is not None
     bbr.rs.delivery_rate = delivery_rate
     bbr.rs.newly_acked = newly_acked
     bbr.rs.interval = max(rtt, 1e-3)
