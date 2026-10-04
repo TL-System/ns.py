@@ -71,12 +71,16 @@ serialization waits `packet_bytes * 8 / rate`. Constructors reject nonfinite or
 nonpositive gating rates/burst capacities and incomplete/impossible optional
 peak settings. Token buckets start full when constructed and cap idle refill.
 
-Single-rate shaping consumes available credit or waits for the deficit. Optional
-peak service delays departure; that service time also replenishes tokens for the
-next head packet. A 100-byte bucket at 800 bit/s emits queued sizes
+Single-rate shaping consumes available credit or waits for the deficit. Tokens
+gate eligibility: without peak these are departures, and with peak they are
+serialization starts. Peak service delays departure and also replenishes tokens
+for the next head packet. A 100-byte bucket at 800 bit/s emits queued sizes
 60,40,20,200,10 at times 0,0,.2,2.2,2.3 seconds. With peak=400 bit/s, three
 100-byte packets depart at 2,4,6 seconds. Every contiguous departure window of
-ordinary packets is tested against `bytes <= burst + rate_bytes*elapsed`.
+ordinary packets **without peak** is tested against
+`bytes <= burst + rate_bytes*elapsed`. With peak, this envelope applies at
+serialization starts. A conservative completed-packet window bound adds
+`(rate/peak)*max_packet_bytes` to account for the timestamp shift.
 
 Two-rate shaping preserves the existing API's **eligibility at service start**
 colors. With PIR, a packet fitting both buckets is green and consumes both;
@@ -123,7 +127,7 @@ Commands and results:
   `git show 65dfd2d:<module>`, running the current tests via `.venv/bin/python -m
   pytest -q --tb=no --import-mode=importlib` with PYTHONPATH set to that temporary
   copy: **46 failed, 10 passed**. This does not mutate the shared working tree.
-- `uv run --locked pytest -q tests/port tests/shaper tests/utils/test_trtcm.py tests/scheduler/test_composition.py`: **120 passed** after the final edits.
+- `uv run --locked pytest -q tests/port tests/shaper tests/utils/test_trtcm.py tests/scheduler/test_composition.py`: **120 passed** in the shared-tree snapshot, including concurrent changes outside this task. Review of the exact `5af3615` archive passed **116 tests** with this command; its owned suite passed **56 tests**.
 - A bounded `uv run --locked python` subprocess harness ran each of
   `examples/token_bucket.py`, `examples/two_rate_token_bucket.py`, and
   `examples/red_wfq.py` with `MPLBACKEND=Agg`, timeout=90 seconds, and an
@@ -146,16 +150,40 @@ inline comments overlap code-bearing lines and are reported separately.
 | Production module | Physical before → after | Code-bearing before → after | Explanatory before → after |
 | --- | ---: | ---: | ---: |
 | `port/red_port.py` | 164 → 102 | 90 → 68 | 57 → 23 |
-| `shaper/token_bucket.py` | 153 → 162 | 94 → 95 | 41 → 46 |
-| `shaper/two_rate_token_bucket.py` | 179 → 203 | 115 → 129 | 47 → 53 |
+| `shaper/token_bucket.py` | 153 → 166 | 94 → 95 | 41 → 48 |
+| `shaper/two_rate_token_bucket.py` | 179 → 203 | 115 → 129 | 47 → 52 |
 | `utils/misc.py` | 64 → 59 | 30 → 36 | 24 → 15 |
-| **Total** | **560 → 526 (-34)** | **329 → 328 (-1)** | **169 → 137 (-32)** |
+| **Total** | **560 → 530 (-30)** | **329 → 328 (-1)** | **169 → 138 (-31)** |
 
-Blank lines total 62 → 61; inline comments total 11 → 8. The reduction in RED
+Blank lines total 62 → 64; inline comments total 11 → 8. The reduction in RED
 and marker boilerplate removes duplicated admission branches and inaccurate
 parameter prose while placing the sampling, threshold, units, color, borrowing,
 and ownership explanations directly beside the relevant process. Shaper growth
 is local validation, busy telemetry, and correct retained/token bookkeeping;
-there is no new framework. The three new test files total 457 physical lines,
-374 code-bearing, 6 explanatory, and 77 blank, with 5 inline comments. Test and
+there is no new framework. The three new test files total 484 physical lines,
+393 code-bearing, 11 explanatory, and 80 blank, with 5 inline comments. Test and
 evidence growth is separate from production size.
+
+## Review correction: eligibility versus peak completion
+
+Review of `5af3615` found the single-rate shaper docstring claimed a departure
+envelope even when peak serialization was enabled. With rate=800 bit/s,
+bucket=100 bytes, peak=8000 bit/s, and queued sizes 100 and 10, eligibility times
+are 0 and .1 seconds while completions are .1 and .11 seconds. Thus the
+completed-packet window contains 110 bytes over .01 seconds, exceeding the
+claimed 100+100*.01=101 byte bound. This is normal packetization behavior for
+the eligibility-then-serializer model; its implementation is retained.
+
+The docstring and the contract above now distinguish eligibility from completion.
+The new regression asserts independently calculated completion times, recovers
+the serialization starts from the known link times, verifies the eligibility
+envelope, demonstrates why the unadjusted completion bound fails, and verifies
+the conservative packetization allowance. Existing unpeaked envelope tests keep
+their original meaning. This is a documentation/measurement correction, so the
+new test passes the reviewed implementation; no failing algorithm test is claimed.
+
+After this correction,
+`uv run --locked pytest -q tests/port/test_red_port.py tests/shaper tests/utils/test_trtcm.py`
+passes **57 tests**, and `git diff --check` passes. The three earlier bounded
+examples are unchanged; no algorithm code changed in this review correction.
+Source counts above include the corrected docstring and regression.

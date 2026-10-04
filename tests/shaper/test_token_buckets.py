@@ -74,6 +74,33 @@ def test_peak_serialization_and_tokens_accrue_during_service():
     assert shaper.busy == 0
 
 
+def test_peak_completion_windows_include_packetization_allowance():
+    env = simpy.Environment()
+    shaper = make_shaper(env, peak=8000)
+    shaper.out = sink = Sink(env)
+    packets = [Packet(0, size, i) for i, size in enumerate([100, 10])]
+    for item in packets:
+        shaper.put(item)
+    env.run()
+
+    # The first uses the full bucket at t=0, then serializes for .1 seconds.
+    # Ten byte tokens accrue during service, so the second starts at .1 and
+    # finishes .01 seconds later. The tokens gate starts, not completions.
+    departures = [time for time, *_ in sink.items]
+    assert departures == pytest.approx([.1, .11])
+    assert [item for _, item, _ in sink.items] == packets
+    eligibility = [time - item.size * 8 / 8000 for time, item, _ in sink.items]
+    assert eligibility == pytest.approx([0, .1])
+    total_bytes = 110
+    assert total_bytes <= 100 + 100 * (eligibility[-1] - eligibility[0]) + 1e-10
+    completion_bound = 100 + 100 * (departures[-1] - departures[0])
+    assert completion_bound == pytest.approx(101)
+    assert total_bytes > completion_bound
+    # General completion windows allow the eligibility/completion shift of
+    # at most max_packet_bytes / peak_bytes_per_second.
+    assert total_bytes <= completion_bound + (800 / 8000) * 100 + 1e-10
+
+
 def test_two_rate_peak_wait_preserves_and_refills_committed_tokens():
     env = simpy.Environment()
     shaper = TwoRateTokenBucketShaper(env, 80, 10, 800, 100)

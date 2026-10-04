@@ -13,12 +13,16 @@ class TokenBucketShaper:
     """Shape FIFO packets with an initially full byte token bucket.
 
     Positive finite rates are bits/second and capacities are positive finite
-    bytes. For packets no larger than the bucket, departures obey the rate/burst
-    envelope. An oversized packet borrows its deficit by waiting at the average
-    rate, then leaves zero credit; this compatibility policy allows large packets
-    through but cannot enforce the ordinary burst envelope for that packet.
-    Optional peak serialization adds a packet-size/peak delay after token use;
-    tokens accrue during that service delay too. Bucket credit is capped on idle.
+    bytes. For packets no larger than the bucket, token eligibility times obey
+    the rate/burst envelope. Without peak serialization these are departures.
+    With a peak rate, tokens gate serialization starts: completed packets may
+    bunch when a small packet follows a large one. A conservative completion
+    window bound adds (rate / peak) * max_packet_bytes to the burst allowance.
+    Tokens accrue during peak service too, and idle refill is capped.
+
+    An oversized packet borrows its deficit by waiting at the average rate, then
+    leaves zero credit. This compatibility policy lets large packets through but
+    cannot enforce the ordinary burst envelope for that packet.
 
     Parameters
     ----------
