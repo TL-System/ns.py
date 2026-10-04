@@ -78,7 +78,9 @@ capacity. An intentionally reduced ProbeRTT flight is also marked limited.
   `remaining_flight + newly_acked` bytes of window. Ordinary duplicates create
   no credit. Conservation persists until cumulative delivery covers the entry
   flight, or the transport explicitly exits its fast-recovery frontier. Saved
-  cwnd is restored on exit; the filled-pipe BDP cap then applies. Repeated
+  cwnd is restored on exit; the filled-pipe BDP cap then applies. When recovery
+  and ProbeRTT overlap, each entry preserves the other mode's saved window,
+  so a temporary cap cannot erase the credit restored after both finish. Repeated
   timeout retains the saved window and advances the delivery frontier.
 
 ## Deliberate omissions

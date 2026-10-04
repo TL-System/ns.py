@@ -113,7 +113,10 @@ class BBR(CongestionControl):
 
     def _enter_recovery(self):
         if not self.packet_conservation:
-            self._recovery_cwnd = self.cwnd
+            # A ProbeRTT cap is temporary: retain its saved window on loss.
+            self._recovery_cwnd = (max(self.cwnd, self._prior_cwnd)
+                                   if self.state == BBRState.PROBE_RTT
+                                   else self.cwnd)
         self.packet_conservation = True
         self._recovery_delivered = self.C.delivered + self.packet_in_flight
         # Retransmitting creates no new byte credit. Subsequent ACKs release
@@ -182,7 +185,10 @@ class BBR(CongestionControl):
 
     def _update_probe_rtt(self, expired):
         if self.state != BBRState.PROBE_RTT and expired:
-            self._prior_cwnd = self.cwnd
+            # Recovery also caps temporarily; neither mode may erase the
+            # other's saved credit while their drain/hold periods overlap.
+            self._prior_cwnd = (max(self.cwnd, self._recovery_cwnd)
+                                if self.packet_conservation else self.cwnd)
             self.state = BBRState.PROBE_RTT
             self.probe_rtt_start = None
             self._probe_rtt_round_done = False

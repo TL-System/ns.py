@@ -250,3 +250,67 @@ def test_unknown_rtt_does_not_replace_propagation_estimate_with_zero():
     bbr.rs.rtt = 0
     bbr.ack_received(0, 0.3)
     assert bbr.min_rtt == 0
+
+
+def test_probe_entered_during_recovery_preserves_window_credit():
+    bbr = make_bbr()
+    bbr.min_rtt = 0.05
+    bbr.min_rtt_stamp = 0
+    bbr.set_before_control(9.9, 8000)
+    bbr.timer_expired()
+    for delivered, flight, now in (
+        (1000, 7000, 10.1), (4000, 4000, 10.2),
+        (8000, 0, 10.3), (9000, 0, 10.5),
+    ):
+        bbr.rs.begin_ack()
+        bbr.rs.prior_delivered = bbr.C.delivered
+        bbr.rs.newly_acked = delivered - bbr.C.delivered
+        bbr.rs.prior_time = now - 0.05
+        bbr.rs.interval = 0.05
+        bbr.rs.delivery_rate = 100_000
+        bbr.rs.is_app_limited = delivered > 1000
+        bbr.C.delivered = delivered
+        bbr.set_before_control(now, flight)
+        bbr.ack_received(None, now)
+        if now < 10.5:
+            assert bbr.state == BBRState.PROBE_RTT
+            assert bbr.cwnd <= 4000
+    assert bbr.state == BBRState.STARTUP
+    assert not bbr.packet_conservation
+    assert not bbr.filled_pipe
+    assert bbr.cwnd >= 12000
+
+
+def test_recovery_entered_during_probe_preserves_window_credit():
+    bbr = make_bbr()
+    bbr.min_rtt = 0.05
+    bbr.min_rtt_stamp = 0
+
+    def observe_ack(delivered, flight, now):
+        bbr.rs.begin_ack()
+        bbr.rs.prior_delivered = bbr.C.delivered
+        bbr.rs.newly_acked = delivered - bbr.C.delivered
+        bbr.rs.prior_time = now - 0.05
+        bbr.rs.interval = 0.05
+        bbr.rs.delivery_rate = 100_000
+        bbr.rs.is_app_limited = True
+        bbr.C.delivered = delivered
+        bbr.set_before_control(now, flight)
+        bbr.ack_received(None, now)
+
+    observe_ack(1000, 4000, 10.1)
+    assert bbr.state == BBRState.PROBE_RTT
+    assert bbr.cwnd == 4000
+    bbr.set_before_control(10.15, 4000)
+    bbr.timer_expired()
+    observe_ack(2000, 3000, 10.2)
+    assert bbr.state == BBRState.PROBE_RTT
+    assert bbr.packet_conservation
+    observe_ack(3000, 2000, 10.4)
+    # Probe finishes first; recovery must retain the pre-probe window credit.
+    assert bbr.state == BBRState.STARTUP
+    assert bbr.packet_conservation
+    observe_ack(5000, 0, 10.5)
+    assert not bbr.packet_conservation
+    assert not bbr.filled_pipe
+    assert bbr.cwnd >= 12000
