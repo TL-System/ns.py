@@ -91,6 +91,15 @@ class CongestionControl:
         """Optional hook for controllers that need per-send context (used by BBR)."""
         _ = (current_time, packet_in_flight)
 
+    def partial_ack_received(self, acknowledged_bytes: int, current_time: float):
+        """Notify a partial recovery ACK without exiting or normal ACK growth.
+
+        The transport retransmits the next missing range and retains its recovery
+        frontier. Controllers may use newly acknowledged bytes to adjust the
+        recovery window; this default leaves it unchanged.
+        """
+        _ = (acknowledged_bytes, current_time)
+
 
 class LossBasedCongestionControl(CongestionControl):
     """
