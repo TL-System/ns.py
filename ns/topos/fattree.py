@@ -15,15 +15,13 @@ def build(k):
 
     Each node has three attributes:
      * type: can either be *switch* or *host*
-     * tier: can either be *core*, *aggregation*, *edge* or *leaf*. Nodes in
+     * layer: can either be *core*, *aggregation*, *edge* or *leaf*. Nodes in
+       the leaf layer are hosts; the other layers contain switches.
      * pod: the pod id in which the node is located, unless it is a core switch
-       the leaf tier are only host, while all core, aggregation and edge
-       nodes are switches.
 
-    Each edge has an attribute type as well which can either be *core_edge* if
-    it connects a core and an aggregation switch, *aggregation_edge*, if it
-    connects an aggregation and a core switch or *edge_leaf* if it connects an
-    edge switch to a host.
+    Each edge has a type: *core_aggregation* connects a core and an aggregation
+    switch, *aggregation_edge* connects an aggregation and an edge switch, and
+    *edge_leaf* connects an edge switch to a host.
 
     Parameters
     ----------

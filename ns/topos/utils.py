@@ -42,6 +42,14 @@ def generate_flows(
 
 
 def generate_fib(G, all_flows, tcp=False):
+    """Map each path's next hop to a local port, optionally adding reverse ACKs."""
+    if tcp:
+        # TCPSink identifies ACKs as data flow ID + 10000. Those IDs must remain
+        # disjoint from real data flows or later inserts silently change routes.
+        flow_ids = {flow.fid for flow in all_flows.values()}
+        if any(fid + 10000 in flow_ids for fid in flow_ids):
+            raise ValueError("TCP ACK flow IDs collide with data flow IDs.")
+
     for n in G.nodes():
         node = G.nodes[n]
 

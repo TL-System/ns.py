@@ -3,6 +3,7 @@ Implements a performance monitor that records performance statistics for a sched
 """
 
 from collections import defaultdict as dd
+from math import isfinite
 
 
 class ServerMonitor:
@@ -19,8 +20,8 @@ class ServerMonitor:
         server: SPServer, WFQServer, DRRServer, or VirtualClockServer
             The server object to be monitored.
         dist: function
-            A no-parameter function that returns the successive inter-arrival
-            times of the packets.
+            A no-parameter function returning positive, finite sampling intervals
+            in simulation seconds.
         pkt_in_service_included: bool
             If True, monitor packets in service + in the queue;
             If False, only monitor packets in queue.
@@ -54,7 +55,11 @@ class ServerMonitor:
     def run(self):
         """Wait one sampling interval, then observe waiting work and service."""
         while True:
-            yield self.env.timeout(self.dist())
+            interval = self.dist()
+            if not isfinite(interval) or interval <= 0:
+                raise ValueError("Sampling interval must be positive and finite.")
+            # A recurring zero-time sample would prevent simulated time advancing.
+            yield self.env.timeout(interval)
 
             current = (
                 self.server.packet_in_service()

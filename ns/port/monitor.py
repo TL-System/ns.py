@@ -2,6 +2,8 @@
 A monitor for a Port.
 """
 
+from math import isfinite
+
 
 class PortMonitor:
     """Samples queued packets/bytes and optionally the port's local service.
@@ -17,8 +19,8 @@ class PortMonitor:
     port: Port
         the switch port object to be monitored.
     dist: function
-        a no parameter function that returns the successive inter-arrival
-        times of the packets
+        a no-parameter function returning positive, finite sampling intervals
+        in simulation seconds
     """
 
     def __init__(self, env, port, dist, pkt_in_service_included=False):
@@ -33,7 +35,12 @@ class PortMonitor:
     def run(self):
         """Wait one sampling interval before each instantaneous occupancy reading."""
         while True:
-            yield self.env.timeout(self.dist())
+            interval = self.dist()
+            if not isfinite(interval) or interval <= 0:
+                raise ValueError("Sampling interval must be positive and finite.")
+            # Recurring observations must advance time: timeout(0) would keep
+            # generating samples forever at one instant and stall the simulator.
+            yield self.env.timeout(interval)
 
             total_byte = self.port.byte_size
             # Store.get() can hand off a packet before its process resumes; a

@@ -6,20 +6,30 @@ A demultiplexing element that splits packet streams by flow_id.
 class FlowDemux:
     """
     The constructor takes a list of downstream elements for the
-    corresponding output ports as its input.
+    corresponding output ports as its input. Nonnegative integer flow IDs index
+    this list; unknown IDs or disconnected outputs use ``default`` when supplied.
+    ``packets_dropped`` counts packets with no connected output or default.
     """
 
     def __init__(self, outs=None, default=None):
-        self.outs = outs
+        self.outs = outs if outs is not None else []
         self.default = default
         self.packets_received = 0
+        self.packets_dropped = 0
 
     def put(self, packet):
         """Sends a packet to this element."""
         self.packets_received += 1
         flow_id = packet.flow_id
-        if flow_id < len(self.outs):
-            self.outs[flow_id].put(packet)
+        # A negative ID is an unknown route, not Python's index from the end.
+        out = (
+            self.outs[flow_id]
+            if isinstance(flow_id, int) and 0 <= flow_id < len(self.outs)
+            else None
+        )
+        if out is None:
+            out = self.default
+        if out is None:
+            self.packets_dropped += 1
         else:
-            if self.default:
-                self.default.put(packet)
+            out.put(packet)
