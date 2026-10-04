@@ -373,12 +373,26 @@ class BBRPacketGenerator:
                 # A partial recovery ACK exposes the next hole. Keep the same
                 # recovery frontier until all bytes of that flight are covered.
                 state = self.segment_state[min(self.segment_state)]
-                self.congestion_control.C.lost += state.size
-                packet = self._retransmit_packet(state.seq)
-                self._restart_oldest_timer()
-                self.out.put(packet)
+                self.env.process(self._retransmit_after_ack(
+                    state, state.seq, state.retransmit_count,
+                ))
         self.congestion_control.C.is_cwnd_limited = False
         self._wake_sender()
+
+    def _retransmit_after_ack(self, state, sequence, retransmit_count):
+        """Yield one turn so synchronous recovery ACKs cannot recurse forever."""
+        yield self.env.timeout(0)
+        # Another ACK or timeout may retire, trim or retransmit this range before
+        # its turn. Record an attempt only when it still needs to go on the wire.
+        if (self.segment_state.get(sequence) is state
+                and self.last_ack == sequence
+                and self.recovery_high_sequence is not None
+                and state.retransmit_count == retransmit_count):
+            self.congestion_control.C.lost += state.size
+            packet = self._retransmit_packet(sequence)
+            # All attempt metadata and timer state precede synchronous ACKs.
+            self._restart_oldest_timer()
+            self.out.put(packet)
 
     def _wake_sender(self):
         """Coalesce ACK wakeups rather than retaining one token per packet."""

@@ -137,16 +137,68 @@ These are a size/readability proxy rather than executable-statement counts.
 
 | Owned production | Accepted | Candidate | Change |
 | --- | ---: | ---: | ---: |
-| Physical lines | 565 | 508 | -57 |
-| Code-bearing lines | 424 | 399 | -25 |
-| Explanatory lines | 68 | 72 | +4 |
-| Blank lines | 73 | 37 | -36 |
+| Physical lines | 565 | 522 | -43 |
+| Code-bearing lines | 424 | 408 | -16 |
+| Explanatory lines | 68 | 76 | +8 |
+| Blank lines | 73 | 38 | -35 |
 | Inline comments (overlap code) | 5 | 3 | -2 |
 
-The BBR sender alone changes from 444 to 386 physical lines, 335 to 310
-code-bearing lines, and 48 to 51 explanatory lines. Sampler code-bearing lines
+The BBR sender alone changes from 444 to 400 physical lines, 335 to 319
+code-bearing lines, and 48 to 55 explanatory lines. Sampler code-bearing lines
 remain 89, with one additional explanatory line. The two sender test files total
-479 physical lines, 389 code-bearing, two explanatory and 88 blank, versus the
+556 physical lines, 455 code-bearing, two explanatory and 99 blank, versus the
 previous single file's 361/297/2/62. The implementation retains recognizable
 SimPy `run()`, `put()` and timer callbacks; no execution or configuration
 framework is introduced.
+
+## Review fix: bounded synchronous recovery stack
+
+Review of candidate `9466d4fe4a305c6fade7290deb7e95588054e96f` identified a
+synchronous partial-recovery ACK chain that exceeded Python's recursion limit.
+The regression uses `Flow(fid=7, size=65536, finish_time=1)`, real
+`BBR(mss=128, cwnd=65536)`, a direct TCPSink ACK path, and loss of the first
+attempt of every segment beginning below byte 65152. The final three original
+segments generate fast retransmit; 509 consecutive holes then need recovery.
+
+Only retransmission triggered by a partial recovery ACK is deferred to a new
+SimPy turn via `timeout(0)`. This preserves simulation time and prevents nested
+`put()` calls from growing with the loss burst. The process captures the range's
+sequence and attempt count; before emitting, it confirms the same range remains
+at the ACK frontier, recovery remains active, and another attempt has not
+superseded it. Only then are loss/attempt metadata and the timer committed before
+synchronous forwarding. An intervening cumulative ACK, interior partial ACK, or
+timeout safely cancels the obsolete deferred action. Initial fast retransmit and
+timeout forwarding retain their existing synchronous behavior.
+
+The new tests against the reviewed candidate are reproducible without changing
+the worktree:
+
+```sh
+uv run --locked python - <<'PY'
+import importlib
+import subprocess
+import pytest
+module = importlib.import_module('ns.packet.bbr_generator')
+source = subprocess.check_output([
+    'git', 'show', '9466d4f:ns/packet/bbr_generator.py',
+], text=True)
+exec(compile(source, '9466d4f/bbr_generator.py', 'exec'), module.__dict__)
+raise SystemExit(pytest.main([
+    '-q', '--tb=no', 'tests/packet/test_bbr_transport.py', '-k',
+    'synchronous_burst_loss or retire_a_deferred',
+]))
+PY
+```
+
+Observed red: **2 failed, 34 deselected**. The burst case raises RecursionError;
+the retirement case emits a retransmission before a subsequent covering ACK can
+retire it. On the fixed sender, the original focused command above produces
+**49 passed**. The burst drains exactly 65536 bytes with each lost segment sent
+exactly twice and each remaining segment once. Continued simulation through
+five seconds produces no additional attempt and leaves no timer or outstanding
+range. Further tests check a pending range trimmed by an interior ACK and a
+pending attempt superseded by timeout. `git diff --check` passes.
+
+Compared with the reviewed candidate, this repair adds nine code-bearing lines,
+four explanatory lines and one blank line to production. The table above records
+the complete resulting source totals against the accepted pre-phase revision.

@@ -99,6 +99,7 @@ def test_third_duplicate_retransmits_once_and_partial_recovery_retransmits_next(
     assert [p.packet_id for p in capture.packets] == [0, 512, 1024, 1536, 0]
     assert sender.congestion_control.C.delivered == 0
     sender.put(ack(512))
+    env.run(until=0.02)
     assert capture.packets[-1].packet_id == 512
     assert not any(c[0] == "dupack_over" for c in sender.congestion_control.calls)
     sender.put(ack(2048))
@@ -312,3 +313,79 @@ def test_subbyte_window_waits_and_deadline_ends_the_process():
     assert capture.packets == []
     assert sender.next_seq == 0
     assert not sender.action.is_alive
+
+
+def test_synchronous_burst_loss_recovery_drains_without_recursive_ack_stack():
+    from collections import Counter
+    from ns.flow.bbr import BBR
+
+    env = simpy.Environment()
+    flow = Flow(7, "src", "dst", size=65536, finish_time=1)
+    sender = BBRPacketGenerator(
+        env, flow, BBR(mss=128, cwnd=65536), debug=False,
+    )
+    receiver = TCPSink(env, debug=False)
+    receiver.out = sender
+    attempts = Counter()
+
+    class LoseFirstBurst:
+        def put(self, packet):
+            attempts[packet.packet_id] += 1
+            if packet.packet_id < 65152 and attempts[packet.packet_id] == 1:
+                return
+            receiver.put(packet)
+
+    sender.out = LoseFirstBurst()
+    env.run(until=2)
+    assert sender.last_ack == sender.next_seq == receiver.next_seq_expected == 65536
+    assert sender.packet_in_flight == 0
+    assert sender.congestion_control.C.delivered == 65536
+    assert sender.timer is None
+    assert sender.segment_state == sender.sent_packets == {}
+    assert attempts == Counter({seq: 2 if seq < 65152 else 1
+                                for seq in range(0, 65536, 128)})
+    completed_attempts = attempts.copy()
+    env.run(until=5)
+    assert attempts == completed_attempts
+
+
+def test_ack_can_retire_a_deferred_recovery_attempt_before_forwarding():
+    env, sender, capture = sender_for(size=2048)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(512))
+    sender.put(ack(2048))
+    env.run(until=0.02)
+    assert [packet.packet_id for packet in capture.packets] == [0, 512, 1024, 1536, 0]
+    assert sender.timer is None
+    assert sender.segment_state == {}
+
+
+def test_partial_ack_replaces_pending_recovery_with_only_its_remaining_suffix():
+    env, sender, capture = sender_for(size=2048)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(512))
+    sender.put(ack(600))
+    env.run(until=0.02)
+    assert [(packet.packet_id, packet.size) for packet in capture.packets[-2:]] == [
+        (0, 512), (600, 424),
+    ]
+    assert sender.segment_state[600].retransmit_count == 1
+    assert sender.congestion_control.C.lost == 512 + 424
+
+
+def test_timeout_supersedes_a_pending_partial_recovery_attempt():
+    env, sender, capture = sender_for(size=2048)
+    env.run(until=0.01)
+    for _ in range(3):
+        sender.put(ack(0))
+    sender.put(ack(512))
+    sender.timeout_callback()
+    env.run(until=0.02)
+    assert [packet.packet_id for packet in capture.packets] == [
+        0, 512, 1024, 1536, 0, 512,
+    ]
+    assert sender.segment_state[512].retransmit_count == 1
