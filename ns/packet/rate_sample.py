@@ -41,8 +41,9 @@ class RateSample:
         packet.is_app_limited = C.is_app_limited != 0
 
     def updaterate_sample(self, packet, C, current_time):
-        if packet.delivered_time == 0:
-            return  # packet already sacked
+        # Time zero is valid; None marks a sample already consumed.
+        if packet.delivered_time is None:
+            return  # packet already sampled
         C.delivered += packet.size
         C.delivered_time = current_time
         if packet.delivered >= self.prior_delivered:
@@ -55,7 +56,7 @@ class RateSample:
             self.tx_in_flight = packet.tx_in_flight
             C.first_sent_time = packet.time
 
-        packet.delivered_time = 0
+        packet.delivered_time = None
 
     def update_sample_group(self, C, minRTT=-1):
         self.rtt = minRTT
