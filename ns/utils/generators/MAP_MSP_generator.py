@@ -22,8 +22,9 @@ def _square_matrix(matrix):
 def solve_CTMC(Q):
     """Return row vector pi satisfying pi Q = 0 and sum(pi) = 1.
 
-    Q has nonnegative off-diagonal rates and zero row sums. A nonunique
-    stationary distribution needs a caller-chosen initial phase instead.
+    Q has nonnegative off-diagonal rates and zero row sums. Accepted row-sum
+    rounding is repaired in the diagonal, preserving off-diagonal rates.
+    A nonunique distribution needs a caller-chosen initial phase instead.
     """
     Q = _square_matrix(Q)
     off_diagonal = Q - np.diag(np.diag(Q))
@@ -33,22 +34,29 @@ def solve_CTMC(Q):
         or np.any(abs(Q.sum(axis=1)) > PRECISION_VALUE)
     ):
         raise ValueError("invalid CTMC rates or nonzero row sum.")
+    Q = off_diagonal - np.diag(off_diagonal.sum(axis=1))
     # Replace one redundant balance equation with the normalization equation.
     A = Q.copy()
     A[:, 0] = 1
     b = np.zeros((Q.shape[0], 1))
     b[0] = 1
     try:
-        return np.linalg.solve(A.T, b).T
+        stationary = np.linalg.solve(A.T, b).T
     except np.linalg.LinAlgError as error:
         raise ValueError("stationary distribution is not unique.") from error
+    if np.min(stationary) < -PRECISION_VALUE:
+        raise ValueError("stationary solve produced invalid probabilities.")
+    # A transient phase's zero mass can round slightly negative in the solve.
+    stationary = np.maximum(stationary, 0)
+    return stationary / stationary.sum()
 
 
 def solve_DTMC(P):
-    """Return the stationary row vector of a stochastic transition matrix."""
+    """Return stationary probabilities, normalizing accepted row-sum rounding."""
     P = _square_matrix(P)
     if np.any(P < 0) or np.any(abs(P.sum(axis=1) - 1) > PRECISION_VALUE):
         raise ValueError("invalid DTMC probabilities or row sum.")
+    P = P / P.sum(axis=1, keepdims=True)
     return solve_CTMC(P - np.eye(P.shape[0]))
 
 
@@ -95,7 +103,7 @@ def BMAP_generator(D_list, initial=None):
     """Yield MAP intervals in seconds, or BMAP [interval, batch_size] pairs.
 
     Rates in D0...DN are per second. With no initial phase, start in the
-    stationary distribution of their sum, as the existing time-origin API did.
+    stationary distribution of the sampled phase process at a time origin.
     This first interval is therefore a stationary-time residual; subsequent
     intervals start at arrivals. It is not an arrival-stationary initial sample.
     Each step waits an exponential phase holding time and selects a silent
@@ -105,8 +113,21 @@ def BMAP_generator(D_list, initial=None):
         raise ValueError("input is not a valid BMAP representation.")
     matrices = [np.asarray(matrix, dtype=float) for matrix in D_list]
     M = matrices[0].shape[0]
+    sojourn = -1 / np.diag(matrices[0])
+    silent = matrices[0] - np.diag(np.diag(matrices[0]))
+    # Columns are [silent next phases, batch-1 phases, batch-2 phases, ...].
+    probabilities = np.hstack([silent, *matrices[1:]]) * sojourn[:, None]
+    # Normalize rounding allowed by the row-balance tolerance; end exactly at 1.
+    probabilities /= probabilities.sum(axis=1, keepdims=True)
     if initial is None:
-        cumulative = np.cumsum(solve_CTMC(sum_matrix_list(matrices)))
+        # Sum silent/marked choices for each destination and multiply by the
+        # holding rate. Self-events consume time but do not change the phase;
+        # remove them before balancing the phase generator's diagonal. This
+        # matches the normalized sampler even when input rows need rounding.
+        generator = probabilities.reshape(M, -1, M).sum(axis=1) / sojourn[:, None]
+        np.fill_diagonal(generator, 0)
+        np.fill_diagonal(generator, -generator.sum(axis=1))
+        cumulative = np.cumsum(solve_CTMC(generator))
         cumulative[-1] = 1
         state = int(np.searchsorted(cumulative, rand(), side="right"))
     else:
@@ -114,12 +135,6 @@ def BMAP_generator(D_list, initial=None):
             raise ValueError("initial state must index a BMAP phase.")
         state = initial
 
-    sojourn = -1 / np.diag(matrices[0])
-    silent = matrices[0] - np.diag(np.diag(matrices[0]))
-    # Columns are [silent next phases, batch-1 phases, batch-2 phases, ...].
-    probabilities = np.hstack([silent, *matrices[1:]]) * sojourn[:, None]
-    # Normalize rounding allowed by the row-balance tolerance; end exactly at 1.
-    probabilities /= probabilities.sum(axis=1, keepdims=True)
     cumulative = np.cumsum(probabilities, axis=1)
     cumulative[:, -1] = 1
     while True:

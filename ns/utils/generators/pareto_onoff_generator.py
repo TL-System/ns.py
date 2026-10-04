@@ -81,8 +81,10 @@ def pareto_onoff_generator(
         off_duration = paretovariate_generator(off_min, off_alpha)
         # The gap includes the previous on period's unsent tail (initially zero).
         yield off_duration + tail
-        elapsed = 0
-        while elapsed + interval < on_duration:
+        # Compare positions from the integer index: repeated addition of a
+        # decimal interval can drift below the endpoint and add a packet there.
+        packet_index = 1
+        while packet_index * interval < on_duration:
             yield interval
-            elapsed += interval
-        tail = on_duration - elapsed
+            packet_index += 1
+        tail = on_duration - (packet_index - 1) * interval

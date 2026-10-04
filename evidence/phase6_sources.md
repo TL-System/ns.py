@@ -66,6 +66,17 @@ time is `-1 / D0[state,state]`; transition probabilities are rates times that
 holding-time mean. Probabilities are normalized only for the accepted row-sum
 rounding tolerance, and cumulative selection ends at exactly 1.
 
+The public CTMC solver repairs accepted row-sum rounding by balancing the
+diagonal against the unchanged off-diagonal rates. The public DTMC solver
+normalizes each accepted probability row before solving. Neither changes caller
+matrices. The stationary solve rejects materially negative probabilities;
+negative roundoff at a zero-mass phase is clipped and the result is normalized.
+The BMAP default constructs its phase CTMC from the **normalized event choices
+times the original D0 holding rates**, then removes self-events and balances
+its diagonal. Thus initialization describes the same process as the sampler.
+Simply rebalancing the raw sum of input matrices would preserve different
+off-diagonal rates when event weights needed normalization.
+
 The deterministic two-phase test silently transitions at rate 2, then emits at
 rate 4. Injected uniforms `exp(-1)` and `exp(-2)` imply waits 1/2 and 2/4,
 so the emitted interval is exactly one second. The one-state batch test has
@@ -102,7 +113,10 @@ On/off draws describe seconds, not packet counts. With 1000-byte packets at
 duration 4 emits at 4, 5, 6; the remaining 0.5 seconds of on time plus a
 3-second off period puts the next burst at 9.5. An exact one-second on period
 with 0.5-second spacing contains packets at its beginning and midpoint, with
-the endpoint excluded. Even a short on period emits its first packet at the
+the endpoint excluded. Burst positions use an integer packet index times the
+spacing, so repeated addition of decimal intervals cannot drift just below the
+endpoint and create an extra packet. No general epsilon changes the boundary.
+Even a short on period emits its first packet at the
 on-period start; this is an explicit packetization convention, not a continuous
 fluid-rate envelope. The iterator starts with an off interval. When plugged
 into Dist, Dist's own initial packet precedes that first interval as it always
@@ -149,7 +163,8 @@ Flow redraws/strict boundaries, invalid matrices/initial phases, and on-duration
 unit errors. Later ownership and clock-precision tests each failed before their
 corresponding repair. Final test files were also replayed against all five
 accepted Phase 5 modules **in memory**, without changing the shared working
-tree: **48 failed, 15 passed**. Reproduce that comparison with:
+tree: **53 failed, 16 passed** after the review regressions below. Reproduce
+that comparison with:
 
 ```sh
 uv run --locked python - <<'PY'
@@ -182,11 +197,40 @@ MPLBACKEND=Agg uv run --locked python examples/bursty_traffic_generation.py
 git diff --check
 ```
 
-Result: **85 passed**, including **63 focused source/Flow/generator cases**.
+Result: **91 passed**, including **69 focused source/Flow/generator cases**.
 Both examples passed; the bursty plot emitted only the expected headless Agg
 warning. Python is 3.14.8. Pytest emitted pre-existing cleanup warnings about
 unrelated temporary read-only model directories; no task resources were removed
 to silence them. Full-suite/smoke/build integration remains the phase gate's work.
+
+## First review repairs
+
+Review of `d1eda31` identified two P2 findings: accumulated Pareto decimal
+spacing admitted a packet at the excluded on-period endpoint, and BMAP default
+initialization used an unbalanced raw generator after accepting row rounding.
+The latter also exposed inconsistent rounding in the public stationary solvers.
+Six deterministic regressions failed before these repairs (**6 failed,
+29 passed** for the mathematical-generator suites), then all **35 passed**.
+The final 91-case command above passed, and the headless bursty example was
+rerun successfully. No accepted input tolerance was widened or discarded.
+
+The decimal-spacing case fixes both on and off durations at one second with
+1000-byte packets at 80000 bits/second. It requires ten packets at 1.0 through
+1.9, followed by a 1.1-second gap to the next burst at 3.0. The one-phase
+rounded MAP has `D0=[[-1]]`, `D1=[[1.000001]]`: validation and default
+initialization agree, with the original one-second mean holding time retained.
+
+The three-phase rounding example has a transient phase 0, rates `1e-4` from
+phase 1 to 2 and `1e-4` from phase 2 to 1, with the last raw diagonal
+`-0.95e-4`. CTMC diagonal repair gives stationary probabilities `(0,.5,.5)`.
+Adding self-arrival rates `(1,2,3)` to form a MAP changes the sampled phase-2
+move rate to `1e-4 * 3.000095 / 3.0001`, because normalized event choices keep
+their original holding clock. Its stationary phase-1 probability is therefore
+about `0.499999583`. Default initial draws `0.49` and `0.4999998` must select
+phases 1 and 2, respectively; the second detects an incorrect fix that merely
+balances the raw generator. Tests also check nonnegative stationary mass and
+the chosen phase's first holding interval. A separate rounded two-state DTMC
+checks its normalized transition balance and unchanged input matrix.
 
 ## Production size and readability
 
@@ -200,11 +244,11 @@ the code-bearing category. This is a source-size proxy, not statement complexity
 | Flow | 52 / 39 / 2 / 11 | 81 / 58 / 12 / 11 |
 | Dist | 97 / 54 / 30 / 13 | 124 / 71 / 39 / 14 |
 | Trace | 75 / 61 / 1 / 13 | 93 / 71 / 9 / 13 |
-| MAP/BMAP | 131 / 76 / 29 / 26 | 135 / 88 / 29 / 18 |
-| Pareto on/off | 67 / 25 / 33 / 9 | 88 / 33 / 45 / 10 |
-| Total | 422 / 255 / 95 / 72 | 521 / 321 / 134 / 66 |
+| MAP/BMAP | 131 / 76 / 29 / 26 | 150 / 97 / 35 / 18 |
+| Pareto on/off | 67 / 25 / 33 / 9 | 90 / 33 / 47 / 10 |
+| Total | 422 / 255 / 95 / 72 | 538 / 330 / 142 / 66 |
 
-Net production growth: **66 code-bearing**, **39 explanatory**, **99 physical**
+Net production growth: **75 code-bearing**, **47 explanatory**, **116 physical**
 lines, with six fewer blank lines. The two streaming state fields represent the
 pending arrival and cumulative bytes; no parallel application object was added.
 Matrix input checks are shared by one small square-matrix helper. The sampler

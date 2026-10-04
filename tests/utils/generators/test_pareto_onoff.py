@@ -25,6 +25,15 @@ def test_packet_spacing_converts_bytes_to_bits(monkeypatch):
     assert [next(process) for _ in range(3)] == [1, 0.5, 1.5]
 
 
+def test_decimal_spacing_excludes_on_period_endpoint_without_accumulated_drift(
+    monkeypatch,
+):
+    monkeypatch.setattr(pareto, "paretovariate_generator", lambda *args: 1)
+    process = pareto.pareto_onoff_generator(on_rate=80000, pktsize=1000)
+    # On [1, 2): ten packets at 1.0 through 1.9, then next burst at 3.0.
+    assert [next(process) for _ in range(11)] == pytest.approx([1, *[0.1] * 9, 1.1])
+
+
 @pytest.mark.parametrize("parameters", [
     {"on_min": 0}, {"off_alpha": -1}, {"on_rate": 0},
     {"pktsize": -1}, {"on_alpha": float("nan")}, {"off_min": float("inf")},
