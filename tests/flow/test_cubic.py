@@ -91,6 +91,18 @@ def test_friendly_region_uses_elapsed_time_and_smoothed_rtt():
     assert cubic.epoch_start == 2
 
 
+def test_saturated_curves_still_apply_one_cubic_ack_step():
+    cubic = TCPCubic(mss=1000, cwnd=100000, ssthresh=2000)
+    cubic.ack_received(rtt=0, current_time=0)
+    cubic.set_before_control(0, 100000)
+    cubic.consecutive_dupacks_received()
+    cubic.dupack_over()
+    cubic.ack_received(rtt=0, current_time=200)
+    # Both curves reach the 2,000,000-segment ceiling: equality selects the
+    # cubic ACK step from 70 segments, rather than assigning the friendly cap.
+    assert cubic.cwnd == pytest.approx((70 + (2_000_000 - 70) / 70) * 1000)
+
+
 def test_later_loss_tracks_both_maxima_and_uses_actual_flight():
     cubic = TCPCubic(mss=1000, cwnd=30000, ssthresh=2000)
     cubic.set_before_control(1, 30000)

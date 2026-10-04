@@ -106,9 +106,9 @@ Commands:
 - `uv run --locked python scripts/smoke_examples.py`
 - `git diff --check`
 
-The first command passes **38 tests** after the shared Reno historical assertion
+The first command passes **39 tests** after the shared Reno historical assertion
 is updated to its independently tested byte-credit behavior. The CUBIC-specific
-suite contains **18 passing cases**. Its finite-flow smoke drops the first data
+suite contains **19 passing cases**. Its finite-flow smoke drops the first data
 attempt with MSS=1000, cwnd=4000, ssthresh=4000, data volume=8123, and 10 ms delay
 in each direction. It verifies one retransmission of the first 1000-byte range,
 the exact short final segment, 8123 contiguous delivered bytes, empty outstanding
@@ -124,15 +124,34 @@ nonblank lines and delimiters. Inline comments overlap code-bearing lines.
 
 | `ns/flow/cubic.py` category | Before | After | Change |
 | --- | ---: | ---: | ---: |
-| Physical | 143 | 176 | +33 |
-| Code-bearing | 93 | 119 | +26 |
-| Explanatory | 30 | 37 | +7 |
+| Physical | 143 | 179 | +36 |
+| Code-bearing | 93 | 120 | +27 |
+| Explanatory | 30 | 39 | +9 |
 | Blank | 20 | 20 | 0 |
 | Inline comments | 1 | 2 | +1 |
 
 The class directly expresses the curve, estimate, and loss/recovery transitions.
 Two booleans retain the familiar slow-start/avoidance/recovery distinction
 without a new framework; each state variable has units and purpose nearby.
-The new CUBIC test file has 198 physical lines, 156 code-bearing, 5 explanatory,
-and 37 blank; test/evidence growth is separate from production growth. Shared
+The new CUBIC test file has 210 physical lines, 164 code-bearing, 7 explanatory,
+and 39 blank; test/evidence growth is separate from production growth. Shared
 transport/base-controller growth belongs to the Reno task's evidence.
+
+## Review correction: saturated friendly estimate
+
+Fresh review of candidate `5ddbafa` found that branch selection compared a bounded
+cubic curve with an unbounded friendly estimate. Days bounds both curves before
+comparing them. With MSS=1000, initial cwnd=100000, ssthresh=2000, a true zero-RTT
+ACK at time zero, loss/recovery at time zero with flight=100000, and another
+zero-RTT ACK at time 200, both curves saturate at 2,000,000 segments. Equality
+must choose the cubic ACK step from 70 segments: the expected floating-point
+window is `(70 + (2000000-70)/70)*1000 = 28640428.57142857` bytes. The reviewed
+candidate incorrectly assigned the cap directly, producing 2,000,000,000 bytes.
+
+The new independent saturation regression failed once before the correction
+(`uv run --locked pytest -q tests/flow/test_cubic.py -k saturated`). Clamping the
+friendly estimate before region selection fixes the decision with one
+code-bearing line and two explanatory lines. The full focused command above now
+passes 39 tests; `git diff --check` also passes. The source counts include this
+correction. The previously passing smoke examples were not rerun for this isolated
+branch correction because the focused suite includes the end-to-end loss case.

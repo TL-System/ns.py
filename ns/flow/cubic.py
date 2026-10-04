@@ -104,6 +104,9 @@ class TCPCubic(LossBasedCongestionControl):
         rtt = max(self.srtt, 1e-9)
         friendly = self.beta * self.W_max
         friendly += 3 * (1 - self.beta) / (1 + self.beta) * elapsed / rtt
+        # Bound both curves before choosing a region, as Days does. If both
+        # saturate they are equal, so the signed cubic ACK step still applies.
+        friendly = min(max(friendly, 1.0), self.max_window_segments)
         if self.tcp_friendliness and self._cubic_window(elapsed) < friendly:
             window = friendly
         else:
